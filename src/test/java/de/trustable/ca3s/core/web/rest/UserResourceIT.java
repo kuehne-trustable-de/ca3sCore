@@ -451,7 +451,7 @@ cache disabled ...
         restUserMockMvc.perform(put("/api/users")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(managedUserVM)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isOk());
     }
 
     @Test

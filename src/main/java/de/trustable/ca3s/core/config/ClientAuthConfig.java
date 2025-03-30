@@ -24,6 +24,10 @@ public class ClientAuthConfig {
     String tlsClientAuthHost;
 
 
+    public boolean isTlsClientAuthActive() {
+        return tlsClientAuthPort != 0;
+    }
+
     public String getClientAuthTarget(){
 
         String host = tlsClientAuthHost;

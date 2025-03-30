@@ -1,62 +1,64 @@
 package de.trustable.ca3s.core.service.util;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.*;
-import java.util.regex.Pattern;
-
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.exception.KeyApplicableException;
+import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.ARARestriction;
 import de.trustable.ca3s.core.service.dto.NamedValues;
-import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.dto.TypedValue;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import de.trustable.ca3s.core.domain.enumeration.PipelineType;
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CertificateProcessingUtil {
 
 	private final Logger LOG = LoggerFactory.getLogger(CertificateProcessingUtil.class);
 
+	private final CryptoUtil cryptoUtil;
+    private final CSRUtil csrUtil;
+	private final CSRRepository csrRepository;
+    private final CsrAttributeRepository csrAttRepository;
+    private final CertificateRepository certificateRepository;
+	private final BPMNUtil bpmnUtil;
+	private final PipelineUtil pvUtil;
+    private final AuditService auditService;
 
-	@Autowired
-	private CryptoUtil cryptoUtil;
-
-    @Autowired
-    private CSRUtil csrUtil;
-
-	@Autowired
-	private CSRRepository csrRepository;
-
-    @Autowired
-    private CsrAttributeRepository csrAttRepository;
-
-    @Autowired
-    private CertificateRepository certificateRepository;
-
-	@Autowired
-	private BPMNUtil bpmnUtil;
-
-	@Autowired
-	private PipelineUtil pvUtil;
-
-    @Autowired
-    private AuditService auditService;
+    public CertificateProcessingUtil(CryptoUtil cryptoUtil,
+                                     CSRUtil csrUtil,
+                                     CSRRepository csrRepository,
+                                     CsrAttributeRepository csrAttRepository,
+                                     CertificateRepository certificateRepository,
+                                     BPMNUtil bpmnUtil,
+                                     PipelineUtil pvUtil,
+                                     AuditService auditService) {
+        this.cryptoUtil = cryptoUtil;
+        this.csrUtil = csrUtil;
+        this.csrRepository = csrRepository;
+        this.csrAttRepository = csrAttRepository;
+        this.certificateRepository = certificateRepository;
+        this.bpmnUtil = bpmnUtil;
+        this.pvUtil = pvUtil;
+        this.auditService = auditService;
+    }
 
 
-	/**
+    /**
 	 *
 	 * @param csrAsPem				certificate signing request in PEM format
 	 * @param requestorName			requestorName
@@ -141,8 +143,8 @@ public class CertificateProcessingUtil {
             if( araArr != null) {
                 for( ARARestriction restriction : restrictionArr) {
                     Optional<NamedValues> optionalNamedValues = findNVSByName(araArr, restriction.getName());
-                    NamedValues nvs = optionalNamedValues.get();
                     if(optionalNamedValues.isPresent()){
+                        NamedValues nvs = optionalNamedValues.get();
                         for (TypedValue typedValue : nvs.getValues()) {
                             if( typedValue.getValue() != null || !typedValue.getValue().isEmpty()) {
                                 CsrAttribute csrAttr = new CsrAttribute();

@@ -54,44 +54,33 @@ export default class TenantUpdate extends Vue {
   }
 
   public save(): void {
+    const self = this;
     this.isSaving = true;
     if (this.tenant.id) {
       this.tenantService()
         .update(this.tenant)
         .then(param => {
-          this.isSaving = false;
-          this.$router.push('/admin/tenant');
-          const message = this.$t('ca3SApp.tenant.updated', { param: param.id });
-          return (this.$root as any).$bvToast.toast(message.toString(), {
-            toaster: 'b-toaster-top-center',
-            title: 'Info',
-            variant: 'info',
-            solid: true,
-            autoHideDelay: 5000,
-          });
+          self.isSaving = false;
+          self.$router.push('/admin/tenant');
+          const message = self.$t('ca3SApp.tenant.updated', { param: param.id });
+          self.alertService().showAlert(message, 'info');
         })
         .catch(error => {
-          this.isSaving = false;
-          this.alertService().showAlert(error.response);
+          self.isSaving = false;
+          self.alertService().showAlert(error.response);
         });
     } else {
       this.tenantService()
         .create(this.tenant)
         .then(param => {
-          this.isSaving = false;
-          this.$router.push('/admin/tenant');
-          const message = this.$t('ca3SApp.tenant.created', { param: param.id });
-          (this.$root as any).$bvToast.toast(message.toString(), {
-            toaster: 'b-toaster-top-center',
-            title: 'Success',
-            variant: 'success',
-            solid: true,
-            autoHideDelay: 5000,
-          });
+          self.isSaving = false;
+          self.$router.push('/admin/tenant');
+          const message = self.$t('ca3SApp.tenant.created', { param: param.id });
+          self.alertService().showAlert(message, 'info');
         })
         .catch(error => {
-          this.isSaving = false;
-          this.alertService().showAlert(error.response);
+          self.isSaving = false;
+          self.alertService().showAlert(error.response);
         });
     }
   }

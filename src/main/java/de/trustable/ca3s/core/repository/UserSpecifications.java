@@ -24,7 +24,7 @@ public final class UserSpecifications {
     static final String SORT = "sort";
     static final String ORDER = "order";
 
-    static final String DEFAULT_FILTER = "id,login,firstName,lastName,email,activated,langKey,blockedUntilDate,credentialsValidToDate,managedExternally,authorities";
+    static final String DEFAULT_FILTER = "id,login,firstName,lastName,email,phone,activated,secondFactorRequired,langKey,blockedUntilDate,credentialsValidToDate,managedExternally,authorities";
 
     private UserSpecifications() {
     }
@@ -333,8 +333,12 @@ public final class UserSpecifications {
                 user.setLastName(objArr[i] == null ? "" : objArr[i].toString());
             } else if ("email".equalsIgnoreCase(attribute)) {
                 user.setEmail(objArr[i] == null ? "" : objArr[i].toString());
+            } else if ("phone".equalsIgnoreCase(attribute)) {
+                user.setPhone(objArr[i] == null ? "" : objArr[i].toString());
             } else if ("activated".equalsIgnoreCase(attribute)) {
                 user.setActivated((Boolean) objArr[i]);
+            } else if ("secondFactorRequired".equalsIgnoreCase(attribute)) {
+                user.setSecondFactorRequired((Boolean) objArr[i]);
             } else if ("langKey".equalsIgnoreCase(attribute)) {
                 user.setLangKey(objArr[i] == null ? "" : objArr[i].toString());
             } else if ("createdDate".equalsIgnoreCase(attribute)) {
@@ -475,6 +479,10 @@ public final class UserSpecifications {
             addNewColumn(selectionList, root.get(User_.email));
             pred = SpecificationsHelper.buildPredicateString(attributeSelector, cb, root.get(User_.email), attributeValue);
 
+        } else if ("phone".equals(attribute)) {
+            addNewColumn(selectionList, root.get(User_.phone));
+            pred = SpecificationsHelper.buildPredicateString(attributeSelector, cb, root.get(User_.phone), attributeValue);
+
         } else if ("langKey".equals(attribute)) {
             addNewColumn(selectionList, root.get(User_.langKey));
             pred = SpecificationsHelper.buildPredicateString(attributeSelector, cb, root.get(User_.langKey), attributeValue);
@@ -483,6 +491,9 @@ public final class UserSpecifications {
             addNewColumn(selectionList, root.get(User_.activated));
             pred = SpecificationsHelper.buildBooleanPredicate(attributeSelector, cb, root.get(User_.activated), attributeValue);
 
+        } else if ("secondFactorRequired".equalsIgnoreCase(attribute)) {
+            addNewColumn(selectionList, root.get(User_.secondFactorRequired));
+            pred = SpecificationsHelper.buildBooleanPredicate(attributeSelector, cb, root.get(User_.secondFactorRequired), attributeValue);
         } else if ("failedLogins".equals(attribute)) {
             addNewColumn(selectionList, root.get(User_.failedLogins));
             pred = SpecificationsHelper.buildPredicateLong(attributeSelector, cb, root.get(User_.failedLogins), attributeValue);

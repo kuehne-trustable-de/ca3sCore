@@ -28,8 +28,10 @@
                     <option value="CERTIFICATE_CREATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION')" selected="selected"></option>
                     <option value="CERTIFICATE_NOTIFY" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_NOTIFY')" selected="selected"></option>
                     <option value="CERTIFICATE_REVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION')" selected="selected"></option>
-                    <!--option value="ACME_ACCOUNT_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.ACME_ACCOUNT_AUTHORIZATION')" ></option>
-                    <option value="BATCH" v-text="$t('ca3SApp.bPNMProcessInfo.type.TIMED')" >TIMED</option-->
+                    <option value="SEND_SMS" v-text="$t('ca3SApp.bPNMProcessInfo.type.SEND_SMS')" selected="selected"></option>
+                    <option value="ACME_ACCOUNT_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.ACME_ACCOUNT_AUTHORIZATION')" ></option>
+
+                    <!--option value="BATCH" v-text="$t('ca3SApp.bPNMProcessInfo.type.TIMED')" >TIMED</option-->
                 </select>
             </div>
 

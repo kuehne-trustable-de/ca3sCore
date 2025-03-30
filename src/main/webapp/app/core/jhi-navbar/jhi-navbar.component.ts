@@ -23,6 +23,7 @@ export default class JhiNavbar extends Vue {
   public showNavBar = true;
   public instantLogin = true;
   public ssoProvider: any = [];
+  public uiConfig: IUIConfigView = {};
 
   public mounted(): void {
     window.document.cookie = 'instantLogin';
@@ -56,11 +57,13 @@ export default class JhiNavbar extends Vue {
       responseType: 'stream',
     }).then(function (response) {
       window.console.info('ui/config returns ' + response.data);
-      const uiConfig: IUIConfigView = response.data;
-      self.$store.commit('updateCV', uiConfig);
+      self.uiConfig = response.data;
+      self.$store.commit('updateCV', self.uiConfig);
+      self.ssoProvider = self.uiConfig.ssoProvider;
 
-      self.ssoProvider = uiConfig.ssoProvider;
-
+      if (self.uiConfig.appName) {
+        document.title = self.uiConfig.appName;
+      }
       window.console.info('self.authenticated: ' + self.authenticated + ', self.instantLogin ' + self.instantLogin);
 
       if (!self.authenticated) {
@@ -210,7 +213,7 @@ export default class JhiNavbar extends Vue {
     let target = '/saml/login';
     const samlEntityBaseUrl: string = this.$store.state.uiConfigStore.config.samlEntityBaseUrl;
 
-    if(samlEntityBaseUrl &&  samlEntityBaseUrl.trim().length > 0 ){
+    if (samlEntityBaseUrl && samlEntityBaseUrl.trim().length > 0) {
       target = samlEntityBaseUrl.trim() + '/saml/login';
     }
     window.console.info('forwarding to SAML authentication url ' + target);

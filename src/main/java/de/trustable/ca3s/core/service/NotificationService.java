@@ -18,6 +18,8 @@ import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -692,7 +694,11 @@ public class NotificationService {
 
         Locale locale = Locale.forLanguageTag(requestor.getLangKey());
         Context context = new Context(locale);
+
         context.setVariable("certId", cert.getId());
+        context.setVariable("certSKI",
+            URLEncoder.encode(certificateUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI),
+            StandardCharsets.UTF_8));
         context.setVariable("subject", cert.getSubject());
         context.setVariable("sans", cert.getSans());
 
@@ -711,12 +717,16 @@ public class NotificationService {
         context.setVariable("filenamePem", downloadFilename + ".pem");
         context.setVariable("filenameFullChainPem", downloadFilename + ".full.pem");
 
-        mailService.sendEmailFromTemplate(context, requestor, additionalEmailSet.toArray(new String[0]), "mail/acceptedRequestEmail", "email.acceptedRequest.title");
+        mailService.sendEmailFromTemplate(context,
+            requestor,
+            additionalEmailSet.toArray(new String[0]),
+            "mail/acceptedRequestEmail",
+            "email.acceptedRequest.title");
     }
 
 
     @Transactional
-    public void notifyUserCertificateRejected(User requestor, CSR csr ) throws MessagingException {
+    public void notifyUserCertificateRejected(User requestor, CSR csr, Set<String> additionalEmailSet ) throws MessagingException {
 
         if( !doNotifyUserCertificateRejected){
             LOG.info("notifyUserCertificateRejected deactivated");
@@ -726,13 +736,16 @@ public class NotificationService {
         Locale locale = Locale.forLanguageTag(requestor.getLangKey());
         Context context = new Context(locale);
         context.setVariable("csr", csr);
-        mailService.sendEmailFromTemplate(context, requestor, null, "mail/rejectedRequestEmail", "email.request.rejection.title");
+        mailService.sendEmailFromTemplate(context, requestor,
+            additionalEmailSet.toArray(new String[0]),
+            "mail/rejectedRequestEmail",
+            "email.request.rejection.title");
     }
 
 
 
     @Transactional
-    public void notifyCertificateRevoked(User requestor, Certificate cert, CSR csr ) throws MessagingException {
+    public void notifyCertificateRevoked(User requestor, Certificate cert, CSR csr, Set<String> additionalEmailSet ) throws MessagingException {
 
         if( !doNotifyCertificateRevoked){
             LOG.info("notifyCertificateRevoked deactivated");
@@ -748,7 +761,9 @@ public class NotificationService {
             subject = "";
         }
         String[] args = {subject, cert.getSerial(), cert.getIssuer()};
-        mailService.sendEmailFromTemplate(context, requestor, null, "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
+        mailService.sendEmailFromTemplate(context, requestor,
+            additionalEmailSet.toArray(new String[0]),
+            "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
     }
 
 

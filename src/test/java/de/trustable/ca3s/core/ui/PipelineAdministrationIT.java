@@ -8,7 +8,7 @@ import de.trustable.ca3s.core.service.dto.TypedValue;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.ca3s.core.web.rest.data.CreationMode;
-import de.trustable.ca3s.core.web.rest.data.PkcsXXData;
+import de.trustable.ca3s.core.service.dto.PkcsXXData;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
 import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
 import de.trustable.util.JCAManager;

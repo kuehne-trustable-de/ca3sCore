@@ -57,8 +57,10 @@ public class UserMapper {
             user.setFirstName(userDTO.getFirstName());
             user.setLastName(userDTO.getLastName());
             user.setEmail(userDTO.getEmail());
+            user.setPhone(userDTO.getPhone());
             user.setImageUrl(userDTO.getImageUrl());
             user.setActivated(userDTO.isActivated());
+            user.setSecondFactorRequired(userDTO.isSecondFactorRequired());
             user.setLangKey(userDTO.getLangKey());
             Set<Authority> authorities = this.authoritiesFromStrings(userDTO.getAuthorities());
             user.setAuthorities(authorities);
@@ -76,8 +78,10 @@ public class UserMapper {
             user.setFirstName(userDTO.getFirstName());
             user.setLastName(userDTO.getLastName());
             user.setEmail(userDTO.getEmail());
+            user.setPhone(userDTO.getPhone());
             user.setImageUrl(userDTO.getImageUrl());
             user.setActivated(userDTO.isActivated());
+            user.setSecondFactorRequired(userDTO.isSecondFactorRequired());
             user.setLangKey(userDTO.getLangKey());
             Set<Authority> authorities = this.authoritiesFromStrings(userDTO.getAuthorities());
             user.setAuthorities(authorities);

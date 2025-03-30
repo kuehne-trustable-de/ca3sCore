@@ -36,8 +36,13 @@ public class UserDTO {
     @Size(min = 5, max = 254)
     private String email;
 
+    @Size(min = 0, max = 254)
+    private String phone;
+
     @Size(max = 256)
     private String imageUrl;
+
+    private boolean secondFactorRequired = false;
 
     private boolean activated = false;
 
@@ -91,6 +96,8 @@ public class UserDTO {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
+        this.phone = user.getPhone();
+        this.secondFactorRequired = user.isSecondFactorRequired();
         this.activated = user.getActivated();
         this.imageUrl = user.getImageUrl();
         this.langKey = user.getLangKey();
@@ -150,12 +157,28 @@ public class UserDTO {
         this.email = email;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public boolean isSecondFactorRequired() {
+        return secondFactorRequired;
+    }
+
+    public void setSecondFactorRequired(boolean secondFactorRequired) {
+        this.secondFactorRequired = secondFactorRequired;
     }
 
     public boolean isActivated() {
@@ -278,8 +301,10 @@ public class UserDTO {
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
+            ", phone='" + phone + '\'' +
             ", imageUrl='" + imageUrl + '\'' +
             ", activated=" + activated +
+            ", secondFactorRequired=" + secondFactorRequired +
             ", langKey='" + langKey + '\'' +
             ", createdBy='" + createdBy + '\'' +
             ", createdDate=" + createdDate +

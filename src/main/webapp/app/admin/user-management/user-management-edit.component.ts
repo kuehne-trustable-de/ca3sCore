@@ -34,6 +34,10 @@ const validations: any = {
       minLength: minLength(5),
       maxLength: maxLength(50),
     },
+    phone: {
+      minLength: minLength(0),
+      maxLength: maxLength(254),
+    },
     tenantId: {},
   },
 };
@@ -42,7 +46,7 @@ const validations: any = {
   validations,
 })
 export default class JhiUserManagementEdit extends mixins(AlertMixin) {
-  //  @Inject('alertService') private alertService: () => AlertService;
+  @Inject('alertService') private alertService: () => AlertService;
   @Inject('userService') private userManagementService: () => UserManagementService;
   @Inject('tenantService') private tenantService: () => TenantService;
 
@@ -108,18 +112,13 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin) {
 
   public save(): void {
     this.isSaving = true;
+    const self = this;
     if (this.userAccount.id) {
       this.userManagementService()
         .update(this.userAccount)
         .then(res => {
-          this.returnToList();
-          this.$root.$bvToast.toast(this.getMessageFromHeader(res).toString(), {
-            toaster: 'b-toaster-top-center',
-            title: 'Info',
-            variant: 'info',
-            solid: true,
-            autoHideDelay: 5000,
-          });
+          self.returnToList();
+          self.alertService().showAlert(self.$t('userManagement.updated', { param: self.userAccount.id }), 'info');
         })
         .catch(function (error) {
           console.log(error);
@@ -130,14 +129,8 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin) {
       this.userManagementService()
         .create(this.userAccount)
         .then(res => {
-          this.returnToList();
-          this.$root.$bvToast.toast(this.getMessageFromHeader(res).toString(), {
-            toaster: 'b-toaster-top-center',
-            title: 'Success',
-            variant: 'success',
-            solid: true,
-            autoHideDelay: 5000,
-          });
+          self.returnToList();
+          self.alertService().showAlert(self.$t('userManagement.created', { param: res.id }), 'info');
         })
         .catch(function (error) {
           console.log(error);
@@ -149,10 +142,6 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin) {
 
   private returnToList(): void {
     this.isSaving = false;
-    (<any>this).$router.go(-1);
-  }
-
-  private getMessageFromHeader(res: any): any {
-    return this.$t(res.headers['x-ca3sapp-alert'], { param: decodeURIComponent(res.headers['x-ca3sapp-params'].replace(/\+/g, ' ')) });
+    this.$router.push('/admin/user-list');
   }
 }

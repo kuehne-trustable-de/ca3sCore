@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.security.GeneralSecurityException;
 
+import de.trustable.ca3s.core.service.dto.X509CertificateHolderShallow;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

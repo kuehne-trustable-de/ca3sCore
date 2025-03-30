@@ -17,13 +17,40 @@ import java.io.InputStream;
 
       public static void main(String[] args) throws Exception {
 
-        /*
-         test.play();
-        test = new SoundOutput("Change to the directory where the key should be created. Consult the product " +
-            "documentation of your application for the appropriate directory. Fill out the required fields in the " +
-            "ca3s web form (subject, organization, SAN, ...)", "de" );
-        test.play();
 
+        SoundOutput test = new SoundOutput(new String[]{"P6mt1FQ-BTh7GgI6ttepSGJsxeNa9M8E8HrntEdwHtU="});
+
+        test.play(
+
+              "This is a normal speech pattern." +
+                  "    &lt;prosody pitch='high' rate='fast' volume='+20%'&gt;" +
+                  "        I'm speaking with a higher pitch, faster than usual, and louder!" +
+                  "    &lt;/prosody&gt;" +
+                  "    Back to normal speech pattern.", "en");
+
+              /*
+              "This is a normal speech pattern." +
+              "    &lt;prosody pitch='high' rate='fast' volume='+20%'&gt;" +
+              "        I'm speaking with a higher pitch, faster than usual, and louder!" +
+              "    &lt;/prosody&gt;" +
+              "    Back to normal speech pattern.", "en");
+
+
+                    test.play("This is a normal speech pattern.\n" +
+              "    &lt;prosody pitch=\"high\" rate=\"fast\" volume=\"+20%\"&gt;\n" +
+              "        I'm speaking with a higher pitch, faster than usual, and louder!\n" +
+              "    &lt;/prosody&gt;\n" +
+              "    Back to normal speech pattern.", "en");
+
+           */
+          /*
+                    test.play("Change to the directory where the key should be created. Consult the product " +
+            "documentation of your application for the appropriate directory. Fill out the required fields in the " +
+            "ca3s web form (subject, organization, SAN, ...)", "en" );
+
+
+           */
+       /*
         test = new SoundOutput( );
         test.play("Unabhängig von der Schlüssellänge wählen Sie 'Zertifikat anfordern' aus der Menüleiste aus. 2", "de");
 

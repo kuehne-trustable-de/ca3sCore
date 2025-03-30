@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import de.trustable.ca3s.core.config.ClientAuthConfig;
 import de.trustable.ca3s.core.config.PreferenceDefaults;
 import de.trustable.ca3s.core.service.dto.Preferences;
 import org.slf4j.Logger;
@@ -32,14 +33,21 @@ public class PreferenceUtil {
     public static final String SERVER_SIDE_KEY_DELETE_AFTER_USES = "ServerSideKeyDeleteAfterUses";
     public static final String SELECTED_HASHES = "SelectedHashes";
     public static final String SELECTED_SIGNING_ALGOS = "SelectedSigningAlgos";
+    public static final String AUTH_CLIENT_CERT = "AuthClientCert";
+    public static final String AUTH_TOTP = "AuthTotp";
+    public static final String AUTH_EMAIL = "AuthEmail";
+    public static final String AUTH_SMS = "AuthSms";
 
     private final UserPreferenceService userPreferenceService;
 
     private final PreferenceDefaults preferenceDefaults;
 
-    public PreferenceUtil(UserPreferenceService userPreferenceService, PreferenceDefaults preferenceDefaults) {
+    private final ClientAuthConfig clientAuthConfig;
+
+    public PreferenceUtil(UserPreferenceService userPreferenceService, PreferenceDefaults preferenceDefaults, ClientAuthConfig clientAuthConfig) {
         this.userPreferenceService = userPreferenceService;
         this.preferenceDefaults = preferenceDefaults;
+        this.clientAuthConfig = clientAuthConfig;
     }
 
 
@@ -85,6 +93,25 @@ public class PreferenceUtil {
     	}
     	return "5544";
     }
+    public boolean isAuthClientCert() {
+        Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(AUTH_CLIENT_CERT, SYSTEM_PREFERENCE_ID);
+        return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
+    }
+
+    public boolean isAuthOtp() {
+        Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(AUTH_TOTP, SYSTEM_PREFERENCE_ID);
+        return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
+    }
+
+    public boolean isAuthEmail() {
+        Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(AUTH_EMAIL, SYSTEM_PREFERENCE_ID);
+        return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
+    }
+
+    public boolean isAuthSms() {
+        Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(AUTH_SMS, SYSTEM_PREFERENCE_ID);
+        return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
+    }
 
 
     public Preferences getSystemPrefs() {
@@ -93,6 +120,9 @@ public class PreferenceUtil {
 
     public Preferences getPrefs(Long userId) {
         Preferences prefs = new Preferences();
+
+        prefs.setAuthClientCertEnabled(clientAuthConfig.isTlsClientAuthActive());
+        prefs.setSmsEnabled(false);
 
         prefs.setAvailableHashes(preferenceDefaults.getAvailableHashes());
         prefs.setAvailableSigningAlgos(preferenceDefaults.getAvailableSigningAlgos());
@@ -107,62 +137,71 @@ public class PreferenceUtil {
 
         for(UserPreference up: upList) {
             String name = up.getName();
-            if( PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED.equals(name)) {
+            if (PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED.equals(name)) {
                 prefs.setServerSideKeyCreationAllowed(Boolean.parseBoolean(up.getContent()));
 
-            } else if( PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_DAYS.equals(name)) {
+            } else if (PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_DAYS.equals(name)) {
                 prefs.setDeleteKeyAfterDays(Integer.parseInt(up.getContent()));
-            } else if( PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_USES.equals(name)) {
+            } else if (PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_USES.equals(name)) {
                 prefs.setDeleteKeyAfterUses(Integer.parseInt(up.getContent()));
-            } else if( PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS.equals(name)) {
+            } else if (PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS.equals(name)) {
                 String[] portArr = up.getContent().split(LIST_DELIMITER);
                 ArrayList<Integer> portList = new ArrayList<>();
-                for( String port: portArr){
-                    if( "0".equals(port)){
+                for (String port : portArr) {
+                    if ("0".equals(port)) {
                         continue;
                     }
                     try {
                         portList.add(Integer.parseInt(port));
-                    } catch(NumberFormatException nfe){
+                    } catch (NumberFormatException nfe) {
                         log.info("unexpected value for ACME_HTTP01_CALLBACK_PORT '{}'", port);
                     }
                 }
                 int[] portIntArr = new int[portList.size()];
-                for( int i =0; i < portList.size(); i++){
+                for (int i = 0; i < portList.size(); i++) {
                     portIntArr[i] = portList.get(i);
                 }
                 prefs.setAcmeHTTP01CallbackPortArr(portIntArr);
-            } else if( PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC.equals(name)) {
+            } else if (PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC.equals(name)) {
                 try {
                     prefs.setAcmeHTTP01TimeoutMilliSec(Long.parseLong(up.getContent()));
-                } catch(NumberFormatException nfe) {
+                } catch (NumberFormatException nfe) {
                     log.warn("unexpected Preference value for ACME_HTTP01_TIMEOUT_MILLI_SEC '{}'", nfe.getMessage());
                     prefs.setAcmeHTTP01TimeoutMilliSec(2000);
                 }
-            } else if( PreferenceUtil.NOTIFY_RA_ON_REQUEST.equals(name)) {
+            } else if (PreferenceUtil.NOTIFY_RA_ON_REQUEST.equals(name)) {
                 prefs.setNotifyRAOnRequest(Boolean.parseBoolean(up.getContent()));
-            } else if( PreferenceUtil.CHECK_CRL.equals(name)) {
+            } else if (PreferenceUtil.CHECK_CRL.equals(name)) {
                 prefs.setCheckCRL(Boolean.parseBoolean(up.getContent()));
-            } else if( PreferenceUtil.MAX_NEXT_UPDATE_PERIOD_CRL_SEC.equals(name)) {
-                prefs.setMaxNextUpdatePeriodCRLHour((Long.parseLong(up.getContent()) + 1800L) / 3600L) ;
-            } else if( PreferenceUtil.SELECTED_HASHES.equals(name)) {
+            } else if (PreferenceUtil.MAX_NEXT_UPDATE_PERIOD_CRL_SEC.equals(name)) {
+                prefs.setMaxNextUpdatePeriodCRLHour((Long.parseLong(up.getContent()) + 1800L) / 3600L);
+            } else if (PreferenceUtil.SELECTED_HASHES.equals(name)) {
                 String[] valArr = up.getContent().split(LIST_DELIMITER);
-                if( valArr.length == 0 ){
+                if (valArr.length == 0) {
                     log.error("Configuration problem: No valid hash algorithm defined");
                     continue;
-                }else if( valArr.length > 10 ){
+                } else if (valArr.length > 10) {
                     log.warn("Configuration problem: Too many hash algorithms ({}) defined", valArr.length);
                 }
                 prefs.setSelectedHashes(valArr);
-            } else if( PreferenceUtil.SELECTED_SIGNING_ALGOS.equals(name)) {
+            } else if (PreferenceUtil.SELECTED_SIGNING_ALGOS.equals(name)) {
                 String[] valArr = up.getContent().split(LIST_DELIMITER);
-                if( valArr.length == 0 ){
+                if (valArr.length == 0) {
                     log.error("Configuration problem: No valid signing algorithm defined");
                     continue;
-                }else if( valArr.length > 32 ){
+                } else if (valArr.length > 32) {
                     log.warn("Configuration problem: Too many signing algorithms ({}) defined", valArr.length);
                 }
                 prefs.setSelectedSigningAlgos(valArr);
+            } else if (PreferenceUtil.AUTH_CLIENT_CERT.equals(name)) {
+                prefs.setAuthClientCert(Boolean.parseBoolean(up.getContent()));
+            } else if (PreferenceUtil.AUTH_TOTP.equals(name)) {
+                prefs.setAuthTotp(Boolean.parseBoolean(up.getContent()));
+            } else if (PreferenceUtil.AUTH_EMAIL.equals(name)) {
+                prefs.setAuthEmail(Boolean.parseBoolean(up.getContent()));
+            } else if (PreferenceUtil.AUTH_SMS.equals(name)) {
+                prefs.setSms(Boolean.parseBoolean(up.getContent()));
+
             }
         }
         return prefs;

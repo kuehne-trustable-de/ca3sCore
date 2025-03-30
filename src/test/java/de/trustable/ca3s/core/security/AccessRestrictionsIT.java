@@ -71,10 +71,10 @@ public class AccessRestrictionsIT {
         knownAnonymousResources.add("get /api/activate");
         knownAnonymousResources.add("get /publicapi/clientAuth");
         knownAnonymousResources.add("post /publicapi/clientAuth");
+        knownAnonymousResources.add("get /publicapi/requestsByMonth");
 
         knownUserResources.add("put /api/users");
         knownUserResources.add("post /api/users");
-        knownUserResources.add("post /api/clientKeystore");
         knownUserResources.add("put /api/user-preferences");
         knownUserResources.add("post /api/user-preferences");
         knownUserResources.add("put /api/preference/{userId}");
@@ -126,6 +126,8 @@ public class AccessRestrictionsIT {
                 }
             }
         }
+
+        Assert.assertTrue( acceptedAnonymousList.contains("/publicapi/certPKIX/ski/{ski}/{filename}"));
 
         acceptedAnonymousList.removeAll(knownAnonymousResources);
         acceptedUserAuthenticatedList.removeAll(knownAnonymousResources);

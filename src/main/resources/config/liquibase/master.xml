@@ -158,6 +158,9 @@
 
     <include file="config/liquibase/changelog/20240606180000_added_column_failed_logins.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20250224180000_added_entity_BPMNProcessAttribute.xml" relativeToChangelogFile="false"/>
+
     <!--include file="config/liquibase/changelog/20240026103000_added_column_CAConnectorConfig.xml" relativeToChangelogFile="false"/-->
 
+    <include file="config/liquibase/changelog/20250312190000_added_columns_User.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

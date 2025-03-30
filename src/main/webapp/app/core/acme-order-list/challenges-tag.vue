@@ -12,6 +12,7 @@
                     <td>{{ row.type }}</td>
                     <td>{{ row.value }}</td>
                     <td>{{ toLocalDate(row.validated) }}</td>
+                    <td>{{ row.lastError }}</td>
                 </tr>
             </template>
 

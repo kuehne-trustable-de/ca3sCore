@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.security.cert.X509Certificate;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 

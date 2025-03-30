@@ -185,7 +185,7 @@ public class NotificationSupport {
             User requestor = optUser.get();
 
             CSR csr = csrRepository.getOne(Long.parseLong(csrId));
-            notificationService.notifyUserCertificateRejected(requestor, csr);
+            notificationService.notifyUserCertificateRejected(requestor, csr, Collections.emptySet());
         }
     }
 
@@ -201,7 +201,7 @@ public class NotificationSupport {
         if (optUser.isPresent()) {
             User requestor = optUser.get();
             Certificate cert = certificateRepository.getOne(Long.parseLong(certId));
-            notificationService.notifyCertificateRevoked(requestor, cert, cert.getCsr());
+            notificationService.notifyCertificateRevoked(requestor, cert, cert.getCsr(), Collections.emptySet());
         }
     }
 

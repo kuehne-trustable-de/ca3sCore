@@ -246,6 +246,13 @@ camunda:
       enabled: true
 
 ca3s:
+  app:
+    name: ca3sDev
+
+  internalCa:
+    rootValidityDays: 3600
+    intermediateValidityDays: 3000
+
   bpmn:
     # create a process instance per default
     use-default-process: false
@@ -333,7 +340,7 @@ ca3s:
 
     requestor:
       notification:
-        days: 30,14,7
+        days: 30,14,7,6,5,4,3,2,1,0
         attributes: adcs manager
         user-only: false
 

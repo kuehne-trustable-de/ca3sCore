@@ -1,37 +1,34 @@
 package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.config.Constants;
-import de.trustable.ca3s.core.domain.Authority;
-import de.trustable.ca3s.core.domain.ProtectedContent;
-import de.trustable.ca3s.core.domain.Tenant;
-import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
+import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 
+import de.trustable.ca3s.core.service.exception.InvalidCredentialException;
+import de.trustable.ca3s.core.service.exception.InvalidPasswordException;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.PasswordUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.data.domain.Pageable;
 import tech.jhipster.security.RandomUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -53,15 +50,24 @@ public class UserService {
     private final TenantRepository tenantRepository;
     private final CacheManager cacheManager;
     private final PasswordUtil passwordUtil;
+    private final CertificateUtil certificateUtil;
+    private final SMSService smsService;
+
     final private EntityManager entityManager;
     private final int activationKeyValidity;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       ProtectedContentUtil protectedContentUtil, AuthorityRepository authorityRepository,
-                       TenantRepository tenantRepository, CacheManager cacheManager,
+                       ProtectedContentUtil protectedContentUtil,
+                       AuthorityRepository authorityRepository,
+                       TenantRepository tenantRepository,
+                       CacheManager cacheManager,
                        @Value("${ca3s.ui.password.check.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String passwordCheckRegExp,
-                       EntityManager entityManager, @Value("${ca3s.ui.password.activation.keyValidity:7}") int activationKeyValidity) {
+                       CertificateUtil certificateUtil,
+                       SMSService smsService,
+                       EntityManager entityManager,
+                       @Value("${ca3s.ui.password.activation.keyValidity:7}") int activationKeyValidity) {
+
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.protectedContentUtil = protectedContentUtil;
@@ -70,6 +76,8 @@ public class UserService {
         this.cacheManager = cacheManager;
 
         this.passwordUtil = new PasswordUtil(passwordCheckRegExp);
+        this.certificateUtil = certificateUtil;
+        this.smsService = smsService;
         this.entityManager = entityManager;
         this.activationKeyValidity = activationKeyValidity;
     }
@@ -144,10 +152,14 @@ public class UserService {
         if (userDTO.getEmail() != null) {
             newUser.setEmail(userDTO.getEmail().toLowerCase());
         }
+        if (userDTO.getPhone() != null) {
+            newUser.setPhone(userDTO.getPhone().toLowerCase());
+        }
         newUser.setImageUrl(userDTO.getImageUrl());
         newUser.setLangKey(userDTO.getLangKey());
         // new user is not active
         newUser.setActivated(false);
+        newUser.setSecondFactorRequired(false);
 
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
@@ -194,6 +206,9 @@ public class UserService {
         if (userDTO.getEmail() != null) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
+        if (userDTO.getPhone() != null) {
+            user.setPhone(userDTO.getPhone().toLowerCase());
+        }
         user.setImageUrl(userDTO.getImageUrl());
         if (userDTO.getLangKey() == null) {
             user.setLangKey(Constants.DEFAULT_LANGUAGE); // default language
@@ -205,6 +220,7 @@ public class UserService {
         user.setResetKey(RandomUtil.generateResetKey());
         user.setResetDate(Instant.now());
         user.setActivated(true);
+        user.setSecondFactorRequired(false);
         if (userDTO.getAuthorities() != null) {
             Set<Authority> authorities = userDTO.getAuthorities().stream()
                 .map(authorityRepository::findById)
@@ -228,19 +244,25 @@ public class UserService {
      * @param firstName first name of user.
      * @param lastName  last name of user.
      * @param email     email id of user.
+     * @param phone     phone number of user.
+     * @param secondFactorRequired  required to use a second authentication factor.
      * @param langKey   language key.
      * @param imageUrl  image URL of user.
      * @param tenantId
      */
-    public void updateUser(String firstName, String lastName, String email, String langKey, String imageUrl, Long tenantId) {
+    public void updateUser(String firstName, String lastName, String email, String phone, boolean secondFactorRequired, String langKey, String imageUrl, Long tenantId) {
         SecurityUtils.getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
             .ifPresent(user -> {
                 user.setFirstName(firstName);
                 user.setLastName(lastName);
                 if (email != null) {
-	                user.setEmail(email.toLowerCase());
+                    user.setEmail(email.toLowerCase());
                 }
+                if (phone != null) {
+                    user.setPhone(phone.toLowerCase());
+                }
+                user.setSecondFactorRequired(secondFactorRequired);
                 user.setLangKey(langKey);
                 user.setImageUrl(imageUrl);
                 updateTenant(user, tenantId);
@@ -269,8 +291,13 @@ public class UserService {
                 if (userDTO.getEmail() != null) {
                     user.setEmail(userDTO.getEmail().toLowerCase());
                 }
+                if (userDTO.getPhone() != null) {
+                    user.setPhone(userDTO.getPhone().toLowerCase());
+                }
                 user.setImageUrl(userDTO.getImageUrl());
                 user.setActivated(userDTO.isActivated());
+                user.setSecondFactorRequired(userDTO.isSecondFactorRequired());
+
                 user.setLangKey(userDTO.getLangKey());
 
                 updateTenant(user, userDTO);
@@ -315,6 +342,73 @@ public class UserService {
         });
     }
 
+    public void changePassword( final PasswordChangeDTO passwordChangeDto){
+        SecurityUtils.getCurrentUserLogin()
+            .flatMap(userRepository::findOneByLogin)
+            .ifPresent(user -> {
+
+                String currentEncryptedPassword = user.getPassword();
+                if (!passwordEncoder.matches(passwordChangeDto.getCurrentPassword(), currentEncryptedPassword)) {
+                    throw new InvalidPasswordException();
+                }
+
+                switch( passwordChangeDto.getCredentialUpdateType()){
+                    case PASSWORD:
+                        String encryptedPassword = passwordEncoder.encode(passwordChangeDto.getNewPassword());
+                        user.setPassword(encryptedPassword);
+                        break;
+
+                    case SMS:
+                        if( smsService.verifySMS(user, passwordChangeDto.getOtpTestValue())) {
+                            protectedContentUtil.createProtectedContent(user.getPhone(),
+                                ProtectedContentType.SECRET,
+                                ContentRelationType.SMS_PHONE,
+                                user.getId());
+                        }else{
+                            throw new InvalidCredentialException("SMS does not verify");
+                        }
+                        break;
+
+                    case TOTP:
+                        // verify given TOTP
+                        if( TotpService.verifyOTP(passwordChangeDto.getSeed(),
+                            passwordChangeDto.getOtpTestValue())) {
+
+                            protectedContentUtil.createProtectedContent(passwordChangeDto.getSeed(),
+                                ProtectedContentType.SECRET,
+                                ContentRelationType.OTP_SECRET,
+                                user.getId());
+                        }else{
+                            throw new InvalidCredentialException("TOTP does not verify");
+                        }
+                        break;
+
+                    case CLIENT_CERT:
+                        Optional<Certificate> optCert =
+                            certificateUtil.findCertificateById(passwordChangeDto.getClientAuthCertId());
+
+                        if( optCert.isPresent()) {
+                            certificateUtil.setCertAttribute(optCert.get(),
+                                CertificateAttribute.ATTRIBUTE_USER_CLIENT_CERT,
+                                user.getId().toString(), false);
+                            log.debug("new user certificate assigned cert id : {}", passwordChangeDto.getClientAuthCertId());
+                        }else{
+                            log.warn("found no user certificate with cert id : {}", passwordChangeDto.getClientAuthCertId());
+                        }
+                        break;
+
+                    default:
+                        log.warn("unexpected CredentialUpdateType: {}", passwordChangeDto.getCredentialUpdateType());
+                        break;
+                }
+
+                this.clearUserCaches(user);
+                log.debug("Changed password for User: {}", user);
+            }
+        );
+    }
+
+/*
     public void changePassword(String currentClearTextPassword, String newPassword) {
         SecurityUtils.getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
@@ -329,6 +423,7 @@ public class UserService {
                 log.debug("Changed password for User: {}", user);
             });
     }
+*/
 
     @Transactional(readOnly = true)
     public Page<UserDTO> getAllManagedUsers(Pageable pageable) {

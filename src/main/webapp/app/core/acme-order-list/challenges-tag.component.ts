@@ -14,7 +14,7 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('challenges-tab
   tableType
     .setFilterHandler((source, filter, columns) => ({
       // See https://documenter.getpostman.com/view/2025350/RWaEzAiG#json-field-masking
-      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(',')
+      filter: columns.map(col => colFieldToStr(col.field!).replace(/\./g, '/')).join(','),
     }))
 
     .setSortHandler((endpointDesc, sortColumn, sortDir) => ({
@@ -23,9 +23,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('challenges-tab
       ...(sortColumn && sortDir
         ? {
             order: sortDir,
-            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/')
+            sort: colFieldToStr(sortColumn.field!).replace(/\./g, '/'),
           }
-        : {})
+        : {}),
     }))
 
     .setPaginateHandler((endpointDesc, perPage, pageIndex) => ({
@@ -34,9 +34,9 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('challenges-tab
       ...(perPage !== null
         ? {
             limit: perPage || 20,
-            offset: (pageIndex - 1) * perPage || 0
+            offset: (pageIndex - 1) * perPage || 0,
           }
-        : {})
+        : {}),
     }))
 
     // Alias our process steps, because the source, here, is our API url, and paged is the complete query string
@@ -48,14 +48,14 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('challenges-tab
         // Data to display
         data,
         // Get the total number of matched items
-        headers: { 'x-total-count': totalCount }
+        headers: { 'x-total-count': totalCount },
       } = await axios.get(url);
 
       window.console.info('challenge data : ' + totalCount + ' -> ' + data);
 
       return {
         rows: data,
-        totalRowCount: data.numberOfElements
+        totalRowCount: data.numberOfElements,
       } as ITableContentParam<IAcmeChallengeView>;
     })
 
@@ -65,19 +65,19 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('challenges-tab
         sorting: {
           sortAsc: '<img src="../../../content/images/caret-up-solid.png" alt="asc">',
           sortDesc: '<img src="../../../content/images/caret-down-solid.png" alt="desc">',
-          sortNone: ''
-        }
+          sortNone: '',
+        },
       },
       pager: {
         classes: {
           pager: 'pagination text-center',
-          selected: 'active'
+          selected: 'active',
         },
         icons: {
           next: '<img src="../../../content/images/chevron-right-solid.png" alt=">">',
-          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">'
-        }
-      }
+          previous: '<img src="../../../content/images/chevron-left-solid.png" alt="<">',
+        },
+      },
     })
 );
 
@@ -134,7 +134,8 @@ export default class ChallengesTag extends mixins(AlertMixin, Vue) {
         //        { label: this.$t('challenges.authorizationValue'), field: 'authorizationValue' },
         { label: this.$t('ca3SApp.acmeChallenge.type'), field: 'type' },
         { label: this.$t('ca3SApp.acmeChallenge.target'), field: 'value' },
-        { label: this.$t('ca3SApp.acmeChallenge.updatedOn'), field: 'validated' }
+        { label: this.$t('ca3SApp.acmeChallenge.updatedOn'), field: 'validated' },
+        { label: this.$t('ca3SApp.acmeChallenge.lastError'), field: 'lastError' },
       ] as TColumnsDefinition<IAcmeChallengeView>,
 
       get challengesApiUrl() {
@@ -143,7 +144,7 @@ export default class ChallengesTag extends mixins(AlertMixin, Vue) {
       },
       page: 1,
       filter: '',
-      contentAccessUrl: ''
+      contentAccessUrl: '',
     };
   }
 
@@ -170,7 +171,7 @@ export default class ChallengesTag extends mixins(AlertMixin, Vue) {
       return this.$t(template, {
         attribute: this.unescapeComma(contentParts[0]),
         oldVal: this.unescapeComma(contentParts[1]),
-        newVal: this.unescapeComma(contentParts[2])
+        newVal: this.unescapeComma(contentParts[2]),
       });
     }
   }

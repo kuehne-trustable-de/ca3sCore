@@ -6,6 +6,7 @@ import de.trustable.ca3s.core.domain.User;
 import java.time.Instant;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.Column;
 import javax.validation.constraints.*;
 
 /**
@@ -29,9 +30,13 @@ public class AdminUserDTO {
     @Email
     @Size(min = 5, max = 254)
     private String email;
+    @Size(min = 1, max = 254)
+    private String phone;
 
     @Size(max = 256)
     private String imageUrl;
+
+    private boolean secondFactorRequired = false;
 
     private boolean activated = false;
 
@@ -58,7 +63,9 @@ public class AdminUserDTO {
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.email = user.getEmail();
+        this.phone = user.getPhone();
         this.activated = user.isActivated();
+        this.secondFactorRequired = user.isSecondFactorRequired();
         this.imageUrl = user.getImageUrl();
         this.langKey = user.getLangKey();
         this.createdBy = user.getCreatedBy();
@@ -108,12 +115,28 @@ public class AdminUserDTO {
         this.email = email;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public boolean isSecondFactorRequired() {
+        return secondFactorRequired;
+    }
+
+    public void setSecondFactorRequired(boolean secondFactorRequired) {
+        this.secondFactorRequired = secondFactorRequired;
     }
 
     public boolean isActivated() {
@@ -180,8 +203,10 @@ public class AdminUserDTO {
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
+            ", phone='" + phone + '\'' +
             ", imageUrl='" + imageUrl + '\'' +
             ", activated=" + activated +
+            ", secondFactorRequired=" + secondFactorRequired +
             ", langKey='" + langKey + '\'' +
             ", createdBy=" + createdBy +
             ", createdDate=" + createdDate +

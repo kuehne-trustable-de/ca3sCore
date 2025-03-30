@@ -88,7 +88,6 @@
                                     <label class="form-control-label" v-text="$t('pkcsxx.upload.' + rr.name)" :for="'pkcsxx.upload.' + rr.name"></label>
                                 </div>
                                 <div class="col colContent">
-                                    <!--Fragment v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex"-->
 
                                     <div v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex">
                                         <select v-if="rr.name === 'SAN'"
@@ -119,7 +118,6 @@
                                                class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': rr.regEx})"></small>
                                     </div>
 
-                                    <!--/Fragment-->
                                 </div>
                             </div>
 

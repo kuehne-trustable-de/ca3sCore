@@ -5,7 +5,9 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
+import de.trustable.ca3s.core.service.dto.ARAContentType;
 import de.trustable.util.AlgorithmInfo;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
@@ -31,6 +33,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import static de.trustable.ca3s.core.service.util.PipelineUtil.ADDITIONAL_EMAIL_RECIPIENTS;
 
 @Service
 public class CSRUtil {
@@ -422,6 +426,26 @@ public class CSRUtil {
         }
     }
 
+    /*
+    byte[] der = Files.readAllBytes(Paths.get(args[0])); // for example
+    // assuming all BouncyCastle classes imported as needed and
+    // given a CSR in der, to get the SAN extension as an object
+    // (minimal error handling, you may want to improve)
+    Attribute[] attrs = new PKCS10CertificationRequest(der).getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest);
+    if( attrs.length != 1 ) throw new Exception("bad");
+    ASN1Encodable[] valus = attrs[0].getAttributeValues();
+    if( valus.length != 1 ) throw new Exception("bad");
+    Extension extn = Extensions.getInstance(valus[0]).getExtension(Extension.subjectAlternativeName);
+    if( extn == null ) throw new Exception("missing");
+    // to get the _value_ of the extension, now extn.getExtnValus().getOctets()
+    // to _use_ the _value_ of the extension, parse as GeneralNames:
+    GeneralNames sanv = GeneralNames.getInstance(extn.getExtnValue().getOctets());
+    for( GeneralName item : sanv.getNames() ){ // example of possible usage
+        System.out.println (item.toString()); // you probably want something else
+    }
+
+     */
+
 
     public static void retrieveSANFromCSRAttribute(Set<GeneralName> sanSet, Attribute attrExtension ){
 
@@ -720,5 +744,31 @@ public class CSRUtil {
 
 		csrAttRepository.save(cAtt);
 	}
+
+    public Set<String> getAdditionalEmailRecipients(CSR csr) {
+        Set<String> additionalEmailSet = new HashSet<>();
+        if (csr.getPipeline() != null) {
+            Pipeline pipeline = csr.getPipeline();
+            String emails = pipelineUtil.getPipelineAttribute(
+                pipeline,
+                ADDITIONAL_EMAIL_RECIPIENTS,
+                "");
+            NotificationService.addSplittedEMailAddress(additionalEmailSet, emails);
+
+            List<String> nameList = pipelineUtil.getTypedARAttributeNames(pipeline, ARAContentType.EMAIL_ADDRESS);
+
+            for (String attributeName : nameList) {
+                String email = getCSRAttribute(
+                    csr,
+                    CsrAttribute.ARA_PREFIX + attributeName);
+
+                if (email != null) {
+                    LOG.debug("Email ara attribute {} has value '{}' added", attributeName, email);
+                    additionalEmailSet.add(email);
+                }
+            }
+        }
+        return additionalEmailSet;
+    }
 
 }

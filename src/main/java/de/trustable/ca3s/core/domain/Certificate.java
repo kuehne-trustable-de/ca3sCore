@@ -197,6 +197,17 @@ import javax.validation.constraints.*;
         query = "SELECT c  FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
             " att1.name = '" +CertificateAttribute.ATTRIBUTE_REQUESTED_BY+"' and att1.value = :requestor"
     ),
+    @NamedQuery(name = "Certificate.findActiveBySKI",
+        query = "SELECT c  FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+            " att1.name = '" +CertificateAttribute.ATTRIBUTE_SKI+"' and "+
+            " att1.value = :ski and " +
+            "c.active = TRUE "
+    ),
+    @NamedQuery(name = "Certificate.findBySKI",
+    query = "SELECT c  FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+        " att1.name = '" +CertificateAttribute.ATTRIBUTE_SKI+"' and "+
+        " att1.value = :ski"
+    ),
 
 })
 public class Certificate implements Serializable {
@@ -810,6 +821,10 @@ public class Certificate implements Serializable {
     }
 
     public Certificate getIssuingCertificate() {
+
+        if( isSelfsigned()){
+            return null;
+        }
         return this.issuingCertificate;
     }
 

@@ -12,16 +12,17 @@
         <p th:text="#{email.request.accepted.text1(${subject}, ${requestedOn})}">
             Your certificate request has been accepted. You may download the certificate in your favorite format using the URL below:
         </p>
+
         <p>
-            <a th:with="url=(@{|${baseUrl}/publicapi/certPKIX/${certId}/${filenameCrt}|})" th:href="${url}"
+            <a th:with="url=(@{|${baseUrl}/publicapi/certPKIX/${certId}/ski/${certSKI}/${filenameCrt}|})" th:href="${url}"
             th:text="#{email.request.certificate.download.crt}">Certificate download (DER encoded)</a>
         </p>
         <p>
-            <a th:with="url=(@{|${baseUrl}/publicapi/certPEM/${certId}/${filenamePem}|})" th:href="${url}"
+            <a th:with="url=(@{|${baseUrl}/publicapi/certPEM/${certId}/ski/${certSKI}/${filenamePem}|})" th:href="${url}"
                th:text="#{email.request.certificate.download.pem}">Certificate download (PEM encoded))</a>
         </p>
         <p>
-            <a th:with="url=(@{|${baseUrl}/publicapi/certPEMFull/${certId}/${filenameFullChainPem}|})" th:href="${url}"
+            <a th:with="url=(@{|${baseUrl}/publicapi/certPEMFull/${certId}/ski/${certSKI}/${filenameFullChainPem}|})" th:href="${url}"
                th:text="#{email.request.certificate.download.fullchain}">Certificate download (PEM with chain))</a>
         </p>
         <p th:if="${isServersideKeyGeneration}">

@@ -52,7 +52,7 @@ public class AcmeOrderUtil {
         }
         acmeOrderView.setCreatedOn(acmeOrder.getCreatedOn());
         acmeOrderView.setExpires(acmeOrder.getExpires());
-        LOG.info("expires from AcmeOrder: " + acmeOrder.getExpires());
+        LOG.debug("expires from AcmeOrder: " + acmeOrder.getExpires());
 
         acmeOrderView.setNotBefore(acmeOrder.getNotBefore());
         acmeOrderView.setNotAfter(acmeOrder.getNotAfter());
@@ -119,6 +119,7 @@ public class AcmeOrderUtil {
         acmeChallengeView.setType(acmeChallenge.getType());
         acmeChallengeView.setValue(acmeChallenge.getValue());
         acmeChallengeView.setValidated(acmeChallenge.getValidated());
+        acmeChallengeView.setLastError(acmeChallenge.getLastError());
         return acmeChallengeView;
     }
 

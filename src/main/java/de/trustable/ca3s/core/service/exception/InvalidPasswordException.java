@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.service;
+package de.trustable.ca3s.core.service.exception;
 
 public class InvalidPasswordException extends RuntimeException {
 

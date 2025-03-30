@@ -174,10 +174,13 @@ public class UserUtil {
         }
     }
 
-    public void handleSuccesfulAuthentication(String username) {
+    public void handleSuccesfulAuthentication(final String username) {
+        handleSuccesfulAuthentication(getUserByLogin(username));
+    }
+
+    public void handleSuccesfulAuthentication(final User user) {
         String clientIP = getClientIP();
 
-        User user = getUserByLogin(username);
         user.setFailedLogins(0L);
         user.setLastloginDate(Instant.now());
         user.setBlockedUntilDate(null);

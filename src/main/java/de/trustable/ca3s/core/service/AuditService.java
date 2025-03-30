@@ -75,6 +75,9 @@ public class AuditService {
     public static final String AUDIT_EMAIL_SEND_NOTIFICATION_SENT = "EMAIL_SEND_NOTIFICATION_SENT";
     public static final String AUDIT_EMAIL_SEND_NOTIFICATION_FAILED = "EMAIL_SEND_NOTIFICATION_FAILED";
 
+    public static final String AUDIT_PREFERENCE_CREATED = "PREFERENCE_CREATED";
+    public static final String AUDIT_PREFERENCE_UPDATED = "PREFERENCE_UPDATED";
+
     public static final String AUDIT_PIPELINE_CREATED = "PIPELINE_CREATED";
     public static final String AUDIT_PIPELINE_COPIED = "PIPELINE_COPIED";
     public static final String AUDIT_PIPELINE_DELETED = "PIPELINE_DELETED";
@@ -116,15 +119,18 @@ public class AuditService {
     public static final String AUDIT_CA_CONNECTOR_MULTIPLE_MESSAGES_CHANGED = "AUDIT_CA_CONNECTOR_MULTIPLE_MESSAGES_CHANGED";
     public static final String AUDIT_CA_CONNECTOR_IMPLICIT_CONFIRM_CHANGED = "AUDIT_CA_CONNECTOR_IMPLICIT_CONFIRM_CHANGED";
     public static final String AUDIT_CA_CONNECTOR_MSG_CONTENT_TYPE_CHANGED = "AUDIT_CA_CONNECTOR_MSG_CONTENT_TYPE_CHANGED";
+    public static final String AUDIT_BPMN_CREATED = "AUDIT_BPMN_CREATED";
     public static final String AUDIT_BPMN_NAME_CHANGED = "AUDIT_BPMN_NAME_CHANGED";
     public static final String AUDIT_BPMN_TYPE_CHANGED = "AUDIT_BPMN_TYPE_CHANGED";
+    public static final String AUDIT_BPMN_AUTHOR_CHANGED = "AUDIT_BPMN_AUTHOR_CHANGED";
+    public static final String AUDIT_BPMN_VERSION_CHANGED = "AUDIT_BPMN_VERSION_CHANGED";
     public static final String AUDIT_BPMN_PROCESS_ID_CHANGED = "AUDIT_BPMN_PROCESS_ID_CHANGED";
     public static final String AUDIT_CA_CONNECTOR_SNI_CHANGED = "AUDIT_CA_CONNECTOR_SNI_CHANGED";
     public static final String AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED = "AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED";
     public static final String  AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED = "AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED";
     public static final String AUDIT_CERTIFICATE_ADMINISTRATION_FAILED = "AUDIT_CERTIFICATE_ADMINISTRATION_FAILED";
     public static final String AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED = "AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED";
-    private static final String AUDIT_BPMN_ATTRIBUTE_CHANGED = "AUDIT_BPMN_ATTRIBUTE_CHANGED";
+    public static final String AUDIT_BPMN_ATTRIBUTE_CHANGED = "AUDIT_BPMN_ATTRIBUTE_CHANGED";
     private static final String AUDIT_USER_LOGIN_SUCEEDED = "AUDIT_USER_LOGIN_SUCEEDED";
     private static final String AUDIT_USER_LOGIN_FAILED = "AUDIT_USER_LOGIN_FAILED";
     private static final String AUDIT_USER_LOGIN_BLOCKED = "AUDIT_USER_LOGIN_BLOCKED";
@@ -382,6 +388,46 @@ public class AuditService {
             null );
     }
 
+    public AuditTrace createAuditTraceSystemPreferenceCreated(final String name, final String value) {
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_PREFERENCE_CREATED,
+            name,
+            null,
+            value,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+
+    }
+
+    public AuditTrace createAuditTraceSystemPreferenceUpdated(final String name,
+                                                              final String oldValue,
+                                                              final String newValue) {
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_PREFERENCE_CREATED,
+            name,
+            oldValue,
+            newValue,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+
+    }
+
     public AuditTrace createAuditTraceCAConfigCreated(final CAConnectorConfig caConnectorConfig){
 
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
@@ -454,11 +500,27 @@ public class AuditService {
             null);
     }
 
-    public AuditTrace createAuditTraceBPMNProcessInfo(String attributeName, String oldVal, String newVal, BPMNProcessInfo bpmnProcessInfo) {
+    public AuditTrace createAuditTraceBPMNProcessInfo(String template, String oldVal, String newVal, BPMNProcessInfo bpmnProcessInfo) {
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
-            AUDIT_BPMN_ATTRIBUTE_CHANGED,
+            template,
             null,
+            oldVal, newVal,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+    public AuditTrace createAuditTraceBPMNProcessInfo(String template, String attributeName, String oldVal, String newVal, BPMNProcessInfo bpmnProcessInfo) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            template,
+            attributeName,
             oldVal, newVal,
             null,
             null,

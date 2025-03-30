@@ -290,7 +290,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
 
   public isPrivateKeyAvailable() {
-    return this.certificateView.serversideKeyValidTo && this.certificateView.serversideKeyLeftUsages != 0;
+    return this.certificateView.serversideKeyValidTo && this.certificateView.serversideKeyLeftUsages > 0;
   }
 
   public isValuesChanged() {

@@ -9,7 +9,7 @@ import JhiDataUtils from '@/shared/data/data-utils.service';
 import BPMNProcessInfoService from './bpmn-process-info.service';
 
 @Component({
-  mixins: [Vue2Filters.mixin]
+  mixins: [Vue2Filters.mixin],
 })
 export default class BPMNProcessInfo extends mixins(JhiDataUtils) {
   @Inject('bPMNProcessInfoService') private bPMNProcessInfoService: () => BPMNProcessInfoService;
@@ -55,20 +55,16 @@ export default class BPMNProcessInfo extends mixins(JhiDataUtils) {
   }
 
   public removeBPMNProcessInfo(): void {
+    const self = this;
+
     this.bPMNProcessInfoService()
       .delete(this.removeId)
       .then(() => {
-        const message = this.$t('tmpGenApp.bPMNProcessInfo.deleted', { param: this.removeId });
-        this.$bvToast.toast(message.toString(), {
-          toaster: 'b-toaster-top-center',
-          title: 'Info',
-          variant: 'danger',
-          solid: true,
-          autoHideDelay: 5000
-        });
-        this.removeId = null;
-        this.retrieveAllBPMNProcessInfos();
-        this.closeDialog();
+        const message = self.$t('tmpGenApp.bPMNProcessInfo.deleted', { param: self.removeId });
+        self.alertService().showAlert(message, 'info');
+        self.removeId = null;
+        self.retrieveAllBPMNProcessInfos();
+        self.closeDialog();
       });
   }
 

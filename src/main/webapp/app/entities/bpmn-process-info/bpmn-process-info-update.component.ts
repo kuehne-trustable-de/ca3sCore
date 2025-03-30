@@ -15,34 +15,34 @@ import parse from 'date-fns/parse';
 const validations: any = {
   bPMNProcessInfo: {
     name: {
-      required
+      required,
     },
     version: {
-      required
+      required,
     },
     type: {
-      required
+      required,
     },
     author: {
-      required
+      required,
     },
     lastChange: {
-      required
+      required,
     },
     signatureBase64: {
-      required
+      required,
     },
     bpmnHashBase64: {
-      required
+      required,
     },
     bpmnContent: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class BPMNProcessInfoUpdate extends mixins(JhiDataUtils) {
   @Inject('bPMNProcessInfoService') private bPMNProcessInfoService: () => BPMNProcessInfoService;
@@ -69,36 +69,25 @@ export default class BPMNProcessInfoUpdate extends mixins(JhiDataUtils) {
   }
 
   public save(): void {
+    const self = this;
     this.isSaving = true;
     if (this.bPMNProcessInfo.id) {
       this.bPMNProcessInfoService()
         .update(this.bPMNProcessInfo)
         .then(param => {
-          this.isSaving = false;
-          this.$router.go(-1);
-          const message = this.$t('tmpGenApp.bPMNProcessInfo.updated', { param: param.id });
-          return this.$root.$bvToast.toast(message.toString(), {
-            toaster: 'b-toaster-top-center',
-            title: 'Info',
-            variant: 'info',
-            solid: true,
-            autoHideDelay: 5000
-          });
+          self.isSaving = false;
+          self.$router.go(-1);
+          const message = self.$t('tmpGenApp.bPMNProcessInfo.updated', { param: param.id });
+          self.alertService().showAlert(message, 'info');
         });
     } else {
       this.bPMNProcessInfoService()
         .create(this.bPMNProcessInfo)
         .then(param => {
-          this.isSaving = false;
-          this.$router.go(-1);
-          const message = this.$t('tmpGenApp.bPMNProcessInfo.created', { param: param.id });
-          this.$root.$bvToast.toast(message.toString(), {
-            toaster: 'b-toaster-top-center',
-            title: 'Success',
-            variant: 'success',
-            solid: true,
-            autoHideDelay: 5000
-          });
+          self.isSaving = false;
+          self.$router.go(-1);
+          const message = self.$t('tmpGenApp.bPMNProcessInfo.created', { param: param.id });
+          self.alertService().showAlert(message, 'info');
         });
     }
   }
@@ -136,7 +125,7 @@ export default class BPMNProcessInfoUpdate extends mixins(JhiDataUtils) {
   }
 
   public previousState(): void {
-    this.$router.go(-1);
+    this.$router.push('bpmn-list');
   }
 
   public initRelationships(): void {}

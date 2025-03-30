@@ -39,9 +39,7 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class CAConnectorConfigResource {
 
-    public static final String PLAIN_SECRET_PLACEHOLDER = "******";
-
-	private final Logger log = LoggerFactory.getLogger(CAConnectorConfigResource.class);
+    private final Logger log = LoggerFactory.getLogger(CAConnectorConfigResource.class);
 
     private static final String ENTITY_NAME = "cAConnectorConfig";
 
@@ -109,7 +107,7 @@ public class CAConnectorConfigResource {
 	        ProtectedContent protSecret = protUtil.createProtectedContent(cAConnectorConfig.getPlainSecret(), ProtectedContentType.PASSWORD, ContentRelationType.CONNECTION, -1L);
 	        protContentRepository.save(protSecret);
 	        cAConnectorConfig.setSecret(protSecret);
-	        cAConnectorConfig.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
+	        cAConnectorConfig.setPlainSecret(ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER);
         }
 
 
@@ -156,7 +154,7 @@ public class CAConnectorConfigResource {
 	        cAConnectorConfig.setSecret(null);
 	        cAConnectorConfig.setPlainSecret("");
         } else {
-        	if( PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret().trim())) {
+        	if( ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret().trim())) {
 	        	log.debug("REST request to update CAConnectorConfig : PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret())");
 
 	        	// no passphrase change received from the UI, just do nothing
@@ -179,7 +177,7 @@ public class CAConnectorConfigResource {
                 protContentRepository.save(protSecret);
 
                 cAConnectorConfig.setSecret(protSecret);
-    	        cAConnectorConfig.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
+    	        cAConnectorConfig.setPlainSecret(ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER);
         	}
         }
 

@@ -11,9 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import de.trustable.ca3s.core.domain.Certificate;
 
-import javax.persistence.NamedQuery;
-
-
 /**
  * Spring Data  repository for the Certificate entity.
  */
@@ -129,5 +126,11 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
 
     @Query(name = "Certificate.findByRequestor")
     List<Certificate> findByRequestor(@Param("requestor") String requestor);
+
+    @Query(name = "Certificate.findActiveBySKI")
+    List<Certificate> findActiveBySKI(@Param("ski") String ski);
+
+    @Query(name = "Certificate.findBySKI")
+    List<Certificate> findBySKI(@Param("ski") String ski);
 
 }

@@ -20,6 +20,10 @@ const validations: any = {
       maxLength: maxLength(254),
       //      email,
     },
+    phone: {
+      minLength: minLength(0),
+      maxLength: maxLength(254),
+    },
     password: {
       required,
       minLength: minLength(4),

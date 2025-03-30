@@ -28,16 +28,17 @@ export default class Tenant extends mixins(AlertMixin, Vue) {
   }
 
   public retrieveAllTenants(): void {
+    const self = this;
     this.isFetching = true;
     this.tenantService()
       .retrieve()
       .then(
         res => {
-          this.tenants = res.data;
-          this.isFetching = false;
+          self.tenants = res.data;
+          self.isFetching = false;
         },
         err => {
-          this.isFetching = false;
+          self.isFetching = false;
           self.alertService().showAlert(err.response, 'warn');
         }
       );
@@ -59,17 +60,11 @@ export default class Tenant extends mixins(AlertMixin, Vue) {
     this.tenantService()
       .delete(this.removeId)
       .then(() => {
-        const message = this.$t('ca3SApp.tenant.deleted', { param: this.removeId });
-        this.$bvToast.toast(message.toString(), {
-          toaster: 'b-toaster-top-center',
-          title: 'Info',
-          variant: 'danger',
-          solid: true,
-          autoHideDelay: 5000,
-        });
-        this.removeId = null;
-        this.retrieveAllTenants();
-        this.closeDialog();
+        const message = self.$t('ca3SApp.tenant.deleted', { param: self.removeId });
+        self.alertService().showAlert(message, 'info');
+        self.removeId = null;
+        self.retrieveAllTenants();
+        self.closeDialog();
       })
       .catch(error => {
         self.alertService().showAlert(error.response, 'error');

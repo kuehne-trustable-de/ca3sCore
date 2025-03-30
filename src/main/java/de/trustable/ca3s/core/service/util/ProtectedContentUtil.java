@@ -34,6 +34,7 @@ import javax.transaction.Transactional;
 @Service
 public class ProtectedContentUtil {
 
+    public static final String PLAIN_SECRET_PLACEHOLDER = "******";
     private final Logger log = LoggerFactory.getLogger(ProtectedContentUtil.class);
 
     private final BasicTextEncryptor textEncryptor;
@@ -229,14 +230,23 @@ public class ProtectedContentUtil {
 	 * @param id the object id
 	 * @return list of
 	 */
-	public List<ProtectedContent> retrieveProtectedContent(ProtectedContentType type, ContentRelationType crt, long id) {
+    public List<ProtectedContent> retrieveProtectedContent(ProtectedContentType type, ContentRelationType crt, long id) {
 
         List<ProtectedContent> pcList = protContentRepository.findByTypeRelationId(type, crt, id);
 
         Instant now = Instant.now();
         Predicate<ProtectedContent> usableItem = pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);
         return pcList.stream().filter(usableItem).collect(Collectors.toList());
-	}
+    }
+
+    public void deleteProtectedContent(ProtectedContent pc) {
+        protContentRepository.delete(pc);
+    }
+
+    public void deleteProtectedContent(ProtectedContentType type, ContentRelationType crt, long id) {
+        List<ProtectedContent> pcList = protContentRepository.findByTypeRelationId(type, crt, id);
+        protContentRepository.deleteAll(pcList);
+    }
 
     public void updateServersideKeyRetentionSettings(long csrId, Instant validTo, int usages){
 

@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-
 import java.time.Instant;
 import java.util.*;
 
@@ -68,7 +67,7 @@ public class BPMNUpDownloadController {
     @RequestMapping(value = "/bpmn/{processId}",
         method = GET,
         produces = "application/xml")
-    public ResponseEntity<InputStreamResource> getBPMN(@PathVariable final String processId) throws NotFoundException {
+    public ResponseEntity<InputStreamResource> getBPMN(@PathVariable final String processId) {
 
         LOG.info("Received bpmn download request for id {} ", processId);
 
@@ -130,6 +129,8 @@ public class BPMNUpDownloadController {
                 bpmnProcessInfo.setType(bpmnUpload.getType());
             }
 
+            LOG.debug("REST request to update BPMNProcessInfo contains #{} attributes", bpmnUpload.getBpmnProcessAttributes().length );
+
             if( bpmnUpload.getContentXML() == null || bpmnUpload.getContentXML().trim().isEmpty() ){
                 LOG.debug("Received bpmn upload request with name {} without new XML content!", bpmnUpload.getName());
             }else {
@@ -159,6 +160,11 @@ public class BPMNUpDownloadController {
                 bpmnProcessInfo.setProcessId(processDefinitionId);
                 bpmnUtil.deleteProcessDefinitions(oldProcessDefinitionId);
             }
+
+            bpmnUtil.handleAttributes(bpmnUpload.getBpmnProcessAttributes(),
+                auditList,
+                bpmnProcessInfo);
+
             bpmnProcessInfoRepository.save(bpmnProcessInfo);
             auditService.saveAuditTrace(auditList);
 
@@ -272,6 +278,69 @@ public class BPMNUpDownloadController {
 
         LOG.info("Call bpmn request for process id {}", processId);
         ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkAccountRequest(processId);
+
+        if( processInstanceWithVariables != null) {
+            BpmnCheckResult result = new BpmnCheckResult();
+            Map<String, Object> variables = processInstanceWithVariables.getVariables();
+            for(String key: variables.keySet()){
+                String value = variables.get(key).toString();
+                LOG.info("bpmn process returns variable {} with value {}", key, value);
+                result.getResponseAttributes().add(new ImmutablePair<>(key, value));
+            }
+            return new ResponseEntity(result, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * check a SMS message sending process
+     *
+     * @param processId the internal process id
+     * @param phone the target phone number
+     * @param msg the message
+     * @return the process's response
+     */
+    @RequestMapping(value = "/bpmn/check/acmeAccountAuthorization/{processId}/{mailto}",
+        method = POST)
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
+    public ResponseEntity<Map<String, String>> postBPMNAcmeAccountAuthorization(@PathVariable final String processId,
+                                                                      @PathVariable final String mailto){
+
+        LOG.info("Call bpmn request for process id {}", processId);
+        ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkAcmeAccountAuthorizationProzess(processId, mailto);
+
+        if( processInstanceWithVariables != null) {
+            BpmnCheckResult result = new BpmnCheckResult();
+            Map<String, Object> variables = processInstanceWithVariables.getVariables();
+            for(String key: variables.keySet()){
+                String value = variables.get(key).toString();
+                LOG.info("bpmn process returns variable {} with value {}", key, value);
+                result.getResponseAttributes().add(new ImmutablePair<>(key, value));
+            }
+            return new ResponseEntity(result, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * check a SMS message sending process
+     *
+     * @param processId the internal process id
+     * @param phone the target phone number
+     * @param msg the message
+     * @return the process's response
+     */
+    @RequestMapping(value = "/bpmn/check/sendSMS/{processId}/{phone}/{msg}",
+        method = POST)
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
+    public ResponseEntity<Map<String, String>> postBPMNSendSMS(@PathVariable final String processId,
+                                                                      @PathVariable final String phone,
+                                                                      @PathVariable final String msg){
+
+        LOG.info("Call bpmn request for process id {}", processId);
+        ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkSMSProcess(processId, phone, msg);
 
         if( processInstanceWithVariables != null) {
             BpmnCheckResult result = new BpmnCheckResult();

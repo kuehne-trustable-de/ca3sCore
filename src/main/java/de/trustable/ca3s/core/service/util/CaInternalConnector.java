@@ -6,6 +6,7 @@ import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -23,7 +24,7 @@ import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
@@ -43,30 +44,57 @@ public class CaInternalConnector {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CaInternalConnector.class);
 
-    @Autowired
-    CertificateRepository certRepository;
+    private final CertificateRepository certRepository;
 
-    @Autowired
-    CSRRepository csrRepository;
+    private final CSRRepository csrRepository;
 
-    @Autowired
-    CryptoUtil cryptoUtil;
+    private final CryptoUtil cryptoUtil;
 
-    @Autowired
-    CertificateUtil certUtil;
+    private final CertificateUtil certUtil;
 
-    @Autowired
-    CSRUtil csrUtil;
+    private final CSRUtil csrUtil;
 
-    @Autowired
-    KeyUtil keyUtil;
+    private final KeyUtil keyUtil;
 
-	Certificate getRoot() throws GeneralSecurityException, IOException {
+    private final int rootValidityDays;
+    private final int intermediateValidityDays;
+    private final int eeValidityDays;
 
-		List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CA3S_ROOT, "true");
+    public CaInternalConnector(CertificateRepository certRepository,
+                               CSRRepository csrRepository,
+                               CryptoUtil cryptoUtil,
+                               CertificateUtil certUtil,
+                               CSRUtil csrUtil,
+                               KeyUtil keyUtil,
+                               @Value("${ca3s.internalCa.rootValidityDays:720}") int rootValidityDays,
+                               @Value("${ca3s.internalCa.intermediateValidityDays:600}") int intermediateValidityDays,
+                               @Value("${ca3s.internalCa.eeValidityDays:360}") int eeValidityDays) {
+        this.certRepository = certRepository;
+        this.csrRepository = csrRepository;
+        this.cryptoUtil = cryptoUtil;
+        this.certUtil = certUtil;
+        this.csrUtil = csrUtil;
+        this.keyUtil = keyUtil;
+        this.rootValidityDays = rootValidityDays;
+        this.intermediateValidityDays = intermediateValidityDays;
+        this.eeValidityDays = eeValidityDays;
+
+        if( intermediateValidityDays > rootValidityDays){
+            throw new RuntimeException("configured values for intermediateValidityDays > rootValidityDays");
+        }
+        if( eeValidityDays > intermediateValidityDays){
+            throw new RuntimeException("configured values for eeValidityDays > intermediateValidityDays");
+        }
+    }
+
+    Certificate getRoot(int intermediateValidityDays) throws GeneralSecurityException, IOException {
+
+        Instant minValidity = Instant.now().plus(intermediateValidityDays, ChronoUnit.DAYS);
+
+        List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CA3S_ROOT, "true");
 
 		Certificate certRoot = getLongestValidCertificate(certList);
-		if( certRoot == null ) {
+		if( certRoot == null || certRoot.getValidTo().isBefore(minValidity)) {
 			certRoot = createNewRoot();
 		}
 
@@ -74,13 +102,14 @@ public class CaInternalConnector {
 
 	}
 
-	Certificate getIntermediate() throws GeneralSecurityException, IOException {
+	Certificate getIntermediate(int eeValidityDays) throws GeneralSecurityException, IOException {
 
+        Instant minValidity = Instant.now().plus(eeValidityDays, ChronoUnit.DAYS);
 		List<Certificate> certList = certRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CA3S_INTERMEDIATE, "true");
 
 		Certificate certIntermediate = getLongestValidCertificate(certList);
-		if( certIntermediate == null ) {
-			certIntermediate = createNewIntermediate( getRoot() );
+		if( certIntermediate == null || certIntermediate.getValidTo().isBefore(minValidity)) {
+			certIntermediate = createNewIntermediate( getRoot(intermediateValidityDays) );
 		}
 
 		return certIntermediate;
@@ -91,22 +120,28 @@ public class CaInternalConnector {
 
 		KeyPair keyPair = keyUtil.createKeyPair();
 
-		X500Name subject = new X500Name("CN=CA3S-Intermediate"
-				+ System.currentTimeMillis()
-				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutions, C=DE");
+        X500Name subject = new X500Name("CN=CA3S-Intermediate"
+            + System.currentTimeMillis()
+//            + ", OU=Internal Only"
+            + ", OU=Dev/Test Only, O=trustable solutions, C=DE");
 
-		PrivateKey privKeyRoot = certUtil.getPrivateKey(root);
-		KeyPair kpRoot = new KeyPair(CertificateUtil.convertPemToCertificate(root.getContent()).getPublicKey(), privKeyRoot);
+        PrivateKey privKeyRoot = certUtil.getPrivateKey(root);
+        KeyPair kpRoot = new KeyPair(CertificateUtil.convertPemToCertificate(root.getContent()).getPublicKey(), privKeyRoot);
 
-		X509Certificate x509Cert = cryptoUtil.issueCertificate(normalizeX500Name(new X500Name(root.getSubject())), kpRoot, normalizeX500Name(subject), keyPair.getPublic().getEncoded(), Calendar.YEAR, 1, PKILevel.INTERMEDIATE);
+        X509Certificate x509Cert = cryptoUtil.issueCertificate(
+            normalizeX500Name(new X500Name(root.getSubject())), kpRoot,
+            normalizeX500Name(subject),
+            keyPair.getPublic().getEncoded(),
+            Calendar.DATE, intermediateValidityDays,
+            PKILevel.INTERMEDIATE);
 
-		Certificate intermediateCert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
+        Certificate intermediateCert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
 
-		certUtil.storePrivateKey(intermediateCert, keyPair);
+        certUtil.storePrivateKey(intermediateCert, keyPair);
 
-		certUtil.setCertAttribute(intermediateCert, CertificateAttribute.ATTRIBUTE_CA3S_INTERMEDIATE, "true");
+        certUtil.setCertAttribute(intermediateCert, CertificateAttribute.ATTRIBUTE_CA3S_INTERMEDIATE, "true");
 
-		certRepository.save(intermediateCert);
+        certRepository.save(intermediateCert);
 
         LOG.info("############# createNewIntermediate returns cert #{}, serial {}", intermediateCert.getId(), intermediateCert.getSerial());
 
@@ -145,14 +180,15 @@ public class CaInternalConnector {
 
 		X500Name subject = new X500Name("CN=CA3S-InternalRoot"
 				+ System.currentTimeMillis()
-				+ ", OU=Internal Only, OU=Dev/Test Only, O=trustable solutions, C=DE");
+//				+ ", OU=Internal Only"
+                + ", OU=Dev/Test Only, O=trustable solutions, C=DE");
 
 		X509Certificate x509Cert = cryptoUtil.issueCertificate(
             normalizeX500Name(subject),
             keyPair,
             normalizeX500Name(subject),
             keyPair.getPublic().getEncoded(),
-            Calendar.YEAR, 1, PKILevel.ROOT);
+            Calendar.DATE, rootValidityDays, PKILevel.ROOT);
 
 		Certificate rootCert = certUtil.createCertificate(x509Cert.getEncoded(), null, "", false);
 
@@ -199,7 +235,7 @@ public class CaInternalConnector {
 
 			csr.setStatus(CsrStatus.PROCESSING);
 
-			Certificate intermediate = getIntermediate();
+			Certificate intermediate = getIntermediate(eeValidityDays);
 
 			PrivateKey privKeyIntermediate = certUtil.getPrivateKey(intermediate);
 			KeyPair kpIntermediate = new KeyPair(CertificateUtil.convertPemToCertificate(intermediate.getContent()).getPublicKey(), privKeyIntermediate);
@@ -220,7 +256,7 @@ public class CaInternalConnector {
                 kpIntermediate,
                 normalizeX500Name(p10.getSubject()),
                 p10.getSubjectPublicKeyInfo(),
-                Calendar.YEAR, 1,
+                Calendar.DATE, eeValidityDays,
                 gns,
                 null,
                 PKILevel.END_ENTITY);

@@ -6,6 +6,7 @@ public class ARARestriction {
     String contentTemplate;
     String regEx;
     String comment;
+    ARAContentType contentType;
 	boolean regExMatch = false;
 	boolean required = false;
 
@@ -62,5 +63,13 @@ public class ARARestriction {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public ARAContentType getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(ARAContentType contentType) {
+        this.contentType = contentType;
     }
 }

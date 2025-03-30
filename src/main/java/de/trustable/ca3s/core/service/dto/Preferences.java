@@ -30,6 +30,13 @@ public class Preferences implements Serializable {
     private String[] selectedHashes = {"sha-256", "sha-512"};
     private String[] selectedSigningAlgos = {"rsa-2048","rsa-3072","rsa-4096", "rsa-8192"};
 
+    private boolean authClientCert = false;
+    private boolean authTotp = false;
+    private boolean authEmail = false;
+    private boolean sms = false;
+
+    private boolean authClientCertEnabled = false;
+    private boolean smsEnabled = false;
 
     public Preferences() {}
 
@@ -127,5 +134,53 @@ public class Preferences implements Serializable {
 
     public void setNotifyRAOnRequest(boolean notifyRAOnRequest) {
         this.notifyRAOnRequest = notifyRAOnRequest;
+    }
+
+    public boolean isAuthClientCert() {
+        return authClientCert;
+    }
+
+    public void setAuthClientCert(boolean authClientCert) {
+        this.authClientCert = authClientCert;
+    }
+
+    public boolean isAuthTotp() {
+        return authTotp;
+    }
+
+    public void setAuthTotp(boolean authTotp) {
+        this.authTotp = authTotp;
+    }
+
+    public boolean isAuthEmail() {
+        return authEmail;
+    }
+
+    public void setAuthEmail(boolean authEmail) {
+        this.authEmail = authEmail;
+    }
+
+    public boolean isSms() {
+        return sms;
+    }
+
+    public void setSms(boolean sms) {
+        this.sms = sms;
+    }
+
+    public boolean isAuthClientCertEnabled() {
+        return authClientCertEnabled;
+    }
+
+    public void setAuthClientCertEnabled(boolean authClientCertEnabled) {
+        this.authClientCertEnabled = authClientCertEnabled;
+    }
+
+    public boolean isSmsEnabled() {
+        return smsEnabled;
+    }
+
+    public void setSmsEnabled(boolean smsEnabled) {
+        this.smsEnabled = smsEnabled;
     }
 }

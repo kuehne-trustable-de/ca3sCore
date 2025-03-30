@@ -34,6 +34,6 @@ public class StartupApplicationListener implements
 
         auditService.saveAuditTrace(auditService.createAuditTraceStarted());
 
-        bpmnUtil.updateProcessDefinitions();
+//        bpmnUtil.updateProcessDefinitions();
     }
 }

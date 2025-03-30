@@ -24,6 +24,10 @@ const validations = {
       minLength: minLength(5),
       maxLength: maxLength(254),
     },
+    phone: {
+      minLength: minLength(0),
+      maxLength: maxLength(254),
+    },
   },
 };
 

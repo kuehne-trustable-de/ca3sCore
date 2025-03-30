@@ -12,7 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import de.trustable.ca3s.core.IntegrationTest;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.web.rest.vm.LoginVM;
+import de.trustable.ca3s.core.web.rest.vm.LoginData;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -48,7 +48,7 @@ class UserJWTControllerIT {
 
         userRepository.saveAndFlush(user);
 
-        LoginVM login = new LoginVM();
+        LoginData login = new LoginData();
         login.setUsername("user-jwt-controller");
         login.setPassword("test");
         mockMvc
@@ -71,7 +71,7 @@ class UserJWTControllerIT {
 
         userRepository.saveAndFlush(user);
 
-        LoginVM login = new LoginVM();
+        LoginData login = new LoginData();
         login.setUsername("user-jwt-controller-remember-me");
         login.setPassword("test");
         login.setRememberMe(true);
@@ -86,7 +86,7 @@ class UserJWTControllerIT {
 
     @Test
     void testAuthorizeFails() throws Exception {
-        LoginVM login = new LoginVM();
+        LoginData login = new LoginData();
         login.setUsername("wrong-user");
         login.setPassword("wrong password");
         mockMvc

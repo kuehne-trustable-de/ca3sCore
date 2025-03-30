@@ -26,8 +26,6 @@ public class TypedValue {
         this.value = value;
     }
 
-
-
     public String getType() {
         return type;
     }

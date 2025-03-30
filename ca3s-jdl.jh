@@ -137,7 +137,7 @@ enum ProtectedContentType {
 }
 
 enum ContentRelationType {
-    CERTIFICATE, CONNECTION, CSR, CA_CONNECTOR_PW, SCEP_PW, ACTIVATION_KEY
+    CERTIFICATE, CONNECTION, CSR, CA_CONNECTOR_PW, SCEP_PW, ACTIVATION_KEY, ACCOUNT_TOKEN, OTP_SECRET, BPMN_ATTRIBUTE, SMS_PIN, SMS_ENABLED
 }
 
 @skipClient
@@ -254,8 +254,9 @@ enum BPMNProcessType {
     CERTIFICATE_REVOCATION,
     CERTIFICATE_NOTIFY,
     REQUEST_AUTHORIZATION,
-    TIMED
-}
+    ACME_ACCOUNT_AUTHORIZATION,
+    SEND_SMS,
+    TIMED}
 
 @skipClient
 entity BPMNProcessInfo{
@@ -268,6 +269,13 @@ entity BPMNProcessInfo{
     signatureBase64 TextBlob required
     bpmnHashBase64 String required
     processId String required
+}
+
+@skipClient
+entity BPMNProcessInfoAttribute {
+    name String required
+    value0 String required
+    protectedContent Boolean
 }
 
 enum ScepOrderStatus {
@@ -502,6 +510,8 @@ relationship OneToMany {
     ScepOrder{attributes} to ScepOrderAttribute{order}
 
 	AcmeAuthorization{challenges} to AcmeChallenge{AcmeAuthorization}
+
+    BPMNProcessInfo{bpmnProcessInfoAttributes} to BPMNProcessInfoAttribute{bpmnProcessInfo}
 }
 
 relationship ManyToOne {

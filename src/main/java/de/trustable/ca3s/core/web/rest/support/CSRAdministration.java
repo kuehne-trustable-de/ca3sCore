@@ -11,7 +11,6 @@ import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
@@ -37,8 +36,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import static de.trustable.ca3s.core.service.util.PipelineUtil.ADDITIONAL_EMAIL_RECIPIENTS;
 
 /**
  * REST controller for processing PKCS10 requests and Certificates.
@@ -172,12 +169,11 @@ public class CSRAdministration {
     			if(cert != null) {
 
                     Set<String> additionalEmailSet = new HashSet<>();
-                    if( (cert.getCsr() != null) && (cert.getCsr().getPipeline() != null)) {
-                        String emails = pipelineUtil.getPipelineAttribute(cert.getCsr().getPipeline(), ADDITIONAL_EMAIL_RECIPIENTS, "");
-                        NotificationService.addSplittedEMailAddress(additionalEmailSet, emails);
+                    if(cert.getCsr() != null) {
+                        additionalEmailSet = csrUtil.getAdditionalEmailRecipients(cert.getCsr());
                     }
 
-        			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
+                    Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
         			if( optUser.isPresent()) {
         				User requestor = optUser.get();
 	    		        if (requestor.getEmail() == null) {
@@ -206,13 +202,15 @@ public class CSRAdministration {
     			csrUtil.setStatusAndRejectionReason(csr, CsrStatus.REJECTED, adminData.getRejectionReason());
     			csrRepository.save(csr);
 
-    			Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
+                Set<String> additionalEmailSet = csrUtil.getAdditionalEmailRecipients(csr);
+
+                Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
     			if( optUser.isPresent()) {
     				User requestor = optUser.get();
     		        if (requestor.getEmail() == null) {
     		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
     		        }else {
-                        asyncNotificationService.notifyUserCertificateRejectedAsync(requestor, csr );
+                        asyncNotificationService.notifyUserCertificateRejectedAsync(requestor, csr, additionalEmailSet );
     		        }
     			} else {
     				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());

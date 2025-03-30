@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.web.rest.support;
 
-import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.KeyUniqueness;
@@ -9,6 +8,10 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
+import de.trustable.ca3s.core.service.dto.PKCSDataType;
+import de.trustable.ca3s.core.service.dto.Pkcs10RequestHolderShallow;
+import de.trustable.ca3s.core.service.dto.PkcsXXData;
+import de.trustable.ca3s.core.service.dto.X509CertificateHolderShallow;
 import de.trustable.ca3s.core.service.util.AlgorithmRestrictionUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;

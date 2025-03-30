@@ -225,7 +225,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         { label: this.$t('realm'), field: 'realm' },
         { label: this.$t('ca3SApp.acmeChallenge.type'), field: 'challengeTypes' },
         { label: this.$t('ca3SApp.acmeChallenge.target'), field: 'challengeUrls' },
-        { label: this.$t('expires'), field: 'expires' },
+        { label: this.$t('ca3SApp.acmeOrder.expires'), field: 'expires' },
         { label: this.$t('notBefore'), field: 'notBefore' },
         { label: this.$t('notAfter'), field: 'notAfter' },
       ] as TColumnsDefinition<IAcmeOrderView>,

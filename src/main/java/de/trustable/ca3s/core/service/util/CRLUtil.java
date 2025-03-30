@@ -53,13 +53,9 @@ import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-
-
 @Service
 public class CRLUtil {
-
 	Logger LOG = LoggerFactory.getLogger(CRLUtil.class);
-
 	@Autowired
 	private CertificateUtil certUtil;
 

@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.1.20</version>
+    <version>1.2.0</version>
 
     <packaging>jar</packaging>
 
@@ -119,12 +119,12 @@
         <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
 
         <spring.version>5.3.37</spring.version>
-        <spring.security.version>5.8.0</spring.security.version>
+        <spring.security.version>5.8.16</spring.security.version>
 
         <saml2-core.spring.version>1.0.10.RELEASE</saml2-core.spring.version>
         <open-saml.version>4.3.0</open-saml.version>
 
-        <undertow.core.version>2.3.18.Final</undertow.core.version>
+        <undertow.core.version>2.3.17.Final</undertow.core.version>
         <bucket4j.version>8.10.1</bucket4j.version>
 
         <h2.version>2.3.232</h2.version>
@@ -140,7 +140,7 @@
         <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
         <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
 
-        <maven-clean-plugin.version>3.4.1</maven-clean-plugin.version>
+        <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
         <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
         <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
         <maven-eclipse-plugin.version>2.10</maven-eclipse-plugin.version>
@@ -313,19 +313,19 @@
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>2.2.29</version>
+                <version>2.2.28</version>
             </dependency>
 
             <!-- check whether required after jhispter update ( > 7.5.1 ) -->
             <dependency>
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-transport</artifactId>
-                <version>3.4.2</version>
+                <version>3.4.1</version>
             </dependency>
             <dependency>
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-api</artifactId>
-                <version>3.4.2</version>
+                <version>3.4.1</version>
             </dependency>
 
             <dependency>
@@ -336,7 +336,7 @@
             <dependency>
                 <groupId>org.mybatis</groupId>
                 <artifactId>mybatis</artifactId>
-                <version>3.5.19</version>
+                <version>3.5.16</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
@@ -640,7 +640,7 @@
             <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>preflight</artifactId>
-                <version>2.0.33</version>
+                <version>2.0.32</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-to-slf4j -->
@@ -757,7 +757,7 @@
             <dependency>
                 <groupId>org.apache.santuario</groupId>
                 <artifactId>xmlsec</artifactId>
-                <version>2.3.5</version>
+                <version>2.3.4</version>
             </dependency>
 
         </dependencies>
@@ -1354,26 +1354,27 @@
             <version>${opencsvVersion}</version>
         </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-core -->
-        <!--dependency>
-            <groupId>org.springframework.security.kerberos</groupId>
-            <artifactId>spring-security-kerberos-core</artifactId>
-            <version>${kerberosCoreVersion}</version>
-        </dependency-->
+        <!-- https://mvnrepository.com/artifact/org.jboss.aerogear/aerogear-otp-java -->
+        <dependency>
+            <groupId>org.jboss.aerogear</groupId>
+            <artifactId>aerogear-otp-java</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-web -->
-        <!--dependency>
-            <groupId>org.springframework.security.kerberos</groupId>
-            <artifactId>spring-security-kerberos-web</artifactId>
-            <version>${kerberosWebVersion}</version>
-        </dependency-->
+        <!-- https://mvnrepository.com/artifact/com.google.zxing/core -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>core</artifactId>
+            <version>3.5.3</version>
+        </dependency>
 
-        <!-- https://mvnrepository.com/artifact/org.springframework.security.kerberos/spring-security-kerberos-client -->
-        <!--dependency>
-            <groupId>org.springframework.security.kerberos</groupId>
-            <artifactId>spring-security-kerberos-client</artifactId>
-            <version>${kerberosClientVersion}</version>
-        </dependency-->
+        <!-- https://mvnrepository.com/artifact/com.google.zxing/javase -->
+        <dependency>
+            <groupId>com.google.zxing</groupId>
+            <artifactId>javase</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+
 
         <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-ldap -->
         <dependency>
@@ -1725,24 +1726,24 @@
                         <class>de.trustable.ca3s.core.service.dto.CSRView</class>
                         <class>de.trustable.ca3s.core.service.dto.Selector</class>
                         <class>de.trustable.ca3s.core.service.dto.Preferences</class>
+                        <class>de.trustable.ca3s.core.service.dto.X509CertificateHolderShallow</class>
+                        <class>de.trustable.ca3s.core.service.dto.PkcsXXData</class>
+                        <class>de.trustable.ca3s.core.service.dto.CsrReqAttribute</class>
 
                         <class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationData</class>
                         <class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationResponse</class>
                         <class>de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData</class>
 
                         <class>de.trustable.ca3s.core.web.rest.data.UploadPrecheckData</class>
-                        <class>de.trustable.ca3s.core.web.rest.data.X509CertificateHolderShallow</class>
                         <class>de.trustable.ca3s.core.web.rest.data.CertificateFilter</class>
                         <class>de.trustable.ca3s.core.web.rest.data.CertificateOrder</class>
                         <class>de.trustable.ca3s.core.web.rest.data.CertificateFilterList</class>
 
                         <class>de.trustable.ca3s.core.web.rest.data.CertificateSelectionData</class>
-                        <class>de.trustable.ca3s.core.web.rest.data.PkcsXXData</class>
                         <class>de.trustable.ca3s.core.web.rest.data.DataCollection</class>
                         <class>de.trustable.ca3s.core.web.rest.data.DataSet</class>
                         <class>de.trustable.ca3s.core.web.rest.data.BpmnCheckResult</class>
                         <class>de.trustable.ca3s.core.web.rest.data.AcmeAccountStatusAdministration</class>
-                        <class>de.trustable.ca3s.core.web.rest.data.CsrReqAttribute</class>
 
                     </classes>
                     <addTypeNamePrefix>I</addTypeNamePrefix>

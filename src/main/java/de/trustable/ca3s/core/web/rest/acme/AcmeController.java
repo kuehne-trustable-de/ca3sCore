@@ -395,7 +395,7 @@ public class AcmeController {
                     LOG.warn("Account {} is NOT activate (status {})", acctDao.getAccountId(), acctDao.getStatus());
                 }
 
-                final ProblemDetail problem = new ProblemDetail(AcmeUtil.ACCOUNT_DEACTIVATED, title,
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, title,
                     BAD_REQUEST, "", AcmeController.NO_INSTANCE);
                 throw new AcmeProblemException(problem);
             }

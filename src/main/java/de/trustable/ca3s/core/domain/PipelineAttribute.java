@@ -21,7 +21,8 @@ import javax.validation.constraints.*;
             "pa.value like :value"
     )
 })
-public class PipelineAttribute implements Serializable {
+public class
+PipelineAttribute implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

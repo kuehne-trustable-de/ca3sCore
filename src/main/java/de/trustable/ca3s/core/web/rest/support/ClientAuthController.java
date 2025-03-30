@@ -58,24 +58,28 @@ public class ClientAuthController {
 
         HttpHeaders httpHeaders = new HttpHeaders();
 
-        X509Certificate[] certs = (X509Certificate[])request.getAttribute("javax.servlet.request.X509Certificate");
+        X509Certificate[] certs = (X509Certificate[])request.getAttribute("jakarta.servlet.request.X509Certificate");
+        if( certs == null || certs.length == 0){
+            // fallback for Spring boot 2.*
+            certs = (X509Certificate[])request.getAttribute("javax.servlet.request.X509Certificate");
+        }
 
-        // from Spring Boot 3 onwards
-        //        request.getAttribute("jakarta.servlet.request.X509Certificate")
-
-        if( certs.length == 0) {
+        if( certs == null || certs.length == 0) {
             LOG.warn("no client certificate at client auth endpoint");
             return ResponseEntity.notFound().headers(httpHeaders).build();
         }
 
         try {
+            LOG.info("user authenticated by client cert with subject '{}' / swrial {}",
+                certs[0].getSubjectX500Principal().getName(),
+                certs[0].getSerialNumber() );
             JcaX509ExtensionUtils util = new JcaX509ExtensionUtils();
             SubjectKeyIdentifier ski = util.createSubjectKeyIdentifier(certs[0].getPublicKey());
             String b46Ski = Base64.encodeBase64String(ski.getKeyIdentifier());
 
             String jwt = tokenProvider.createToken(certs[0].getSubjectX500Principal().getName(), b46Ski);
             httpHeaders.add(JWTFilter.CLIENT_CERTIFICATE_TOKEN, jwt);
-            return new ResponseEntity<>(new JWTToken(jwt), HttpStatus.OK);
+            return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
 
         } catch (GeneralSecurityException e) {
             LOG.info("problem processing client certificate", e);

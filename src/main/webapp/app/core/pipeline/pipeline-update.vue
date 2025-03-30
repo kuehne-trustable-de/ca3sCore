@@ -117,6 +117,206 @@
                         </select>
                     </div>
 
+                    <table class="table">
+                        <thead class="thead-light">
+                        <tr>
+                            <th></th>
+                            <th>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.cardinality')"></label>
+                                <help-tag role="Admin" target="pipeline.dn-cardinality"/>
+                            </th>
+                            <th>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.template')"></label>
+                                <help-tag role="Admin" target="pipeline.template"/>
+                            </th>
+                            <th>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')"></label>
+                                <help-tag role="Admin" target="pipeline.regex"/>
+                            </th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.cn')" for="pipeline-cn-cardinality"></label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-cn-cardinality" name="pipeline-cn-cardinality" v-model="pipeline.restriction_CN.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE_OR_SAN">ONE_OR_SAN</option>
+                                    <option value="ONE">ONE</option>
+                                    <option value="ZERO_OR_MANY">ZERO_OR_MANY</option>
+                                    <option value="ONE_OR_MANY">ONE_OR_MANY</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-cn-template" id="pipeline-cn-template" v-model="pipeline.restriction_CN.contentTemplate" />
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-cn-regExMatch" id="pipeline-cn-regExMatch" v-model="pipeline.restriction_CN.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-cn-regex" id="pipeline-cn-regex" v-model="pipeline.restriction_CN.regEx" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.c')" for="pipeline-c-cardinality"></label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-c-cardinality" name="pipeline-c-cardinality" v-model="pipeline.restriction_C.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                    <option value="ZERO_OR_MANY">ZERO_OR_MANY</option>
+                                    <option value="ONE_OR_MANY">ONE_OR_MANY</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-c-template" id="pipeline-c-template" v-model="pipeline.restriction_C.contentTemplate" />
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-c-regExMatch" id="pipeline-c-regExMatch" v-model="pipeline.restriction_C.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-c-regex" id="pipeline-c-regex" v-model="pipeline.restriction_C.regEx" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.o')" for="pipeline-o-cardinality"></label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-o-cardinality" name="pipeline-o-cardinality" v-model="pipeline.restriction_O.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                    <option value="ZERO_OR_MANY">ZERO_OR_MANY</option>
+                                    <option value="ONE_OR_MANY">ONE_OR_MANY</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-o-template" id="pipeline-o-template" v-model="pipeline.restriction_O.contentTemplate" />
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-o-regExMatch" id="pipeline-o-regExMatch" v-model="pipeline.restriction_O.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-o-regex" id="pipeline-o-regex" v-model="pipeline.restriction_O.regEx" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ou')" for="pipeline-ou-cardinality"></label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-ou-cardinality" name="pipeline-ou-cardinality" v-model="pipeline.restriction_OU.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                    <option value="ZERO_OR_MANY">ZERO_OR_MANY</option>
+                                    <option value="ONE_OR_MANY">ONE_OR_MANY</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-cn-template" id="pipeline-cn-template" v-model="pipeline.restriction_CN.contentTemplate" />
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-ou-regExMatch" id="pipeline-ou-regExMatch" v-model="pipeline.restriction_OU.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-ou-regex" id="pipeline-ou-regex" v-model="pipeline.restriction_OU.regEx" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.s')" for="pipeline-s-cardinality"></label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-s-cardinality" name="pipeline-s-cardinality" v-model="pipeline.restriction_S.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                    <option value="ZERO_OR_MANY">ZERO_OR_MANY</option>
+                                    <option value="ONE_OR_MANY">ONE_OR_MANY</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-s-template" id="pipeline-s-template" v-model="pipeline.restriction_S.contentTemplate" />
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-s-regExMatch" id="pipeline-s-regExMatch" v-model="pipeline.restriction_S.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-s-regex" id="pipeline-s-regex" v-model="pipeline.restriction_S.regEx" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.l')" for="pipeline-l-cardinality"></label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-l-cardinality" name="pipeline-l-cardinality" v-model="pipeline.restriction_L.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                    <option value="ZERO_OR_MANY">ZERO_OR_MANY</option>
+                                    <option value="ONE_OR_MANY">ONE_OR_MANY</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-l-template" id="pipeline-l-template" v-model="pipeline.restriction_L.contentTemplate" />
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-l-regExMatch" id="pipeline-l-regExMatch" v-model="pipeline.restriction_L.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-l-regex" id="pipeline-l-regex" v-model="pipeline.restriction_L.regEx" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.e')" for="pipeline-e-cardinality"></label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-e-cardinality" name="pipeline-e-cardinality" v-model="pipeline.restriction_E.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                    <option value="ZERO_OR_MANY">ZERO_OR_MANY</option>
+                                    <option value="ONE_OR_MANY">ONE_OR_MANY</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-e-template" id="pipeline-e-template" v-model="pipeline.restriction_E.contentTemplate" />
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-e-regExMatch" id="pipeline-e-regExMatch" v-model="pipeline.restriction_E.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-e-regex" id="pipeline-e-regex" v-model="pipeline.restriction_E.regEx" />
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.san')" for="pipeline-san-cardinality"></label>  <help-tag role="Admin" target="pipeline.san.restrictions"/>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-san-cardinality" name="pipeline-san-cardinality" v-model="pipeline.restriction_SAN.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                    <option value="ZERO_OR_MANY">ZERO_OR_MANY</option>
+                                    <option value="ONE_OR_MANY">ONE_OR_MANY</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-san-template" id="pipeline-san-template" v-model="pipeline.restriction_SAN.contentTemplate" />
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-san-regExMatch" id="pipeline-san-regExMatch" v-model="pipeline.restriction_SAN.regExMatch" />
+                                <input type="text" class="form-control" name="pipeline-san-regex" id="pipeline-san-regex" v-model="pipeline.restriction_SAN.regEx" />
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                    <!--
                     <div class="container" v-if="pipeline && pipeline.restriction_CN">
                         <div class="row" v-if="pipeline.restriction_CN.cardinalityRestriction">
                             <div class="col">
@@ -311,7 +511,7 @@
                             </div>
                         </div>
                     </div>
-
+-->
                     <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.acme.contact.email.regex')" for="pipeline-contact-email-regex"></label>  <help-tag role="Admin" target="pipeline.acmeAccountEmailRegex"/>
                         <input type="text" class="form-check-inline" name="pipeline-contact-email-regex" id="pipeline-contact-email-regex" v-model="pipeline.acmeConfigItems.contactEMailRegEx" />
@@ -330,33 +530,74 @@
                     </div>
 
                     <!-- Additional Request Attributes -->
-                    <div class="container">
-
-                        <div class="row" v-for="(item, index) in pipeline.araRestrictions" :key="index" >
-                            <div class="col">
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.name')" for="pipeline-ara-name"></label>  <help-tag role="Admin" target="pipeline.ara.restrictions"/>
-                                <input type="text" class="form-control-inline" name="pipeline-ara-name" id="pipeline-ara-name" v-model="pipeline.araRestrictions[index].name" v-on:input="alignARAArraySize(index)"/>
-                            </div>
-                            <div class="col">
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.template')" for="pipeline-ara-template"></label>
-                                <input type="text" class="form-control-inline" name="pipeline-ara-template" id="pipeline-ara-template" v-model="pipeline.araRestrictions[index].contentTemplate" />
-                            </div>
-                            <div class="col">
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')" for="pipeline-ara-regExMatch"></label>
-                                    <input type="checkbox" class="form-check-inline" name="pipeline-ara-regExMatch" id="pipeline-ara-regExMatch" v-model="pipeline.araRestrictions[index].regExMatch" />
-                                    <input type="text" class="form-control-inline" name="pipeline-ara-regex" id="pipeline-ara-regex" v-model="pipeline.araRestrictions[index].regEx" />
-                            </div>
-                            <div class="col">
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.required')" for="pipeline-ara-required"></label>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-ara-required" id="pipeline-ara-required" v-model="pipeline.araRestrictions[index].required" />
-                            </div>
-                            <div class="col">
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.comment')" for="pipeline-ara-comment"></label>
-                                <input type="text" class="form-check-inline" name="pipeline-ara-comment" id="pipeline-ara-comment" v-model="pipeline.araRestrictions[index].comment" />
-                            </div>
-
-                        </div>
-                    </div>
+                    <table class="table">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.name')"
+                                           for="pipeline-ara-name"></label>
+                                    <help-tag role="Admin" target="pipeline.ara.restrictions"/>
+                                </th>
+                                <th>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.template')"
+                                           for="pipeline-ara-template"></label>
+                                </th>
+                                <th>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')"
+                                           for="pipeline-ara-regExMatch"></label>
+                                </th>
+                                <th>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.content.type')"
+                                           for="pipeline-ara-content-type"></label>
+                                </th>
+                                <th>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.comment')"
+                                           for="pipeline-ara-comment"></label>
+                                </th>
+                                <th>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.required')"
+                                           for="pipeline-ara-required"></label>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(item, index) in pipeline.araRestrictions" :key="index">
+                                <td>
+                                    <input type="text" class="form-control-inline" name="pipeline-ara-name"
+                                           id="pipeline-ara-name" v-model="pipeline.araRestrictions[index].name"
+                                           v-on:input="alignARAArraySize(index)"/>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control-inline" name="pipeline-ara-template"
+                                           id="pipeline-ara-template"
+                                           v-model="pipeline.araRestrictions[index].contentTemplate"/>
+                                </td>
+                                <td>
+                                    <input type="checkbox" class="form-check-inline" name="pipeline-ara-regExMatch"
+                                           id="pipeline-ara-regExMatch"
+                                           v-model="pipeline.araRestrictions[index].regExMatch"/>
+                                    <input type="text" class="form-control-inline" name="pipeline-ara-regex"
+                                           id="pipeline-ara-regex" v-model="pipeline.araRestrictions[index].regEx"/>
+                                </td>
+                                <td>
+                                    <select class="form-control-inline" id="pipeline-ara-content-type"
+                                            name="pipeline-ara-content-type"
+                                            v-model="pipeline.araRestrictions[index].contentType">
+                                        <option value="NO_TYPE"></option>
+                                        <option value="EMAIL_ADDRESS">EMAIL_ADDRESS</option>
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-check-inline" name="pipeline-ara-comment"
+                                           id="pipeline-ara-comment" v-model="pipeline.araRestrictions[index].comment"/>
+                                </td>
+                                <td>
+                                    <input type="checkbox" class="form-check-inline" name="pipeline-ara-required"
+                                           id="pipeline-ara-required" v-model="pipeline.araRestrictions[index].required"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
 
                     <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB' || $v.pipeline.type.$model === 'ACME'">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.tosAgreed')" for="pipeline-tosAgreed"></label>  <help-tag role="Admin" target="pipeline.tosAgreed"/>

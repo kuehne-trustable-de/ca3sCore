@@ -50,7 +50,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="form-control-label" for="email" v-text="$t('global.form.email.label')">Email</label>
+                        <label class="form-control-label" for="email" v-text="$t('global.form.email.label')"></label>
                         <input type="email" class="form-control" id="email" name="email"
                                :class="{'valid': !$v.registerAccount.email.$invalid, 'invalid': $v.registerAccount.email.$invalid }"
                                v-model="$v.registerAccount.email.$model" minlength=5 maxlength=254 email required  v-bind:placeholder="$t('global.form.email.placeholder')">
@@ -73,6 +73,17 @@
                             </small>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label class="form-control-label" for="phone" v-text="$t('global.form.phone.label')"></label>
+                        <input type="email" class="form-control" id="phone" name="phone"
+                               :class="{'valid': !$v.registerAccount.phone.$invalid, 'invalid': $v.registerAccount.phone.$invalid }"
+                               v-model="$v.registerAccount.phone.$model" maxlength=254 >
+                        <div v-if="$v.registerAccount.phone.$anyDirty && $v.registerAccount.phone.$invalid">
+                            <small class="form-text text-danger" v-if="!$v.registerAccount.phone.maxLength"
+                                   v-text="$t('global.messages.validate.phone.maxlength')"></small>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="form-control-label" for="firstPassword" v-text="$t('global.form.newpassword.label')">New password</label>
                         <input type="password" class="form-control" id="firstPassword" name="password"

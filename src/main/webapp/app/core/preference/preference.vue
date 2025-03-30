@@ -44,6 +44,8 @@
                                     <input type="number" class="form-check-inline" name="preferences-maxNextUpdatePeriodCRLHour" id="preferences-maxNextUpdatePeriodCRLHour" v-model="preferences.maxNextUpdatePeriodCRLHour" />
                                 </div>
                             </div>
+
+                            <h3 v-text="$t('ca3SApp.preference.home.edit.keyCreation')"></h3>
                             <div class="row">
                                 <div class="col ">
                                     <label for="preferences-serverSideKeyCreationAllowed" v-text="$t('ca3SApp.preference.serverSideKeyCreationAllowed')">Server side key creation allowed</label>  <help-tag role="Admin" target="preference.server-side-allowed"/>
@@ -72,6 +74,7 @@
                             </div>
 
 
+                            <h3 v-text="$t('ca3SApp.preference.home.edit.acme')"></h3>
                             <div class="row">
                                 <div class="col ">
                                     <label for="preferences-acmeHTTP01TimeoutMilliSec" v-text="$t('ca3SApp.preference.acmeHTTP01TimeoutMilliSec')">ACME HTTP01 callback timeout (milli sec)</label>  <help-tag role="Admin" target="preference.http-01-callback-timeout"/>
@@ -102,6 +105,8 @@
                                 </div>
 							</div>
 
+                            <h3 v-text="$t('ca3SApp.preference.home.edit.algorithms')"></h3>
+
                             <div class="row" v-if="preferences.selectedHashes">
                                 <div class="col ">
                                     <label class="form-control-label" v-text="$t('ca3SApp.preference.hashes')" for="ca3SApp-preference-hash">HashAlgos</label>  <help-tag role="Admin" target="preference.hash"/>
@@ -123,6 +128,44 @@
                                     </select>
                                 </div>
                             </div>
+
+                            <h3 v-text="$t('ca3SApp.preference.home.edit.userAuthentication')"></h3>
+                            <div class="row">
+                                <div class="col ">
+                                    <label for="preferences-auth-clientCert" v-text="$t('ca3SApp.preference.auth.clientCert')"></label>
+                                </div>
+                                <div class="col colContent" >
+                                    <input :disabled="!preferences.authClientCertEnabled" type="checkbox" class="form-check-inline" name="preferences-auth-clientCert" id="preferences-auth-clientCert"
+                                           v-model="preferences.authClientCert" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col ">
+                                    <label for="preferences-auth-totp" v-text="$t('ca3SApp.preference.auth.totp')"></label>
+                                </div>
+                                <div class="col colContent" >
+                                    <input type="checkbox" class="form-check-inline" name="preferences-auth-totp" id="preferences-auth-totp" v-model="preferences.authTotp" />
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col ">
+                                    <label for="preferences-auth-email" v-text="$t('ca3SApp.preference.auth.email')"></label>
+                                </div>
+                                <div class="col colContent" >
+                                    <input type="checkbox" class="form-check-inline" name="preferences-auth-email" id="preferences-auth-email" v-model="preferences.authEmail" />
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col ">
+                                    <label for="preferences-auth-sms" v-text="$t('ca3SApp.preference.auth.sms')"></label>
+                                </div>
+                                <div class="col colContent" >
+                                    <input type="checkbox" :disabled="!preferences.smsEnabled" class="form-check-inline" name="preferences-auth-totp" id="preferences-auth-sms"
+                                           v-model="preferences.sms" />
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                     <div>

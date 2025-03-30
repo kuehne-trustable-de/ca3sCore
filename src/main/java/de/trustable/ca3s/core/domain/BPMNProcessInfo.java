@@ -1,8 +1,11 @@
 package de.trustable.ca3s.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -19,6 +22,15 @@ import javax.validation.constraints.*;
     @NamedQuery(name = "BPMNProcessInfo.findByNameOrderedBylastChange",
         query = "SELECT bi FROM BPMNProcessInfo bi WHERE " +
             " bi.name = :name" +
+            " order by lastChange desc"
+    ),
+    @NamedQuery(name = "BPMNProcessInfo.findByProcessId",
+        query = "SELECT bi FROM BPMNProcessInfo bi WHERE " +
+            " processId = :processId"
+    ),
+    @NamedQuery(name = "BPMNProcessInfo.findByType",
+        query = "SELECT bi FROM BPMNProcessInfo bi WHERE " +
+            " type = :type" +
             " order by lastChange desc"
     ),
 
@@ -64,6 +76,10 @@ public class BPMNProcessInfo implements Serializable {
     @NotNull
     @Column(name = "process_id", nullable = false)
     private String processId;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "bpmnProcessInfo", cascade = {CascadeType.ALL})
+    @JsonIgnoreProperties({"bpmnProcessInfo"})
+    private Set<BPMNProcessAttribute> bpmnProcessAttributes = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -182,6 +198,14 @@ public class BPMNProcessInfo implements Serializable {
 
     public void setProcessId(String processId) {
         this.processId = processId;
+    }
+
+    public Set<BPMNProcessAttribute> getBpmnProcessAttributes() {
+        return bpmnProcessAttributes;
+    }
+
+    public void setBpmnProcessAttributes(Set<BPMNProcessAttribute> bpmnProcessAttributes) {
+        this.bpmnProcessAttributes = bpmnProcessAttributes;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

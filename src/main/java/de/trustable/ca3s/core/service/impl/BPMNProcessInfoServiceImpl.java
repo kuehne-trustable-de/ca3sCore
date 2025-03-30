@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.service.impl;
 
+import de.trustable.ca3s.core.service.dto.BPMNProcessInfoView;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.BPMNProcessInfoService;
 import de.trustable.ca3s.core.domain.BPMNProcessInfo;
@@ -9,7 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,9 +33,12 @@ public class BPMNProcessInfoServiceImpl implements BPMNProcessInfoService {
     private final BPMNProcessInfoRepository bPMNProcessInfoRepository;
     private final BPMNUtil bpmnUtil;
 
-    public BPMNProcessInfoServiceImpl(BPMNProcessInfoRepository bPMNProcessInfoRepository, BPMNUtil bpmnUtil) {
+    private final PlatformTransactionManager transactionManager;
+
+    public BPMNProcessInfoServiceImpl(BPMNProcessInfoRepository bPMNProcessInfoRepository, BPMNUtil bpmnUtil, PlatformTransactionManager transactionManager) {
         this.bPMNProcessInfoRepository = bPMNProcessInfoRepository;
         this.bpmnUtil = bpmnUtil;
+        this.transactionManager = transactionManager;
     }
 
     /**
@@ -42,6 +52,19 @@ public class BPMNProcessInfoServiceImpl implements BPMNProcessInfoService {
         log.debug("Request to save BPMNProcessInfo : {}", bPMNProcessInfo);
         return bPMNProcessInfoRepository.save(bPMNProcessInfo);
     }
+
+    /**
+     * Save a BPMNProcessInfoView.
+     *
+     * @param bpmnProcessInfoView the entity to save.
+     * @return the persisted entity.
+     */
+    @Override
+    public BPMNProcessInfo save(BPMNProcessInfoView bpmnProcessInfoView) {
+        log.debug("Request to save BPMNProcessInfoView : {}", bpmnProcessInfoView);
+        return bpmnUtil.toBPMNProcessInfo(bpmnProcessInfoView);
+    }
+
 
     /**
      * Get all the bPMNProcessInfos.
@@ -82,10 +105,24 @@ public class BPMNProcessInfoServiceImpl implements BPMNProcessInfoService {
         if(optionalBPMNProcessInfo.isPresent()) {
             String processId = optionalBPMNProcessInfo.get().getProcessId();
             if( processId != null ) {
+                // handle separate transaction
+                TransactionTemplate txTemplate = new TransactionTemplate(transactionManager);
+                txTemplate.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+
                 try {
-                    bpmnUtil.deleteProcessDefinitions(processId);
-                } catch ( NotFoundException nfe){
-                    log.warn("No valid process found for process if '{}' while deleting BPMNProcessInfo : {}", processId, id);
+                    txTemplate.execute(new TransactionCallbackWithoutResult() {
+                        @Override
+                        protected void doInTransactionWithoutResult(TransactionStatus status) {
+
+                            try {
+                                bpmnUtil.deleteProcessDefinitions(processId);
+                            } catch (NotFoundException nfe) {
+                                log.warn("No valid process found for process if '{}' while deleting BPMNProcessInfo : {}", processId, id);
+                            }
+                        }
+                    });
+                }catch (TransactionException transactionException){
+                    log.warn("Ignoring outcome of the deletion of camunda process definition: {}", transactionException.getMessage());
                 }
             }else{
                 log.warn("No valid process id found while deleting BPMNProcessInfo : {}", id);
@@ -93,4 +130,5 @@ public class BPMNProcessInfoServiceImpl implements BPMNProcessInfoService {
             bPMNProcessInfoRepository.deleteById(id);
         }
     }
+
 }

@@ -25,7 +25,7 @@ public class TokenProvider {
 
     private static final String AUTHORITIES_KEY = "auth";
 
-    private static final String SKI_KEY = "ski";
+    public static final String SKI_KEY = "ski";
 
     private final long tokenValiditySKIInMilliseconds = 60L * 1000L;
 
@@ -89,6 +89,11 @@ public class TokenProvider {
             .signWith(key, SignatureAlgorithm.HS512)
             .setExpiration(validity)
             .compact();
+    }
+
+    public String getSKIClaim(String jwt) {
+        Claims claims = jwtParser.parseClaimsJws(jwt).getBody();
+        return claims.get(SKI_KEY,String.class);
     }
 
     public Authentication getAuthentication(String token) {

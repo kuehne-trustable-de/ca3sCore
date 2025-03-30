@@ -106,22 +106,16 @@ export default class JhiUserManagementComponent extends Vue {
   }
 
   public deleteUser(): void {
+    const self = this;
+
     this.userManagementService()
       .remove(this.removeId)
       .then(res => {
-        const message = this.$t(res.headers['x-ca3sapp-alert'], {
-          param: decodeURIComponent(res.headers['x-ca3sapp-params'].replace(/\+/g, ' ')),
-        });
-        this.$bvToast.toast(message.toString(), {
-          toaster: 'b-toaster-top-center',
-          title: 'Info',
-          variant: 'danger',
-          solid: true,
-          autoHideDelay: 5000,
-        });
-        this.removeId = null;
-        this.loadAll();
-        this.closeDialog();
+        const message = self.$t('userManagement.deleted', { param: self.removeId });
+        self.alertService().showAlert(message, 'info');
+        self.removeId = null;
+        self.loadAll();
+        self.closeDialog();
       });
   }
 

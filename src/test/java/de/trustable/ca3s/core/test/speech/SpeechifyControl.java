@@ -1,12 +1,14 @@
 package de.trustable.ca3s.core.test.speech;
 
+import javazoom.jl.player.AudioDevice;
+import javazoom.jl.player.FactoryRegistry;
+import javazoom.jl.player.Player;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -25,9 +27,9 @@ public class SpeechifyControl {
     final static URI targetUri = URI.create("https://api.sws.speechify.com/v1/audio/speech");
     String soundFormat = "mp3";
 //    String soundFormat = "wav";
-    String voiceName = "Matthew";
-    String voiceEngine = "neural";
-    String voicelanguageCode = "en-US";
+    String voiceName;
+    String voiceEngine;
+    String voicelanguageCode;
 
     String soundFilePath = "./src/test/resources/pr/sound";
 
@@ -36,33 +38,65 @@ public class SpeechifyControl {
         this.speechifyApiTokenArr = speechifyApiTokenArr;
 
         if("de".equalsIgnoreCase(locale)) {
-
-//            voiceName = "louisa";
             voiceName = "andra";
             voicelanguageCode = "de-DE";
             voiceEngine = "azure";
         }else{
-            voiceName = "Matthew";
+            voiceName = "henry";
             voicelanguageCode = "en-US";
             voiceEngine = "neural";
         }
+
         try {
             Files.createDirectories(Paths.get(soundFilePath));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-    final String jsonRequestPattern = "{\"audioFormat\":\"%s\"," +
-        "\"paragraphChunks\":[" +
-        "\"%s\"" +
-        "]," +
-        "\"voiceParams\":{\"name\":\"%s\",\"engine\":\"%s\",\"languageCode\":\"%s\"}}";
-
     final String oasJSONRequestPattern = "{" +
         "\"audio_format\": \"%s\"," +
         "\"model\": \"simba-multilingual\"," +
         "\"input\": \"<speak>%s</speak>\"," +
         "\"voice_id\": \"%s\" }";
+
+
+
+    public static void main(String[] args) throws Exception {
+
+        String[] speechifyApiTokenArr = new String[]{"P6mt1FQ-BTh7GgI6ttepSGJsxeNa9M8E8HrntEdwHtU="};
+
+        String speakableText =
+/*
+            "This is a normal speech pattern." +
+                "        I'm speaking with a higher pitch, faster than usual, and louder!" +
+                "    Back to normal speech pattern.";
+*/
+            /*
+        "This is a normal speech pattern." +
+            "    &lt;prosody pitch=\"high\" rate=\"fast\" volume=\"+20%\"&gt;" +
+            "        I'm speaking with a higher pitch, faster than usual, and louder!" +
+            "    &lt;/prosody&gt;" +
+            "    Back to normal speech pattern.";
+*/
+
+        "This is a normal speech pattern." +
+ //           "    <prosody pitch='high' rate='fast' volume='+20%'>" +
+            "        I'm speaking with a higher pitch, faster than usual, and louder!" +
+//            "    </prosody>" +
+            "    Back to normal speech pattern.";
+
+
+        SpeechifyControl speechifyControl = new SpeechifyControl(speechifyApiTokenArr, "en");
+
+        byte[] soundBytes = speechifyControl.getSoundBytes(speakableText);
+
+        FactoryRegistry r = FactoryRegistry.systemRegistry();
+        AudioDevice audioDevice = r.createAudioDevice();
+        try( InputStream is = new ByteArrayInputStream(soundBytes)) {
+            Player mp3Player = new Player(is,audioDevice);
+            mp3Player.play();
+        }
+    }
 
 
     public File getSoundFile(final String text) throws Exception {
@@ -74,12 +108,7 @@ public class SpeechifyControl {
             Base64.getEncoder().encodeToString(digest.digest(jsonRequest.getBytes(StandardCharsets.UTF_8)))
                 .replace('+', '_')
                 .replace('/', '_')
-                .replace('=', '_')
-                .replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&apos;");
+                .replace('=', '_');
 
         File soundFile = new File(soundFilePath, base64FileName + ".json" );
         if( !soundFile.exists()){
@@ -115,14 +144,19 @@ public class SpeechifyControl {
         File file = getSoundFile(text);
         String content = Files.readString(file.toPath());
 
-        JSONObject jsonResponse = new JSONObject(content);
+        try {
+            JSONObject jsonResponse = new JSONObject(content);
 
-        String audioBytesBase64 = jsonResponse.getString("audio_data");
-        String format = jsonResponse.getString("audio_format");
+            String audioBytesBase64 = jsonResponse.getString("audio_data");
+            String format = jsonResponse.getString("audio_format");
 
-        //LOG.debug("Format '" + format + "', content :" + audioBytesBase64);
+            //LOG.debug("Format '" + format + "', content :" + audioBytesBase64);
 
-        return Base64.getDecoder().decode(audioBytesBase64);
+            return Base64.getDecoder().decode(audioBytesBase64);
+        }catch(JSONException jsonException){
+            file.delete();
+            throw new IOException("problem reading content for '"+text+"'" );
+        }
     }
 
 }

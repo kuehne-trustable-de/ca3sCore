@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.web.rest.data;
+package de.trustable.ca3s.core.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.puppetlabs.ssl_utils.ExtensionsUtils;
@@ -7,11 +7,6 @@ import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.util.AlgorithmInfo;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.pkcs.Attribute;
-import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.bouncycastle.asn1.x509.Extensions;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

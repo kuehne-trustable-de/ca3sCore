@@ -1,14 +1,16 @@
 package de.trustable.ca3s.core.web.rest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.validation.Valid;
 
+import de.trustable.ca3s.core.domain.AuditTrace;
+import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,18 +38,21 @@ public class PreferenceResource {
 
 	private final Logger log = LoggerFactory.getLogger(PreferenceResource.class);
 
-	@Autowired
-    private PreferenceUtil preferenceUtil;
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
     private static final String ENTITY_NAME = "preference";
 
+    private final PreferenceUtil preferenceUtil;
     private final UserPreferenceService userPreferenceService;
 
-    public PreferenceResource(UserPreferenceService userPreferenceService) {
+    final private AuditService auditService;
+
+    public PreferenceResource(PreferenceUtil preferenceUtil, UserPreferenceService userPreferenceService, AuditService auditService) {
+        this.preferenceUtil = preferenceUtil;
         this.userPreferenceService = userPreferenceService;
+        this.auditService = auditService;
     }
 
 
@@ -124,23 +129,31 @@ public class PreferenceResource {
         	upMap.put(up.getName(), up);
         }
 
-        updateValue(upMap, PreferenceUtil.CHECK_CRL, "" + preferences.isCheckCRL(), userId);
-        updateValue(upMap, PreferenceUtil.NOTIFY_RA_ON_REQUEST, "" + preferences.isNotifyRAOnRequest(), userId);
-        updateValue(upMap, PreferenceUtil.MAX_NEXT_UPDATE_PERIOD_CRL_SEC, "" + ( preferences.getMaxNextUpdatePeriodCRLHour() * 3600L), userId);
-        updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED, "" + preferences.isServerSideKeyCreationAllowed(), userId);
+        List<AuditTrace> auditList = new ArrayList<>();
 
-        updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_DAYS, "" + preferences.getDeleteKeyAfterDays(), userId);
-        updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_USES, "" + preferences.getDeleteKeyAfterUses(), userId);
+        updateValue(upMap, PreferenceUtil.CHECK_CRL, String.valueOf(preferences.isCheckCRL()), userId, auditList);
+        updateValue(upMap, PreferenceUtil.NOTIFY_RA_ON_REQUEST, String.valueOf(preferences.isNotifyRAOnRequest()), userId, auditList);
+        updateValue(upMap, PreferenceUtil.MAX_NEXT_UPDATE_PERIOD_CRL_SEC, String.valueOf(preferences.getMaxNextUpdatePeriodCRLHour() * 3600L), userId, auditList);
+        updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED, String.valueOf(preferences.isServerSideKeyCreationAllowed()), userId, auditList);
 
-        updateValue(upMap, PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS, portsCommaSeparatedList, userId);
-        updateValue(upMap, PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC, "" + preferences.getAcmeHTTP01TimeoutMilliSec(), userId);
+        updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_DAYS, String.valueOf(preferences.getDeleteKeyAfterDays()), userId, auditList);
+        updateValue(upMap, PreferenceUtil.SERVER_SIDE_KEY_DELETE_AFTER_USES, String.valueOf(preferences.getDeleteKeyAfterUses()), userId, auditList);
+
+        updateValue(upMap, PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS, portsCommaSeparatedList, userId, auditList);
+        updateValue(upMap, PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC, String.valueOf(preferences.getAcmeHTTP01TimeoutMilliSec()), userId, auditList);
 
         String[] selectedHashArr = preferences.getSelectedHashes();
-        updateValue(upMap, PreferenceUtil.SELECTED_HASHES, String.join(",", selectedHashArr), userId);
+        updateValue(upMap, PreferenceUtil.SELECTED_HASHES, String.join(",", selectedHashArr), userId, auditList);
 
         String[] selectedSigningAlgoArr = preferences.getSelectedSigningAlgos();
-        updateValue(upMap, PreferenceUtil.SELECTED_SIGNING_ALGOS, String.join(",", selectedSigningAlgoArr), userId);
+        updateValue(upMap, PreferenceUtil.SELECTED_SIGNING_ALGOS, String.join(",", selectedSigningAlgoArr), userId, auditList);
 
+        updateValue(upMap, PreferenceUtil.AUTH_CLIENT_CERT, String.valueOf(preferences.isAuthClientCert()), userId, auditList);
+        updateValue(upMap, PreferenceUtil.AUTH_TOTP, String.valueOf(preferences.isAuthTotp()), userId, auditList);
+        updateValue(upMap, PreferenceUtil.AUTH_EMAIL, String.valueOf(preferences.isAuthEmail()), userId, auditList);
+        updateValue(upMap, PreferenceUtil.AUTH_SMS, String.valueOf(preferences.isSms()), userId, auditList);
+
+        auditService.saveAuditTrace(auditList);
 
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, userId.toString()))
@@ -149,16 +162,24 @@ public class PreferenceResource {
 
 
 
-	private void updateValue(Map<String, UserPreference> upMap, String key, String value, Long userId) {
-		if( upMap.containsKey(key)) {
+	private void updateValue(Map<String, UserPreference> upMap,
+                             String key, String value,
+                             Long userId,
+                             List<AuditTrace> auditList) {
+
+        if( upMap.containsKey(key)) {
         	UserPreference up = upMap.get(key);
     		if( !value.equalsIgnoreCase(up.getContent().trim())) {
     	        log.debug("New preferences value '{}' != current value '{}'", value, up.getContent().trim());
-    			up.setContent(value);
+                auditList.add( auditService.createAuditTraceSystemPreferenceUpdated(key,
+                        up.getContent(), value));
+
+                up.setContent(value);
     			userPreferenceService.save(up);
-    		}
+            }
         }else {
 	        log.debug("Ceating new preferences for key '{}' and value '{}'", key, value);
+            auditList.add( auditService.createAuditTraceSystemPreferenceCreated(key,value));
         	UserPreference up = new UserPreference();
         	up.setUserId(userId);
         	up.setName(key);

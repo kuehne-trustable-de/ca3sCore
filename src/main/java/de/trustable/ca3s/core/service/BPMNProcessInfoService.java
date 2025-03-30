@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.domain.BPMNProcessInfo;
+import de.trustable.ca3s.core.service.dto.BPMNProcessInfoView;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +18,8 @@ public interface BPMNProcessInfoService {
      * @return the persisted entity.
      */
     BPMNProcessInfo save(BPMNProcessInfo bPMNProcessInfo);
+
+    BPMNProcessInfo save(BPMNProcessInfoView bpmnProcessInfoView);
 
     /**
      * Get all the bPMNProcessInfos.

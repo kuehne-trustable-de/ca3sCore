@@ -21,33 +21,6 @@
                     </router-link>
 
                 </h2>
-				<div>
-                    <!--
-					<div v-for="(filter, index) in filters.filterList" :key="index">
-						<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName" name="csrSelectionAttribute">
-							<option v-for="csrSelectionItem in csrSelectionItems" :key="csrSelectionItem.itemName" :value="csrSelectionItem.itemName">{{$t(csrSelectionItem.itemName)}}</option>
-						</select>
-
-						<select float="left" class="smallSelector fa-1x" v-model="filter.selector" name="csrSelectionChoice">
-							<option v-for="item in getSelectorChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
-						</select>
-
-						<select v-if="getInputType(filter.attributeName) == 'set'" float="left" class="smallSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionSet">
-							<option v-for="item in getValueChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
-						</select>
-						<input type="date" v-else-if="getInputType(filter.attributeName) == 'date'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValueDate" v-on:keydown.enter="updateTable"/>
-						<input type="hidden" v-else-if="getInputType(filter.attributeName) == 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
-						<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="csrSelectionValue" v-on:keydown.enter="updateTable"/>
-
-						<button class="addRemoveSelector" float="right" v-if="index == 0" v-on:click="addSelector()">
-							<font-awesome-icon icon="plus"></font-awesome-icon>
-						</button>
-						<button class="addRemoveSelector" float="right" v-if="index > 0" v-on:click="removeSelector(index)">
-							<font-awesome-icon icon="minus"></font-awesome-icon>
-						</button>
-					</div>
-					-->
-				</div>
 
                 <bpmn-table :columns="columns" :data="bpmnApiUrl" :per-page="20" name="bpmn-table">
 					<template slot-scope="{ row }">
@@ -60,12 +33,18 @@
                             <td @click="$router.push({name: 'BpmnInfo', params: {bpmnId: row.id}})" >{{ toLocalDate(row.lastChange) }}</td>
                             <td class="text-right">
                                 <div class="btn-group">
-                                    <b-button v-on:click="prepareRemove(row)"
-                                           variant="danger"
-                                           class="btn btn-sm"
-                                           v-b-modal.removeEntity>
+                                    <b-button v-on:click="$router.push({name: 'BpmnInfo', params: {bpmnId: row.id, interactionMode: 'TEST'}})""
+                                              variant="primary"
+                                              class="btn btn-sm" >
                                         <font-awesome-icon icon="times"></font-awesome-icon>
-                                        <span class="d-none d-md-inline" v-text="$t('entity.action.delete')">Delete</span>
+                                        <span class="d-none d-md-inline" v-text="$t('entity.action.test')"></span>
+                                    </b-button>
+                                    <b-button v-on:click="prepareRemove(row)"
+                                              variant="danger"
+                                              class="btn btn-sm"
+                                              v-b-modal.removeEntity>
+                                        <font-awesome-icon icon="times"></font-awesome-icon>
+                                        <span class="d-none d-md-inline" v-text="$t('entity.action.delete')"></span>
                                     </b-button>
                                 </div>
                             </td>

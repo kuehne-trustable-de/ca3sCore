@@ -412,7 +412,8 @@ public class OrderController extends AcmeController {
             }
         }
 
-        // add all SANs as source of names to verified
+
+        // add all SANs as source of names to be verified
         for (Attribute csrAttr : p10Holder.getReqAttributes()) {
 
             String attrOid = csrAttr.getAttrType().getId();

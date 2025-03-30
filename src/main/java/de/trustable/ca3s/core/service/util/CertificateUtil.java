@@ -4,7 +4,10 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
-import de.trustable.ca3s.core.repository.*;
+import de.trustable.ca3s.core.repository.CertificateAttributeRepository;
+import de.trustable.ca3s.core.repository.CertificateCommentRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
@@ -57,6 +60,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.spec.PBEParameterSpec;
 import javax.naming.InvalidNameException;
@@ -85,6 +89,8 @@ public class CertificateUtil {
 
     private static final String TIMESTAMP_PADDING_PATTERN = "000000000000000000";
     public static final int CURRENT_ATTRIBUTES_VERSION = 5;
+    public static HashMap<String,Integer> nameGeneralNameMap = new HashMap<>();
+    public static HashMap<String,ASN1ObjectIdentifier> nameOIDMap = new HashMap<>();
 
     static HashSet<Integer> lenSet = new HashSet<>();
 
@@ -116,12 +122,23 @@ public class CertificateUtil {
     private final PreferenceUtil preferenceUtil;
 
     final private CryptoService cryptoUtil;
-    final private AcmeAccountRepository acmeAccountRepository;
-
 
     final private AuditService auditService;
     final private ReplacementCandidateUtil replacementCandidateUtil;
 
+    static {
+        CertificateUtil.nameGeneralNameMap.put("DNS-NAME", GeneralName.dNSName);
+        CertificateUtil.nameGeneralNameMap.put("DNS", GeneralName.dNSName);
+        CertificateUtil.nameGeneralNameMap.put("IP", GeneralName.iPAddress);
+
+        CertificateUtil.nameOIDMap.put("C", BCStyle.C);
+        CertificateUtil.nameOIDMap.put("CN", BCStyle.CN);
+        CertificateUtil.nameOIDMap.put("O", BCStyle.O);
+        CertificateUtil.nameOIDMap.put("OU", BCStyle.OU);
+        CertificateUtil.nameOIDMap.put("L", BCStyle.L);
+        CertificateUtil.nameOIDMap.put("ST", BCStyle.ST);
+        CertificateUtil.nameOIDMap.put("E", BCStyle.E);
+    }
 
     @Autowired
     public CertificateUtil(CertificateRepository certificateRepository,
@@ -131,7 +148,6 @@ public class CertificateUtil {
                            ProtectedContentUtil protUtil,
                            PreferenceUtil preferenceUtil,
                            CryptoService cryptoUtil,
-                           AcmeAccountRepository acmeAccountRepository,
                            AuditService auditService,
                            ReplacementCandidateUtil replacementCandidateUtil) {
 
@@ -143,7 +159,6 @@ public class CertificateUtil {
         this.protUtil = protUtil;
         this.preferenceUtil = preferenceUtil;
         this.cryptoUtil = cryptoUtil;
-        this.acmeAccountRepository = acmeAccountRepository;
         this.auditService = auditService;
         this.replacementCandidateUtil = replacementCandidateUtil;
     }
@@ -188,6 +203,10 @@ public class CertificateUtil {
         orderMap.put(BCStyle.UNIQUE_IDENTIFIER, count++);
         orderMap.put(BCStyle.UnstructuredAddress, count);
         return Collections.unmodifiableMap(orderMap);
+    }
+
+    public Optional<Certificate> findCertificateById(Long id){
+        return certificateRepository.findById(id);
     }
 
     public static String getNormalizedName(final String inputName) throws InvalidNameException {
@@ -1234,7 +1253,6 @@ public class CertificateUtil {
      */
     public void insertNameAttributes(Certificate cert, String attributeName, X500Name x500NameSubject) {
 
-
         try {
             List<Rdn> rdnList = new LdapName(x500NameSubject.toString()).getRdns();
             for (Rdn rdn : rdnList) {
@@ -1274,6 +1292,16 @@ public class CertificateUtil {
             }
         }
         return null;
+    }
+
+    @Transactional
+    public void deleteCertAttribute(Certificate certDao, String name) {
+        for (CertificateAttribute certAttr : certDao.getCertificateAttributes()) {
+            if (certAttr.getName().equals(name)) {
+                LOG.info("deleting certificateAttribute {}", certAttr);
+                certificateAttributeRepository.delete(certAttr);
+            }
+        }
     }
 
     public List<String> getCertAttributes(Certificate certDao, String name) {
@@ -1412,7 +1440,6 @@ public class CertificateUtil {
                 String msg = "no issuing certificate available / retrievable for issuing cert id : " + issuingCertDao.getId();
                 LOG.info(msg);
                 break;
-//				throw new GeneralSecurityException(msg);
             } else {
 
                 // root reached? No need to move further ..
@@ -2431,7 +2458,9 @@ public class CertificateUtil {
 
         Set<KeyStore.Entry.Attribute> privateKeyAttributes = new HashSet<>();
         p12.setEntry(entryAlias,
-            new KeyStore.PrivateKeyEntry(key, chain, privateKeyAttributes),
+            new KeyStore.PrivateKeyEntry(key,
+                chain,
+                privateKeyAttributes),
             new KeyStore.PasswordProtection(passphraseChars,
                 passwordProtectionAlgo,
                 new PBEParameterSpec(salt, 100000)));

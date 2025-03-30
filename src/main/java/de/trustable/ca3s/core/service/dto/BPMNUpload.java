@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.service.dto;
 
+import de.trustable.ca3s.core.domain.BPMNProcessAttribute;
 import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
 
 public class BPMNUpload {
@@ -12,7 +13,9 @@ public class BPMNUpload {
     private String version;
     private String contentXML;
 
-	public BPMNUpload() {
+    private BPMNProcessAttribute[] bpmnProcessAttributes;
+
+    public BPMNUpload() {
 
 	}
 
@@ -54,5 +57,13 @@ public class BPMNUpload {
 
     public void setContentXML(String contentXML) {
         this.contentXML = contentXML;
+    }
+
+    public BPMNProcessAttribute[] getBpmnProcessAttributes() {
+        return bpmnProcessAttributes;
+    }
+
+    public void setBpmnProcessAttributes(BPMNProcessAttribute[] bpmnProcessAttributes) {
+        this.bpmnProcessAttributes = bpmnProcessAttributes;
     }
 }

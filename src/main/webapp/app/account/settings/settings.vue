@@ -62,6 +62,17 @@
                         </div>
                     </div>
 
+                    <div class="form-group">
+                        <label class="form-control-label" for="phone" v-text="$t('global.form.phone.label')"></label>
+                        <input type="email" class="form-control" id="phone" name="phone"
+                               :class="{'valid': !$v.settingsAccount.phone.$invalid, 'invalid': $v.settingsAccount.phone.$invalid }"
+                               v-model="$v.settingsAccount.phone.$model" maxlength=254 >
+                        <div v-if="$v.settingsAccount.phone.$anyDirty && $v.settingsAccount.phone.$invalid">
+                            <small class="form-text text-danger" v-if="!$v.settingsAccount.phone.maxLength"
+                                   v-text="$t('global.messages.validate.phone.maxlength')"></small>
+                        </div>
+                    </div>
+
                     <div class="form-group" v-if="languages && Object.keys(languages).length > 1">
                         <label for="langKey" v-text="$t('settings.form.language')"></label>
                         <select class="form-control" id="langKey" name="langKey" v-model="settingsAccount.langKey">

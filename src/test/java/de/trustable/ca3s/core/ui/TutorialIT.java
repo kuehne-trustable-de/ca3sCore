@@ -70,8 +70,8 @@ public class TutorialIT extends CSRSubmitIT {
         super.recordSession = true;
         super.playSound = true;
 
-        super.setLocale("de");
-        super.setAllUserLocale("de");
+        super.setLocale("en");
+        super.setAllUserLocale("en");
 
 
 

@@ -9,6 +9,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
+
+import de.trustable.ca3s.core.service.exception.InvalidCredentialException;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
@@ -144,7 +146,7 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleInvalidPasswordException(
-        de.trustable.ca3s.core.service.InvalidPasswordException ex,
+        de.trustable.ca3s.core.service.exception.InvalidPasswordException ex,
         NativeWebRequest request
     ) {
         return create(new InvalidPasswordException(), request);
@@ -164,6 +166,13 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
         Problem problem = Problem.builder().withStatus(Status.CONFLICT).with(MESSAGE_KEY, ErrorConstants.ERR_CONCURRENCY_FAILURE).build();
         return create(ex, problem, request);
     }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleInvalidCredentialException(InvalidCredentialException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder().withStatus(Status.BAD_REQUEST).with(MESSAGE_KEY, ex.getMessage()).build();
+        return create(ex, problem, request);
+    }
+
 
     @Override
     public ProblemBuilder prepare(final @NotNull Throwable throwable, final @NotNull StatusType status, final @NotNull URI type) {

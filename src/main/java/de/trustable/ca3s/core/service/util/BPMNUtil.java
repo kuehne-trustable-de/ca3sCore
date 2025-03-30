@@ -6,19 +6,18 @@ import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
-import de.trustable.ca3s.core.domain.enumeration.BPMNProcessType;
-import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
+import de.trustable.ca3s.core.domain.enumeration.*;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
+import de.trustable.ca3s.core.exception.SMSSendingFaiedException;
+import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.BPMNProcessInfoView;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.camunda.bpm.engine.BadUserRequestException;
 import org.camunda.bpm.engine.HistoryService;
@@ -39,10 +38,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
-import de.trustable.ca3s.core.repository.BPMNProcessInfoRepository;
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.util.CryptoUtil;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -68,8 +63,11 @@ public class BPMNUtil{
     private final HistoryService historyService;
 
     private final BPMNProcessInfoRepository bpnmInfoRepo;
+    private final BPMNProcessAttributeRepository bpnmAttributeRepo;
 
-	private final CSRRepository csrRepository;
+    private final ProtectedContentUtil protectedContentUtil;
+
+    private final CSRRepository csrRepository;
 
 	private final CertificateRepository certRepository;
 
@@ -91,7 +89,7 @@ public class BPMNUtil{
                     RepositoryService repoService,
                     HistoryService historyService,
                     BPMNProcessInfoRepository bpnmInfoRepo,
-                    CSRRepository csrRepository,
+                    BPMNProcessAttributeRepository bpnmAttributeRepo, ProtectedContentUtil protectedContentUtil, CSRRepository csrRepository,
                     CertificateRepository certRepository,
                     CertificateUtil certUtil,
                     NameAndRoleUtil nameAndRoleUtil,
@@ -107,6 +105,8 @@ public class BPMNUtil{
         this.repoService = repoService;
         this.historyService = historyService;
         this.bpnmInfoRepo = bpnmInfoRepo;
+        this.bpnmAttributeRepo = bpnmAttributeRepo;
+        this.protectedContentUtil = protectedContentUtil;
         this.csrRepository = csrRepository;
         this.certRepository = certRepository;
         this.certUtil = certUtil;
@@ -159,7 +159,7 @@ public class BPMNUtil{
 		}
 	}
 
-    public void deleteHistoricProcesses(int historicProcessRetentionPeriodDays){
+    public void deleteHistoricProcesses(int historicProcessRetentionPeriodDays) {
 
         Date finishedBeforeLimit = Date.from(Instant.now().minus(historicProcessRetentionPeriodDays, ChronoUnit.DAYS));
 
@@ -177,12 +177,15 @@ public class BPMNUtil{
                 .executeAsync();
             LOG.debug("Update removal time for historic instances scheduled ...");
 
-        }catch(BadUserRequestException badUserRequestException){
+        } catch (BadUserRequestException badUserRequestException) {
             LOG.info("Problem setting removal time: " + badUserRequestException.getMessage());
         }
-
-        historyService.deleteHistoricProcessInstancesAsync(query, HISTORIC_PROCESS_DELETION_REASON);
-        LOG.debug("starting to delete historic instances ...");
+        try {
+            historyService.deleteHistoricProcessInstancesAsync(query, HISTORIC_PROCESS_DELETION_REASON);
+            LOG.debug("starting to delete historic instances ...");
+        } catch (BadUserRequestException bure) {
+            LOG.info("Problem starting 'historyService.deleteHistoricProcessInstancesAsync': {}", bure.getMessage());
+        }
     }
 
 
@@ -393,6 +396,42 @@ public class BPMNUtil{
         return executeBPMNProcessByName(processName, variables);
     }
 
+    public void startSMSProcess(final String phone, final String msg)  {
+
+        List<BPMNProcessInfo> bpmnProcessInfoList = bpnmInfoRepo.findByType(BPMNProcessType.SEND_SMS);
+        if( bpmnProcessInfoList.isEmpty()){
+            throw new SMSSendingFaiedException("No BPMN Process Info with type BPMNProcessType.SEND_SMS not present!");
+        }else if( bpmnProcessInfoList.size() > 1) {
+            throw new SMSSendingFaiedException("Too many BPMN Process Info with type BPMNProcessType.SEND_SMS present!");
+        }else {
+
+            BPMNProcessInfo smsProcessInfo = bpmnProcessInfoList.get(0);
+
+            ProcessInstanceWithVariables processInstanceWithVariables = checkSMSProcess(smsProcessInfo.getProcessId(), phone, msg);
+
+            Object reason = processInstanceWithVariables.getVariables().get("failureReason");
+            if( reason != null && !reason.toString().isEmpty()) {
+                throw new SMSSendingFaiedException(reason.toString());
+            }
+        }
+    }
+
+    public ProcessInstanceWithVariables checkAcmeAccountAuthorizationProzess(final String processName, final String mailto)  {
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("mailto", mailto);
+        return executeBPMNProcessByName(processName, variables);
+    }
+
+    public ProcessInstanceWithVariables checkSMSProcess(final String processName, final String phone, final String msg)  {
+
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("phone", phone);
+        variables.put("msg", msg);
+
+        return executeBPMNProcessByName(processName, variables);
+    }
+
     @NotNull
     private Map<String, Object> buildVariableMapFromCSR(CSR csr, CAConnectorConfig caConfig) {
         Map<String, Object> variables = new HashMap<>();
@@ -403,30 +442,42 @@ public class BPMNUtil{
         return variables;
     }
 
+    private ProcessInstanceWithVariables executeBPMNProcessByName(final String processNameId, Map<String, Object> variables) {
 
-    private ProcessInstanceWithVariables executeBPMNProcessByName(final String processNameId, Map<String, Object> variables){
-
-        LOG.debug("execute BPMN Process with id {} ", processNameId);
-
-        variables.put("status", "Failed");
-        variables.put("failureReason", "");
-
-        try {
-            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceById(processNameId).setVariables(variables).executeWithVariablesInReturn();
-            String processInstanceId = processInstance.getId();
-            LOG.info("ProcessInstance: {}", processInstanceId);
-            return processInstance;
-        }catch(RuntimeException processException){
-            if(LOG.isDebugEnabled()){
-                LOG.debug("Exception while calling bpmn process '"+processNameId+"'", processException);
-            }
-            throw processException;
+        Optional<BPMNProcessInfo> bpmnProcessInfoOpt = bpnmInfoRepo.findByProcessId(processNameId);
+        if( bpmnProcessInfoOpt.isPresent()){
+            return executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoOpt.get(), variables);
+        }else{
+            throw new RuntimeException("processNameId '" + processNameId + "' unknown");
         }
     }
 
     private ProcessInstanceWithVariables executeBPMNProcessByBPMNProcessInfo(final BPMNProcessInfo bpmnProcessInfo, Map<String, Object> variables){
 
         LOG.debug("execute BPMN Process Info ''{}' ", bpmnProcessInfo.getName());
+
+        for( BPMNProcessAttribute bpmnProcessAttribute :bpmnProcessInfo.getBpmnProcessAttributes()){
+
+            String value = bpmnProcessAttribute.getValue();
+            if( Boolean.TRUE.equals(bpmnProcessAttribute.getProtectedContent())) {
+                List<ProtectedContent> protectedContents = protectedContentUtil.retrieveProtectedContent(
+                    ProtectedContentType.SECRET,
+                    ContentRelationType.BPMN_ATTRIBUTE,
+                    bpmnProcessAttribute.getId());
+
+                if (protectedContents.size() < 1) {
+                    LOG.warn("executeBPMNProcessByBPMNProcessInfo: no protected value found for BPMNProcessAttribute #{}", bpmnProcessAttribute.getId());
+
+                } else if (protectedContents.size() > 1) {
+                    LOG.warn("executeBPMNProcessByBPMNProcessInfo: more than one ({}) protected values found for BPMNProcessAttribute #{}!", protectedContents.size(), bpmnProcessAttribute.getId());
+                }
+
+                ProtectedContent protectedContent = protectedContents.get(0);
+                value = protectedContentUtil.unprotectString(protectedContent.getContentBase64());
+            }
+
+            variables.put("processAttribute_" + bpmnProcessAttribute.getName(), value);
+        }
 
         variables.put("status", "Failed");
         variables.put("failureReason", "");
@@ -648,4 +699,286 @@ public class BPMNUtil{
             }
         });
     }
+
+    public BPMNProcessInfoView toBPMNProcessInfoView( BPMNProcessInfo bpmnProcessInfo) {
+        BPMNProcessInfoView bpmnProcessInfoView = new BPMNProcessInfoView();
+        bpmnProcessInfoView.setId(bpmnProcessInfo.getId());
+        bpmnProcessInfoView.setName(bpmnProcessInfo.getName());
+        bpmnProcessInfoView.setType(bpmnProcessInfo.getType());
+        bpmnProcessInfoView.setVersion(bpmnProcessInfo.getVersion());
+        bpmnProcessInfoView.setAuthor(bpmnProcessInfo.getAuthor());
+        bpmnProcessInfoView.setLastChange(bpmnProcessInfo.getLastChange());
+        bpmnProcessInfoView.setBpmnHashBase64(bpmnProcessInfo.getBpmnHashBase64());
+        bpmnProcessInfoView.setProcessId(bpmnProcessInfo.getProcessId());
+
+        List<BPMNProcessAttribute> bpmnProcessAttributelist = new ArrayList<>();
+        for(BPMNProcessAttribute bpmnProcessAttribute: bpmnProcessInfo.getBpmnProcessAttributes()){
+            BPMNProcessAttribute bpmnProcessAttributeNew = new BPMNProcessAttribute();
+            bpmnProcessAttributeNew.setId(bpmnProcessAttribute.getId());
+            bpmnProcessAttributeNew.setName(bpmnProcessAttribute.getName());
+            bpmnProcessAttributeNew.setValue(bpmnProcessAttribute.getValue());
+            bpmnProcessAttributeNew.setProtectedContent(bpmnProcessAttribute.getProtectedContent());
+            bpmnProcessAttributelist.add(bpmnProcessAttributeNew);
+        }
+        bpmnProcessInfoView.setBpmnProcessAttributes(
+            bpmnProcessAttributelist.toArray(new BPMNProcessAttribute[0]));
+
+        return bpmnProcessInfoView;
+    }
+
+    public BPMNProcessInfo toBPMNProcessInfo(BPMNProcessInfoView bpmnProcessInfoView) {
+
+        List<AuditTrace> auditList = new ArrayList<>();
+        BPMNProcessInfo bpmnProcessInfo;
+        Optional<BPMNProcessInfo> bpmnProcessInfoOptByName = bpnmInfoRepo.findByName(bpmnProcessInfoView.getName());
+        if (bpmnProcessInfoView.getId() != null) {
+            // handle existing entity
+
+            Optional<BPMNProcessInfo> optP = bpnmInfoRepo.findById(bpmnProcessInfoView.getId());
+            if (optP.isPresent()) {
+                // given id is present
+                bpmnProcessInfo = optP.get();
+                if (bpmnProcessInfoOptByName.isPresent() &&
+                    !bpmnProcessInfoOptByName.get().getId().equals(bpmnProcessInfo.getId())) {
+                    throw new BadRequestAlertException("Name '" + bpmnProcessInfoView.getName() + "' already assigned", "BPMN", "name already used");
+                }
+            } else {
+                // given id is not present
+                if (bpmnProcessInfoOptByName.isPresent()) {
+                    throw new BadRequestAlertException("Name '" + bpmnProcessInfoView.getName() + "' already assigned", "BPMN", "name already used");
+                }
+                bpmnProcessInfo = createBPMNProcessInfo(bpmnProcessInfoView, auditList);
+            }
+        } else {
+            // handle new entity
+            if (bpmnProcessInfoOptByName.isPresent()) {
+                throw new BadRequestAlertException("Name '" + bpmnProcessInfoOptByName.get().getName() + "' already assigned", "pipeline", "name already used");
+            }
+            bpmnProcessInfo = createBPMNProcessInfo(bpmnProcessInfoView, auditList);
+        }
+
+        if (!Objects.equals(bpmnProcessInfoView.getName(), bpmnProcessInfo.getName())) {
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_NAME_CHANGED, bpmnProcessInfo.getName(), bpmnProcessInfoView.getName(), bpmnProcessInfo));
+            bpmnProcessInfo.setName(bpmnProcessInfoView.getName());
+        }
+
+        if (!Objects.equals(bpmnProcessInfoView.getName(), bpmnProcessInfo.getName())) {
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_TYPE_CHANGED, bpmnProcessInfo.getType().toString(), bpmnProcessInfoView.getType().toString(), bpmnProcessInfo));
+            bpmnProcessInfo.setType(bpmnProcessInfoView.getType());
+        }
+
+        if (!Objects.equals(bpmnProcessInfoView.getAuthor(), bpmnProcessInfo.getAuthor())) {
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_AUTHOR_CHANGED, bpmnProcessInfo.getAuthor(), bpmnProcessInfoView.getAuthor(), bpmnProcessInfo));
+            bpmnProcessInfo.setAuthor(bpmnProcessInfoView.getAuthor());
+        }
+
+        if (!Objects.equals(bpmnProcessInfoView.getVersion(), bpmnProcessInfo.getVersion())) {
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_VERSION_CHANGED, bpmnProcessInfo.getVersion(), bpmnProcessInfoView.getVersion(), bpmnProcessInfo));
+            bpmnProcessInfo.setVersion(bpmnProcessInfoView.getVersion());
+        }
+
+        if (!Objects.equals(bpmnProcessInfoView.getProcessId(), bpmnProcessInfo.getProcessId())) {
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_PROCESS_ID_CHANGED, bpmnProcessInfo.getProcessId(), bpmnProcessInfoView.getProcessId(), bpmnProcessInfo));
+            bpmnProcessInfo.setProcessId(bpmnProcessInfoView.getProcessId());
+        }
+
+        handleAttributes(bpmnProcessInfoView.getBpmnProcessAttributes(), auditList, bpmnProcessInfo);
+
+        bpnmInfoRepo.save(bpmnProcessInfo);
+
+        return bpmnProcessInfo;
+    }
+
+    public void handleAttributes( BPMNProcessAttribute[] bpmnProcessAttributes, List<AuditTrace> auditList, BPMNProcessInfo bpmnProcessInfo) {
+        if(bpmnProcessAttributes ==null) {
+            bpmnProcessAttributes = new BPMNProcessAttribute[0];
+        }
+
+        for (BPMNProcessAttribute attributeNew : bpmnProcessAttributes) {
+            if (StringUtils.isBlank(attributeNew.getName())) {
+                continue;
+            }
+            boolean isNewAttribute = true;
+            for (BPMNProcessAttribute attributeOld : bpmnProcessInfo.getBpmnProcessAttributes()) {
+                if (attributeNew.getName().equals(attributeOld.getName())) {
+                    // update
+                    if( Boolean.TRUE.equals(attributeNew.getProtectedContent())){
+                        changeProtectedAttribute(attributeNew, attributeOld, bpmnProcessInfo, auditList);
+                    }else {
+                        changeAttribute(attributeNew, attributeOld, bpmnProcessInfo, auditList);
+                    }
+                    isNewAttribute = false;
+                }
+            }
+            if (isNewAttribute) {
+                if( Boolean.TRUE.equals(attributeNew.getProtectedContent())){
+                    changeProtectedAttribute(attributeNew, null, bpmnProcessInfo, auditList);
+                }else {
+                    changeAttribute(attributeNew, null, bpmnProcessInfo, auditList);
+                }
+            }
+        }
+
+        LOG.debug( "in toBPMNProcessInfo, process attributes");
+        for( BPMNProcessAttribute attributeOld: bpmnProcessInfo.getBpmnProcessAttributes()){
+            boolean isDeletedAttribute = true;
+            for( BPMNProcessAttribute attributeNew: bpmnProcessAttributes){
+                if( StringUtils.isBlank(attributeNew.getName()) ){
+                    continue;
+                }
+                if( attributeNew.getName().equals(attributeOld.getName()) ){
+                    // update
+                    isDeletedAttribute = false;
+                }
+            }
+            if( isDeletedAttribute ){
+
+                if( Boolean.TRUE.equals(attributeOld.getProtectedContent())){
+                    changeProtectedAttribute(null, attributeOld, bpmnProcessInfo, auditList);
+                }else {
+                    changeAttribute(null, attributeOld, bpmnProcessInfo, auditList);
+                }
+            }
+        }
+    }
+
+
+    private void changeAttribute(BPMNProcessAttribute attributeNew, BPMNProcessAttribute attributeOld, BPMNProcessInfo bpmnProcessInfo,
+                                 List<AuditTrace> auditList) {
+
+        if (attributeNew == null) {
+            LOG.debug("in changeAttribute, delete {}", attributeOld.getName());
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_ATTRIBUTE_CHANGED, attributeOld.getName(), attributeOld.getValue(), null, bpmnProcessInfo));
+            bpnmAttributeRepo.delete(attributeOld);
+            bpmnProcessInfo.getBpmnProcessAttributes().remove(attributeOld);
+        } else if (attributeOld == null) {
+            LOG.debug("in changeAttribute, new attribute {}", attributeNew.getName());
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_ATTRIBUTE_CHANGED, attributeNew.getName(), null, attributeNew.getValue(), bpmnProcessInfo));
+            attributeNew.setBpmnProcessInfo(bpmnProcessInfo);
+            bpnmAttributeRepo.save(attributeNew);
+            bpmnProcessInfo.getBpmnProcessAttributes().add(attributeNew);
+        } else if (attributeNew.getValue().equals(attributeOld.getValue()) &&
+            (attributeNew.getProtectedContent() == attributeOld.getProtectedContent())) {
+            // no change
+        } else {
+            if (!attributeNew.getValue().equals(attributeOld.getValue())) {
+                LOG.debug("in changeAttribute, change {} from '{}' to  '{}'", attributeNew.getName(), attributeOld.getValue(), attributeNew.getValue());
+                attributeOld.setValue(attributeNew.getValue());
+            }
+            if (attributeNew.getProtectedContent() != attributeOld.getProtectedContent()) {
+                LOG.debug("in changeAttribute, change {} protection status from '{}' to  '{}'", attributeNew.getName(), attributeOld.getProtectedContent(), attributeNew.getProtectedContent());
+                attributeOld.setProtectedContent(attributeNew.getProtectedContent());
+            }
+            bpnmAttributeRepo.save(attributeOld);
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_ATTRIBUTE_CHANGED, attributeNew.getName(), attributeOld.getValue(), attributeNew.getValue(), bpmnProcessInfo));
+        }
+
+        if (attributeOld != null){
+            protectedContentUtil.deleteProtectedContent(
+                ProtectedContentType.SECRET,
+                ContentRelationType.BPMN_ATTRIBUTE,
+                attributeOld.getId());
+        }
+    }
+
+
+    private void changeProtectedAttribute(BPMNProcessAttribute attributeNew, BPMNProcessAttribute attributeOld, BPMNProcessInfo bpmnProcessInfo,
+                                 List<AuditTrace> auditList){
+
+
+        if( attributeNew == null) {
+            LOG.debug( "in changeAttribute, delete {}", attributeOld.getName());
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_ATTRIBUTE_CHANGED, attributeOld.getName(), attributeOld.getValue(),null, bpmnProcessInfo));
+            protectedContentUtil.deleteProtectedContent(
+                    ProtectedContentType.SECRET,
+                    ContentRelationType.BPMN_ATTRIBUTE,
+                    attributeOld.getId());
+            bpmnProcessInfo.getBpmnProcessAttributes().remove(attributeOld);
+
+
+        } else if( attributeOld == null){
+            LOG.debug( "in changeAttribute, new attribute {}", attributeNew.getName());
+            String value = attributeNew.getValue();
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(
+                AuditService.AUDIT_BPMN_ATTRIBUTE_CHANGED, attributeNew.getName(),
+                null,
+                ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER,
+                bpmnProcessInfo));
+
+            attributeNew.setValue(ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER);
+            attributeNew.setBpmnProcessInfo(bpmnProcessInfo);
+            attributeNew = bpnmAttributeRepo.save(attributeNew);
+            bpmnProcessInfo.getBpmnProcessAttributes().add(attributeNew);
+
+            protectedContentUtil.createProtectedContent(
+                value,
+                ProtectedContentType.SECRET,
+                ContentRelationType.BPMN_ATTRIBUTE,
+                attributeNew.getId());
+
+        }else if( attributeNew.getValue().equals(ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER)){
+            // no change
+        }else {
+
+            List<ProtectedContent> oldProtectedContents = protectedContentUtil.retrieveProtectedContent(
+                ProtectedContentType.SECRET,
+                ContentRelationType.BPMN_ATTRIBUTE,
+                attributeOld.getId());
+
+            if( oldProtectedContents.size() < 1 ){
+
+                protectedContentUtil.createProtectedContent(
+                    attributeNew.getValue(),
+                    ProtectedContentType.SECRET,
+                    ContentRelationType.BPMN_ATTRIBUTE,
+                    attributeNew.getId());
+            }else  if( oldProtectedContents.size() > 1 ) {
+                LOG.warn( "in changeProtectedAttribute, too many old protected contents present ({})!", oldProtectedContents.size() );
+                for( int i = 1; i < oldProtectedContents.size(); i++ ){
+                    protectedContentUtil.deleteProtectedContent(oldProtectedContents.get(i));
+                }
+            }
+
+            ProtectedContent protectedContent = oldProtectedContents.get(0);
+            String value = protectedContentUtil.unprotectString( protectedContent.getContentBase64());
+
+            if(!attributeNew.getValue().equals(value)) {
+                LOG.debug("in changeAttribute, change {} from '{}' to  '{}'", attributeNew.getName(), value, attributeNew.getValue());
+                protectedContent.setContentBase64(protectedContentUtil.protectString(value));
+            }
+            auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_ATTRIBUTE_CHANGED, attributeNew.getName(), attributeOld.getValue(), attributeNew.getValue(), bpmnProcessInfo));
+        }
+    }
+
+    private BPMNProcessInfo createBPMNProcessInfo(BPMNProcessInfoView bpmnProcessInfoView,
+                                                  List<AuditTrace> auditList){
+        LOG.debug( "in createBPMNProcessInfo");
+        BPMNProcessInfo bpmnProcessInfo = new BPMNProcessInfo();
+
+        bpmnProcessInfo.setId(bpmnProcessInfoView.getId());
+        bpmnProcessInfo.setName(bpmnProcessInfoView.getName());
+        bpmnProcessInfo.setType(bpmnProcessInfoView.getType());
+        bpmnProcessInfo.setAuthor(bpmnProcessInfoView.getAuthor());
+        bpmnProcessInfo.setVersion(bpmnProcessInfoView.getVersion());
+        bpmnProcessInfo.setProcessId(bpmnProcessInfoView.getProcessId());
+        bpmnProcessInfo.setLastChange(bpmnProcessInfoView.getLastChange());
+        bpmnProcessInfo.setBpmnHashBase64(bpmnProcessInfoView.getBpmnHashBase64());
+        bpmnProcessInfo.setSignatureBase64(bpmnProcessInfoView.getSignatureBase64());
+
+        if( bpmnProcessInfoView.getBpmnProcessAttributes() == null){
+            bpmnProcessInfoView.setBpmnProcessAttributes(new BPMNProcessAttribute[0]);
+        }
+        HashSet<BPMNProcessAttribute> bpmnProcessAttributeSet = new HashSet<>();
+        for( BPMNProcessAttribute attribute: bpmnProcessInfoView.getBpmnProcessAttributes()){
+            bpmnProcessAttributeSet.add(attribute);
+            bpnmAttributeRepo.save(attribute);
+        }
+        bpmnProcessInfo.setBpmnProcessAttributes(bpmnProcessAttributeSet);
+        bpnmInfoRepo.save(bpmnProcessInfo);
+
+        auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_CREATED, null, null, bpmnProcessInfo));
+
+        return bpmnProcessInfo;
+    }
+
 }

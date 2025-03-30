@@ -11,6 +11,7 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CRLUtil;
+import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData;
@@ -54,6 +55,7 @@ public class CertificateAdministration {
 
     final private CertificateUtil certUtil;
 
+    private final CSRUtil csrUtil;
     private final CRLUtil crlUtil;
 
     final private UserRepository userRepository;
@@ -68,7 +70,7 @@ public class CertificateAdministration {
                                      CertificateAttributeRepository certificateAttributeRepository,
                                      BPMNUtil bpmnUtil, CryptoUtil cryptoUtil,
                                      CertificateUtil certUtil,
-                                     CRLUtil crlUtil, UserRepository userRepository,
+                                     CSRUtil csrUtil, CRLUtil crlUtil, UserRepository userRepository,
                                      CertExpiryScheduler certExpiryScheduler,
                                      AsyncNotificationService asyncNotificationService,
                                      AuditService auditService) {
@@ -77,6 +79,7 @@ public class CertificateAdministration {
         this.bpmnUtil = bpmnUtil;
         this.cryptoUtil = cryptoUtil;
         this.certUtil = certUtil;
+        this.csrUtil = csrUtil;
         this.crlUtil = crlUtil;
         this.userRepository = userRepository;
         this.certExpiryScheduler = certExpiryScheduler;
@@ -116,7 +119,8 @@ public class CertificateAdministration {
                             if (requestor.getEmail() == null) {
                                 LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
                             } else {
-                                asyncNotificationService.notifyUserCertificateRevokedAsync(requestor, cert, csr );
+                                Set<String> additionalEmailSet = csrUtil.getAdditionalEmailRecipients(cert.getCsr());
+                                asyncNotificationService.notifyUserCertificateRevokedAsync(requestor, cert, csr, additionalEmailSet );
                             }
                         } else {
                             LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());

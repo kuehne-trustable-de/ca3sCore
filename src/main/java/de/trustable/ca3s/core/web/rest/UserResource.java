@@ -3,13 +3,11 @@ package de.trustable.ca3s.core.web.rest;
 import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
-import de.trustable.ca3s.core.repository.CertificateSpecifications;
 import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.UserService;
-import de.trustable.ca3s.core.service.dto.CertificateView;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 import de.trustable.ca3s.core.web.rest.errors.EmailAlreadyUsedException;
 import de.trustable.ca3s.core.web.rest.errors.LoginAlreadyUsedException;
@@ -22,9 +20,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -33,14 +28,12 @@ import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
 import javax.mail.MessagingException;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -136,7 +129,6 @@ public class UserResource {
      *
      * @param userDTO the user to update.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated user.
-     * @throws EmailAlreadyUsedException {@code 400 (Bad Request)} if the email is already in use.
      * @throws LoginAlreadyUsedException {@code 400 (Bad Request)} if the login is already in use.
      */
     @PutMapping("/users")
@@ -144,11 +136,8 @@ public class UserResource {
     @Transactional
     public ResponseEntity<UserDTO> updateUser(@Valid @RequestBody UserDTO userDTO) {
         log.debug("REST request to update User : {}", userDTO);
-        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
-        if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
-            throw new EmailAlreadyUsedException();
-        }
-        existingUser = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase());
+
+        Optional<User> existingUser = userRepository.findOneByLogin(userDTO.getLogin().toLowerCase());
         if (existingUser.isPresent() && (!existingUser.get().getId().equals(userDTO.getId()))) {
             throw new LoginAlreadyUsedException();
         }

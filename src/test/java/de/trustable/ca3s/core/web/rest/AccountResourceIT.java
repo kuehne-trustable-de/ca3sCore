@@ -98,6 +98,7 @@ class AccountResourceIT {
         user.setFirstName("john");
         user.setLastName("doe");
         user.setEmail("john.doe@jhipster.com");
+        user.setPhone("555-123-456");
         user.setImageUrl("http://placehold.it/50x50");
         user.setLangKey("en");
         user.setAuthorities(authorities);
@@ -111,6 +112,7 @@ class AccountResourceIT {
             .andExpect(jsonPath("$.firstName").value("john"))
             .andExpect(jsonPath("$.lastName").value("doe"))
             .andExpect(jsonPath("$.email").value("john.doe@jhipster.com"))
+            .andExpect(jsonPath("$.phone").value("555-123-456"))
             .andExpect(jsonPath("$.imageUrl").value("http://placehold.it/50x50"))
             .andExpect(jsonPath("$.langKey").value("en"))
             .andExpect(jsonPath("$.authorities").value(AuthoritiesConstants.ADMIN));

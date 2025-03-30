@@ -1,4 +1,4 @@
-package de.trustable.ca3s.core.web.rest.data;
+package de.trustable.ca3s.core.service.dto;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -11,7 +11,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import de.trustable.ca3s.core.service.dto.NamedValues;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.Extensions;

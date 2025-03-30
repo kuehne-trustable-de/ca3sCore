@@ -540,13 +540,14 @@ public class CSRSubmitIT extends WebTestBase {
         waitForElement(LOC_TEXT_WARNING_LABEL);
         // explain("csr.submit.38");
 
+        /*
         try {
             System.out.println("... waiting ...");
             System.in.read();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+*/
     }
 
     @Test
@@ -813,7 +814,10 @@ public class CSRSubmitIT extends WebTestBase {
     @Test
     public void testCSRSubmitDirectRestrictionViolated() throws GeneralSecurityException, IOException {
 
-        signIn(USER_NAME_USER, USER_PASSWORD_USER);
+        signIn(USER_NAME_USER, USER_PASSWORD_USER, null, 1000);
+
+        validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        click(LOC_LNK_REQ_CERT_MENUE);
 
         validatePresent(LOC_LNK_REQ_CERT_MENUE);
         click(LOC_LNK_REQ_CERT_MENUE);
@@ -857,6 +861,9 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_LNK_REQ_CERT_MENUE);
         click(LOC_LNK_REQ_CERT_MENUE);
 
+        validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        click(LOC_LNK_REQ_CERT_MENUE);
+
         validatePresent(LOC_SEL_PIPELINE);
 
         click(LOC_SEL_PIPELINE);
@@ -886,6 +893,9 @@ public class CSRSubmitIT extends WebTestBase {
 
         validatePresent(LOC_LNK_REQUESTS_MENUE);
         click(LOC_LNK_REQUESTS_MENUE);
+
+        validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        click(LOC_LNK_REQ_CERT_MENUE);
 
         validatePresent(LOC_TEXT_REQUEST_LIST);
 

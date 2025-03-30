@@ -5,23 +5,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import de.trustable.ca3s.core.config.ClientAuthConfig;
 import de.trustable.ca3s.core.config.CryptoConfiguration;
 import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
-import de.trustable.ca3s.core.domain.enumeration.PipelineType;
-import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
-import de.trustable.ca3s.core.domain.enumeration.RDNCardinalityRestriction;
+import de.trustable.ca3s.core.domain.enumeration.*;
+import de.trustable.ca3s.core.repository.BPMNProcessInfoRepository;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.UserPreferenceRepository;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.*;
-import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
-import de.trustable.ca3s.core.service.util.CertificateSelectionUtil;
-import de.trustable.ca3s.core.service.util.PipelineUtil;
-import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
-import de.trustable.ca3s.core.web.rest.CAConnectorConfigResource;
+import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.CertificateFilterList;
-import de.trustable.ca3s.core.service.util.UserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,7 +55,11 @@ public class UIDatasetSupport {
 
     private final CryptoConfiguration cryptoConfiguration;
 
+    private final BPMNProcessInfoRepository bpmnProcessInfoRepository;
+
     private final UserUtil userUtil;
+
+    private final String appName;
 
     private final boolean autoSSOLogin;
 
@@ -71,7 +68,7 @@ public class UIDatasetSupport {
     private final String[] ssoProvider;
     private final String samlEntityBaseUrl;
 
-    private final String[] scndFactorTypes;
+    private final List<AuthSecondFactor> secondFactorList;
 
     public UIDatasetSupport(CAConnectorConfigRepository caConnConfRepo,
                             CaConnectorAdapter caConnectorAdapter,
@@ -84,11 +81,13 @@ public class UIDatasetSupport {
                             CryptoConfiguration cryptoConfiguration,
                             UserUtil userUtil,
                             ClientAuthConfig clientAuthConfig,
+                            BPMNProcessInfoRepository bpmnProcessInfoRepository,
+                            @Value("${ca3s.app.name:ca3s}") String appName,
                             @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
                             @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                             @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider,
                             @Value("${ca3s.saml.entity.base-url:}") String samlEntityBaseUrl,
-                            @Value("${ca3s.ui.login.scnd-factor:CLIENT_AUTH}") String[] scndFactorTypes) {
+                            @Value("${ca3s.ui.login.scnd-factor:CLIENT_CERT, TOTP, SMS}") String[] scndFactorTypes) {
         this.caConnConfRepo = caConnConfRepo;
         this.caConnectorAdapter = caConnectorAdapter;
         this.pipelineRepo = pipelineRepo;
@@ -99,11 +98,17 @@ public class UIDatasetSupport {
         this.certificateSelectionAttributeList = certificateSelectionAttributeList;
         this.cryptoConfiguration = cryptoConfiguration;
         this.userUtil = userUtil;
+        this.bpmnProcessInfoRepository = bpmnProcessInfoRepository;
+        this.appName = appName;
         this.autoSSOLogin = autoSSOLogin;
         this.certificateStoreIsolation = certificateStoreIsolation;
         this.ssoProvider = ssoProvider;
         this.samlEntityBaseUrl = samlEntityBaseUrl;
-        this.scndFactorTypes = scndFactorTypes;
+
+        this.secondFactorList = new ArrayList<>();
+        for( String factor: scndFactorTypes){
+            secondFactorList.add(AuthSecondFactor.valueOf(factor));
+        }
     }
 
     /**
@@ -117,11 +122,19 @@ public class UIDatasetSupport {
 
         CryptoConfigView cryptoConfigView = cryptoConfiguration.getCryptoConfigView();
 
-        UIConfigView uiConfigView = new UIConfigView(cryptoConfigView,
+        List<AuthSecondFactor> effSecondFactorList = new ArrayList<>(secondFactorList);
+        if( bpmnProcessInfoRepository.findByType(BPMNProcessType.SEND_SMS).isEmpty()){
+            LOG.debug("No SEND_SMS process defined");
+            secondFactorList.remove(AuthSecondFactor.SMS);
+        }
+        UIConfigView uiConfigView = new UIConfigView(appName,
+            cryptoConfigView,
             autoSSOLogin,
             ssoProvider,
             samlEntityBaseUrl,
-            scndFactorTypes);
+            effSecondFactorList.toArray(new AuthSecondFactor[0]));
+
+
         LOG.debug("returning uiConfigView: {}", uiConfigView);
 
         return uiConfigView;
@@ -212,6 +225,10 @@ public class UIDatasetSupport {
                     LOG.debug("pipeline {} matches tenant '{}'", p.getName(), tenant.getName());
                     pvList.add(pipelineUtil.from(p));
                 }
+                if( tenant == null) {
+                    LOG.debug("user tenant is null, matches pipeline {}", p.getName());
+                    pvList.add(pipelineUtil.from(p));
+                }
             }
         });
         return pvList;
@@ -294,7 +311,7 @@ public class UIDatasetSupport {
 
         if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().length() == 0))  {
 	        cAConnectorConfig.setSecret(null);
-        }else if(CAConnectorConfigResource.PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret().trim())) {
+        }else if(ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret().trim())) {
         	// no passphrase change received from the UI, use the existing 'secret' object
 
         	Optional<CAConnectorConfig> optCcc = caConnConfRepo.findById(cAConnectorConfig.getId());

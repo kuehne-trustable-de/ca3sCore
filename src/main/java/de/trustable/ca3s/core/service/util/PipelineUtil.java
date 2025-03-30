@@ -97,6 +97,7 @@ public class PipelineUtil {
     public static final String RESTR_ARA_REGEXMATCH = "REGEXMATCH";
     public static final String RESTR_ARA_REQUIRED = "REQUIRED";
     public static final String RESTR_ARA_COMMENT = "COMMENT";
+    public static final String RESTR_ARA_CONTENT_TYPE = "CONTENTTYPE";
 
     public static final String KEY_UNIQUENESS = "KEY_UNIQUENESS";
     public static final String TOS_AGREEMENT_REQUIRED = "TOS_AGREEMENT_REQUIRED";
@@ -553,7 +554,6 @@ public class PipelineUtil {
         LOG.debug("#{} ARA itmes found", nARA);
         ARARestriction[] araRestrictions = new ARARestriction[nARA];
 
-
         /*
          * find all ARA restrictions
          */
@@ -566,6 +566,7 @@ public class PipelineUtil {
                     LOG.debug("araIdx: {}", araIdx);
                     if (araRestrictions[araIdx] == null) {
                         araRestrictions[araIdx] = new ARARestriction();
+                        araRestrictions[araIdx].setContentType( ARAContentType.NO_TYPE);
                     }
                     ARARestriction araRestriction = araRestrictions[araIdx];
                     String namePart = m.group(2);
@@ -582,8 +583,9 @@ public class PipelineUtil {
                         araRestriction.setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
                     } else if (RESTR_ARA_REGEX.equals(namePart)) {
                         araRestriction.setRegEx(plAtt.getValue());
+                    } else if (RESTR_ARA_CONTENT_TYPE.equals(namePart)) {
+                        araRestriction.setContentType( ARAContentType.valueOf(plAtt.getValue()));
                     }
-
 
                 }
             }
@@ -965,6 +967,7 @@ public class PipelineUtil {
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REQUIRED, araRestriction.isRequired());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_TEMPLATE, araRestriction.getContentTemplate());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_COMMENT, araRestriction.getComment());
+                    addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_CONTENT_TYPE, araRestriction.getContentType().toString());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEX, araRestriction.getRegEx());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEXMATCH, araRestriction.isRegExMatch());
                     j++;
@@ -1585,6 +1588,18 @@ public class PipelineUtil {
         return defaultValue;
     }
 
+    public List<String> getTypedARAttributeNames(Pipeline pipeline, ARAContentType araContentType) {
+
+        List<String> nameList = new ArrayList<>();
+        ARARestriction[] araRestrictions = initAraRestrictions(pipeline);
+        for(ARARestriction araRestriction: araRestrictions){
+            if(araContentType.equals(araRestriction.getContentType())) {
+                nameList.add(araRestriction.getName());
+            }
+        }
+        return nameList;
+    }
+
     public Certificate getSCEPRecipientCertificate(Pipeline pipeline, CertificateProcessingUtil cpUtil) throws IOException, GeneralSecurityException {
 
         LOG.debug("getSCEPRecipientCertificate() ...");
@@ -1691,7 +1706,6 @@ public class PipelineUtil {
                 }
             }
         }
-
         return false;
     }
 
@@ -1822,5 +1836,6 @@ public class PipelineUtil {
     GeneralName buildGeneralName(CsrAttribute csrAttribute){
         return CertificateUtil.getGeneralNameFromTypedSAN(csrAttribute.getValue());
     }
+
 }
 

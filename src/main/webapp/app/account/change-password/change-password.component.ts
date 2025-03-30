@@ -1,8 +1,9 @@
 import { maxLength, minLength, required, sameAs } from 'vuelidate/lib/validators';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { mapGetters } from 'vuex';
-import Component from 'vue-class-component';
-import { Vue } from 'vue-property-decorator';
+import Component, { mixins } from 'vue-class-component';
+import AlertMixin from '@/shared/alert/alert.mixin';
+import { IAccountCredentialView, IPasswordChangeDTO } from '@/shared/model/transfer-object.model';
 
 const validations = {
   resetPassword: {
@@ -21,6 +22,10 @@ const validations = {
       }),
     },
   },
+  clientAuthSecret: {
+    minLength: minLength(4),
+    maxLength: maxLength(254),
+  },
 };
 
 @Component({
@@ -29,15 +34,63 @@ const validations = {
     ...mapGetters(['account']),
   },
 })
-export default class ChangePassword extends Vue {
+export default class ChangePassword extends mixins(AlertMixin) {
   success: string = null;
   error: string = null;
   doNotMatch: string = null;
+  updateCounter: number = 1;
+
+  credentialChange: IPasswordChangeDTO = { credentialUpdateType: 'PASSWORD' };
+
   resetPassword: any = {
     currentPassword: null,
     newPassword: null,
     confirmPassword: null,
   };
+  clientAuthSecret: string = null;
+
+  qrCodeImgUrl: string = null;
+
+  private removeInstance: IAccountCredentialView = {};
+
+  public accountCredentialArr: IAccountCredentialView[] = [];
+
+  public mounted(): void {
+    this.refreshUIConfig();
+
+    this.getCredentials();
+
+    this.credentialChange.clientAuthCertId = 0;
+  }
+
+  public refreshUIConfig() {
+    const self = this;
+    axios({
+      method: 'get',
+      url: 'api/ui/config',
+      responseType: 'stream',
+    }).then(function (response) {
+      window.console.info('ui/config returns ' + response.data);
+
+      self.uiConfig = response.data;
+      self.$store.commit('updateCV', self.uiConfig);
+      self.ssoProvider = self.uiConfig.ssoProvider;
+    });
+  }
+
+  public getCredentials(): void {
+    window.console.info('calling getCredentials');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api/account/credentials',
+      responseType: 'stream',
+    }).then(function (response) {
+      window.console.info('getCredentials returns ' + response.data);
+      self.accountCredentialArr = response.data;
+    });
+  }
 
   public changePassword(): void {
     if (this.resetPassword.newPassword !== this.resetPassword.confirmPassword) {
@@ -46,18 +99,24 @@ export default class ChangePassword extends Vue {
       this.doNotMatch = 'ERROR';
     } else {
       this.doNotMatch = null;
+      this.credentialChange.currentPassword = this.resetPassword.currentPassword;
+      this.credentialChange.newPassword = this.resetPassword.newPassword;
       axios
-        .post('api/account/change-password', {
-          currentPassword: this.resetPassword.currentPassword,
-          newPassword: this.resetPassword.newPassword,
-        })
+        .post('api/account/change-password', this.credentialChange)
         .then(() => {
           this.success = 'OK';
+          this.credentialChange.clientAuthCertId = 0;
           this.error = null;
+          this.resetPassword.currentPassword = '';
+          this.resetPassword.newPassword = '';
+          this.resetPassword.confirmPassword = '';
         })
         .catch(() => {
           this.success = null;
           this.error = 'ERROR';
+          this.resetPassword.currentPassword = '';
+          this.resetPassword.newPassword = '';
+          this.resetPassword.confirmPassword = '';
         });
     }
   }
@@ -66,6 +125,29 @@ export default class ChangePassword extends Vue {
     return this.$store.getters.account?.login ?? '';
   }
 
+  public keystoreFilename(): string {
+    return 'personalClientCertificate.p12';
+  }
+
+  public hasPhoneNumber(): boolean {
+    return this.$store.getters.account.phone !== null;
+  }
+
+  public canCreateSecondFactor(secondFactorType: string): boolean {
+    return this.$store.state.uiConfigStore.config.scndFactorTypes.includes(secondFactorType);
+  }
+  public showRequiredWarning(isRequired: boolean, value: string): boolean {
+    console.log('showRequiredWarning( ' + isRequired + ', "' + value + '")');
+    if (isRequired) {
+      if (!value) {
+        return true;
+      }
+      if (value.trim().length === 0) {
+        return true;
+      }
+    }
+    return false;
+  }
   public showRegExpFieldWarning(value: string, regEx: string): boolean {
     const regexp = new RegExp(regEx);
     const valid = regexp.test(value);
@@ -82,7 +164,7 @@ export default class ChangePassword extends Vue {
     }
     return '';
   }
-
+  jhi_authority;
   public regExpSecretDescription(): string {
     if (
       this.$store.state.uiConfigStore.config.cryptoConfigView !== undefined &&
@@ -92,5 +174,49 @@ export default class ChangePassword extends Vue {
       return this.$store.state.uiConfigStore.config.cryptoConfigView.regexpPasswordDescription;
     }
     return '';
+  }
+
+  public canCreateCertificate(): boolean {
+    const canCreateCertificate = !this.showRegExpFieldWarning(this.$v.clientAuthSecret.$model, this.regExpSecret());
+    console.log('canCreateCertificate: ' + canCreateCertificate);
+    return canCreateCertificate;
+  }
+  public canSubmit(): boolean {
+    if (this.credentialChange.credentialUpdateType === 'CLIENT_CERT') {
+      if (this.credentialChange.clientAuthCertId === 0) {
+        console.log('canSubmit, CLIENT_CERT : clientAuthCertId === 0');
+        return false;
+      }
+      if (!this.canCreateCertificate()) {
+        console.log('canSubmit, CLIENT_CERT : clientAuthSecret does not match regExp');
+        return false;
+      }
+    } else if (this.credentialChange.credentialUpdateType === 'TOTP') {
+      console.log('canSubmit, TOTP');
+    }
+
+    console.log('canSubmit: currentPassword.$invalid: ' + this.$v.resetPassword.currentPassword.$invalid);
+    return !this.$v.resetPassword.currentPassword.$invalid;
+  }
+
+  public prepareRemove(instance: IAccountCredentialView): void {
+    this.removeInstance = instance;
+  }
+
+  public removeCredential(): void {
+    const self = this;
+
+    const url =
+      '/api/account/credentials/' + encodeURIComponent(this.removeInstance.relationType) + '/' + encodeURIComponent(this.removeInstance.id);
+
+    axios.delete(url).then(function (response) {
+      window.console.info('delete credentials returns ' + response.status);
+      self.getCredentials();
+      self.closeDialog();
+    });
+  }
+
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
   }
 }

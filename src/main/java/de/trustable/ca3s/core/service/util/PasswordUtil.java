@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.service.util;
 
-import de.trustable.ca3s.core.exception.PasswordRestrictionMismatch;
+import de.trustable.ca3s.core.exception.PasswordRestrictionMismatchException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class PasswordUtil {
             if( password != null && passwordCheckPattern.matcher(password).matches() ){
             LOG.debug("password matches restrictions");
         }else{
-            throw new PasswordRestrictionMismatch(elementName + " does not match restriction '" + this.passwordCheckRegExp + "'");
+            throw new PasswordRestrictionMismatchException(elementName + " does not match restriction '" + this.passwordCheckRegExp + "'");
         }
     }
 

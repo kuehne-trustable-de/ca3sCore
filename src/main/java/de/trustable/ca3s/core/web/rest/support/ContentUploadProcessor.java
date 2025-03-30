@@ -17,7 +17,8 @@ import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.util.*;
-import de.trustable.ca3s.core.web.rest.data.*;
+import de.trustable.ca3s.core.web.rest.data.CreationMode;
+import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.commons.lang3.ArrayUtils;
@@ -25,7 +26,6 @@ import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
-import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.jcajce.interfaces.EdDSAPrivateKey;
@@ -63,7 +63,10 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static de.trustable.ca3s.core.service.util.PipelineUtil.NOTIFY_RA_OFFICER_ON_PENDING;
@@ -108,25 +111,9 @@ public class ContentUploadProcessor {
     private final Pattern pkcs12SecretPattern;
 
 
-    private static final String SIGNATURE_ALG = "SHA256withRSA";
-    private static final String EC_SIGNATURE_ALG = "SHA256withECDSA";
-    private static final String ED25519_SIGNATURE_ALG = "ed25519";
-
-	static HashMap<String,ASN1ObjectIdentifier> nameOIDMap = new HashMap<>();
-	static HashMap<String,Integer> nameGeneralNameMap = new HashMap<>();
-	static {
-		nameOIDMap.put("C", BCStyle.C);
-		nameOIDMap.put("CN", BCStyle.CN);
-		nameOIDMap.put("O", BCStyle.O);
-		nameOIDMap.put("OU", BCStyle.OU);
-		nameOIDMap.put("L", BCStyle.L);
-        nameOIDMap.put("ST", BCStyle.ST);
-        nameOIDMap.put("E", BCStyle.E);
-
-        nameGeneralNameMap.put("DNS-NAME", GeneralName.dNSName);
-        nameGeneralNameMap.put("DNS", GeneralName.dNSName);
-		nameGeneralNameMap.put("IP", GeneralName.iPAddress);
-	}
+    public static final String SIGNATURE_ALG = "SHA256withRSA";
+    public static final String EC_SIGNATURE_ALG = "SHA256withECDSA";
+    public static final String ED25519_SIGNATURE_ALG = "ed25519";
 
     public ContentUploadProcessor(CryptoUtil cryptoUtil,
                                   ProtectedContentUtil protUtil,
@@ -192,31 +179,6 @@ public class ContentUploadProcessor {
 
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 
-    }
-
-    /**
-     * {@code POST  /csrContent} : Process a PKCSXX-object encoded as PEM.
-     *
-     * @param uploaded a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
-     * @return the {@link ResponseEntity} .
-     */
-    @PostMapping("/clientKeystore")
-    @Transactional(noRollbackFor = CAFailureException.class)
-    public ResponseEntity<PkcsXXData> buildClientKeystore(@Valid @RequestBody UploadPrecheckData uploaded) {
-
-        /*
-        @todo : not ready, yet
-         */
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String requestorName = auth.getName();
-        ResponseEntity<PkcsXXData> pkcsXXDataResponseEntity = buildServerSideKeyAndRequest(uploaded, requestorName);
-        if( pkcsXXDataResponseEntity == null ||
-            pkcsXXDataResponseEntity.getBody() == null){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        String certId = pkcsXXDataResponseEntity.getBody().getCreatedCertificateId();
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
 	public ResponseEntity<PkcsXXData> buildCertificateFromCSR(UploadPrecheckData uploaded, String requestorName){
@@ -472,8 +434,8 @@ public class ContentUploadProcessor {
             for(NamedValues nv: certAttr) {
 
                 String name = nv.getName();
-                if( nameOIDMap.containsKey(name)) {
-                    ASN1ObjectIdentifier oid = nameOIDMap.get(name);
+                if( CertificateUtil.nameOIDMap.containsKey(name)) {
+                    ASN1ObjectIdentifier oid = CertificateUtil.nameOIDMap.get(name);
                     for( TypedValue typedValue: nv.getValues()) {
                         if( typedValue.getValue() != null && !typedValue.getValue().isEmpty()) {
                             namebuilder.addRDN(oid, typedValue.getValue());
@@ -488,8 +450,8 @@ public class ContentUploadProcessor {
                         }
 
                         Integer sanType = GeneralName.dNSName;
-                        if(nameGeneralNameMap.containsKey(typedValue.getType().toUpperCase() )) {
-                            sanType = nameGeneralNameMap.get(typedValue.getType().toUpperCase());
+                        if(CertificateUtil.nameGeneralNameMap.containsKey(typedValue.getType().toUpperCase() )) {
+                            sanType = CertificateUtil.nameGeneralNameMap.get(typedValue.getType().toUpperCase());
                         }else {
                             LOG.warn("SAN certificate attribute has unknown type '{}'", typedValue.getType());
                         }

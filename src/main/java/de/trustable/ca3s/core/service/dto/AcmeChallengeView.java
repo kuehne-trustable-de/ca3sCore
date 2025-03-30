@@ -15,6 +15,8 @@ public class AcmeChallengeView implements Serializable {
     private String value;
     private Instant validated;
     private ChallengeStatus status;
+    private String lastError;
+
 
     public String getAuthorizationType() {
         return authorizationType;
@@ -70,5 +72,13 @@ public class AcmeChallengeView implements Serializable {
 
     public void setStatus(ChallengeStatus status) {
         this.status = status;
+    }
+
+    public String getLastError() {
+        return lastError;
+    }
+
+    public void setLastError(String lastError) {
+        this.lastError = lastError;
     }
 }

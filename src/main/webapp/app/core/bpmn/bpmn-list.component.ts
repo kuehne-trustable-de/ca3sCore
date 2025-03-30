@@ -221,16 +221,18 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
   }
 
   public removeBPMNProcess(): void {
+    const self = this;
+
     this.bPNMProcessInfoService()
       .delete(this.removeId)
       .then(() => {
         const message = this.$t('ca3SApp.bpmn.deleted', { param: this.removeId });
-        this.alertService().showAlert(message, 'danger');
-        this.getAlertFromStore();
+        self.alertService().showAlert(message, 'danger');
+        self.getAlertFromStore();
 
-        this.removeId = null;
-        //        this.retrieveAllPipelines();
-        this.closeDialog();
+        self.removeId = null;
+        self.buildContentAccessUrl();
+        self.closeDialog();
       });
   }
 

@@ -5,6 +5,8 @@ import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.BPMNProcessInfoService;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 
+import de.trustable.ca3s.core.service.dto.BPMNProcessInfoView;
+import de.trustable.ca3s.core.service.util.BPMNUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -36,57 +38,58 @@ public class BPMNProcessInfoResource {
     private String applicationName;
 
     private final BPMNProcessInfoService bPMNProcessInfoService;
+    private final BPMNUtil bpmnUtil;
 
-    public BPMNProcessInfoResource(BPMNProcessInfoService bPMNProcessInfoService) {
+    public BPMNProcessInfoResource(BPMNProcessInfoService bPMNProcessInfoService, BPMNUtil bpmnUtil) {
         this.bPMNProcessInfoService = bPMNProcessInfoService;
+        this.bpmnUtil = bpmnUtil;
     }
 
     /**
-     * {@code POST  /bpmn-process-infos} : Create a new bPMNProcessInfo.
+     * {@code POST  /bpmn-process-infos} : Create a new bPMNProcessInfoView.
      *
-     * @param bPMNProcessInfo the bPMNProcessInfo to create.
-     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new bPMNProcessInfo, or with status {@code 400 (Bad Request)} if the bPMNProcessInfo has already an ID.
+     * @param bPMNProcessInfoView the bPMNProcessInfoView to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new bPMNProcessInfoView, or with status {@code 400 (Bad Request)} if the bPMNProcessInfoView has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/bpmn-process-infos")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<BPMNProcessInfo> createBPMNProcessInfo(@Valid @RequestBody BPMNProcessInfo bPMNProcessInfo) throws URISyntaxException {
-        log.debug("REST request to save BPMNProcessInfo : {}", bPMNProcessInfo);
-        if (bPMNProcessInfo.getId() != null) {
-            throw new BadRequestAlertException("A new bPMNProcessInfo cannot already have an ID", ENTITY_NAME, "idexists");
+    public ResponseEntity<BPMNProcessInfo> createBPMNProcessInfo(@Valid @RequestBody BPMNProcessInfoView bPMNProcessInfoView) throws URISyntaxException {
+        log.debug("REST request to save BPMNProcessInfoView : {}", bPMNProcessInfoView);
+        if (bPMNProcessInfoView.getId() != null) {
+            throw new BadRequestAlertException("A new bPMNProcessInfoView cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        BPMNProcessInfo result = bPMNProcessInfoService.save(bPMNProcessInfo);
+        BPMNProcessInfo result = bPMNProcessInfoService.save(bPMNProcessInfoView);
         return ResponseEntity.created(new URI("/api/bpmn-process-infos/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
 
     /**
-     * {@code PUT  /bpmn-process-infos} : Updates an existing bPMNProcessInfo.
+     * {@code PUT  /bpmn-process-infos} : Updates an existing bPMNProcessInfoView.
      *
-     * @param bPMNProcessInfo the bPMNProcessInfo to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated bPMNProcessInfo,
-     * or with status {@code 400 (Bad Request)} if the bPMNProcessInfo is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the bPMNProcessInfo couldn't be updated.
+     * @param bPMNProcessInfoView the bPMNProcessInfoView to update.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated bPMNProcessInfoView,
+     * or with status {@code 400 (Bad Request)} if the bPMNProcessInfoView is not valid,
+     * or with status {@code 500 (Internal Server Error)} if the bPMNProcessInfoView couldn't be updated.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/bpmn-process-infos")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<BPMNProcessInfo> updateBPMNProcessInfo(@Valid @RequestBody BPMNProcessInfo bPMNProcessInfo) throws URISyntaxException {
-        log.debug("REST request to update BPMNProcessInfo : {}", bPMNProcessInfo);
-        if (bPMNProcessInfo.getId() == null) {
+    public ResponseEntity<BPMNProcessInfo> updateBPMNProcessInfo(@Valid @RequestBody BPMNProcessInfoView bPMNProcessInfoView) throws URISyntaxException {
+        log.debug("REST request to update BPMNProcessInfo : {}", bPMNProcessInfoView);
+        if (bPMNProcessInfoView.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        BPMNProcessInfo result = bPMNProcessInfoService.save(bPMNProcessInfo);
+        BPMNProcessInfo result = bPMNProcessInfoService.save(bPMNProcessInfoView);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, bPMNProcessInfo.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, bPMNProcessInfoView.getId().toString()))
             .body(result);
     }
 
     /**
      * {@code GET  /bpmn-process-infos} : get all the bPMNProcessInfos.
      *
-
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of bPMNProcessInfos in body.
      */
     @GetMapping("/bpmn-process-infos")
@@ -108,6 +111,24 @@ public class BPMNProcessInfoResource {
         log.debug("REST request to get BPMNProcessInfo : {}", id);
         Optional<BPMNProcessInfo> bPMNProcessInfo = bPMNProcessInfoService.findOne(id);
         return ResponseUtil.wrapOrNotFound(bPMNProcessInfo);
+    }
+
+    /**
+     * {@code GET  /bpmn-process-info-view/:id} : get the "id" bPMNProcessInfo.
+     *
+     * @param id the id of the bPMNProcessInfo to retrieve.
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the bPMNProcessInfo, or with status {@code 404 (Not Found)}.
+     */
+    @GetMapping("/bpmn-process-info-view/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<BPMNProcessInfoView> getBPMNProcessInfoView(@PathVariable Long id) {
+        log.debug("REST request to get BPMNProcessInfo : {}", id);
+        Optional<BPMNProcessInfo> bPMNProcessInfo = bPMNProcessInfoService.findOne(id);
+        if(bPMNProcessInfo.isPresent()){
+            return ResponseEntity.ok(bpmnUtil.toBPMNProcessInfoView(bPMNProcessInfo.get()));
+        }else{
+            return ResponseEntity.notFound().build();
+        }
     }
 
 

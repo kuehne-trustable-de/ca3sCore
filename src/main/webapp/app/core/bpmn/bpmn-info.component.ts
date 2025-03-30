@@ -8,7 +8,7 @@ import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 
 import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-process-info.service';
-import { IBPMNProcessInfo } from '@/shared/model/bpmn-process-info.model';
+import { IBPMNProcessInfoView } from '@/shared/model/bpmn-process-info.model';
 
 import VueBpmn from 'vue-bpmn';
 import axios, { AxiosError } from 'axios';
@@ -31,7 +31,9 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
   //  @Inject('alertService') private alertService: () => AlertService;
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
 
-  public bPNMProcessInfo: IBPMNProcessInfo = {};
+  public interactionMode: string = 'EDIT';
+
+  public bPNMProcessInfo: IBPMNProcessInfoView = {};
   public bpmnUpload: IBPMNUpload = { type: 'CA_INVOCATION' };
 
   public bpmnCheckResult: IBpmnCheckResult = {};
@@ -47,6 +49,11 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
   public csrId = 1;
   public certificateId = 1;
 
+  public phone = '555-123-456';
+  public msg = 'message';
+
+  public mailto = '';
+
   public options: {
     propertiesPanel: {};
     additionalModules: [];
@@ -58,20 +65,42 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
       if (to.params.bpmnId) {
         vm.retrieveBpmnInfo(to.params.bpmnId);
       }
+      if (to.params.interactionMode) {
+        vm.interactionMode = to.params.interactionMode;
+      } else {
+        vm.interactionMode = 'EDIT';
+      }
     });
   }
 
   public retrieveBpmnInfo(bpmnId) {
-    this.bPNMProcessInfoService()
-      .find(bpmnId)
+    const self = this;
+
+    axios({
+      method: 'GET',
+      url: '/api/bpmn-process-info-view/' + encodeURIComponent(bpmnId),
+    })
       .then(res => {
-        this.bPNMProcessInfo = res;
-        this.getBpmnUrl(this.bPNMProcessInfo.processId);
-        this.bpmnUpload.id = this.bPNMProcessInfo.id;
-        this.bpmnUpload.name = this.bPNMProcessInfo.name;
-        this.bpmnUpload.type = this.bPNMProcessInfo.type;
-        this.bpmnUpload.version = this.bPNMProcessInfo.version;
-        this.bpmnUploadedVersion = this.bPNMProcessInfo.version;
+        self.bPNMProcessInfo = res.data;
+
+        if (!self.bPNMProcessInfo.bpmnProcessAttributes) {
+          self.bPNMProcessInfo.bpmnProcessAttributes = new Array();
+        }
+        self.bPNMProcessInfo.bpmnProcessAttributes.push({});
+
+        self.getBpmnUrl(self.bPNMProcessInfo.processId);
+        self.bpmnUpload.id = self.bPNMProcessInfo.id;
+        self.bpmnUpload.name = self.bPNMProcessInfo.name;
+        self.bpmnUpload.type = self.bPNMProcessInfo.type;
+        self.bpmnUpload.version = self.bPNMProcessInfo.version;
+        self.bpmnUpload.bpmnProcessAttributes = self.bPNMProcessInfo.bpmnProcessAttributes;
+        self.bpmnUploadedVersion = self.bPNMProcessInfo.version;
+      })
+      .catch(function (error) {
+        console.log(error);
+        self.previousState();
+        const message = self.$t('problem processing request: ' + error);
+        self.alertService().showAlert(message, 'info');
       });
   }
 
@@ -119,6 +148,28 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
+  public alignBPAArraySize(index: number): void {
+    window.console.info('in alignBPAArraySize(' + index + ')');
+
+    if (this.interactionMode === 'EDIT') {
+      const currentSize = this.bpmnUpload.bpmnProcessAttributes.length;
+      const name = this.bpmnUpload.bpmnProcessAttributes[index].name || '';
+
+      if (name.trim().length === 0) {
+        if (currentSize > 1) {
+          // preserve last element
+          this.bpmnUpload.bpmnProcessAttributes.splice(index, 1);
+          window.console.info('in alignBPAArraySize(' + index + '): dropped empty element');
+        }
+      } else {
+        if (index + 1 === currentSize) {
+          this.bpmnUpload.bpmnProcessAttributes.push({});
+          window.console.info('in alignBPAArraySize(' + index + '): appended one element');
+        }
+      }
+    }
+  }
+
   public saveBpmn(): void {
     const self = this;
 
@@ -160,6 +211,11 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
       targetURL = bpmnUrl + `/check/certificateNotify/${this.bPNMProcessInfo.processId}/${this.certificateId}`;
     } else if (this.bpmnUpload.type === 'ACME_ACCOUNT_AUTHORIZATION') {
       targetURL = bpmnUrl + `/check/accountRequest/${this.bPNMProcessInfo.processId}`;
+    } else if (this.bpmnUpload.type === 'SEND_SMS') {
+      targetURL =
+        bpmnUrl + `/check/sendSMS/${this.bPNMProcessInfo.processId}/${encodeURIComponent(this.phone)}/${encodeURIComponent(this.msg)}`;
+    } else if (this.bpmnUpload.type === 'ACME_ACCOUNT_AUTHORIZATION') {
+      targetURL = bpmnUrl + `/check/acmeAccountAuthorization/${this.bPNMProcessInfo.processId}/${encodeURIComponent(this.mailto)}`;
     }
 
     console.log('calling bpmn check endpoint at ' + targetURL);

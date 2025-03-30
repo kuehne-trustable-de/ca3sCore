@@ -283,6 +283,9 @@ public class ChallengeController extends AcmeController {
             }
         }
 
+        if(solved){
+            challengeDao.setLastError("");
+        }
         if(!Objects.equals(lastError, challengeDao.getLastError())){
             challengeRepository.save(challengeDao);
             LOG.debug("challenge's  #{}' last error set to '{}'", challengeDao.getId(), challengeDao.getLastError() );

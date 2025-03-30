@@ -60,6 +60,14 @@ public class User extends AbstractAuditingEntity implements Serializable {
     @Column(length = 254, unique = true)
     private String email;
 
+    @Size(min = 0, max = 254)
+    @Column(length = 254)
+    private String phone;
+
+    @NotNull
+    @Column(name="second_factor_required", nullable = false)
+    private boolean secondFactorRequired = false;
+
     @NotNull
     @Column(nullable = false)
     private boolean activated = false;
@@ -167,12 +175,28 @@ public class User extends AbstractAuditingEntity implements Serializable {
         this.email = email;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     public String getImageUrl() {
         return imageUrl;
     }
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public boolean isSecondFactorRequired() {
+        return secondFactorRequired;
+    }
+
+    public void setSecondFactorRequired(boolean secondFactorRequired) {
+        this.secondFactorRequired = secondFactorRequired;
     }
 
     public boolean getActivated() {
@@ -314,6 +338,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
+            ", phone='" + phone + '\'' +
             ", imageUrl='" + imageUrl + '\'' +
             ", activated='" + activated + '\'' +
             ", langKey='" + langKey + '\'' +

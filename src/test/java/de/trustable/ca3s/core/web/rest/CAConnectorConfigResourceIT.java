@@ -17,7 +17,6 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
-import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -194,7 +193,7 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.getSelector()).isEqualTo(DEFAULT_SELECTOR);
         assertThat(testCAConnectorConfig.getInterval()).isEqualTo(DEFAULT_INTERVAL);
 
-        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(CAConnectorConfigResource.PLAIN_SECRET_PLACEHOLDER);
+        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER);
     }
 
     @Test
@@ -345,7 +344,7 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.isActive()).isEqualTo(UPDATED_ACTIVE);
         assertThat(testCAConnectorConfig.getSelector()).isEqualTo(UPDATED_SELECTOR);
         assertThat(testCAConnectorConfig.getInterval()).isEqualTo(UPDATED_INTERVAL);
-        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(CAConnectorConfigResource.PLAIN_SECRET_PLACEHOLDER);
+        assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER);
     }
 
     @Test

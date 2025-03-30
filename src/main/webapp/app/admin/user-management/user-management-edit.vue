@@ -145,8 +145,26 @@
                                 class="form-text text-danger"
                                 v-if="!$v.userAccount.email.maxLength"
                                 v-text="$t('global.messages.validate.email.maxlength')"
+                            ></small>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-control-label" for="phone" v-text="$t('userManagement.phone')"></label>
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="phone"
+                            name="phone"
+                            :class="{ valid: !$v.userAccount.phone.$invalid, invalid: $v.userAccount.phone.$invalid }"
+                            :disabled="userAccount.managedExternally"
+                            v-model="$v.userAccount.phone.$model"
+                        />
+                        <div v-if="$v.userAccount.phone.$anyDirty && $v.userAccount.phone.$invalid">
+                            <small
+                                class="form-text text-danger"
+                                v-if="!$v.userAccount.phone.maxLength"
+                                v-text="$t('global.messages.validate.phone.maxlength')"
                             >
-                                Your email cannot be longer than 50 characters.
                             </small>
                         </div>
                     </div>
@@ -162,6 +180,20 @@
                                 v-model="userAccount.activated"
                             />
                             <span v-text="$t('userManagement.activated')">Activated</span>
+                        </label>
+                    </div>
+
+                    <div class="form-check">
+                        <label class="form-check-label" for="secondFactorRequired">
+                            <input
+                                class="form-check-input"
+                                :disabled="userAccount.id === null"
+                                type="checkbox"
+                                id="activated"
+                                name="activated"
+                                v-model="userAccount.secondFactorRequired"
+                            />
+                            <span v-text="$t('userManagement.secondFactorRequired')"></span>
                         </label>
                     </div>
 
