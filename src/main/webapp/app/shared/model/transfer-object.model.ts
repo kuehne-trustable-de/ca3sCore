@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-03-28 17:27:59.
+// Generated using typescript-generator version 3.2.1263 on 2025-04-01 21:07:17.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -260,10 +260,10 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
+  issuingActiveCertificates?: boolean;
+  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
-  auditPresent?: boolean;
-  issuingActiveCertificates?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -403,6 +403,24 @@ export interface ICsrReqAttribute extends ISerializable {
   oid?: string;
   oidName?: string;
   value?: string;
+}
+
+export interface IAccountCredentialView extends ISerializable {
+  id?: number;
+  createdOn?: Date;
+  validTo?: Date;
+  leftUsages?: number;
+  relationType?: IAccountCredentialsType;
+}
+
+export interface IPasswordChangeDTO {
+  credentialUpdateType?: ICredentialUpdateType;
+  currentPassword?: string;
+  newPassword?: string;
+  seed?: string;
+  otpTestValue?: string;
+  clientAuthCertId?: number;
+  secondFactorRequired?: boolean;
 }
 
 export interface ICSRAdministrationData extends ISerializable {
@@ -950,6 +968,10 @@ export type IPKCSDataType =
   | 'CONTAINER'
   | 'CONTAINER_WITH_KEY'
   | 'CONTAINER_REQUIRING_PASSPHRASE';
+
+export type IAccountCredentialsType = 'ACCOUNT_TOKEN' | 'OTP_SECRET' | 'CLIENT_CERTIFICATE' | 'SMS_ENABLED';
+
+export type ICredentialUpdateType = 'PASSWORD' | 'CLIENT_CERT' | 'TOTP' | 'TOKEN' | 'EMAIL' | 'SMS';
 
 export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE' | 'UPDATE_CRL';
 

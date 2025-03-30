@@ -4,6 +4,7 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.sun.mail.imap.protocol.FLAGS;
 import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.test.speech.SoundOutput;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
@@ -50,6 +51,8 @@ public class WebTestBase extends LocomotiveBase {
 
     public static final By LOC_LNK_SIGNIN_USERNAME = By.xpath("//form//input [@name = 'username']");
     public static final By LOC_LNK_SIGNIN_PASSWORD = By.xpath("//form//input [@name = 'password']");
+    public static final By LOC_INP_SIGNIN_SECOND_FACTOR_TYPE = By.xpath("//div/select [@id = 'second-factor']");
+
     public static final By LOC_BTN_SIGNIN_SUBMIT = By.xpath("//form//button [(@type='submit') and (@id = 'login.form.submit')]");
     public static final By LOC_TXT_SPOKEN_TEXT = By.xpath("//div[@name='spokenTextBox']");
 
@@ -537,10 +540,14 @@ public class WebTestBase extends LocomotiveBase {
 
         validatePresent(LOC_LNK_SIGNIN_USERNAME);
         validatePresent(LOC_LNK_SIGNIN_PASSWORD);
+        validatePresent(LOC_INP_SIGNIN_SECOND_FACTOR_TYPE);
         validatePresent(LOC_BTN_SIGNIN_SUBMIT);
 
         setText(LOC_LNK_SIGNIN_USERNAME, user);
         setText(LOC_LNK_SIGNIN_PASSWORD, password);
+//        selectOptionByValue(LOC_INP_SIGNIN_SECOND_FACTOR_TYPE, "No 2FA" );
+        selectOptionById(LOC_INP_SIGNIN_SECOND_FACTOR_TYPE, 0 );
+
         explain(s);
         wait(waitMillis);
         click(LOC_BTN_SIGNIN_SUBMIT);

@@ -1729,6 +1729,8 @@
                         <class>de.trustable.ca3s.core.service.dto.X509CertificateHolderShallow</class>
                         <class>de.trustable.ca3s.core.service.dto.PkcsXXData</class>
                         <class>de.trustable.ca3s.core.service.dto.CsrReqAttribute</class>
+                        <class>de.trustable.ca3s.core.service.dto.AccountCredentialView</class>
+                        <class>de.trustable.ca3s.core.service.dto.PasswordChangeDTO</class>
 
                         <class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationData</class>
                         <class>de.trustable.ca3s.core.web.rest.data.CSRAdministrationResponse</class>

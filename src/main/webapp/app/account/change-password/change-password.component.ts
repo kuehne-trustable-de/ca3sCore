@@ -2,8 +2,10 @@ import { maxLength, minLength, required, sameAs } from 'vuelidate/lib/validators
 import axios, { AxiosError } from 'axios';
 import { mapGetters } from 'vuex';
 import Component, { mixins } from 'vue-class-component';
+import AccountService from '@/account/account.service';
 import AlertMixin from '@/shared/alert/alert.mixin';
 import { IAccountCredentialView, IPasswordChangeDTO } from '@/shared/model/transfer-object.model';
+import { Inject } from 'vue-property-decorator';
 
 const validations = {
   resetPassword: {
@@ -35,6 +37,8 @@ const validations = {
   },
 })
 export default class ChangePassword extends mixins(AlertMixin) {
+  @Inject('accountService') private accountService: () => AccountService;
+
   success: string = null;
   error: string = null;
   doNotMatch: string = null;
@@ -59,6 +63,8 @@ export default class ChangePassword extends mixins(AlertMixin) {
     this.refreshUIConfig();
 
     this.getCredentials();
+
+    this.accountService().retrieveAccount();
 
     this.credentialChange.clientAuthCertId = 0;
   }
@@ -197,6 +203,14 @@ export default class ChangePassword extends mixins(AlertMixin) {
 
     console.log('canSubmit: currentPassword.$invalid: ' + this.$v.resetPassword.currentPassword.$invalid);
     return !this.$v.resetPassword.currentPassword.$invalid;
+  }
+
+  public toLocalDate(date: Date): string {
+    const dateObj = new Date(date);
+    if (dateObj.getFullYear() < 9990) {
+      return dateObj.toLocaleDateString();
+    }
+    return '';
   }
 
   public prepareRemove(instance: IAccountCredentialView): void {

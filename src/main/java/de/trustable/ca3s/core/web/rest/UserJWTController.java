@@ -7,6 +7,8 @@ import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import de.trustable.ca3s.core.service.ClientAuthService;
 import de.trustable.ca3s.core.service.SMSService;
 import de.trustable.ca3s.core.service.TotpService;
+import de.trustable.ca3s.core.service.UserService;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.service.vault.UserCredentialService;
 import de.trustable.ca3s.core.web.rest.vm.LoginData;
@@ -16,8 +18,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import
     org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -40,6 +40,7 @@ public class UserJWTController {
 
     private final TokenProvider tokenProvider;
 
+    private final UserService userService;
     private final UserCredentialService userCredentialService;
     private final UserUtil userUtil;
 
@@ -49,10 +50,12 @@ public class UserJWTController {
     private final ClientAuthService clientAuthService;
 
 
-    public UserJWTController(TokenProvider tokenProvider, UserCredentialService userCredentialService,
+    public UserJWTController(TokenProvider tokenProvider, UserService userService,
+                             UserCredentialService userCredentialService,
                              UserUtil userUtil, TotpService totpService,
                              SMSService smsService, ClientAuthService clientAuthService) {
         this.tokenProvider = tokenProvider;
+        this.userService = userService;
         this.userCredentialService = userCredentialService;
         this.userUtil = userUtil;
         this.totpService = totpService;
@@ -112,7 +115,14 @@ public class UserJWTController {
                     log.warn("Client cert JWT missing");
                     throw new BadCredentialsException("Client credentials invalid");
                 }
+            }else if(loginData.getAuthSecondFactor() == AuthSecondFactor.NONE ){
+                userService.updateSecondFactorRequirement(user, true);
+                if (user.isSecondFactorRequired()){
+                    log.warn("Second factor missing but it is required");
+                    throw new BadCredentialsException("Client credentials invalid");
+                }
             }
+
 
             userUtil.handleSuccesfulAuthentication(user);
             SecurityContextHolder.getContext().setAuthentication(authentication);

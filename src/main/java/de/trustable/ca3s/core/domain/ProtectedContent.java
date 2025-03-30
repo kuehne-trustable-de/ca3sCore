@@ -8,6 +8,9 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+
 import org.hibernate.annotations.Cache;
 
 /**
@@ -58,6 +61,13 @@ import org.hibernate.annotations.Cache;
 public class ProtectedContent implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    public static final ContentRelationType[] USER_CONTENT_RELATION_TYPES = new ContentRelationType[]{
+        ContentRelationType.OTP_SECRET,
+        ContentRelationType.SMS_PHONE,
+        ContentRelationType.ACCOUNT_TOKEN};
+
+    public static final List<ContentRelationType> USER_CONTENT_RELATION_TYPE_LIST = Arrays.asList(USER_CONTENT_RELATION_TYPES);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

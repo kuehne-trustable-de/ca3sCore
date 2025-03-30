@@ -1,15 +1,13 @@
 package de.trustable.ca3s.core.ui;
 
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetup;
 import com.sun.mail.imap.IMAPStore;
-import com.sun.mail.imap.protocol.FLAGS;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.JCAManager;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import org.jboss.aerogear.security.otp.Totp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,13 +23,9 @@ import javax.mail.Folder;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.Base64;
-import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = Ca3SApp.class,
@@ -45,14 +39,17 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class AccountHandlingIT extends WebTestBase{
 
     public static final By LOC_LNK_ACCOUNT_REGISTER_MENUE = By.xpath("//nav//a [span [text() = 'Register']]");
+    public static final By LOC_LNK_ACCOUNT_PASSWORD_MENUE = By.xpath("//nav//a [span [text() = 'Password']]");
 
     public static final By LOC_TEXT_REGISTER_HEADER = By.xpath("//div/h1 [text() = 'Registration']");
 
     public static final By LOC_INP_LOGIN_VALUE = By.xpath("//div/input [@name = 'login']");
     public static final By LOC_INP_EMAIL_VALUE = By.xpath("//div/input [@name = 'email']");
     public static final By LOC_INP_1_PASSWORD_VALUE = By.xpath("//div/input [@name = 'password']");
+    public static final By LOC_INP_SECOND_FACTOR_TYPE = By.xpath("//div/select [@name = 'second-factor']");
     public static final By LOC_INP_2_PASSWORD_VALUE = By.xpath("//div/input [@name = 'confirmPasswordInput']");
 
+    public static final By LOC_INP_CURRENT_PASSWORD_VALUE = By.xpath("//div/input [@name = 'currentPassword']");
     public static final By LOC_INP_NEW_PASSWORD_VALUE = By.xpath("//div/input [@name = 'newPassword']");
     public static final By LOC_INP_CONFIRM_PASSWORD_VALUE = By.xpath("//div/input [@name = 'confirmPassword']");
 
@@ -64,7 +61,11 @@ public class AccountHandlingIT extends WebTestBase{
 
     public static final By LOC_LNK_SIGNIN_RESET = By.xpath("//div/a [@href='/reset/request']");
     public static final By LOC_BTN_RESET = By.xpath("//form/button [@type='submit'][text() = 'Reset password']");
-    public static final By LOC_BTN_SAVE = By.xpath("//form/button [@type='submit'][text() = 'Save']");
+    public static final By LOC_BTN_SAVE = By.xpath("//form//button [@type='submit'][text() = 'Save']");
+
+    public static final By LOC_BTN_ADD_OTP = By.xpath("//div/button [span[text() = 'OTP']]");
+    public static final By LOC_INP_OTP_SEED_VALUE = By.xpath("//div/input [@name = 'otp-seed']");
+    public static final By LOC_INP_OTP_TEST_VALUE = By.xpath("//div/input [@name = 'otp-test-value']");
 
 
     @LocalServerPort
@@ -260,11 +261,32 @@ public class AccountHandlingIT extends WebTestBase{
         validatePresent(LOC_INP_CONFIRM_PASSWORD_VALUE);
         setText(LOC_INP_CONFIRM_PASSWORD_VALUE, newPassword);
 
-        Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting reset button enabled");
+        Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
         click(LOC_BTN_SAVE);
 
         signIn("admin", newPassword);
 
+        validatePresent(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
+        click(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
+
+        validatePresent(LOC_BTN_ADD_OTP);
+        click(LOC_BTN_ADD_OTP);
+
+        validatePresent(LOC_INP_CURRENT_PASSWORD_VALUE);
+        setText(LOC_INP_CURRENT_PASSWORD_VALUE, newPassword);
+
+        validatePresent(LOC_INP_OTP_SEED_VALUE);
+        String seed = getAttribute(LOC_INP_OTP_SEED_VALUE, "value");
+
+        System.out.println( "given seed : " + seed);
+
+        Totp totp = new Totp(seed);
+        setText(LOC_INP_OTP_TEST_VALUE, totp.now());
+
+
+        Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
 
         inbox.close();
         imapStore.close();

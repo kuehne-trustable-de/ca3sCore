@@ -4,22 +4,20 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
-import de.trustable.ca3s.core.repository.CSRRepository;
-import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.CertificateRepository;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.ProtectedContent;
@@ -29,7 +27,8 @@ import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import javax.transaction.Transactional;
+
+import static de.trustable.ca3s.core.domain.ProtectedContent.USER_CONTENT_RELATION_TYPE_LIST;
 
 @Service
 public class ProtectedContentUtil {
@@ -47,11 +46,14 @@ public class ProtectedContentUtil {
 
     private final ProtectedContentRepository protContentRepository;
 
+    private final CertificateRepository certificateRepository;
+
     private final String salt;
     private final int iterations;
     private final String pbeAlgo;
 
 	public ProtectedContentUtil(ProtectedContentRepository protContentRepository,
+                                CertificateRepository certificateRepository,
                                 @Value("${protectionSecret:mJvR25yt4NHTIqe5Hz7nUHhQNUuM}") String protectionSecretFallback,
                                 @Value("${ca3s.protectionSecret:#{null}}") String protectionSecret,
                                 @Value("${ca3s.connection.salt:ca3sSalt}") String salt,
@@ -59,6 +61,7 @@ public class ProtectedContentUtil {
                                 @Value("${ca3s.connection.pbeAlgo:PBKDF2WithHmacSHA256}") String pbeAlgo) {
 
         this.protContentRepository = protContentRepository;
+        this.certificateRepository = certificateRepository;
 
         this.salt = salt;
         this.iterations = iterations;
@@ -246,6 +249,55 @@ public class ProtectedContentUtil {
     public void deleteProtectedContent(ProtectedContentType type, ContentRelationType crt, long id) {
         List<ProtectedContent> pcList = protContentRepository.findByTypeRelationId(type, crt, id);
         protContentRepository.deleteAll(pcList);
+    }
+
+    boolean isActive(ProtectedContent pc, Instant now){
+        return ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);
+    }
+
+    /**
+     * Get all active second factor credentials for a given user.
+     *
+     * @param user the user holding the credentials.
+     */
+    public List<ProtectedContent> getActiveCredentials(User user) {
+        log.debug("getActiveCredentials for  : {}", user);
+
+        Instant now = Instant.now();
+        List<ProtectedContent> activeCredentialsList = new ArrayList<>();
+
+        for( ProtectedContent protectedContent:
+            protContentRepository.findByTypeRelationId( USER_CONTENT_RELATION_TYPE_LIST, user.getId())){
+
+            if( isActive(protectedContent, now) ){
+                switch( protectedContent.getRelationType()){
+                    case CERTIFICATE:
+                        Optional<Certificate> certificateOptional =
+                            certificateRepository.findById(protectedContent.getRelatedId());
+                        if( certificateOptional.isPresent()) {
+                            Certificate userCert = certificateOptional.get();
+                            if (userCert.isActive()) {
+                                activeCredentialsList.add(protectedContent);
+                            }
+                        }
+                        break;
+
+                    case ACCOUNT_TOKEN:
+                        // not relevant, here
+                        break;
+                    case OTP_SECRET:
+                    case SMS_PHONE:
+                        activeCredentialsList.add(protectedContent);
+                        break;
+                    default:
+                        log.warn("Unexpected relation type '{}' occurred.", protectedContent.getRelationType());
+                        break;
+                }
+
+            }
+        }
+
+        return activeCredentialsList;
     }
 
     public void updateServersideKeyRetentionSettings(long csrId, Instant validTo, int usages){

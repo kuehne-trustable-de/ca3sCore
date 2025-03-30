@@ -71,7 +71,9 @@
                     <div class="form-group">
                         <label class="form-control-label" for="secondFactorRequired" v-text="$t('global.form.secondFactorRequired.label')"></label>
                         <input type="checkbox" class="form-check-inline" id="secondFactorRequired" name="secondFactorRequired"
-                               v-model="credentialChange.secondFactorRequired"  required>
+                               disabled="disabled"
+                               readOnly="readOnly"
+                               v-model="credentialChange.secondFactorRequired">
                     </div>
 
                     <button type="submit" :disabled="!canSubmit()" class="btn btn-primary" v-text="$t('password.form.button')">Save</button>
@@ -100,7 +102,7 @@
 
 
                 <div class="table-responsive">
-                    <table class="table table-striped">
+                    <table class="table table-striped" id="credential-list">
                         <thead>
                         <tr>
                             <th><span v-text="$t('ca3SApp.form.client.auth.type')"></span></th>
@@ -113,8 +115,8 @@
                         <tr v-for="accountCredential in accountCredentialArr"
                             :key="accountCredential.id">
                             <td>{{accountCredential.relationType}}</td>
-                            <td>{{accountCredential.createdOn}}</td>
-                            <td>{{(accountCredential.validTo >= 9990) ? '' : accountCredential.validTo}}</td>
+                            <td>{{toLocalDate(accountCredential.createdOn)}}</td>
+                            <td>{{toLocalDate(accountCredential.validTo)}}</td>
                             <td class="text-right">
                                 <div class="btn-group">
                                     <!--router-link :to="{name: 'RequestProxyConfigEdit', params: {requestProxyConfigId: requestProxyConfig.id}}"  tag="button" class="btn btn-primary btn-sm edit">

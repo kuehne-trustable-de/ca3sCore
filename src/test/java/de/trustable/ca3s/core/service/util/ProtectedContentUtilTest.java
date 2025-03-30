@@ -1,8 +1,7 @@
 package de.trustable.ca3s.core.service.util;
 
-import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
-import de.trustable.ca3s.core.service.AuditService;
 import org.junit.jupiter.api.Test;
 
 import java.security.NoSuchAlgorithmException;
@@ -18,12 +17,14 @@ class ProtectedContentUtilTest {
     void deriveSecret() throws NoSuchAlgorithmException, InvalidKeySpecException {
 
         ProtectedContentRepository protContentRepository = mock(ProtectedContentRepository.class);
+        CertificateRepository certificateRepository = mock(CertificateRepository.class);
 
         ProtectedContentUtil subject = new ProtectedContentUtil(
             protContentRepository,
+            certificateRepository,
             "mJvR25yt4NHTIqe5Hz7nUHhQNUuM",
             "S3cr3t#s3cr3t$s3cr3t",
-            "ca3sSalt",
+                 "ca3sSalt",
             4567,
             "PBKDF2WithHmacSHA256");
 

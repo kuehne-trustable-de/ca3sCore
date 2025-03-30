@@ -1,16 +1,20 @@
 package de.trustable.ca3s.core.service.impl;
 
-import de.trustable.ca3s.core.service.ProtectedContentService;
 import de.trustable.ca3s.core.domain.ProtectedContent;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.service.ProtectedContentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static de.trustable.ca3s.core.domain.ProtectedContent.USER_CONTENT_RELATION_TYPE_LIST;
 
 /**
  * Service Implementation for managing {@link ProtectedContent}.
@@ -75,4 +79,6 @@ public class ProtectedContentServiceImpl implements ProtectedContentService {
         log.debug("Request to delete ProtectedContent : {}", id);
         protectedContentRepository.deleteById(id);
     }
+
+
 }

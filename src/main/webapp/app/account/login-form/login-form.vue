@@ -25,11 +25,11 @@
 
                     <b-form-group v-bind:label="$t('global.form.second-factor')" label-for="second-factor">
                         <select class="form-control" id="second-factor" name="second-factor" v-model="loginData.authSecondFactor">
-                            <option value="NONE" v-bind:label="$t('login.form.second-factor.NONE')"></option>
-                            <option value="CLIENT_CERT" v-if="canUseSecondFactor('CLIENT_CERT')" v-bind:label="$t('login.form.second-factor.CLIENT_CERT')">CLIENT_CERT</option>
-                            <option value="TOTP" v-if="canUseSecondFactor('TOTP')" v-bind:label="$t('login.form.second-factor.TOTP')">TOTP</option>
-                            <!--option value="EMAIL" v-bind:label="$t('login.form.second-factor.EMAIL')">EMAIL</option-->
-                            <option value="SMS" v-if="canUseSecondFactor('SMS')" v-bind:label="$t('login.form.second-factor.SMS')">SMS</option>
+                            <option id="second-factor-none" value="NONE" v-bind:label="$t('login.form.second-factor.NONE')"></option>
+                            <option id="second-factor-client-cert" value="CLIENT_CERT" v-if="canUseSecondFactor('CLIENT_CERT')" v-bind:label="$t('login.form.second-factor.CLIENT_CERT')">CLIENT_CERT</option>
+                            <option id="second-factor-totp" value="TOTP" v-if="canUseSecondFactor('TOTP')" v-bind:label="$t('login.form.second-factor.TOTP')">TOTP</option>
+                            <!--option id="second-factor-email" value="EMAIL" v-bind:label="$t('login.form.second-factor.EMAIL')">EMAIL</option-->
+                            <option id="second-factor-sms" value="SMS" v-if="canUseSecondFactor('SMS')" v-bind:label="$t('login.form.second-factor.SMS')">SMS</option>
                         </select>
                     </b-form-group>
 
