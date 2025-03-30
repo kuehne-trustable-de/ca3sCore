@@ -51,6 +51,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static de.trustable.ca3s.core.domain.ProtectedContent.USER_CONTENT_RELATION_TYPES;
+
 
 /**
  * REST controller for managing the current user's account.
@@ -59,11 +61,6 @@ import java.util.Optional;
 @Transactional
 @RequestMapping("/api")
 public class AccountResource {
-
-    ContentRelationType[] USER_CONTENT_RELATION_TYPES = new ContentRelationType[]{
-        ContentRelationType.OTP_SECRET,
-        ContentRelationType.SMS_PHONE,
-        ContentRelationType.ACCOUNT_TOKEN};
 
     @Value("${ca3s.ui.languages:en,de,pl}")
     private String availableLanguages;
@@ -267,42 +264,7 @@ public class AccountResource {
      */
     @DeleteMapping(path = "/account/credentials/{type}/{id}")
     public void deleteAccountCredential(@PathVariable AccountCredentialsType type, @PathVariable Long id) {
-
-        User currentUser = findCurrentUser();
-
-        switch( type) {
-            case OTP_SECRET:
-                Optional<ProtectedContent> pcOpt = protectedContentRepository.findById(id);
-                if (pcOpt.isPresent()) {
-                    ProtectedContent pc = pcOpt.get();
-                    if (pc.getRelatedId().equals(currentUser.getId())) {
-                        protectedContentRepository.delete(pc);
-                    } else {
-                        log.warn("Current user '{}' not matching user id '{}' for credentials deletion",
-                            currentUser.getId(), pc.getId());
-                    }
-                } else {
-                    log.warn("Unknown ProtectedContent id '{}' for credentials deletion",id);
-                }
-                break;
-            case CLIENT_CERTIFICATE:
-                Optional<Certificate> certificateOptional = certificateRepository.findById(id);
-                if (certificateOptional.isPresent()) {
-                    if(currentUser.getId().toString().equals(
-                        certificateUtil.getCertAttribute(certificateOptional.get(), CertificateAttribute.ATTRIBUTE_USER_CLIENT_CERT))){
-                        certificateUtil.setCertAttribute(certificateOptional.get(),
-                            CertificateAttribute.ATTRIBUTE_USER_CLIENT_CERT,
-                            null, false);
-                    } else {
-                        log.warn("Certificate id '{}' not related to current user",id);
-                    }
-                }else{
-                    log.warn("Unknown certificate id '{}' for credentials deletion",id);
-                }
-                break;
-            default:
-                log.warn("Unexpected credential type: {}", id);
-        }
+        userService.deleteCredential(type, id);
     }
 
 

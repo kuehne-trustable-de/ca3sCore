@@ -7,6 +7,7 @@ import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
+import de.trustable.ca3s.core.service.dto.AccountCredentialsType;
 import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 
@@ -46,6 +47,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ProtectedContentUtil protectedContentUtil;
+    private final ProtectedContentRepository protContentRepository;
     private final AuthorityRepository authorityRepository;
     private final TenantRepository tenantRepository;
     private final CacheManager cacheManager;
@@ -59,6 +61,7 @@ public class UserService {
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        ProtectedContentUtil protectedContentUtil,
+                       ProtectedContentRepository protContentRepository,
                        AuthorityRepository authorityRepository,
                        TenantRepository tenantRepository,
                        CacheManager cacheManager,
@@ -71,6 +74,7 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.protectedContentUtil = protectedContentUtil;
+        this.protContentRepository = protContentRepository;
         this.authorityRepository = authorityRepository;
         this.tenantRepository = tenantRepository;
         this.cacheManager = cacheManager;
@@ -402,11 +406,74 @@ public class UserService {
                         break;
                 }
 
+                updateSecondFactorRequirement(user,false);
+
                 this.clearUserCaches(user);
                 log.debug("Changed password for User: {}", user);
             }
         );
     }
+
+    public void updateSecondFactorRequirement(User user, boolean downgradeOnly) {
+        boolean oldState = user.isSecondFactorRequired();
+        List<ProtectedContent> protectedContentList = protectedContentUtil.getActiveCredentials(user);
+        if( protectedContentList.size() >= 2){
+            if( !downgradeOnly) {
+                user.setSecondFactorRequired(true);
+            }
+        }else{
+            user.setSecondFactorRequired(false);
+        }
+        userRepository.save(user);
+        if( oldState != user.isSecondFactorRequired() ) {
+            log.info("Second factor requirement for user: {} changed to {}", user, user.isSecondFactorRequired());
+        }
+    }
+
+    public void deleteCredential(AccountCredentialsType type, Long id) {
+
+        SecurityUtils.getCurrentUserLogin()
+            .flatMap(userRepository::findOneByLogin)
+            .ifPresent(user -> {
+
+                switch (type) {
+                    case OTP_SECRET:
+                        Optional<ProtectedContent> pcOpt = protContentRepository.findById(id);
+                        if (pcOpt.isPresent()) {
+                            ProtectedContent pc = pcOpt.get();
+                            if (pc.getRelatedId().equals(user.getId())) {
+                                protContentRepository.delete(pc);
+                            } else {
+                                log.warn("Current user '{}' not matching user id '{}' for credentials deletion",
+                                    user.getId(), pc.getId());
+                            }
+                        } else {
+                            log.warn("Unknown ProtectedContent id '{}' for credentials deletion", id);
+                        }
+                        break;
+                    case CLIENT_CERTIFICATE:
+                        Optional<Certificate> certificateOptional = certificateUtil.findCertificateById(id);
+                        if (certificateOptional.isPresent()) {
+                            if (user.getId().toString().equals(
+                                certificateUtil.getCertAttribute(certificateOptional.get(), CertificateAttribute.ATTRIBUTE_USER_CLIENT_CERT))) {
+                                certificateUtil.setCertAttribute(certificateOptional.get(),
+                                    CertificateAttribute.ATTRIBUTE_USER_CLIENT_CERT,
+                                    null, false);
+                            } else {
+                                log.warn("Certificate id '{}' not related to current user", id);
+                            }
+                        } else {
+                            log.warn("Unknown certificate id '{}' for credentials deletion", id);
+                        }
+                        break;
+                    default:
+                        log.warn("Unexpected credential type: {}", id);
+                }
+                updateSecondFactorRequirement(user, false);
+            }
+        );
+    }
+
 
 /*
     public void changePassword(String currentClearTextPassword, String newPassword) {

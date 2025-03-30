@@ -66,7 +66,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
 
     @NotNull
     @Column(name="second_factor_required", nullable = false)
-    private boolean secondFactorRequired = false;
+    private boolean secondFactorRequired;
 
     @NotNull
     @Column(nullable = false)

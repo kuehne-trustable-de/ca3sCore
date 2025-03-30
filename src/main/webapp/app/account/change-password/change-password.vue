@@ -71,7 +71,9 @@
                     <div class="form-group">
                         <label class="form-control-label" for="secondFactorRequired" v-text="$t('global.form.secondFactorRequired.label')"></label>
                         <input type="checkbox" class="form-check-inline" id="secondFactorRequired" name="secondFactorRequired"
-                               v-model="credentialChange.secondFactorRequired"  required>
+                               disabled="disabled"
+                               readOnly="readOnly"
+                               v-model="credentialChange.secondFactorRequired">
                     </div>
 
                     <button type="submit" :disabled="!canSubmit()" class="btn btn-primary" v-text="$t('password.form.button')">Save</button>
