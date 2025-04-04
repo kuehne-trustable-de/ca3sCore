@@ -287,6 +287,7 @@ public class PipelineTestConfiguration {
 
         pv_LaxRestrictions.setApprovalRequired(false);
 
+        pv_LaxRestrictions.setCaConnectorId(internalTestCAC().getId());
         pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
         pv_LaxRestrictions.setName(PIPELINE_NAME_ACME);
         pv_LaxRestrictions.setActive(true);
@@ -418,6 +419,7 @@ public class PipelineTestConfiguration {
 
         pv_1CNRestrictions.setApprovalRequired(false);
 
+        pv_1CNRestrictions.setCaConnectorId(internalTestCAC().getId());
         pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
         pv_1CNRestrictions.setName(PIPELINE_NAME_ACME1CN);
         pv_1CNRestrictions.setActive(true);
@@ -476,6 +478,7 @@ public class PipelineTestConfiguration {
 
         pv_1CN_NoIP_Restrictions.setApprovalRequired(false);
 
+        pv_1CN_NoIP_Restrictions.setCaConnectorId(internalTestCAC().getId());
         pv_1CN_NoIP_Restrictions.setCaConnectorName(internalTestCAC().getName());
         pv_1CN_NoIP_Restrictions.setName(PIPELINE_NAME_ACME1CNNOIP);
         pv_1CN_NoIP_Restrictions.setActive(true);
@@ -681,6 +684,7 @@ public class PipelineTestConfiguration {
 
         pv_LaxRestrictions.setApprovalRequired(false);
 
+        pv_LaxRestrictions.setCaConnectorId(internalTestCAC().getId());
         pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
         pv_LaxRestrictions.setName(PIPELINE_NAME_SCEP);
         pv_LaxRestrictions.setType(PipelineType.SCEP);
@@ -750,6 +754,7 @@ public class PipelineTestConfiguration {
 
         pv_1CNRestrictions.setApprovalRequired(false);
 
+        pv_1CNRestrictions.setCaConnectorId(internalTestCAC().getId());
         pv_1CNRestrictions.setCaConnectorName(internalTestCAC().getName());
         pv_1CNRestrictions.setName(PIPELINE_NAME_SCEP1CN);
         pv_1CNRestrictions.setType(PipelineType.SCEP);

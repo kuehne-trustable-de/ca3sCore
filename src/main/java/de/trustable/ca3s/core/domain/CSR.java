@@ -63,7 +63,7 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
         query = "SELECT concat(MONTH(requested_on), '.',YEAR(requested_on)), pipelineType, count(c) FROM CSR c WHERE " +
             " c.status = 'ISSUED' and" +
             " c.requestedOn > :after" +
-            " group by MONTH(requested_on), YEAR(requested_on), pipelineType"
+            " group by concat(MONTH(requested_on), '.',YEAR(requested_on)), pipelineType"
     ),
 })
 public class CSR implements Serializable {

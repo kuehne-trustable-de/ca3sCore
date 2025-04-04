@@ -505,6 +505,7 @@ public class CSRSubmitIT extends WebTestBase {
         setText(LOC_SELECT_FILE, csrFilePath);
         explain("csr.submit.38");
 
+        waitForElement(LOC_TEXT_CONTENT_TYPE);
         validatePresent(LOC_TEXT_CONTENT_TYPE);
 
         validatePresent(LOC_INP_TOS_AGREED);

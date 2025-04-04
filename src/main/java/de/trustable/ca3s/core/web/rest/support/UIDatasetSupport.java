@@ -272,6 +272,7 @@ public class UIDatasetSupport {
 
         pv_LaxRestrictions.setApprovalRequired(false);
 
+        pv_LaxRestrictions.setCaConnectorId(-1L);
         pv_LaxRestrictions.setCaConnectorName("noConnector");
         pv_LaxRestrictions.setName("noName");
         pv_LaxRestrictions.setType(PipelineType.WEB);

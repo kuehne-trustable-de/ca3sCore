@@ -1,15 +1,9 @@
-package de.trustable.ca3s.core.service.vault;
+package de.trustable.ca3s.core.service;
 
-import de.trustable.ca3s.core.web.rest.JWTToken;
-import de.trustable.ca3s.core.web.rest.vm.LoginData;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import javax.validation.Valid;
 
 @Service
 public class UserCredentialService {
@@ -20,10 +14,9 @@ public class UserCredentialService {
         this.authenticationManagerBuilder = authenticationManagerBuilder;
     }
 
-    public Authentication validateUserPassword(@Valid @RequestBody LoginData loginData) {
+    public Authentication validateUserPassword(final String username, final String password) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-            loginData.getUsername(),
-            loginData.getPassword()
+            username,password
         );
 
         return authenticationManagerBuilder.getObject().authenticate(authenticationToken);

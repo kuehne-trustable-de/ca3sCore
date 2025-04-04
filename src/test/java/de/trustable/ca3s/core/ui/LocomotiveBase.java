@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.ResourceUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -211,6 +210,8 @@ public class LocomotiveBase {
                             WebDriverManager.chromedriver().setup();
 
                             ChromeOptions options = new ChromeOptions();
+                            options.addArguments("--remote-debugging-pipe");
+
                             options.addArguments("--no-sandbox");
                             options.addArguments("--disable-dev-shm-usage");
                             options.addArguments("--crash-dumps-dir=/tmp");

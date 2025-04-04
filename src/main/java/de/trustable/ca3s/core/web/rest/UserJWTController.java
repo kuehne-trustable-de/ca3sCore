@@ -6,7 +6,7 @@ import de.trustable.ca3s.core.security.jwt.JWTFilter;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import de.trustable.ca3s.core.service.*;
 import de.trustable.ca3s.core.service.util.UserUtil;
-import de.trustable.ca3s.core.service.vault.UserCredentialService;
+import de.trustable.ca3s.core.service.UserCredentialService;
 import de.trustable.ca3s.core.web.rest.vm.LoginData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +68,8 @@ public class UserJWTController {
         }
 
         try {
-            Authentication authentication = userCredentialService.validateUserPassword(loginData);
+            Authentication authentication = userCredentialService.validateUserPassword(loginData.getUsername(),
+                loginData.getPassword());
 
             User user = userUtil.getUserByLogin(loginData.getUsername());
             if(loginData.getAuthSecondFactor() == AuthSecondFactor.TOTP ){

@@ -7,13 +7,12 @@ import de.trustable.ca3s.core.service.SMSService;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
-import de.trustable.ca3s.core.service.vault.UserCredentialService;
+import de.trustable.ca3s.core.service.UserCredentialService;
 import de.trustable.ca3s.core.web.rest.errors.AccountResourceException;
 import de.trustable.ca3s.core.web.rest.vm.LoginData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,11 +47,11 @@ public class SMSController {
 
 
     @RequestMapping(value = "/smsDelivery", method = POST)
-    public ResponseEntity sendSMS() {
+    public ResponseEntity<String> sendSMS() {
 
         String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccountResourceException("Current user login not found"));
         Optional<User> userOpt = userRepository.findOneByLogin(userLogin);
-        if (!userOpt.isPresent()) {
+        if (userOpt.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
@@ -62,20 +61,20 @@ public class SMSController {
     }
 
     @RequestMapping(value = "/smsDelivery/{user}", method = POST)
-    public ResponseEntity sendSMS(@PathVariable final String user, @RequestBody LoginData loginData) {
+    public ResponseEntity<Void> sendSMS(@PathVariable final String user, @RequestBody LoginData loginData) {
 
         userUtil.checkIPBlocked(loginData.getUsername());
 
         try {
-            userCredentialService.validateUserPassword(loginData);
+            userCredentialService.validateUserPassword(loginData.getUsername(),
+                loginData.getPassword());
 
             Optional<User> userOpt = userRepository.findOneByLogin(loginData.getUsername());
-            if (!userOpt.isPresent()) {
+            if (userOpt.isEmpty()) {
                 // no leakage of user details
                 LOG.warn("user '{}' unknown", loginData.getUsername());
                 return ResponseEntity.noContent().build();
             }
-
             smsService.sendPIN_SMS(userOpt.get());
         }catch(RuntimeException rte){
             LOG.warn("invalid SMS sending request", rte);

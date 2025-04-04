@@ -33,6 +33,7 @@ public class PipelineView implements Serializable {
     private Boolean active;
 
     private Instant expiryDate;
+    private Long caConnectorId;
     private String caConnectorName;
 
     private String processInfoNameCreate;
@@ -122,6 +123,10 @@ public class PipelineView implements Serializable {
     public String getCaConnectorName() {
 		return caConnectorName;
 	}
+
+    public Long getCaConnectorId() {
+        return caConnectorId;
+    }
 
     public KeyUniqueness getKeyUniqueness() {
         return keyUniqueness;
@@ -228,6 +233,9 @@ public class PipelineView implements Serializable {
 		this.caConnectorName = caConnectorName;
 	}
 
+    public void setCaConnectorId(Long caConnectorId) {
+        this.caConnectorId = caConnectorId;
+    }
 
 	public void setRestriction_C(RDNRestriction restriction_C) {
 		this.restriction_C = restriction_C;

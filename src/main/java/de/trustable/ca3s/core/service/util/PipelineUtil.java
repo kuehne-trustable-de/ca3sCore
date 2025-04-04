@@ -239,6 +239,7 @@ public class PipelineUtil {
         pv.setUrlPart(pipeline.getUrlPart());
 
         if (pipeline.getCaConnector() != null) {
+            pv.setCaConnectorId(pipeline.getCaConnector().getId());
             pv.setCaConnectorName(pipeline.getCaConnector().getName());
         }
 
