@@ -1,10 +1,12 @@
 package de.trustable.ca3s.core.test.speech;
 
+import javazoom.jl.decoder.JavaLayerException;
 import javazoom.jl.player.AudioDevice;
 import javazoom.jl.player.FactoryRegistry;
 import javazoom.jl.player.Player;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 
   public class SoundOutput {
@@ -71,11 +73,15 @@ import java.io.InputStream;
 
         byte[] soundBytes = speechifyControl.getSoundBytes(speakableText);
 
-        FactoryRegistry r = FactoryRegistry.systemRegistry();
-        AudioDevice audioDevice = r.createAudioDevice();
-        try( InputStream is = new ByteArrayInputStream(soundBytes)) {
-            Player mp3Player = new Player(is,audioDevice);
-            mp3Player.play();
-        }
+        playDirect(soundBytes);
     }
-}
+
+      static void playDirect(byte[] soundBytes) throws JavaLayerException, IOException {
+          FactoryRegistry r = FactoryRegistry.systemRegistry();
+          AudioDevice audioDevice = r.createAudioDevice();
+          try( InputStream is = new ByteArrayInputStream(soundBytes)) {
+              Player mp3Player = new Player(is,audioDevice);
+              mp3Player.play();
+          }
+      }
+  }

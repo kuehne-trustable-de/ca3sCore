@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.security;
 
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.enumeration.AuthSecondFactor;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.exception.BlockedCredentialsException;
 import de.trustable.ca3s.core.service.util.UserUtil;
@@ -63,7 +64,7 @@ public class DomainUserDetailsService implements UserDetailsService {
         Instant now = Instant.now();
         if(user.getBlockedUntilDate() != null &&
             user.getBlockedUntilDate().isAfter(now)) {
-            userUtil.handleBadCredentials(login);
+            userUtil.handleBadCredentials(login, AuthSecondFactor.NONE);
 
             throw new BlockedCredentialsException("User '" + login + "' blocked until " + user.getBlockedUntilDate());
         }

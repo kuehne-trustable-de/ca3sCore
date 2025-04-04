@@ -44,7 +44,7 @@
                     <div v-if="loginData.authSecondFactor == 'TOTP' ||
                             loginData.authSecondFactor == 'EMAIL' ||
                             ( loginData.authSecondFactor == 'SMS' && isSmsSent )">
-                        <b-form-input id="" type="password" name="secondSecret" v-bind:placeholder="$t('login.form.password.secondSecret')"
+                        <b-form-input id="secondSecret" type="password" name="secondSecret" v-bind:placeholder="$t('login.form.password.secondSecret')"
                                       v-model="loginData.secondSecret">
                         </b-form-input>
                         <small v-if="showSecondFactorWarning()"

@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.enumeration.AuthSecondFactor;
 import de.trustable.ca3s.core.exception.UserNotAuthenticatedException;
 import de.trustable.ca3s.core.exception.UserNotFoundException;
 import de.trustable.ca3s.core.repository.UserRepository;
@@ -149,8 +150,6 @@ public class UserUtil {
 
     }
 
-
-
     public String validateCredentials( UserLoginData userLoginData) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
             userLoginData.getLogin(),
@@ -175,10 +174,10 @@ public class UserUtil {
     }
 
     public void handleSuccesfulAuthentication(final String username) {
-        handleSuccesfulAuthentication(getUserByLogin(username));
+        handleSuccesfulAuthentication(getUserByLogin(username), AuthSecondFactor.NONE);
     }
 
-    public void handleSuccesfulAuthentication(final User user) {
+    public void handleSuccesfulAuthentication(final User user, final AuthSecondFactor authSecondFactor) {
         String clientIP = getClientIP();
 
         user.setFailedLogins(0L);
@@ -186,10 +185,10 @@ public class UserUtil {
         user.setBlockedUntilDate(null);
         userRepository.save(user);
 
-        auditService.saveAuditTrace(auditService.createAuditTraceLoginSucceeded(null, clientIP));
+        auditService.saveAuditTrace(auditService.createAuditTraceLoginSucceeded( user, authSecondFactor.toString(), clientIP));
 
     }
-    public void handleBadCredentials(String username) {
+    public void handleBadCredentials(String username, final AuthSecondFactor authSecondFactor) {
         String clientIP = getClientIP();
 
         try {
@@ -207,12 +206,12 @@ public class UserUtil {
         if( failedLogins > 5){
             Instant blockedUntilDate = Instant.now().plus(blockedForSec, ChronoUnit.SECONDS);
             user.setBlockedUntilDate( blockedUntilDate);
+            auditService.saveAuditTrace( auditService.createAuditTraceLoginBlocked(username, clientIP, blockedForSec));
             String msg = "User '"+ user.getLogin()+"' blocked";
             LOG.info(msg);
-            auditService.saveAuditTrace( auditService.createAuditTraceLoginFailed(username, clientIP));
             throw new BlockedCredentialsException(msg, blockedUntilDate);
         }else{
-            auditService.saveAuditTrace( auditService.createAuditTraceLoginBlocked(username, clientIP, blockedForSec));
+            auditService.saveAuditTrace( auditService.createAuditTraceLoginFailed(username, clientIP));
         }
         userRepository.save(user);
     }

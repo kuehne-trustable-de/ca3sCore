@@ -77,10 +77,7 @@ export default class ChangePassword extends mixins(AlertMixin) {
       responseType: 'stream',
     }).then(function (response) {
       window.console.info('ui/config returns ' + response.data);
-
-      self.uiConfig = response.data;
-      self.$store.commit('updateCV', self.uiConfig);
-      self.ssoProvider = self.uiConfig.ssoProvider;
+      self.$store.commit('updateCV', response.data);
     });
   }
 
@@ -170,7 +167,7 @@ export default class ChangePassword extends mixins(AlertMixin) {
     }
     return '';
   }
-  jhi_authority;
+
   public regExpSecretDescription(): string {
     if (
       this.$store.state.uiConfigStore.config.cryptoConfigView !== undefined &&
@@ -187,6 +184,7 @@ export default class ChangePassword extends mixins(AlertMixin) {
     console.log('canCreateCertificate: ' + canCreateCertificate);
     return canCreateCertificate;
   }
+
   public canSubmit(): boolean {
     if (this.credentialChange.credentialUpdateType === 'CLIENT_CERT') {
       if (this.credentialChange.clientAuthCertId === 0) {

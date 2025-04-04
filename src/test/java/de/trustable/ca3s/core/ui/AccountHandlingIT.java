@@ -67,13 +67,16 @@ public class AccountHandlingIT extends WebTestBase{
     public static final By LOC_INP_OTP_SEED_VALUE = By.xpath("//div/input [@name = 'otp-seed']");
     public static final By LOC_INP_OTP_TEST_VALUE = By.xpath("//div/input [@name = 'otp-test-value']");
 
+//    public static final By LOC_CREDENTIAL_TABLE_ROWS = By.xpath("//div/table[@id='credential_list']/tbody/tr");
+    public static final By LOC_CREDENTIAL_TABLE_ROWS = By.xpath("//*[@id='credential-list']/tbody/tr");
+    public static final By LOC_HEADER_CREDENTIAL_TABLE = By.xpath("//div/h3[@id='second-factor-title']");
+
 
     @LocalServerPort
     int serverPort; // random port chosen by spring test
 
     @Autowired
     PreferenceTestConfiguration prefTC;
-
 
     @BeforeAll
     public static void setUpBeforeClass() throws IOException, MessagingException {
@@ -275,6 +278,10 @@ public class AccountHandlingIT extends WebTestBase{
         validatePresent(LOC_INP_CURRENT_PASSWORD_VALUE);
         setText(LOC_INP_CURRENT_PASSWORD_VALUE, newPassword);
 
+        wait(1000);
+
+        scrollToElement(LOC_BTN_SAVE);
+
         validatePresent(LOC_INP_OTP_SEED_VALUE);
         String seed = getAttribute(LOC_INP_OTP_SEED_VALUE, "value");
 
@@ -287,6 +294,13 @@ public class AccountHandlingIT extends WebTestBase{
         Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
+
+        validatePresent(LOC_HEADER_CREDENTIAL_TABLE);
+
+        int tableSize = driver.findElements(LOC_CREDENTIAL_TABLE_ROWS).size();
+        Assertions.assertTrue(tableSize > 0, "credential table contains at least one entry");
+
+        signIn("admin", newPassword, totp );
 
         inbox.close();
         imapStore.close();
@@ -302,5 +316,6 @@ public class AccountHandlingIT extends WebTestBase{
 
 
     }
+
 
 }

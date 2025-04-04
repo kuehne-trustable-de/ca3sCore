@@ -6,6 +6,7 @@ import com.sun.mail.imap.protocol.FLAGS;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.test.speech.SoundOutput;
+import org.jboss.aerogear.security.otp.Totp;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
@@ -51,7 +52,9 @@ public class WebTestBase extends LocomotiveBase {
 
     public static final By LOC_LNK_SIGNIN_USERNAME = By.xpath("//form//input [@name = 'username']");
     public static final By LOC_LNK_SIGNIN_PASSWORD = By.xpath("//form//input [@name = 'password']");
+
     public static final By LOC_INP_SIGNIN_SECOND_FACTOR_TYPE = By.xpath("//div/select [@id = 'second-factor']");
+    public static final By LOC_INP_SIGNIN_SECOND_FACTOR_VALUE = By.xpath("//* [@id = 'secondSecret']");
 
     public static final By LOC_BTN_SIGNIN_SUBMIT = By.xpath("//form//button [(@type='submit') and (@id = 'login.form.submit')]");
     public static final By LOC_TXT_SPOKEN_TEXT = By.xpath("//div[@name='spokenTextBox']");
@@ -521,7 +524,15 @@ public class WebTestBase extends LocomotiveBase {
     void signIn(final String user, final String password) {
          signIn ( user, password, null, 0);
     }
+
+    void signIn(String user, String password, Totp totp) {
+        signIn ( user, password, totp, null, 0);
+    }
+
     void signIn(final String user, final String password, String s, int waitMillis) {
+        signIn(user, password, null, s, waitMillis);
+    }
+    void signIn(final String user, final String password, Totp totp, String s, int waitMillis) {
 
         if( isPresent(LOC_TXT_WEBPACK_ERROR) ) {
             System.err.println(
@@ -545,8 +556,15 @@ public class WebTestBase extends LocomotiveBase {
 
         setText(LOC_LNK_SIGNIN_USERNAME, user);
         setText(LOC_LNK_SIGNIN_PASSWORD, password);
-//        selectOptionByValue(LOC_INP_SIGNIN_SECOND_FACTOR_TYPE, "No 2FA" );
-        selectOptionById(LOC_INP_SIGNIN_SECOND_FACTOR_TYPE, 0 );
+
+        if( totp != null ) {
+            selectOptionByValue(LOC_INP_SIGNIN_SECOND_FACTOR_TYPE, "TOTP");
+
+            validatePresent(LOC_INP_SIGNIN_SECOND_FACTOR_VALUE);
+            setText(LOC_INP_SIGNIN_SECOND_FACTOR_VALUE, totp.now());
+        } else {
+            selectOptionById(LOC_INP_SIGNIN_SECOND_FACTOR_TYPE, 0);
+        }
 
         explain(s);
         wait(waitMillis);

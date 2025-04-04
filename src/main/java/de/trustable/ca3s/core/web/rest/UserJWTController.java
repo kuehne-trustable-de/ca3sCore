@@ -4,11 +4,7 @@ import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.AuthSecondFactor;
 import de.trustable.ca3s.core.security.jwt.JWTFilter;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
-import de.trustable.ca3s.core.service.ClientAuthService;
-import de.trustable.ca3s.core.service.SMSService;
-import de.trustable.ca3s.core.service.TotpService;
-import de.trustable.ca3s.core.service.UserService;
-import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
+import de.trustable.ca3s.core.service.*;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.service.vault.UserCredentialService;
 import de.trustable.ca3s.core.web.rest.vm.LoginData;
@@ -18,8 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import
-    org.springframework.security.core.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 /**
@@ -39,16 +35,13 @@ public class UserJWTController {
     private final Logger log = LoggerFactory.getLogger(UserJWTController.class);
 
     private final TokenProvider tokenProvider;
-
     private final UserService userService;
     private final UserCredentialService userCredentialService;
     private final UserUtil userUtil;
 
     private final TotpService totpService;
     private final SMSService smsService;
-
     private final ClientAuthService clientAuthService;
-
 
     public UserJWTController(TokenProvider tokenProvider, UserService userService,
                              UserCredentialService userCredentialService,
@@ -63,6 +56,7 @@ public class UserJWTController {
         this.clientAuthService = clientAuthService;
     }
 
+    @Transactional(dontRollbackOn = {BadCredentialsException.class, AuthenticationException.class})
     @PostMapping("/authenticate")
     public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginData loginData) {
 
@@ -123,18 +117,18 @@ public class UserJWTController {
                 }
             }
 
-
-            userUtil.handleSuccesfulAuthentication(user);
+            userUtil.handleSuccesfulAuthentication(user, loginData.getAuthSecondFactor());
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String jwt = tokenProvider.createToken(authentication, loginData.isRememberMe());
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
+
             return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
 
         }catch(BadCredentialsException badCredentialsException) {
             log.info("login failed for user '" + loginData.getUsername() + "'!", badCredentialsException);
-            userUtil.handleBadCredentials(loginData.getUsername());
+            userUtil.handleBadCredentials(loginData.getUsername(), loginData.getAuthSecondFactor());
             throw badCredentialsException;
         }catch(AuthenticationException authenticationException){
             log.info("login failed for user '" + loginData.getUsername() + "'!", authenticationException );

@@ -2,7 +2,13 @@ import Component from 'vue-class-component';
 import { Vue } from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 
-import { ICertificateFilter, ICertificateFilterList, ISelector, ICertificateSelectionData } from '@/shared/model/transfer-object.model';
+import {
+  ICertificateFilter,
+  ICertificateFilterList,
+  ISelector,
+  ICertificateSelectionData,
+  IUserDTO,
+} from '@/shared/model/transfer-object.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 

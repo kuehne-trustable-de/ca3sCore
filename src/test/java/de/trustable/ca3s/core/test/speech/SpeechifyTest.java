@@ -50,8 +50,10 @@ public class SpeechifyTest {
     public static void main(String[] args) throws Exception {
 
         String[] speechifyApiTokenArr = new String[]{"P6mt1FQ-BTh7GgI6ttepSGJsxeNa9M8E8HrntEdwHtU="};
-        SpeechifyTest speechifyControl = new SpeechifyTest(speechifyApiTokenArr, "en");
+        SpeechifyTest speechifyTest = new SpeechifyTest(speechifyApiTokenArr, "en");
+        SpeechifyControl speechifyControl = new SpeechifyControl(speechifyApiTokenArr, "en");
 
+/*
         System.out.println("#### Plain text");
         String soundBytes = speechifyControl.speechifyOAS(
             "This is a normal speech pattern." +
@@ -79,15 +81,18 @@ public class SpeechifyTest {
                     "    &lt;/prosody&gt;" +
                     "    Back to normal speech pattern.");
         System.out.println("quoted tags, read as text. " + soundBytes.length() + " Chars.");
-
+*/
         System.out.println("\n#### SSML tags");
         try {
-            speechifyControl.speechifyOAS(
+            byte[] soundBytes = speechifyControl.getSoundBytes(
                 "This is a normal speech pattern." +
-                    "    <prosody pitch=\"high\" rate=\"fast\" volume=\"+20%\">" +
+                    "    <prosody pitch=\\\"high\\\" rate=\\\"fast\\\" volume=\\\"+20%\\\">" +
                     "        I am speaking with a higher pitch, faster than usual, and louder!" +
                     "    </prosody>" +
                     "    Back to normal speech pattern.");
+
+            SoundOutput.playDirect(soundBytes);
+
         } catch (Exception ex) {
             System.out.println("Exception message : " + ex.getMessage());
         }

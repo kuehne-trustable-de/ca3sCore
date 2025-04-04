@@ -818,10 +818,9 @@ public class AuditService {
             null, null);
     }
 
-    public AuditTrace createAuditTraceLoginSucceeded(final String secondFactor, final String clientIP){
+    public AuditTrace createAuditTraceLoginSucceeded(final User user, final String secondFactor, final String clientIP){
 
-        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
-        return createAuditTrace(nar.getName(), nar.getRole(),
+        return createAuditTrace(user.getLogin(), null,
             AUDIT_USER_LOGIN_SUCEEDED,
             clientIP,
             null, secondFactor,
