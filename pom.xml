@@ -157,7 +157,7 @@
         <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
         <git-commit-id-plugin.version>4.9.9</git-commit-id-plugin.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-        <jib-maven-plugin.version>3.4.4</jib-maven-plugin.version>
+        <jib-maven-plugin.version>3.4.5</jib-maven-plugin.version>
         <jib.allowInsecureRegistries>true</jib.allowInsecureRegistries>
         <jib-maven-plugin.from.image>eclipse-temurin:17-jre-focal</jib-maven-plugin.from.image>
         <jib-maven-plugin.to.image>docker.io/ca3s/ca3s</jib-maven-plugin.to.image>
