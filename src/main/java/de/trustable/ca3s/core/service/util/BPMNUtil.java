@@ -78,6 +78,8 @@ public class BPMNUtil{
     final private AuditService auditService;
 
     final private BPMNAsyncUtil bpmnAsyncUtil;
+    final private AcmeAccountRepository acmeAccountRepository;
+
     final private boolean useDefaultProcess;
 
     @Autowired
@@ -95,7 +97,7 @@ public class BPMNUtil{
                     NameAndRoleUtil nameAndRoleUtil,
                     AuditService auditService,
                     BPMNAsyncUtil bpmnAsyncUtil,
-                    @Value("${ca3s.bpmn.use-default-process:false}") boolean useDefaultProcess) {
+                    AcmeAccountRepository acmeAccountRepository, @Value("${ca3s.bpmn.use-default-process:false}") boolean useDefaultProcess) {
 
         this.configUtil = configUtil;
         this.caConnAdapter = caConnAdapter;
@@ -113,6 +115,7 @@ public class BPMNUtil{
         this.nameAndRoleUtil = nameAndRoleUtil;
         this.auditService = auditService;
         this.bpmnAsyncUtil = bpmnAsyncUtil;
+        this.acmeAccountRepository = acmeAccountRepository;
         this.useDefaultProcess = useDefaultProcess;
     }
 
@@ -371,27 +374,16 @@ public class BPMNUtil{
         return executeBPMNProcessByName(processName, variables);
     }
 
+    public ProcessInstanceWithVariables checkCsrRequestAuthorization(String processName, CSR csr) {
+        Map<String, Object> variables = buildVariableMapFromCSR(csr, null);
+        return executeBPMNProcessByName(processName, variables);
+    }
+
     public ProcessInstanceWithVariables checkBatchProcess(final String processName)  {
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("now", new Date());
 //        variables.put("certRepository", certRepository);
-
-        return executeBPMNProcessByName(processName, variables);
-    }
-
-    public ProcessInstanceWithVariables checkAccountRequest(final String processName)  {
-
-        Map<String, Object> variables = new HashMap<>();
-        variables.put("action", "CreateAccount");
-        AccountRequest accountRequest = new AccountRequest();
-        accountRequest.setStatus(AccountStatus.PENDING);
-        accountRequest.setTermsAgreed(true);
-        accountRequest.getContacts().add("foo@bar.baz");
-
-        variables.put("accountRequest", accountRequest);
-        variables.put("status", "Failed");
-        variables.put("failureReason", "");
 
         return executeBPMNProcessByName(processName, variables);
     }
@@ -416,11 +408,25 @@ public class BPMNUtil{
         }
     }
 
-    public ProcessInstanceWithVariables checkAcmeAccountAuthorizationProzess(final String processName, final String mailto)  {
+    public ProcessInstanceWithVariables checkAcmeAccountAuthorizationProzess(final String processName, final String accountId) {
 
         Map<String, Object> variables = new HashMap<>();
-        variables.put("mailto", mailto);
-        return executeBPMNProcessByName(processName, variables);
+        Optional<AcmeAccount> acmeAccountOptional = acmeAccountRepository.findById(Long.parseLong(accountId));
+        if (acmeAccountOptional.isPresent()) {
+
+            AcmeAccount acmeAccount = acmeAccountOptional.get();
+
+            AccountRequest accountRequest = new AccountRequest();
+            accountRequest.setStatus(AccountStatus.PENDING);
+            accountRequest.setTermsAgreed(true);
+            for( AcmeContact acmeContact : acmeAccount.getContacts()){
+                accountRequest.getContacts().add(acmeContact.getContactUrl());
+            }
+            variables.put("accountRequest", accountRequest);
+            return executeBPMNProcessByName(processName, variables);
+        } else {
+            throw new RuntimeException( "accountId '" + accountId + "' is unknown");
+        }
     }
 
     public ProcessInstanceWithVariables checkSMSProcess(final String processName, final String phone, final String msg)  {
@@ -438,7 +444,9 @@ public class BPMNUtil{
         variables.put("csrId", csr.getId());
         variables.put("csr", csr);
         variables.put("csrAttributes", csr.getCsrAttributes());
-        variables.put("caConfigId", caConfig.getId());
+        if( caConfig != null) {
+            variables.put("caConfigId", caConfig.getId());
+        }
         return variables;
     }
 
@@ -620,7 +628,7 @@ public class BPMNUtil{
      *
      * @throws GeneralSecurityException
      */
-    public void startACMEAccountCreationProcess(final AccountRequest accountRequest, final Pipeline pipeline) throws GeneralSecurityException  {
+    public void startACMEAccountAuthorizationProcess(final AccountRequest accountRequest, final Pipeline pipeline) throws GeneralSecurityException  {
 
         if( accountRequest == null) {
             throw new GeneralSecurityException("accountRequest for ACME account creation MUST be provided");
@@ -634,23 +642,23 @@ public class BPMNUtil{
         String failureReason = "";
         String processInstanceId = "";
 
-        BPMNProcessInfo bpmnProcessInfoAccountCreate = pipeline.getProcessInfoRequestAuthorization();
+        BPMNProcessInfo bpmnProcessInfoAccountAuthorization = pipeline.getProcessInfoAccountAuthorization();
 
-        if( bpmnProcessInfoAccountCreate == null){
+        if( bpmnProcessInfoAccountAuthorization == null){
             return;
         }
 
-        // BPNM call
+        // BPMN call
         try {
             Map<String, Object> variables = new HashMap<>();
-            variables.put("action", "CreateAccount");
+            variables.put("action", "ACMEAccountAuthorization");
             variables.put("accountRequest", accountRequest);
             variables.put("status", status);
             variables.put("failureReason", failureReason);
 
-            ProcessInstanceWithVariables processInstance = executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoAccountCreate, variables);
+            ProcessInstanceWithVariables processInstance = executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoAccountAuthorization, variables);
             processInstanceId = processInstance.getId();
-            LOG.info("startACMEAccountCreationProcess ProcessInstance: {}", processInstanceId);
+            LOG.info("startACMEAccountAuthorizationProcess ProcessInstance: {}", processInstanceId);
 
             status = processInstance.getVariables().get("status").toString();
 
@@ -661,9 +669,8 @@ public class BPMNUtil{
             // catch all (runtime) Exception
         } catch (Exception e) {
             failureReason = e.getLocalizedMessage();
-            LOG.warn("execution of '" + bpmnProcessInfoAccountCreate.getName() + "' failed ", e);
+            LOG.warn("execution of '" + bpmnProcessInfoAccountAuthorization.getName() + "' failed ", e);
         }
-
 
         if ("Success".equals(status)) {
             LOG.debug("ACME account creation confirmed by BPMN process {}", processInstanceId);

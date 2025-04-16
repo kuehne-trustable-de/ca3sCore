@@ -12,18 +12,13 @@ public class AcmeConfigItems implements Serializable {
     private boolean allowChallengeHTTP01;
     private boolean allowChallengeAlpn;
 	private boolean allowChallengeDNS;
-
 	private boolean allowWildcards;
-
     private boolean checkCAA;
-
+    private boolean notifyContactsOnError;
     private String contactEMailRegEx;
     private String contactEMailRejectRegEx;
-
-
     private String caNameCAA;
-
-    private String processInfoNameAccountValidation;
+    private String processInfoNameAccountAuthorization;
     private String processInfoNameOrderValidation;
     private String processInfoNameChallengeValidation;
 
@@ -50,9 +45,16 @@ public class AcmeConfigItems implements Serializable {
 		return caNameCAA;
 	}
 
+    public boolean isNotifyContactsOnError() {
+        return notifyContactsOnError;
+    }
 
-	public String getProcessInfoNameAccountValidation() {
-		return processInfoNameAccountValidation;
+    public void setNotifyContactsOnError(boolean notifyContactsOnError) {
+        this.notifyContactsOnError = notifyContactsOnError;
+    }
+
+    public String getProcessInfoNameAccountAuthorization() {
+		return processInfoNameAccountAuthorization;
 	}
 
 	public String getProcessInfoNameOrderValidation() {
@@ -92,8 +94,8 @@ public class AcmeConfigItems implements Serializable {
 		this.caNameCAA = caNameCAA;
 	}
 
-	public void setProcessInfoNameAccountValidation(String processInfoNameAccountValidation) {
-		this.processInfoNameAccountValidation = processInfoNameAccountValidation;
+	public void setProcessInfoNameAccountAuthorization(String processInfoNameAccountAuthorization) {
+		this.processInfoNameAccountAuthorization = processInfoNameAccountAuthorization;
 	}
 
 	public void setProcessInfoNameOrderValidation(String processInfoNameOrderValidation) {

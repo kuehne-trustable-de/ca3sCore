@@ -1,21 +1,21 @@
 package de.trustable.ca3s.core.web.rest.support;
 
+import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.AcmeOrderRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.NotificationService;
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.NameAndRoleUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
@@ -39,13 +39,16 @@ public class NotificationSupport {
     private final CertificateRepository certificateRepository;
 
     private final CSRRepository csrRepository;
+    private final AcmeOrderRepository acmeOrderRepository;
 
-    public NotificationSupport(NameAndRoleUtil nameAndRoleUtil, UserRepository userRepository, NotificationService notificationService, CertificateRepository certificateRepository, CSRRepository csrRepository) {
+    public NotificationSupport(NameAndRoleUtil nameAndRoleUtil, UserRepository userRepository, NotificationService notificationService, CertificateRepository certificateRepository, CSRRepository csrRepository,
+                               AcmeOrderRepository acmeOrderRepository) {
         this.nameAndRoleUtil = nameAndRoleUtil;
         this.userRepository = userRepository;
         this.notificationService = notificationService;
         this.certificateRepository = certificateRepository;
         this.csrRepository = csrRepository;
+        this.acmeOrderRepository = acmeOrderRepository;
     }
 
 
@@ -113,7 +116,7 @@ public class NotificationSupport {
     }
 
     /**
-     * {@code POST  api/notification/sendExpiryPendingSummary} : send out certificate expiry and request pending summary.
+     * {@code POST  api/notification/sendRequestorExpiry} : send out certificate expiry and request pending summary.
      *
      * @return the number of expiring certificates .
      */
@@ -217,6 +220,29 @@ public class NotificationSupport {
         if (optUser.isPresent()) {
             Certificate cert = certificateRepository.getOne(Long.parseLong(certId));
             notificationService.notifyRAOfficerOnUserRevocation(cert);
+        }
+    }
+
+    /**
+     * {@code POST  api/notification/sendUserCertificateRevoked} : send out certificate revocation info.
+     */
+    @Transactional
+    @PostMapping("notification/sendAcmeContactOnProblem/{orderId}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public void notifyAcmeContactOnProblem(@PathVariable String orderId,
+                                           @RequestBody ProblemDetail problemDetail) throws MessagingException {
+
+        Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
+        if (optUser.isPresent()) {
+            Optional<AcmeOrder> orderOptional = acmeOrderRepository.findById(Long.parseLong(orderId));
+            if(optUser.isPresent() && orderOptional.isPresent()){
+                Set<String> addressSet = Collections.singleton(optUser.get().getEmail());
+                notificationService.notifyAccountHolderOnACMEProblem(
+                    orderOptional.get(),
+                    problemDetail,
+                    addressSet );
+            }
+
         }
     }
 

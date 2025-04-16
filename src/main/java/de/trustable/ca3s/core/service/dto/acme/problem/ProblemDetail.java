@@ -50,6 +50,15 @@ public class ProblemDetail {
   private final String title, detail;
   private final HttpStatus status;
 
+  public ProblemDetail(){
+      this.type = null;
+      this.title = "";
+      this.detail = "";
+      this.instance = null;
+      this.status = null;
+
+  }
+
   /**
    * @param type     Optional
    * @param title    Optional

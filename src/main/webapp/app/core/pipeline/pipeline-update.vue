@@ -717,6 +717,14 @@
                         </select>
                     </div>
 
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB' && getBPNMProcessInfosByType('REQUEST_AUTHORIZATION').length > 0">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoRequestAuthorization')" for="pipeline-processInfoRequestAuthorization"></label>  <help-tag role="Admin" target="pipeline.process.requestAuthorization"/>
+                        <select class="form-control" id="pipeline-processInfoRequestAuthorization" name="processInfoRequestAuthorization" v-model="pipeline.webConfigItems.processInfoNameRequestAuthorization">
+                            <option v-bind:value="null"></option>
+                            <option v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name" v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('REQUEST_AUTHORIZATION')" :key="bPNMProcessInfoOption.id">{{bPNMProcessInfoOption.name}}</option>
+                        </select>
+                    </div>
+
                     <div class="form-group" v-if="getBPNMProcessInfosByType('CERTIFICATE_NOTIFY').length > 0">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoNotify')" for="pipeline-processInfoNotify"></label>  <help-tag role="Admin" target="pipeline.process.notify"/>
                         <select class="form-control" id="pipeline-processInfoNotify" name="processInfoNotify" v-model="pipeline.processInfoNameNotify">
@@ -725,12 +733,17 @@
                         </select>
                     </div>
 
-                    <div class="form-group" v-if="getBPNMProcessInfosByType('ACME_ACCOUNT_AUTHORIZATION').length > 0">
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'ACME' && getBPNMProcessInfosByType('ACME_ACCOUNT_AUTHORIZATION').length > 0">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoAccountAuthorization')" for="pipeline-processInfoAccountAuthorization"></label>  <help-tag role="Admin" target="pipeline.process.account-authorization"/>
-                        <select class="form-control" id="pipeline-processInfoNotify" name="processInfoNotify" v-model="pipeline.processInfoNameNotify">
+                        <select class="form-control" id="pipeline-processInfoNotify" name="processInfoNotify" v-model="pipeline.acmeConfigItems.processInfoNameAccountAuthorization">
                             <option v-bind:value="null"></option>
                             <option v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name" v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('ACME_ACCOUNT_AUTHORIZATION')" :key="bPNMProcessInfoOption.id">{{bPNMProcessInfoOption.name}}</option>
                         </select>
+                    </div>
+
+                    <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.isNotifyContactsOnError')" for="pipeline-isNotifyContactsOnError"></label>  <help-tag role="Admin" target="pipeline.acme.notify-contacts-on-error"/>
+                        <input type="checkbox" class="form-check-inline" name="checkCAA" id="pipeline-isNotifyContactsOnError" v-model="pipeline.acmeConfigItems.notifyContactsOnError" />
                     </div>
 
                     <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB'">
@@ -740,7 +753,7 @@
                         </select>
                     </div>
                 </div>
-
+                <p></p>
                 <div v-if="pipeline.id">
                     <audit-tag :pipelineId="pipeline.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
                 </div>

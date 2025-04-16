@@ -190,13 +190,13 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
 
     return {
       columns: [
-        { label: 'id', field: 'id' },
-        { label: this.$t('bpmn.name'), field: 'name' },
-        { label: this.$t('type'), field: 'type' },
-        { label: this.$t('version'), field: 'version' },
-        { label: this.$t('author'), field: 'author' },
-        { label: this.$t('lastChange'), field: 'lastChange' },
-        { label: this.$t('action'), field: 'lastChange' },
+        { label: this.$t('global.field.id'), field: 'id' },
+        { label: this.$t('ca3SApp.bpmn.name.title'), field: 'name' },
+        { label: this.$t('ca3SApp.bpmn.type.title'), field: 'type' },
+        { label: this.$t('ca3SApp.bpmn.version.title'), field: 'version' },
+        { label: this.$t('ca3SApp.bpmn.author.title'), field: 'author' },
+        { label: this.$t('ca3SApp.bpmn.lastChange.title'), field: 'lastChange' },
+        { label: this.$t('ca3SApp.bpmn.action.title'), field: 'lastChange' },
       ] as TColumnsDefinition<IBPMNProcessInfo>,
       page: 1,
       filter: '',

@@ -13,6 +13,8 @@ public class WebConfigItems implements Serializable{
 
     private boolean notifyRAOfficerOnPendingRequest = false;
 
+    private String processInfoNameRequestAuthorization;
+
     public WebConfigItems(){}
 
     public String getAdditionalEMailRecipients() {
@@ -29,5 +31,13 @@ public class WebConfigItems implements Serializable{
 
     public void setNotifyRAOfficerOnPendingRequest(boolean notifyRAOfficerOnPendingRequest) {
         this.notifyRAOfficerOnPendingRequest = notifyRAOfficerOnPendingRequest;
+    }
+
+    public String getProcessInfoNameRequestAuthorization() {
+        return processInfoNameRequestAuthorization;
+    }
+
+    public void setProcessInfoNameRequestAuthorization(String processInfoNameRequestAuthorization) {
+        this.processInfoNameRequestAuthorization = processInfoNameRequestAuthorization;
     }
 }

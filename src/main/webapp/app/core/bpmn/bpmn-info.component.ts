@@ -52,7 +52,7 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
   public phone = '555-123-456';
   public msg = 'message';
 
-  public mailto = '';
+  public accountId = '';
 
   public options: {
     propertiesPanel: {};
@@ -208,14 +208,16 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
 
     let targetURL = bpmnUrl + `/check/csr/${this.bPNMProcessInfo.processId}/${this.csrId}`;
     if (this.bpmnUpload.type === 'CERTIFICATE_NOTIFY') {
-      targetURL = bpmnUrl + `/check/certificateNotify/${this.bPNMProcessInfo.processId}/${this.certificateId}`;
-    } else if (this.bpmnUpload.type === 'ACME_ACCOUNT_AUTHORIZATION') {
-      targetURL = bpmnUrl + `/check/accountRequest/${this.bPNMProcessInfo.processId}`;
+      targetURL = bpmnUrl + `/check/certificateNotify/${this.bPNMProcessInfo.processId}/${encodeURIComponent(this.certificateId)}`;
+    } else if (this.bpmnUpload.type === 'REQUEST_AUTHORIZATION') {
+      targetURL = bpmnUrl + `/check/csrRequestAuthorization/${this.bPNMProcessInfo.processId}/${encodeURIComponent(this.csrId)}`;
+      //    } else if (this.bpmnUpload.type === 'ACME_ACCOUNT_AUTHORIZATION') {
+      //      targetURL = bpmnUrl + `/check/accountRequest/${this.bPNMProcessInfo.processId}`;
     } else if (this.bpmnUpload.type === 'SEND_SMS') {
       targetURL =
         bpmnUrl + `/check/sendSMS/${this.bPNMProcessInfo.processId}/${encodeURIComponent(this.phone)}/${encodeURIComponent(this.msg)}`;
     } else if (this.bpmnUpload.type === 'ACME_ACCOUNT_AUTHORIZATION') {
-      targetURL = bpmnUrl + `/check/acmeAccountAuthorization/${this.bPNMProcessInfo.processId}/${encodeURIComponent(this.mailto)}`;
+      targetURL = bpmnUrl + `/check/acmeAccountAuthorization/${this.bPNMProcessInfo.processId}/${encodeURIComponent(this.accountId)}`;
     }
 
     console.log('calling bpmn check endpoint at ' + targetURL);

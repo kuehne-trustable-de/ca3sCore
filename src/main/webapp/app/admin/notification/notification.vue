@@ -16,6 +16,7 @@
                 <option value="sendCertificateRevoked" v-text="$t('ca3SApp.notification.sendCertificateRevoked')" ></option>
                 <option value="sendUserCertificateRevoked" v-text="$t('ca3SApp.notification.sendUserCertificateRevoked')" ></option>
                 <option value="sendAdminOnConnectorExpiry" v-text="$t('ca3SApp.notification.sendAdminOnConnectorExpiry')" ></option>
+                <option value="sendAcmeContactOnProblem" v-text="$t('ca3SApp.notification.sendAcmeContactOnProblem')" ></option>
             </select>
         </div>
 
@@ -43,7 +44,42 @@
                         <input type="text" class="form-control" name="csr-id" id="csr-id" v-model="csrId" />
                     </div>
                 </div>
+            </div>
 
+            <div v-if="selectedNotification === 'sendAcmeContactOnProblem'" >
+
+                <div class="row">
+                    <div class="col">
+                        <label class="form-control-label" v-text="$t('ca3SApp.notification.order.id')" for="order-id"></label>
+                    </div>
+                    <div class="col colContent">
+                        <input type="text" class="form-control" name="order-id" id="order-id" v-model="orderId" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="form-control-label" v-text="$t('ca3SApp.notification.problem.title')" for="problem-title"></label>
+                    </div>
+                    <div class="col colContent">
+                        <input type="text" class="form-control" name="problem-title" id="problem-title" v-model="acmeProblemDetail.title" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="form-control-label" v-text="$t('ca3SApp.notification.problem.type')" for="problem-type"></label>
+                    </div>
+                    <div class="col colContent">
+                        <input type="text" class="form-control" name="problem-type" id="problem-type" v-model="acmeProblemDetail.type" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="form-control-label" v-text="$t('ca3SApp.notification.problem.detail')" for="problem-detail"></label>
+                    </div>
+                    <div class="col colContent">
+                        <input type="text" class="form-control" name="problem-detail" id="problem-detail" v-model="acmeProblemDetail.detail" />
+                    </div>
+                </div>
             </div>
 
             <button type="button" id="send-issued" class="btn btn-primary" v-on:click="send()">

@@ -26,10 +26,11 @@
                                 :readOnly="interactionMode == 'TEST'"
                                 :disabled="interactionMode == 'TEST'"
                                 v-model="bpmnUpload.type" >
-                            <option value="CERTIFICATE_CREATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION')" selected="selected"></option>
-                            <option value="CERTIFICATE_NOTIFY" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_NOTIFY')" selected="selected"></option>
-                            <option value="CERTIFICATE_REVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION')" selected="selected"></option>
-                            <option value="SEND_SMS" v-text="$t('ca3SApp.bPNMProcessInfo.type.SEND_SMS')" selected="selected"></option>
+                            <option value="CERTIFICATE_CREATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION')"></option>
+                            <option value="CERTIFICATE_NOTIFY" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_NOTIFY')"></option>
+                            <option value="CERTIFICATE_REVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION')" ></option>
+                            <option value="REQUEST_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION')" ></option>
+                            <option value="SEND_SMS" v-text="$t('ca3SApp.bPNMProcessInfo.type.SEND_SMS')" ></option>
                             <option value="ACME_ACCOUNT_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.ACME_ACCOUNT_AUTHORIZATION')" ></option>
 
                             <!--option value="BATCH" v-text="$t('ca3SApp.bPNMProcessInfo.type.BATCH')" ></option-->
@@ -145,14 +146,11 @@
                 </div>
 
                 <div class="form-group" v-if="(interactionMode == 'TEST') && bpmnUpload.type === 'ACME_ACCOUNT_AUTHORIZATION'">
-                    <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.mailto')" ></label>
-                    <input type="text" class="form-control form-check-inline valid" name="bpmn.check.mailto'" id="bpmn.check.mailto"
+                    <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.accountId')" ></label>
+                    <input type="text" class="form-control form-check-inline valid" name="bpmn.check.accountId'" id="bpmn.check.accountId"
                            required="true"
-                           v-model="mailto" />
+                           v-model="accountId" />
                 </div>
-
-
-                ca3SApp.bPNMProcessInfo.type.ACME_ACCOUNT_AUTHORIZATION
 
                 <div v-if="(interactionMode == 'TEST')" class="form-group">
                     <button type="button"
@@ -164,6 +162,8 @@
                 </div>
 
                 <div v-if="bpmnCheckResult.status && (interactionMode == 'TEST')">
+                    <h3 v-text="$t('pkcsxx.upload.result.label')">result</h3>
+                    <h4 v-text="$t('ca3SApp.notification.message.details')"></h4>
 
                     <dl class="row jh-entity-details">
                         <dt>
@@ -172,7 +172,8 @@
                         <dd>
                             <span>{{bpmnCheckResult.status}}</span>
                         </dd>
-
+                    </dl>
+                    <dl class="row jh-entity-details">
                         <dt>
                             <span v-text="$t('ca3SApp.bPNMProcessInfo.result.failureReason')">Failure reason</span>
                         </dt>
@@ -180,6 +181,7 @@
                             <span>{{bpmnCheckResult.failureReason}}</span>
                         </dd>
                     </dl>
+
                     <dl class="row jh-entity-details">
                         <div v-for="(val, valueIndex) in bpmnCheckResult.responseAttributes" :key="valueIndex">
                             <dt>

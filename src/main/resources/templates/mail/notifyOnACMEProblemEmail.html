@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <title th:text="#{email.request.acme.problem.title}">ACME request problem</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
+    </head>
+    <body>
+        <p>
+            Dear ACME user,
+        </p>
+        <p>
+            your certificate request failed with the following reason:
+
+            <span th:text="${acmeProblem.getDetail()}"></span>
+
+            Please re-configure your ACME client avoid this problem.
+        </p>
+
+        <p>
+            This notification relates to your ACME request created on <span th:text="${#dates.format(acmeOrder.getCreatedOn(), 'dd.MM.yyyy, HH:mm')}"></span> for URL(s):
+          <table>
+            <tr th:each="authorization : ${acmeOrder.getAcmeAuthorizations()}">
+                <td><span th:text="${authorization.getValue()}"></span></td>
+            </tr>
+        </table>
+
+        </p>
+
+        <p>
+            <span th:text="#{email.activation.text2}">Regards, </span>
+            <br/>
+            <em th:text="#{email.signature}">ca3s.</em>
+        </p>
+    </body>
+</html>

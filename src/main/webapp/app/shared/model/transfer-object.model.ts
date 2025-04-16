@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-04-01 21:07:17.
+// Generated using typescript-generator version 3.2.1263 on 2025-04-15 11:51:06.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -148,6 +148,7 @@ export interface IPipelineView extends ISerializable {
   approvalRequired?: boolean;
   active?: boolean;
   expiryDate?: Date;
+  caConnectorId?: number;
   caConnectorName?: string;
   processInfoNameCreate?: string;
   processInfoNameRevoke?: string;
@@ -261,9 +262,9 @@ export interface ICertificateView extends ISerializable {
   replacedCertArr?: string[];
   arArr?: INamedValue[];
   issuingActiveCertificates?: boolean;
-  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
+  auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -339,8 +340,8 @@ export interface ICSRView extends ISerializable {
   isAdministrable?: boolean;
   tosAgreed?: boolean;
   tosAgreementLink?: string;
-  csrvalid?: boolean;
   administrable?: boolean;
+  csrvalid?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -573,10 +574,11 @@ export interface IAcmeConfigItems extends ISerializable {
   allowChallengeDNS?: boolean;
   allowWildcards?: boolean;
   checkCAA?: boolean;
+  notifyContactsOnError?: boolean;
   contactEMailRegEx?: string;
   contactEMailRejectRegEx?: string;
   caNameCAA?: string;
-  processInfoNameAccountValidation?: string;
+  processInfoNameAccountAuthorization?: string;
   processInfoNameOrderValidation?: string;
   processInfoNameChallengeValidation?: string;
 }
@@ -598,6 +600,7 @@ export interface ISCEPConfigItems extends ISerializable {
 export interface IWebConfigItems extends ISerializable {
   additionalEMailRecipients?: string;
   notifyRAOfficerOnPendingRequest?: boolean;
+  processInfoNameRequestAuthorization?: string;
 }
 
 export interface INamedValues {
@@ -702,6 +705,7 @@ export interface IPipeline extends ISerializable {
   processInfoRevoke?: IBPMNProcessInfo;
   processInfoNotify?: IBPMNProcessInfo;
   processInfoRequestAuthorization?: IBPMNProcessInfo;
+  processInfoAccountAuthorization?: IBPMNProcessInfo;
   algorithms?: IAlgorithmRestriction[];
   requestProxies?: IRequestProxyConfig[];
   tenants?: ITenant[];

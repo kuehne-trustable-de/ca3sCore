@@ -90,6 +90,10 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
+  public canCreateSecondFactor(secondFactorType: string): boolean {
+    return this.$store.state.uiConfigStore.config.scndFactorTypes.includes(secondFactorType);
+  }
+
   public notifyFileChange(evt: any): void {
     if (!evt || !evt.target || !evt.target.files || evt.target.files.length === 0) {
       return;

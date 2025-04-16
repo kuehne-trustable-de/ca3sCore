@@ -54,6 +54,8 @@ public class CertificateUploadIT {
     @Autowired
     private CSRUtil csrUtil;
     @Autowired
+    private BPMNUtil bpmnUtil;
+    @Autowired
     private CSRRepository csrRepository;
     @Autowired
     private CertificateRepository certificateRepository;
@@ -92,7 +94,8 @@ public class CertificateUploadIT {
              protUtil,
              certUtil,
              csrUtil,
-             csrRepository,
+             bpmnUtil,
+            csrRepository,
              certificateRepository,
              userUtil,
              pipelineRepository,

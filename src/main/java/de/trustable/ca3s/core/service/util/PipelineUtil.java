@@ -9,6 +9,7 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -135,6 +136,7 @@ public class PipelineUtil {
     public static final String ACME_PROCESS_CHALLENGE_VALIDATION = "ACME_PROCESS_CHALLENGE_VALIDATION";
 
     public static final String ACME_ORDER_VALIDITY_SECONDS = "ACME_ORDER_VALIDITY_SECONDS";
+    public static final String ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR = "ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR";
 
     public static final String SCEP_CAPABILITY_RENEWAL = "SCEP_CAPABILITY_RENEWAL";
     public static final String SCEP_CAPABILITY_POST = "SCEP_CAPABILITY_POST";
@@ -290,15 +292,14 @@ public class PipelineUtil {
                 acmeConfigItems.setContactEMailRegEx(plAtt.getValue());
             } else if (ACME_CONTACT_EMAIL_REGEX_REJECT.equals(plAtt.getName())) {
                 acmeConfigItems.setContactEMailRejectRegEx(plAtt.getValue());
+            } else if (ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR.equals(plAtt.getName())) {
+                acmeConfigItems.setNotifyContactsOnError(Boolean.parseBoolean(plAtt.getValue()));
             } else if (DOMAIN_RA_OFFICER.equals(plAtt.getName())) {
                 domainRaOfficerList.add(plAtt.getValue());
-
             } else if (NOTIFY_RA_OFFICER_ON_PENDING.equals(plAtt.getName())) {
                 webConfigItems.setNotifyRAOfficerOnPendingRequest(Boolean.parseBoolean(plAtt.getValue()));
-
             } else if (ADDITIONAL_EMAIL_RECIPIENTS.equals(plAtt.getName())) {
                 webConfigItems.setAdditionalEMailRecipients(plAtt.getValue());
-
             } else if (SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
                 scepConfigItems.setScepRecipientDN(plAtt.getValue());
             } else if (SCEP_RECIPIENT_KEY_TYPE_LEN.equals(plAtt.getName())) {
@@ -349,6 +350,15 @@ public class PipelineUtil {
             }
         }
 */
+
+        if (pipeline.getProcessInfoRequestAuthorization() != null) {
+            webConfigItems.setProcessInfoNameRequestAuthorization(pipeline.getProcessInfoRequestAuthorization().getName());
+        }
+
+        if (pipeline.getProcessInfoAccountAuthorization() != null) {
+            acmeConfigItems.setProcessInfoNameAccountAuthorization(pipeline.getProcessInfoAccountAuthorization().getName());
+        }
+
         pv.setDomainRaOfficerList(domainRaOfficerList.toArray(new String[0]));
 
         pv.setAcmeConfigItems(acmeConfigItems);
@@ -764,6 +774,47 @@ public class PipelineUtil {
             }
         }
 
+        // Process Request Authorization
+        String oldProcessNameRequestAuthorization = "";
+        if (p.getProcessInfoRequestAuthorization() != null) {
+            oldProcessNameNotify = p.getProcessInfoRequestAuthorization().getName();
+        }
+
+        List<BPMNProcessInfo> bpmnProcessInfoRequestAuthorizationList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getWebConfigItems().getProcessInfoNameRequestAuthorization());
+        if(!bpmnProcessInfoRequestAuthorizationList.isEmpty()) {
+            BPMNProcessInfo bpi = bpmnProcessInfoRequestAuthorizationList.get(0);
+            p.setProcessInfoRequestAuthorization(bpi);
+            if (!bpi.getName().equals(oldProcessNameRequestAuthorization)) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("REQUEST_AUTHORIZATION_PROCESS", oldProcessNameRequestAuthorization, bpi.getName(), p));
+            }
+        } else {
+            p.setProcessInfoRequestAuthorization(null);
+            if (!oldProcessNameRequestAuthorization.isEmpty()) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("REQUEST_AUTHORIZATION_PROCESS", oldProcessNameRequestAuthorization, "", p));
+            }
+        }
+
+        // Process Account Authorization
+        String oldProcessNameAccountAuthorization = "";
+        if (p.getProcessInfoAccountAuthorization() != null) {
+            oldProcessNameAccountAuthorization = p.getProcessInfoAccountAuthorization().getName();
+        }
+
+        List<BPMNProcessInfo> bpmnProcessInfoAccountAuthorizationList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getAcmeConfigItems().getProcessInfoNameAccountAuthorization());
+        if(!bpmnProcessInfoAccountAuthorizationList.isEmpty()) {
+            BPMNProcessInfo bpi = bpmnProcessInfoAccountAuthorizationList.get(0);
+            p.setProcessInfoAccountAuthorization(bpi);
+            if (!bpi.getName().equals(oldProcessNameAccountAuthorization)) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("ACCOUNT_AUTHORIZATION_PROCESS", oldProcessNameAccountAuthorization, bpi.getName(), p));
+            }
+        } else {
+            p.setProcessInfoAccountAuthorization(null);
+            if (!oldProcessNameAccountAuthorization.isEmpty()) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("ACCOUNT_AUTHORIZATION_PROCESS", oldProcessNameAccountAuthorization, "", p));
+            }
+        }
+
+        // Reequest Proxy
         Set<RequestProxyConfig> requestProxyConfigList = new HashSet<>();
         for (long requestProxyConfigId : pv.getRequestProxyConfigIds()) {
             Optional<RequestProxyConfig> requestProxyConfigOptional = requestProxyConfigRepository.findById(requestProxyConfigId);
@@ -863,6 +914,8 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NAME_CAA, pv.getAcmeConfigItems().getCaNameCAA());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX, pv.getAcmeConfigItems().getContactEMailRegEx());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX_REJECT, pv.getAcmeConfigItems().getContactEMailRejectRegEx());
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR, pv.getAcmeConfigItems().isNotifyContactsOnError());
+
         }
 
         if( pv.getKeyUniqueness() == null){
@@ -1837,6 +1890,19 @@ public class PipelineUtil {
     GeneralName buildGeneralName(CsrAttribute csrAttribute){
         return CertificateUtil.getGeneralNameFromTypedSAN(csrAttribute.getValue());
     }
+
+    public void sendProblemNotificationPerEmail(Pipeline pipeline,
+                                                AcmeOrder acmeOrder,
+                                                ProblemDetail acmeProblem) {
+
+        AcmeAccount acmeAccount = acmeOrder.getAccount();
+        if( acmeAccount != null && acmeAccount.getContacts() != null ){
+            if( getPipelineAttribute(pipeline, PipelineUtil.ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR,false)){
+                notificationService.notifyAccountHolderOnACMEProblem(acmeOrder, acmeProblem);
+            }
+        }
+    }
+
 
 }
 

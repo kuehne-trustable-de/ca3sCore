@@ -44,7 +44,6 @@ import de.trustable.ca3s.core.service.util.RateLimiterService;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.pkcs.Attribute;
@@ -215,18 +214,20 @@ public class OrderController extends AcmeController {
 
         // check for existence of a pipeline for the realm
         Pipeline pipeline = getPipelineForRealm(realm);
+        AcmeAccount acctDao = null;
+        AcmeOrder orderDao = null;
+        Pkcs10RequestHolder p10Holder = null;
 
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
             FinalizeRequest finalizeReq = jwtUtil.getFinalizeReq(context.getJwtClaims());
 
-            AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
+            acctDao = checkJWTSignatureForAccount(context, realm);
 
             /*
              * Prepare the response header, e.g. add a nonce
              */
             final HttpHeaders additionalHeaders = buildNonceHeader();
-
 
             /*
              * Order retrieval
@@ -235,7 +236,7 @@ public class OrderController extends AcmeController {
             if (orderList.isEmpty()) {
                 return ResponseEntity.notFound().headers(additionalHeaders).build();
             } else {
-                AcmeOrder orderDao = orderList.get();
+                orderDao = orderList.get();
 
                 /*
                  * does the order correlate to the Account selected by the JWT
@@ -261,7 +262,7 @@ public class OrderController extends AcmeController {
                     LOG.debug("csr received: " + csrAsString);
 
                     byte[] csrByte = Base64Url.decode(csrAsString);
-                    Pkcs10RequestHolder p10Holder = cryptoUtil.parseCertificateRequest(csrByte);
+                    p10Holder = cryptoUtil.parseCertificateRequest(csrByte);
 
                     LOG.debug("csr decoded: " + p10Holder);
 
@@ -330,6 +331,7 @@ public class OrderController extends AcmeController {
                         }
                         final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "Restriction check failed.",
                             BAD_REQUEST, detail, NO_INSTANCE);
+                        sendProblemNotificationPerEmail(pipeline, orderDao, problem);
                         throw new AcmeProblemException(problem);
                     }
 
@@ -362,6 +364,7 @@ public class OrderController extends AcmeController {
             }
 
         } catch (AcmeProblemException e) {
+            sendProblemNotificationPerEmail(pipeline, orderDao, e.getProblem());
             return buildProblemResponseEntity(e);
         } catch (JoseException | IOException | GeneralSecurityException e) {
             final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, e.getMessage(),
@@ -369,6 +372,22 @@ public class OrderController extends AcmeController {
             return buildProblemResponseEntity(new AcmeProblemException(problem));
         }
 
+    }
+
+    private void sendProblemNotificationPerEmail(Pipeline pipeline,
+                                                 AcmeOrder acmeOrder,
+                                                 ProblemDetail acmeProblem) {
+
+        if( acmeOrder == null){
+            return;
+        }
+
+        AcmeAccount acmeAccount = acmeOrder.getAccount();
+        if(acmeAccount != null && acmeAccount.getContacts() != null) {
+            pipelineUtil.sendProblemNotificationPerEmail(pipeline,
+                acmeOrder,
+                acmeProblem);
+        }
     }
 
 

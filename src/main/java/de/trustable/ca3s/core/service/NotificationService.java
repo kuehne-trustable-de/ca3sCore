@@ -4,10 +4,13 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.NameMessages;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.service.util.StateOverview;
+import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -768,7 +771,7 @@ public class NotificationService {
 
 
     @Transactional
-    public void notifyAccountHolderOnKeyReuse(AcmeOrder acmeOrder ) {
+    public void notifyAccountHolderOnKeyReuse(AcmeOrder acmeOrder) {
 
         Locale locale = Locale.ENGLISH;
         Context context = new Context(locale);
@@ -785,6 +788,45 @@ public class NotificationService {
         for( String email: emailSet) {
             try {
                 mailService.sendEmailFromTemplate(context, null, email, null, "mail/notifyOnKeyReuseEmail", "email.request.rejection.title");
+            } catch (MessagingException e) {
+                LOG.info("Problem occurred while sending a notification eMail to acme account contact address '" + email + "'",e);
+            }
+        }
+    }
+
+    @Transactional
+    public void notifyAccountHolderOnACMEProblem(AcmeOrder acmeOrder,
+                                                 ProblemDetail acmeProblem) {
+
+        AcmeAccount acmeAccount = acmeOrder.getAccount();
+        Set<String> emailSet = acmeAccount.getContacts().stream()
+            .map(contact -> contact.getContactUrl().replace("mailto:", ""))
+            .filter(email -> !email.isEmpty())
+            .collect(Collectors.toSet());
+
+        notifyAccountHolderOnACMEProblem(acmeOrder,
+            acmeProblem,
+            emailSet );
+    }
+
+    @Transactional
+    public void notifyAccountHolderOnACMEProblem(AcmeOrder acmeOrder,
+                                                 ProblemDetail acmeProblem,
+                                                 Set<String> emailSet ) {
+
+        Locale locale = Locale.ENGLISH;
+        Context context = new Context(locale);
+        AcmeAccount acmeAccount = acmeOrder.getAccount();
+        context.setVariable("acmeAccount", acmeAccount);
+        context.setVariable("acmeOrder", acmeOrder);
+        context.setVariable("acmeProblem", acmeProblem);
+
+        for( String email: emailSet) {
+            try {
+                mailService.sendEmailFromTemplate(context, null, email, null,
+                    "mail/notifyOnACMEProblemEmail",
+                    "email.request.acme.problem.title");
+
             } catch (MessagingException e) {
                 LOG.info("Problem occurred while sending a notification eMail to acme account contact address '" + email + "'",e);
             }
@@ -842,5 +884,4 @@ public class NotificationService {
         }
         return adminList;
     }
-
 }

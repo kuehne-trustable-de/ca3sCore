@@ -7,6 +7,8 @@ import { IProblemDetail } from '@/shared/model/transfer-object.model';
 export default class Notification extends Vue {
   public certificateId = '1';
   public csrId = '1';
+  public orderId = '1';
+  public acmeProblemDetail: IProblemDetail = {};
 
   public selectedNotification = 'sendExpiryPendingSummary';
 
@@ -36,6 +38,8 @@ export default class Notification extends Vue {
       this.sendCertificateRevoked();
     } else if (this.selectedNotification === 'sendAdminOnConnectorExpiry') {
       this.sendAdminOnConnectorExpiry();
+    } else if (this.selectedNotification === 'sendAcmeContactOnProblem') {
+      this.sendAcmeContactOnProblem();
     }
   }
 
@@ -165,7 +169,7 @@ export default class Notification extends Vue {
 
     axios({
       method: 'post',
-      url: '/api/notification/sendRequestorExpiry/' + this.certificateId,
+      url: '/api/notification/sendRequestorExpiry/' + encodeURI(this.certificateId),
       responseType: 'stream',
     })
       .then(function (response) {
@@ -188,7 +192,7 @@ export default class Notification extends Vue {
 
     axios({
       method: 'post',
-      url: '/api/notification/sendExpiryPendingSummary',
+      url: '/api/notification/sendExpiryPendingSummary/' + encodeURI(this.orderId),
       responseType: 'stream',
     })
       .then(function (response) {
@@ -216,6 +220,47 @@ export default class Notification extends Vue {
     })
       .then(function (response) {
         window.console.info('api/notification/sendAdminOnConnectorExpiry returns ' + response.data);
+        if (response.data.title !== undefined) {
+          self.problemDetail = response.data;
+        }
+      })
+      .catch(function (error) {
+        if (error.response.data.title !== undefined) {
+          self.problemDetail = error.response.data;
+        }
+      });
+  }
+
+  public sendAcmeContactOnProblem(): void {
+    window.console.info('calling sendAcmeContactOnProblem');
+
+    if (!this.acmeProblemDetail.type) {
+      this.acmeProblemDetail.type = 'urn:some.problem.type';
+    }
+    if (!this.acmeProblemDetail.title) {
+      this.acmeProblemDetail.title = 'title';
+    }
+    if (!this.acmeProblemDetail.status) {
+      this.acmeProblemDetail.status = 400;
+    }
+    if (!this.acmeProblemDetail.detail) {
+      this.acmeProblemDetail.detail = 'some detail';
+    }
+    if (!this.acmeProblemDetail.instance) {
+      this.acmeProblemDetail.instance = 'http://localhost';
+    }
+
+    this.problemDetail = {};
+    const self = this;
+
+    axios({
+      method: 'post',
+      url: '/api/notification/sendAcmeContactOnProblem/' + encodeURI(this.orderId),
+      data: this.acmeProblemDetail,
+      responseType: 'stream',
+    })
+      .then(function (response) {
+        window.console.info('api/notification/sendAcmeContactOnProblem returns ' + response.data);
         if (response.data.title !== undefined) {
           self.problemDetail = response.data;
         }

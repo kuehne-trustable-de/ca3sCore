@@ -35,6 +35,13 @@
   "ca3SApp.notification.sendCertificateRevoked": "Certificate revocation notification",
   "ca3SApp.notification.sendUserCertificateRevoked": "User initiated certificate revocation notification for RAs",
   "ca3SApp.notification.sendRequestorExpirySummary": "Certificate expiry notification",
+  "ca3SApp.notification.sendAdminOnConnectorExpiry": "Connector expiry notification",
+  "ca3SApp.notification.sendAcmeContactOnProblem": "Notification on ACME problem",
+
+  "ca3SApp.notification.order.id": "Order Id",
+  "ca3SApp.notification.problem.title": "Problem title",
+  "ca3SApp.notification.problem.type": "Problem type",
+  "ca3SApp.notification.problem.detail": "Problem detail",
 
   "ca3SApp.AccountStatus.DEACTIVATED": "Deactivated",
   "ca3SApp.AccountStatus.REVOKED": "Revoked",
@@ -262,6 +269,7 @@
   "ca3SApp.bPNMProcessInfo.check.certificateId": "ID of test certificate",
   "ca3SApp.bPNMProcessInfo.check.phone": "Phone number",
   "ca3SApp.bPNMProcessInfo.check.msg": "Message",
+  "ca3SApp.bPNMProcessInfo.check.accountId": "ID of test ACME account",
 
   "ca3SApp.bPNMProcessInfo.result.status": "Process outcome",
   "ca3SApp.bPNMProcessInfo.result.failureReason": "Failure info",
@@ -283,6 +291,13 @@
 
   "ca3SApp.bpmn.delete.question": "Are you sure to delete the process definition {{ id }}?",
   "ca3SApp.bpmn.deleted": "process definition {{ id }} deleted.",
+
+  "ca3SApp.bpmn.name.title": "name",
+  "ca3SApp.bpmn.type.title": "type",
+  "ca3SApp.bpmn.version.title": "version",
+  "ca3SApp.bpmn.author.title": "author",
+  "ca3SApp.bpmn.lastChange.title": "lastChange",
+  "ca3SApp.bpmn.action.title": "action",
 
   "ca3SApp.cAConnectorConfig.active": "Active",
   "ca3SApp.cAConnectorConfig.status": "Status",
@@ -604,6 +619,7 @@
   "ca3SApp.pipeline.home.title": "Pipelines",
   "ca3SApp.pipeline.ipAsSanAllowed": "IP as SAN Allowed",
   "ca3SApp.pipeline.ipAsSubjectAllowed": "IP as Subject Allowed",
+  "ca3SApp.pipeline.isNotifyContactsOnError": "EMail notification on error",
   "ca3SApp.pipeline.l.cardinality": "Cardinality 'L'",
   "ca3SApp.pipeline.name": "Name",
   "ca3SApp.pipeline.key.unique": "Key requirements",
@@ -611,9 +627,11 @@
   "ca3SApp.pipeline.ou.cardinality": "Cardinality 'OU'",
   "ca3SApp.pipeline.pipelineAttributes": "Pipeline Attributes",
   "ca3SApp.pipeline.processInfo": "Process Info",
-  "ca3SApp.pipeline.processInfoCreate": "Process Info 'Issuance'",
-  "ca3SApp.pipeline.processInfoRevoke": "Process Info 'Revocation'",
-  "ca3SApp.pipeline.processInfoNotify": "Process Info 'Notify'",
+  "ca3SApp.pipeline.processInfoCreate": "Process 'Issuance'",
+  "ca3SApp.pipeline.processInfoRevoke": "Process 'Revocation'",
+  "ca3SApp.pipeline.processInfoNotify": "Process 'Notify'",
+  "ca3SApp.pipeline.processInfoRequestAuthorization": "Process 'Request Authorization'",
+  "ca3SApp.pipeline.processInfoAccountAuthorization": "Process 'Account Authorization'",
   "ca3SApp.pipeline.regExMatch": "Match as Regex",
   "ca3SApp.pipeline.s.cardinality": "Cardinality 'ST'",
   "ca3SApp.pipeline.e.cardinality": "Cardinality 'E'",

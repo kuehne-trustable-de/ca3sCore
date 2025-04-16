@@ -72,13 +72,9 @@ public class NewAccountController extends AcmeController {
     private static final Logger LOG = LoggerFactory.getLogger(NewAccountController.class);
 
     final private AcmeAccountRepository acctRepository;
-
     final private BPMNUtil bpmnUtil;
-
     final private PipelineUtil pipelineUtil;
-
     final private AlgorithmRestrictionUtil algorithmRestrictionUtil;
-
     final boolean checkKeyRestrictions;
 
     public NewAccountController(AcmeAccountRepository acctRepository,
@@ -165,7 +161,7 @@ public class NewAccountController extends AcmeController {
                 if (accListExisting.isEmpty()) {
 
                     Pipeline pipeline = getPipelineForRealm(realm);
-                    bpmnUtil.startACMEAccountCreationProcess(newAcct, pipeline);
+                    bpmnUtil.startACMEAccountAuthorizationProcess(newAcct, pipeline);
 
 				/*
 			    JwtClaims claims = context.getJwtClaims();

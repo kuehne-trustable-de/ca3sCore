@@ -103,6 +103,10 @@ public class Pipeline implements Serializable {
     @JsonIgnoreProperties({"pipelines", "secret"})
     private BPMNProcessInfo processInfoRequestAuthorization;
 
+    @ManyToOne
+    @JsonIgnoreProperties({"pipelines", "secret"})
+    private BPMNProcessInfo processInfoAccountAuthorization;
+
     @ManyToMany
     @JoinTable(
         name = "rel_pipeline__algorithms",
@@ -326,6 +330,19 @@ public class Pipeline implements Serializable {
 
     public Pipeline processInfoRequestAuthorization(BPMNProcessInfo bPMNProcessInfo) {
         this.setProcessInfoRequestAuthorization(bPMNProcessInfo);
+        return this;
+    }
+
+    public BPMNProcessInfo getProcessInfoAccountAuthorization() {
+        return processInfoAccountAuthorization;
+    }
+
+    public void setProcessInfoAccountAuthorization(BPMNProcessInfo processInfoAccountAuthorization) {
+        this.processInfoAccountAuthorization = processInfoAccountAuthorization;
+    }
+
+    public Pipeline processInfoAccountAuthorization(BPMNProcessInfo bPMNProcessInfo) {
+        this.setProcessInfoAccountAuthorization(bPMNProcessInfo);
         return this;
     }
 

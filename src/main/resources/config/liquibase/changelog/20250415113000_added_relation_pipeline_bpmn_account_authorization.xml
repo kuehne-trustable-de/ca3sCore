@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet id="20250415113000-1" author="ak">
+
+        <addColumn tableName="pipeline">
+            <column name="process_info_account_authorization_id"
+                    type="bigint"
+                    defaultValue="null">
+                <constraints nullable="true" />
+            </column>
+
+        </addColumn>
+
+    </changeSet>
+
+    <!--
+    Added the constraints for entity Pipeline.
+-->
+    <changeSet id="20250415113000-2" author="ak">
+
+        <addForeignKeyConstraint baseColumnNames="process_info_account_authorization_id"
+                                 baseTableName="pipeline"
+                                 constraintName="fk_pipeline__process_info_account_authorization_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="bpmn_process_info"/>
+
+    </changeSet>
+
+</databaseChangeLog>

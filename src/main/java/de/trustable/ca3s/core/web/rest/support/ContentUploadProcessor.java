@@ -41,6 +41,7 @@ import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
+import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -63,10 +64,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECKey;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static de.trustable.ca3s.core.service.util.PipelineUtil.NOTIFY_RA_OFFICER_ON_PENDING;
@@ -81,32 +79,20 @@ public class ContentUploadProcessor {
 	private final Logger LOG = LoggerFactory.getLogger(ContentUploadProcessor.class);
 
     private final CryptoUtil cryptoUtil;
-
     private final ProtectedContentUtil protUtil;
-
     private final CertificateUtil certUtil;
     private final CSRUtil csrUtil;
-
+    private final BPMNUtil bpmnUtil;
     private final CSRRepository csrRepository;
-
     private final CertificateRepository certificateRepository;
-
     private final UserUtil userUtil;
-
     private final PipelineRepository pipelineRepository;
-
     private final PipelineUtil pipelineUtil;
-
     private final PreferenceUtil preferenceUtil;
-
     private final CertificateProcessingUtil cpUtil;
-
     private final AsyncNotificationService asyncNotificationService;
-
     private final BadKeysService badKeysService;
-
     private final AuditService auditService;
-
     private final String pkcs12SecretRegexp;
     private final Pattern pkcs12SecretPattern;
 
@@ -118,7 +104,7 @@ public class ContentUploadProcessor {
     public ContentUploadProcessor(CryptoUtil cryptoUtil,
                                   ProtectedContentUtil protUtil,
                                   CertificateUtil certUtil, CSRUtil csrUtil,
-                                  CSRRepository csrRepository,
+                                  BPMNUtil bpmnUtil, CSRRepository csrRepository,
                                   CertificateRepository certificateRepository,
                                   UserUtil userUtil,
                                   PipelineRepository pipelineRepository,
@@ -133,6 +119,7 @@ public class ContentUploadProcessor {
         this.protUtil = protUtil;
         this.certUtil = certUtil;
         this.csrUtil = csrUtil;
+        this.bpmnUtil = bpmnUtil;
         this.csrRepository = csrRepository;
         this.certificateRepository = certificateRepository;
         this.userUtil = userUtil;
@@ -667,11 +654,27 @@ public class ContentUploadProcessor {
 
                     }
 
+                    if( pipeline.getProcessInfoRequestAuthorization() != null ){
+                        ProcessInstanceWithVariables processInstanceWithVariables =
+                            bpmnUtil.checkCsrRequestAuthorization(
+                                pipeline.getProcessInfoRequestAuthorization().getProcessId(),
+                                csr);
+                        Object messagesObj = processInstanceWithVariables.getVariables().get("messages");
+                        if( messagesObj instanceof String[]){
+                            p10ReqData.setWarnings((String[])messagesObj);
+                        }
+                        Object statusObj = processInstanceWithVariables.getVariables().get("status");
+                            if( statusObj == null || !"Success".equalsIgnoreCase(statusObj.toString())){
+                            LOG.warn("startCertificateCreationProcess: ProcessInfoRequestAuthorization failed");
+                            return null;
+                        }
+                    }
+
                     if (pipeline.isApprovalRequired()) {
                         LOG.debug("deferring certificate creation for csr #{}", csr.getId());
                         p10ReqData.setCsrPending(true);
 
-                        if( "TRUE".equalsIgnoreCase(pipelineUtil.getPipelineAttribute(pipeline,NOTIFY_RA_OFFICER_ON_PENDING, "" + preferenceUtil.isNotifyRAOnRequest()))) {
+                        if( "TRUE".equalsIgnoreCase(pipelineUtil.getPipelineAttribute(pipeline,NOTIFY_RA_OFFICER_ON_PENDING, String.valueOf(preferenceUtil.isNotifyRAOnRequest())))) {
                             asyncNotificationService.notifyRAOfficerOnRequestAsync(csr);
                         }
 

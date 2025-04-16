@@ -163,4 +163,6 @@
     <!--include file="config/liquibase/changelog/20240026103000_added_column_CAConnectorConfig.xml" relativeToChangelogFile="false"/-->
 
     <include file="config/liquibase/changelog/20250312190000_added_columns_User.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20250415113000_added_relation_pipeline_bpmn_account_authorization.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
