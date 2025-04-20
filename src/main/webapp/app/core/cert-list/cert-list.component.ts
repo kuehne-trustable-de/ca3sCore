@@ -107,6 +107,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
   public dateAlarm = new Date();
 
   public certificateSelectionAttributes: string[] = [];
+  public extendedKeyUsageArray: string[] = [];
 
   public certSelectionItems: ICertificateSelectionData[] = [
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
@@ -186,6 +187,13 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         'unspecified',
         'keyAgreement',
       ],
+    },
+    {
+      itemName: 'extUsage',
+      itemType: 'set',
+      itemDefaultSelector: 'EQUAL',
+      itemDefaultValue: 'true',
+      values: this.$store.state.uiConfigStore.config.extUsageArr,
     },
     { itemName: 'requestedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
   ];
@@ -423,6 +431,9 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     this.updateCertificateSelectionAttributes();
 
     this.getUsersFilterList();
+
+    this.getCertificateAttributesExtendedKeyUsage();
+
     setInterval(() => this.putUsersFilterList(this), 3000);
     setInterval(() => this.buildContentAccessUrl(), 1000);
   }
@@ -448,6 +459,22 @@ export default class CertList extends mixins(AlertMixin, Vue) {
             itemDefaultValue: 'X',
           });
         }
+      }
+    });
+  }
+
+  public getCertificateAttributesExtendedKeyUsage(): void {
+    window.console.info('calling getCertificateSelectionAttributes ');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api/certificateAttributes/extendedKeyUsage',
+      responseType: 'stream',
+    }).then(function (response) {
+      //      window.console.debug('getUsersFilterList returns ' + response.data );
+      if (response.status === 200) {
+        self.extendedKeyUsageArray = response.data;
       }
     });
   }

@@ -121,7 +121,6 @@ public class AccountController extends AcmeController {
         this.algorithmRestrictionUtil = algorithmRestrictionUtil;
     }
 
-
     public ResponseEntity<AccountResponse> getAccount(@PathVariable final long accountId,
                                                       @PathVariable final String realm,
                                                       @RequestHeader(value = HEADER_X_CA3S_FORWARDED_HOST, required = false) String forwardedHost) {

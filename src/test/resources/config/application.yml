@@ -76,6 +76,9 @@ spring:
 server:
   port: 10344
   address: localhost
+  undertow:
+    accesslog:
+      enabled: true
 
 # ===================================================================
 # JHipster specific properties

@@ -6,10 +6,7 @@ import de.trustable.ca3s.core.config.ClientAuthConfig;
 import de.trustable.ca3s.core.config.CryptoConfiguration;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.*;
-import de.trustable.ca3s.core.repository.BPMNProcessInfoRepository;
-import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
-import de.trustable.ca3s.core.repository.PipelineRepository;
-import de.trustable.ca3s.core.repository.UserPreferenceRepository;
+import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.*;
@@ -48,10 +45,9 @@ public class UIDatasetSupport {
     private final ProtectedContentUtil protUtil;
 
     private final UserPreferenceRepository userPreferenceRepository;
-
     private final UserService userService;
-
     private final CertificateSelectionUtil certificateSelectionAttributeList;
+    private final CertificateAttributeRepository certificateAttributeRepository;
 
     private final CryptoConfiguration cryptoConfiguration;
 
@@ -87,7 +83,7 @@ public class UIDatasetSupport {
                             @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                             @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider,
                             @Value("${ca3s.saml.entity.base-url:}") String samlEntityBaseUrl,
-                            @Value("${ca3s.ui.login.scnd-factor:CLIENT_CERT, TOTP, SMS}") String[] scndFactorTypes) {
+                            @Value("${ca3s.ui.login.scnd-factor:CLIENT_CERT, TOTP, SMS}") String[] scndFactorTypes, CertificateAttributeRepository certificateAttributeRepository) {
         this.caConnConfRepo = caConnConfRepo;
         this.caConnectorAdapter = caConnectorAdapter;
         this.pipelineRepo = pipelineRepo;
@@ -104,6 +100,7 @@ public class UIDatasetSupport {
         this.certificateStoreIsolation = certificateStoreIsolation;
         this.ssoProvider = ssoProvider;
         this.samlEntityBaseUrl = samlEntityBaseUrl;
+        this.certificateAttributeRepository = certificateAttributeRepository;
 
         this.secondFactorList = new ArrayList<>();
         for( String factor: scndFactorTypes){
@@ -127,12 +124,15 @@ public class UIDatasetSupport {
             LOG.debug("No SEND_SMS process defined");
             secondFactorList.remove(AuthSecondFactor.SMS);
         }
+
         UIConfigView uiConfigView = new UIConfigView(appName,
             cryptoConfigView,
             autoSSOLogin,
             ssoProvider,
             samlEntityBaseUrl,
-            effSecondFactorList.toArray(new AuthSecondFactor[0]));
+            effSecondFactorList.toArray(new AuthSecondFactor[0]),
+            certificateAttributeRepository.findDistinctValues(
+                CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE).toArray(new String[0]));
 
 
         LOG.debug("returning uiConfigView: {}", uiConfigView);
@@ -358,6 +358,11 @@ public class UIDatasetSupport {
         return ResponseEntity.ok(certificateSelectionAttributeList.getCertificateSelectionAttributes());
     }
 
+    @GetMapping("/certificateAttributes/extendedKeyUsage")
+    public ResponseEntity<List<String>> getCertificateAttributesExtendedKeyUsage() {
+        return ResponseEntity.ok(certificateAttributeRepository.findDistinctValues(CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE));
+    }
+
     /**
      * {@code GET  userProperties/{name} } : get user properties for the given name and the logged-in user.
      *
@@ -424,9 +429,7 @@ public class UIDatasetSupport {
     	}else {
     		LOG.info("reading user properties for unknown user");
     	}
-
 		return ResponseEntity.noContent().build();
 	}
-
 
 }

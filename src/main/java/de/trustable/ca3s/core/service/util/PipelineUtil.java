@@ -780,7 +780,10 @@ public class PipelineUtil {
             oldProcessNameNotify = p.getProcessInfoRequestAuthorization().getName();
         }
 
-        List<BPMNProcessInfo> bpmnProcessInfoRequestAuthorizationList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getWebConfigItems().getProcessInfoNameRequestAuthorization());
+        List<BPMNProcessInfo> bpmnProcessInfoRequestAuthorizationList = new ArrayList<>();
+        if(pv.getWebConfigItems() != null && pv.getWebConfigItems().getProcessInfoNameRequestAuthorization() != null) {
+            bpmnProcessInfoRequestAuthorizationList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getWebConfigItems().getProcessInfoNameRequestAuthorization());
+        }
         if(!bpmnProcessInfoRequestAuthorizationList.isEmpty()) {
             BPMNProcessInfo bpi = bpmnProcessInfoRequestAuthorizationList.get(0);
             p.setProcessInfoRequestAuthorization(bpi);
@@ -800,7 +803,10 @@ public class PipelineUtil {
             oldProcessNameAccountAuthorization = p.getProcessInfoAccountAuthorization().getName();
         }
 
-        List<BPMNProcessInfo> bpmnProcessInfoAccountAuthorizationList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getAcmeConfigItems().getProcessInfoNameAccountAuthorization());
+        List<BPMNProcessInfo> bpmnProcessInfoAccountAuthorizationList = new ArrayList<>();
+        if(pv.getAcmeConfigItems() != null && pv.getAcmeConfigItems().getProcessInfoNameAccountAuthorization() != null ) {
+            bpmnProcessInfoAccountAuthorizationList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getAcmeConfigItems().getProcessInfoNameAccountAuthorization());
+        }
         if(!bpmnProcessInfoAccountAuthorizationList.isEmpty()) {
             BPMNProcessInfo bpi = bpmnProcessInfoAccountAuthorizationList.get(0);
             p.setProcessInfoAccountAuthorization(bpi);

@@ -540,20 +540,20 @@ public final class CertificateSpecifications {
 
 			if( parameterMap.containsKey(paramNameAttribute)){
 				String attribute = getStringValue(parameterMap.get(paramNameAttribute));
-				if( attribute.length() == 0){
+				if(attribute.isEmpty()){
 	    			logger.debug("paramNameAttribute {} has no value", paramNameAttribute);
 					continue;
 				}
 	    		String paramNameAttributeSelector = "attributeSelector_" + n;
 				String attributeSelector = getStringValue(parameterMap.get(paramNameAttributeSelector));
-				if( attributeSelector.length() == 0){
+				if(attributeSelector.isEmpty()){
 	    			logger.debug("paramNameAttributeSelector {} has no value", paramNameAttributeSelector);
 					continue;
 				}
 
 	    		String paramNameAttributeValue = "attributeValue_" + n;
 				String attributeValue = getStringValue(parameterMap.get(paramNameAttributeValue));
-				if( attributeValue.length() == 0){
+				if(attributeValue.isEmpty()){
 					if( Selector.requiresValue(attributeSelector)) {
 						logger.debug("paramNameAttributeValue {} has no value", paramNameAttributeValue);
 						continue;
@@ -606,7 +606,6 @@ public final class CertificateSpecifications {
 			pred = SpecificationsHelper.buildPredicateLong( attributeSelector, cb, root.<Long>get(Certificate_.id), attributeValue);
 
         }else if( "csrComment".equals(attribute)){
-        }else if( "extUsage".equals(attribute)){
         }else if( "processingCa".equals(attribute)){
         }else if( "uploadedBy".equals(attribute)){
         }else if( "selfSigned".equals(attribute)){
@@ -654,7 +653,7 @@ public final class CertificateSpecifications {
         }else if( "subject".equals(attribute)){
             addNewColumn(selectionList,root.get(Certificate_.subject));
 
-            if( attributeValue.trim().length() > 0 ) {
+            if(!attributeValue.trim().isEmpty()) {
                 //subquery
                 Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
                 Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
@@ -687,7 +686,7 @@ public final class CertificateSpecifications {
 		}else if( "sans".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.sans));
 
-			if( attributeValue.trim().length() > 0 ) {
+			if(!attributeValue.trim().isEmpty()) {
 				//subquery
 			    Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
 			    Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
@@ -700,7 +699,7 @@ public final class CertificateSpecifications {
 			addNewColumn(selectionList,root.get(Certificate_.issuer));
 
 
-			if( attributeValue.trim().length() > 0 ) {
+			if(!attributeValue.trim().isEmpty()) {
 				//subquery
 			    Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
 			    Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
@@ -747,7 +746,15 @@ public final class CertificateSpecifications {
 
 			pred = cb.and( cb.equal(attJoin.get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_USAGE),
                 buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value), attributeValue.toLowerCase()));
-		}else if( "ski".equals(attribute)){
+
+        }else if( "extUsage".equals(attribute)){
+            Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+            addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
+
+            pred = cb.and( cb.equal(attJoin.get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE),
+                buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value), attributeValue.toLowerCase()));
+
+        }else if( "ski".equals(attribute)){
 			Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
 			addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
 

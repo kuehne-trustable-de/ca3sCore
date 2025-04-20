@@ -333,8 +333,11 @@ public class AcmeController {
                 (reject? "NOT ": "") +
                 "match '{}'", realm, contactUrl, regexContactEMail);
 
+            String detail = reject? "Contact matching regEx '" + pattern.toString() + "' were rejected." :
+                "Contact expected to match regEx '" + pattern + "'";
             final ProblemDetail problem = new ProblemDetail(AcmeUtil.INVALID_CONTACT, "Contact email address does not match requirements",
-                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+                BAD_REQUEST, detail,
+                AcmeController.NO_INSTANCE);
             throw new AcmeProblemException(problem);
         }
     }

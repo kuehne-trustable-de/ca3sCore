@@ -10,6 +10,14 @@ import javax.validation.constraints.*;
  * A CertificateAttribute.
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(name = "CertificateAttribute.findDistinctValues",
+        query = "SELECT distinct value FROM CertificateAttribute att WHERE " +
+            " att.name = :attName " +
+            " group by value " +
+            " order by value "
+    ),
+})
 @Table(name = "certificate_attribute")
 public class CertificateAttribute implements Serializable {
 

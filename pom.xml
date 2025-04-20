@@ -11,7 +11,6 @@
 
     <packaging>jar</packaging>
 
-
     <name>ca3s core</name>
     <description>ca3s offers a unified view and administrative interface for your certificate landscape.
         It's a CA system with a flexible RA part based on BPM. backed by a CMP-connected CA or an ADCS. Offers automatic
@@ -87,9 +86,9 @@
         <packaging.executable>false</packaging.executable>
 
         <!-- These remain empty unless the corresponding profile is active -->
-        <profile.no-liquibase />
-        <profile.api-docs />
-        <profile.tls />
+        <profile.no-liquibase/>
+        <profile.api-docs/>
+        <profile.tls/>
 
         <!-- Dependency versions -->
 
