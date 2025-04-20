@@ -171,7 +171,7 @@ public class AcmeHappyPathIT {
                 .create(session);
             fail("empty contact, exception expected");
         } catch( AcmeServerException ase) {
-            assertEquals("Contact email address does not match requirements", ase.getMessage());
+            assertEquals("Contact matching regEx '^$' were rejected.", ase.getMessage());
         }
 
         // ensure account wasn't created
@@ -198,7 +198,7 @@ public class AcmeHappyPathIT {
         Assertions.assertEquals(2, account.getContacts().size());
 
         // check contact restriction RegEx
-        Session sessionContectRegEx = new Session(dirUrlOtherRealm);
+        Session sessionContactRegEx = new Session(dirUrlOtherRealm);
 
         accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -215,7 +215,7 @@ public class AcmeHappyPathIT {
                     .useKeyPair(accountKeyPair)
                     .addContact(contact)
                     .agreeToTermsOfService()
-                    .create(sessionContectRegEx);
+                    .create(sessionContactRegEx);
                 fail("empty contact, exception expected");
             } catch (AcmeServerException ase) {
                 assertEquals("Contact email address does not match requirements", ase.getMessage());
