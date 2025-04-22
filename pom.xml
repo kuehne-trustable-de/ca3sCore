@@ -217,7 +217,7 @@
 
         <crawler4jVersion>4.4.0</crawler4jVersion>
         <flexmarkVersion>0.64.8</flexmarkVersion>
-        <pdfbox.version>2.0.32</pdfbox.version>
+        <pdfbox.version>2.0.33</pdfbox.version>
         <jsoup.version>1.19.1</jsoup.version>
 
         <selenium.version>4.27.0</selenium.version>
