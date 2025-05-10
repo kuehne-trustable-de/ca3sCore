@@ -83,6 +83,9 @@ public class CertificateView implements Serializable {
     @CsvIgnore
     private String fingerprintSha256;
 
+    @CsvIgnore
+    private String ski;
+
     @CsvBindByName
     private String type;
 
@@ -289,7 +292,8 @@ public class CertificateView implements Serializable {
     	this.revocationReason = cert.getRevocationReason();
         this.revoked = cert.isRevoked();
         this.trusted = cert.isTrusted();
-    	this.certB64 = cert.getContent();
+
+        this.certB64 = cert.getContent();
 
         this.csrComment = "";
 
@@ -378,6 +382,10 @@ public class CertificateView implements Serializable {
                     this.fingerprintSha1 = certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA256.equalsIgnoreCase(certAttr.getName())) {
                     this.fingerprintSha256 = certAttr.getValue();
+                } else if (CertificateAttribute.ATTRIBUTE_SKI.equalsIgnoreCase(certAttr.getName())) {
+                    if( null == ski || (ski.length() < certAttr.getValue().length())) {
+                        this.ski = certAttr.getValue();
+                    }
                 } else if (CertificateAttribute.ATTRIBUTE_RDN_CN.equalsIgnoreCase(certAttr.getName())) {
                     this.rdn_cn = certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_RDN_C.equalsIgnoreCase(certAttr.getName())) {
@@ -897,6 +905,14 @@ public class CertificateView implements Serializable {
 
     public void setFingerprintSha256(String fingerprint) {
         this.fingerprintSha256 = fingerprint;
+    }
+
+    public String getSki() {
+        return ski;
+    }
+
+    public void setSki(String ski) {
+        this.ski = ski;
     }
 
     public String getProcessingCa() {

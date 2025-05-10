@@ -3,8 +3,10 @@ package de.trustable.ca3s.core.ui;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.TypedValue;
+import de.trustable.ca3s.core.test.util.UserTestSupport;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.ca3s.core.web.rest.data.CreationMode;
@@ -89,13 +91,16 @@ public class CAConnectorAdministrationIT extends WebTestBase{
     @Autowired
     private ContentUploadProcessor contentUploadProcessor;
 
+    @Autowired
+    UserTestSupport userTestSupport;
+
     long createdCertificateId;
+    User intTestUser;
 
     @BeforeAll
 	public static void setUpBeforeClass() {
 
         JCAManager.getInstance();
-//        WebDriverManager.chromedriver().setup();
 	}
 
 	@BeforeEach
@@ -103,13 +108,17 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
 	    waitForUrl();
 
-		ptc.getInternalWebDirectTestPipeline();
+        intTestUser = userTestSupport.createTestUser("integrationTest" + rand.nextInt());
+        userTestSupport.setCurrentUser(intTestUser);
+
+        ptc.getInternalWebDirectTestPipeline();
 		ptc.getInternalWebRACheckTestPipeline();
         prefTC.getTestUserPreference();
 
         UploadPrecheckData uploaded = new UploadPrecheckData();
         uploaded.setPipelineId(1L);
         uploaded.setKeyAlgoLength("rsa-4096");
+        uploaded.setTosAgreed(true);
 
         NamedValues[] namedValues = new NamedValues[1];
         namedValues[0] = new NamedValues();
@@ -124,7 +133,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
         uploaded.setSecret("S3cr3t!S");
 
-        ResponseEntity<PkcsXXData> responseEntity = contentUploadProcessor.buildServerSideKeyAndRequest(uploaded, "integrationTest");
+        ResponseEntity<PkcsXXData> responseEntity = contentUploadProcessor.buildServerSideKeyAndRequest(uploaded, intTestUser.getLogin());
         if(responseEntity != null && responseEntity.getBody() != null && responseEntity.getBody().getCertsHolder() != null &&
              responseEntity.getBody().getCertsHolder().length > 0 ) {
             createdCertificateId = responseEntity.getBody().getCertsHolder()[0].getCertificateId();

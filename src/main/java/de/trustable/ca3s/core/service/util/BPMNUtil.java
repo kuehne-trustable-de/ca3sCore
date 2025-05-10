@@ -22,7 +22,6 @@ import org.bouncycastle.asn1.x509.CRLReason;
 import org.camunda.bpm.engine.BadUserRequestException;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
@@ -56,8 +55,6 @@ public class BPMNUtil{
 
 	private final CryptoUtil cryptoUtil;
 
-    private final RuntimeService runtimeService;
-
     private final RepositoryService repoService;
 
     private final HistoryService historyService;
@@ -78,6 +75,8 @@ public class BPMNUtil{
     final private AuditService auditService;
 
     final private BPMNAsyncUtil bpmnAsyncUtil;
+    private final BPMNExecutor bpmnExecutor;
+
     final private AcmeAccountRepository acmeAccountRepository;
 
     final private boolean useDefaultProcess;
@@ -87,23 +86,24 @@ public class BPMNUtil{
                     CaConnectorAdapter caConnAdapter,
                     CAConnectorConfigRepository caConnConRepo,
                     CryptoUtil cryptoUtil,
-                    RuntimeService runtimeService,
                     RepositoryService repoService,
                     HistoryService historyService,
                     BPMNProcessInfoRepository bpnmInfoRepo,
-                    BPMNProcessAttributeRepository bpnmAttributeRepo, ProtectedContentUtil protectedContentUtil, CSRRepository csrRepository,
+                    BPMNProcessAttributeRepository bpnmAttributeRepo,
+                    ProtectedContentUtil protectedContentUtil,
+                    CSRRepository csrRepository,
                     CertificateRepository certRepository,
                     CertificateUtil certUtil,
                     NameAndRoleUtil nameAndRoleUtil,
                     AuditService auditService,
                     BPMNAsyncUtil bpmnAsyncUtil,
+                    BPMNExecutor bpmnExecutor,
                     AcmeAccountRepository acmeAccountRepository, @Value("${ca3s.bpmn.use-default-process:false}") boolean useDefaultProcess) {
 
         this.configUtil = configUtil;
         this.caConnAdapter = caConnAdapter;
         this.caConnConRepo = caConnConRepo;
         this.cryptoUtil = cryptoUtil;
-        this.runtimeService = runtimeService;
         this.repoService = repoService;
         this.historyService = historyService;
         this.bpnmInfoRepo = bpnmInfoRepo;
@@ -115,6 +115,7 @@ public class BPMNUtil{
         this.nameAndRoleUtil = nameAndRoleUtil;
         this.auditService = auditService;
         this.bpmnAsyncUtil = bpmnAsyncUtil;
+        this.bpmnExecutor = bpmnExecutor;
         this.acmeAccountRepository = acmeAccountRepository;
         this.useDefaultProcess = useDefaultProcess;
     }
@@ -289,7 +290,7 @@ public class BPMNUtil{
 
                     variables.put("certificateId", certificateId);
 
-                    ProcessInstanceWithVariables processInstance = executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfo, variables);
+                    ProcessInstanceWithVariables processInstance = bpmnExecutor.executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfo, variables);
 
                     certificate = (Certificate)processInstance.getVariables().get("certificate");
 		            status = processInstance.getVariables().get("status").toString();
@@ -365,18 +366,18 @@ public class BPMNUtil{
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("certificateId", certificate.getId());
-        return executeBPMNProcessByName(processName, variables);
+        return bpmnExecutor.executeBPMNProcessByName(processName, variables);
     }
 
     public ProcessInstanceWithVariables checkCertificateCreationProcess(final CSR csr, final CAConnectorConfig caConfig, final String processName)  {
 
         Map<String, Object> variables = buildVariableMapFromCSR(csr, caConfig);
-        return executeBPMNProcessByName(processName, variables);
+        return bpmnExecutor.executeBPMNProcessByName(processName, variables);
     }
 
     public ProcessInstanceWithVariables checkCsrRequestAuthorization(String processName, CSR csr) {
         Map<String, Object> variables = buildVariableMapFromCSR(csr, null);
-        return executeBPMNProcessByName(processName, variables);
+        return bpmnExecutor.executeBPMNProcessByName(processName, variables);
     }
 
     public ProcessInstanceWithVariables checkBatchProcess(final String processName)  {
@@ -385,7 +386,7 @@ public class BPMNUtil{
         variables.put("now", new Date());
 //        variables.put("certRepository", certRepository);
 
-        return executeBPMNProcessByName(processName, variables);
+        return bpmnExecutor.executeBPMNProcessByName(processName, variables);
     }
 
     public void startSMSProcess(final String phone, final String msg)  {
@@ -423,7 +424,7 @@ public class BPMNUtil{
                 accountRequest.getContacts().add(acmeContact.getContactUrl());
             }
             variables.put("accountRequest", accountRequest);
-            return executeBPMNProcessByName(processName, variables);
+            return bpmnExecutor.executeBPMNProcessByName(processName, variables);
         } else {
             throw new RuntimeException( "accountId '" + accountId + "' is unknown");
         }
@@ -435,7 +436,7 @@ public class BPMNUtil{
         variables.put("phone", phone);
         variables.put("msg", msg);
 
-        return executeBPMNProcessByName(processName, variables);
+        return bpmnExecutor.executeBPMNProcessByName(processName, variables);
     }
 
     @NotNull
@@ -448,59 +449,6 @@ public class BPMNUtil{
             variables.put("caConfigId", caConfig.getId());
         }
         return variables;
-    }
-
-    private ProcessInstanceWithVariables executeBPMNProcessByName(final String processNameId, Map<String, Object> variables) {
-
-        Optional<BPMNProcessInfo> bpmnProcessInfoOpt = bpnmInfoRepo.findByProcessId(processNameId);
-        if( bpmnProcessInfoOpt.isPresent()){
-            return executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoOpt.get(), variables);
-        }else{
-            throw new RuntimeException("processNameId '" + processNameId + "' unknown");
-        }
-    }
-
-    private ProcessInstanceWithVariables executeBPMNProcessByBPMNProcessInfo(final BPMNProcessInfo bpmnProcessInfo, Map<String, Object> variables){
-
-        LOG.debug("execute BPMN Process Info ''{}' ", bpmnProcessInfo.getName());
-
-        for( BPMNProcessAttribute bpmnProcessAttribute :bpmnProcessInfo.getBpmnProcessAttributes()){
-
-            String value = bpmnProcessAttribute.getValue();
-            if( Boolean.TRUE.equals(bpmnProcessAttribute.getProtectedContent())) {
-                List<ProtectedContent> protectedContents = protectedContentUtil.retrieveProtectedContent(
-                    ProtectedContentType.SECRET,
-                    ContentRelationType.BPMN_ATTRIBUTE,
-                    bpmnProcessAttribute.getId());
-
-                if (protectedContents.size() < 1) {
-                    LOG.warn("executeBPMNProcessByBPMNProcessInfo: no protected value found for BPMNProcessAttribute #{}", bpmnProcessAttribute.getId());
-
-                } else if (protectedContents.size() > 1) {
-                    LOG.warn("executeBPMNProcessByBPMNProcessInfo: more than one ({}) protected values found for BPMNProcessAttribute #{}!", protectedContents.size(), bpmnProcessAttribute.getId());
-                }
-
-                ProtectedContent protectedContent = protectedContents.get(0);
-                value = protectedContentUtil.unprotectString(protectedContent.getContentBase64());
-            }
-
-            variables.put("processAttribute_" + bpmnProcessAttribute.getName(), value);
-        }
-
-        variables.put("status", "Failed");
-        variables.put("failureReason", "");
-
-        try {
-            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceById(bpmnProcessInfo.getProcessId()).setVariables(variables).executeWithVariablesInReturn();
-            String processInstanceId = processInstance.getId();
-            LOG.info("ProcessInstance: {}", processInstanceId);
-            return processInstance;
-        }catch(RuntimeException processException){
-            if(LOG.isDebugEnabled()){
-                LOG.debug("Exception while calling bpmn process '"+bpmnProcessInfo.getProcessId()+"'", processException);
-            }
-            throw processException;
-        }
     }
 
     /**
@@ -572,7 +520,7 @@ public class BPMNUtil{
 
                     variables.put("failureReason", failureReason);
 
-                    ProcessInstanceWithVariables processInstance = executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfo, variables);
+                    ProcessInstanceWithVariables processInstance = bpmnExecutor.executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfo, variables);
                     processInstanceId = processInstance.getId();
                     LOG.info("ProcessInstance: {}", processInstanceId);
 
@@ -656,7 +604,7 @@ public class BPMNUtil{
             variables.put("status", status);
             variables.put("failureReason", failureReason);
 
-            ProcessInstanceWithVariables processInstance = executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoAccountAuthorization, variables);
+            ProcessInstanceWithVariables processInstance = bpmnExecutor.executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoAccountAuthorization, variables);
             processInstanceId = processInstance.getId();
             LOG.info("startACMEAccountAuthorizationProcess ProcessInstance: {}", processInstanceId);
 
@@ -951,7 +899,7 @@ public class BPMNUtil{
 
             if(!attributeNew.getValue().equals(value)) {
                 LOG.debug("in changeAttribute, change {} from '{}' to  '{}'", attributeNew.getName(), value, attributeNew.getValue());
-                protectedContent.setContentBase64(protectedContentUtil.protectString(value));
+                protectedContent.setContentBase64(protectedContentUtil.protectString(attributeNew.getValue()));
             }
             auditList.add(auditService.createAuditTraceBPMNProcessInfo(AuditService.AUDIT_BPMN_ATTRIBUTE_CHANGED, attributeNew.getName(), attributeOld.getValue(), attributeNew.getValue(), bpmnProcessInfo));
         }

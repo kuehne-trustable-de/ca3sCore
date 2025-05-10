@@ -1,4 +1,4 @@
-import { Component, Vue, Inject } from 'vue-property-decorator';
+import { Component, Inject } from 'vue-property-decorator';
 
 import axios from 'axios';
 
@@ -6,20 +6,20 @@ import { required } from 'vuelidate/lib/validators';
 
 import RequestProxyConfigService from '../request-proxy-config/request-proxy-config.service';
 import {
+  IAcmeConfigItems,
+  IARARestriction,
   IAuditView,
+  IBPMNProcessInfo,
+  IBPMNProcessType,
   ICsrUsage,
   IKeyAlgoLengthOrSpec,
   IPipelineType,
+  IPipelineView,
+  IRDNCardinalityRestriction,
   IRDNRestriction,
   IRequestProxyConfig,
-  IPipelineView,
-  IARARestriction,
-  IAcmeConfigItems,
   ISCEPConfigItems,
   IWebConfigItems,
-  IBPMNProcessInfo,
-  IRDNCardinalityRestriction,
-  IBPMNProcessType,
 } from '@/shared/model/transfer-object.model';
 
 import CAConnectorConfigService from '../../entities/ca-connector-config/ca-connector-config.service';
@@ -64,6 +64,7 @@ const validations: any = {
     webConfigItems: {
       notifyRAOfficerOnPendingRequest: {},
       additionalEMailRecipients: {},
+      issuesSecondFactorClientCert: {},
     },
     scepConfigItems: {
       scepSecretPCId: {},
@@ -98,6 +99,9 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   //  @Inject('alertService') private alertService: () => AlertService;
   @Inject('pipelineViewService') private pipelineViewService: () => PipelineViewService;
   @Inject('tenantService') private tenantService: () => TenantService;
+
+  public pipelineId: number;
+  public mode: string;
 
   public pipeline: IPipelineView = new PipelineView();
   public tenants: ITenant[] = [];
@@ -192,14 +196,22 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   }
 
   public retrievePipeline(pipelineId, mode): void {
+    this.pipelineId = pipelineId;
+    this.mode = mode;
+
+    this.fillData();
+
+    /*
     this.pipelineViewService()
       .find(pipelineId)
       .then(res => {
         this.pipeline = res;
+
         if (mode === 'copy') {
           this.pipeline.name = 'Copy of ' + this.pipeline.name;
           this.pipeline.id = null;
         }
+
         if (!this.pipeline.acmeConfigItems.allowChallengeDNS) {
           this.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
           this.pipeline.acmeConfigItems.allowWildcards = false;
@@ -208,11 +220,11 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
           window.console.info('pipeline.araRestrictions.length' + this.pipeline.araRestrictions.length);
         } else {
           window.console.info('pipeline.araRestrictions undefined');
-          const araRestrictions: IARARestriction[] = new Array();
-          this.pipeline.araRestrictions = araRestrictions;
+          this.pipeline.araRestrictions = [];
           this.pipeline.araRestrictions.push({});
         }
       });
+ */
   }
 
   public previousState(): void {
@@ -221,13 +233,6 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   }
 
   public initRelationships(): void {
-    /*
-    this.pipelineAttributeService()
-      .retrieve()
-      .then(res => {
-        this.pipelineAttributes = res.data;
-      });
-*/
     this.requestProxyConfigService()
       .retrieve()
       .then(res => {
@@ -253,9 +258,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       });
   }
 
-  public mounted(): void {
-    this.fillData();
-  }
+  public mounted(): void {}
 
   public fillData(): void {
     window.console.info('calling fillData ');
@@ -268,6 +271,30 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     }).then(function (response) {
       window.console.info('allCertGenerators returns ' + response.data);
       self.allCertGenerators = response.data;
+
+      self
+        .pipelineViewService()
+        .find(self.pipelineId)
+        .then(res => {
+          self.pipeline = res;
+
+          if (self.mode === 'copy') {
+            self.pipeline.name = 'Copy of ' + self.pipeline.name;
+            self.pipeline.id = null;
+          }
+
+          if (!self.pipeline.acmeConfigItems.allowChallengeDNS) {
+            self.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
+            self.pipeline.acmeConfigItems.allowWildcards = false;
+          }
+          if (self.pipeline.araRestrictions && self.pipeline.araRestrictions.length > 0) {
+            window.console.info('pipeline.araRestrictions.length' + self.pipeline.araRestrictions.length);
+          } else {
+            window.console.info('pipeline.araRestrictions undefined');
+            self.pipeline.araRestrictions = [];
+            self.pipeline.araRestrictions.push({});
+          }
+        });
     });
 
     this.retrieveAllTenants();
@@ -287,10 +314,9 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   }
 
   public getBPNMProcessInfosByType(type: IBPMNProcessType): IBPMNProcessInfo[] {
-    const result = this.bPNMProcessInfos.filter(pi => {
+    return this.bPNMProcessInfos.filter(pi => {
       return pi.type === type;
     });
-    return result;
   }
 }
 

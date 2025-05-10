@@ -895,9 +895,6 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_LNK_REQUESTS_MENUE);
         click(LOC_LNK_REQUESTS_MENUE);
 
-        validatePresent(LOC_LNK_REQ_CERT_MENUE);
-        click(LOC_LNK_REQ_CERT_MENUE);
-
         validatePresent(LOC_TEXT_REQUEST_LIST);
 
         validatePresent(LOC_SEL_CSR_ATTRIBUTE);

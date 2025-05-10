@@ -1,5 +1,5 @@
 # ===================================================================
-# Spring Boot configuration for the "dev" profile.
+# Spring Boot configuration for the "prod" profile.
 #
 # This configuration overrides the application.yml file.
 #
@@ -16,31 +16,32 @@
 logging:
   level:
     ROOT: INFO
-    de.trustable.ca3s: DEBUG
-    de.trustable.ca3s.core.config.SecurityConfiguration: DEBUG
-    org.springframework.security: DEBUG
-    org.apache.http.wire: DEBUG
+    io.github.jhipster: INFO
+    de.trustable.ca3s.core: DEBUG
+
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: false
 
 spring:
+  profiles:
+    active: prod
+    include:
+    # - swagger
+    # (Un)comment to activate TLS for the prod profile
+    # - tls
   devtools:
     restart:
-      enabled: true
+      enabled: false
     livereload:
-      enabled: false # we use Webpack dev server + BrowserSync for livereload
-  jackson:
-    serialization:
-      indent-output: true
+      enabled: false
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    #    url: jdbc:h2:file:./target/h2db/db/ca3s_jh;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
-    url: jdbc:h2:mem:ca3sTestDB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
-    username: root
-    password:
-
-    #    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-    #    username: ca3s_test
-    #    password: s3cr3t
-
+    url: jdbc:mysql://localhost:3306/ca3s_jh_demo?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
+    username: ca3s_jh_demo
+    password: nYbA4Jm4rnQJ
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -49,12 +50,9 @@ spring:
         prepStmtCacheSize: 250
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
-  h2:
-    console:
-      enabled: false
   jpa:
-    #    database-platform: tech.jhipster.domain.util.FixedH2Dialect
-    database: H2
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    database: MYSQL
     show-sql: false
     properties:
       hibernate.id.new_generator_mappings: true
@@ -62,31 +60,63 @@ spring:
       hibernate.cache.use_second_level_cache: false
       hibernate.cache.use_query_cache: false
       hibernate.generate_statistics: false
+  # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
   liquibase:
-    # Remove 'faker' if you do not want the sample data to be loaded automatically
-    contexts: dev
+    contexts: prod
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-
-  main:
-    allow-bean-definition-overriding: true
-    allow-circular-references: true
-
   mail:
     host: localhost
     port: 25
     username:
     password:
-  messages:
-    basename: i18n/messages
-    cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:
-    cache: false
+    cache: true
+
+# ===================================================================
+# To enable TLS in production, generate a certificate using:
+# keytool -genkey -alias ca3s_jh -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
+#
+# You can also use Let's Encrypt:
+# https://maximilian-boehm.com/hp2121/Create-a-Java-Keystore-JKS-from-Let-s-Encrypt-Certificates.htm
+#
+# Then, modify the server.ssl properties so your "server" configuration looks like:
+#
+# server:
+#    port: 443
+#    ssl:
+#        key-store: classpath:config/tls/keystore.p12
+#        key-store-password: password
+#        key-store-type: PKCS12
+#        key-alias: ca3s_jh
+# ===================================================================
+#  port: 8443
+#  port: 8125
+#  compression:
+#    enabled: true
+#    mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
+#    min-response-size: 1024
 
 server:
-  port: 8080
-  max-http-header-size: 8KB
+  port: 7125
+ca3s:
+  tlsAccess:
+    port: 8125
+  adminAccess:
+    port: 44125
+  raAccess:
+    port: 45125
+  acmeAccess:
+    port: 46125
+    https: true
+  scepAccess:
+    port: 47125
+
+  https:
+    certificate:
+      dnSuffix: O=Trustable Solutions,OU=CA3S Instance,C=DE
+      sans: trustable.de, www.trustable.de
 
 # ===================================================================
 # JHipster specific properties
@@ -95,28 +125,31 @@ server:
 # ===================================================================
 
 jhipster:
+  http:
+    cache: # Used by the CachingHttpHeadersFilter
+      timeToLiveInDays: 1461
   cache: # Cache configuration
     ehcache: # Ehcache configuration
       time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
-      max-entries: 100 # Number of objects in each cache entry
-  # CORS is only enabled by default with the "dev" profile, so BrowserSync can access the API
-  cors:
-    allowed-origins: '*'
-    allowed-methods: '*'
-    allowed-headers: '*'
-    exposed-headers: 'Authorization,Link,X-Total-Count'
-    allow-credentials: true
-    max-age: 1800
+      max-entries: 1000 # Number of objects in each cache entry
   security:
     authentication:
       jwt:
-        # This token must be encoded using Base64 and be at least 512 bits long (you can type `openssl rand -base64 128` on your command line to generate one)
+        # This token must be encoded using Base64 and be at least 256 bits long (you can type `openssl rand -base64 64` on your command line to generate a 512 bits one)
+        # As this is the PRODUCTION configuration, you MUST change the default key, and store it securely:
+        # - In the JHipster Registry (which includes a Spring Cloud Config server)
+        # - In a separate `application-prod.yml` file, in the same folder as your executable JAR file
+        # - In the `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` environment variable
         base64-secret: Mjk3NjM4OWI4NWU3ZjE3NjQ3OWRiZjI3OWYwYmZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4YWRhNDg0MjJlNDYzNThhODBjNmU0ZGFjMGY3MTc5OTVlNmEyZWFiZmIwMDIxYTExYzkxNGM3YmM2YmVmMmNlZWE2YmQ=
         # Token is valid 24 hours
         token-validity-in-seconds: 86400
         token-validity-in-seconds-for-remember-me: 2592000
   mail: # specific JHipster mail property, for standard properties see MailProperties
-    base-url: http://127.0.0.1:8080
+    base-url: http://my-server-url-to-change # Modify according to your server's URL
+  metrics:
+    logs: # Reports metrics in the logs
+      enabled: false
+      report-frequency: 60 # in seconds
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
@@ -126,21 +159,6 @@ jhipster:
       queue-size: 512
   audit-events:
     retention-period: 30 # Number of days before audit events are deleted.
-
-ca3s:
-  ui:
-    password:
-      check:
-        description: min6NumberUpperLower
-        regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
-
-  auth:
-    api-key:
-      enabled: true
-      auth-token-header-name: X-API-KEY
-      auth-token-admin: gTYvGKIfzLpWQSSIMT1XBaRfzdSLZmvFMNlfo6zeddYyg3FYmq7BH6qqB4dy75uYbLb0KXOU7jV50a360R4CB4UXriX085usWJnto5CMpOu34rxx0b5v2Xd97hpzDQdJ
-
-  protectionSecret: AxOS1DQS5jcnQwDQYJKoZIhvcNAQELBQADggEBA
 
 # ===================================================================
 # Application specific properties
@@ -152,9 +170,6 @@ ca3s:
 # ===================================================================
 
 # application:
+protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl
 
-springdoc:
-  show-actuator: true
-  model-and-view-allowed: true
-  remove-broken-reference-definitions: false
-  show-login-endpoint: true
+acmeClientPorts: 80, 5544, 8800

@@ -16,6 +16,7 @@ import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.impl.CertificateServiceImpl;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import org.bouncycastle.operator.OperatorCreationException;
@@ -31,6 +32,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -93,31 +95,22 @@ public class CertificateDownloadController {
         this.pipelineRepository = pipelineRepository;
     }
 
-    /**
-     * Public certificate download endpoint providing DER format
-     *
-     * @param certId the internal certificate id
-     * @return the binary certificate
-     */
-    @RequestMapping(value = "/certPKIX/{certId}/{filename}",
-        method = GET,
-        produces = AcmeController.APPLICATION_PKIX_CERT_VALUE)
-    public ResponseEntity<byte[]> getCertificatePKIX(@PathVariable final long certId, @PathVariable final String filename)
-        throws NotFoundException, UnauthorizedException {
-
-        LOG.info("Received certificate download request (PKIX) for id {} as file '{}' ", certId, filename);
-
-        if (SecurityContextHolder.getContext() == null) {
-            throw new NotFoundException("Authentication required");
-        }
-
-        try {
-            return buildByteArrayResponseForId(certId, AcmeController.APPLICATION_PKIX_CERT_VALUE, "", filename);
-        } catch (HttpClientErrorException | AcmeProblemException | GeneralSecurityException e) {
-            throw new NotFoundException(e.getMessage());
-        }
-
+    @RequestMapping(value ={"/certPKIX/{certId}/{filename}","/certPEMChain/{certId}/{filename}"}, method = GET)
+    public RedirectView certForward(@PathVariable final long certId, @PathVariable final String filename) {
+        RedirectView redirectView = new RedirectView();
+        redirectView.setStatusCode(HttpStatus.FOUND);
+        redirectView.setUrl("/cert-info?certificateId=" + certId);
+        return redirectView;
     }
+
+    @RequestMapping(value ="/cert/{certId}}", method = GET)
+    public RedirectView certForward(@PathVariable final long certId) {
+        RedirectView redirectView = new RedirectView();
+        redirectView.setStatusCode(HttpStatus.FOUND);
+        redirectView.setUrl("/cert-info?certificateId=" + certId);
+        return redirectView;
+    }
+
 
     /**
      * Public certificate download endpoint providing DER format
@@ -150,25 +143,13 @@ public class CertificateDownloadController {
         Optional<Certificate> certOpt = certificateRepository.findById(certId);
         if( (ski != null ) && certOpt.isPresent()) {
             Certificate cert = certOpt.get();
-            if (ski.equals(certUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI))) {
+            List<String> skiList = certUtil.getCertAttributes(cert, CertificateAttribute.ATTRIBUTE_SKI);
+            String normalizedSki = ski.replace('-', '+').replace('_', '/');
+            if (skiList.contains(normalizedSki)) {
                 return cert;
             }
         }
         throw new NotFoundException("certificate id " + certId + " with ski '" + ski + "' not found");
-    }
-
-    /**
-     * Public certificate download endpoint providing PEM format including the certificate chain
-     *
-     * @param certId the internal certificate id
-     * @return the PEM-encoded certificate chain
-     */
-    @RequestMapping(value = "/certPEMChain/{certId}/{filename}", method = GET)
-    public ResponseEntity<?> getCertificatePEMChain(@PathVariable final long certId, @PathVariable final String filename) {
-
-        LOG.info("Received certificate download request (PEM with chain) for id {} as file '{}'", certId, filename);
-        return buildCertResponseForId(certId,
-            AcmeController.APPLICATION_PEM_CERT_CHAIN_VALUE, filename);
     }
 
     /**
@@ -191,19 +172,6 @@ public class CertificateDownloadController {
     /**
      * Public certificate download endpoint providing PEM format including the certificate chain
      *
-     * @param certId the internal certificate id
-     * @return the PEM-encoded certificate chain
-     */
-    @RequestMapping(value = "/certPEMPart/{certId}/{filename}", method = GET)
-    public ResponseEntity<?> getCertificatePEMPart(@PathVariable final long certId, @PathVariable final String filename) {
-
-        LOG.info("Received certificate download request (PEM with partial chain) for id {} as file '{}'", certId, filename);
-        return buildCertResponseForId(certId, AcmeController.APPLICATION_X_PEM_CERT_CHAIN_VALUE, filename);
-    }
-
-    /**
-     * Public certificate download endpoint providing PEM format including the certificate chain
-     *
      * @param ski the internal certificate ski
      * @return the PEM-encoded certificate chain
      */
@@ -215,19 +183,6 @@ public class CertificateDownloadController {
         LOG.info("Received certificate download request (PEM with partial chain) for ski {} as file '{}'", ski, filename);
         return buildCertResponseForId(getCertificateByIdSKI(certId, ski),
             AcmeController.APPLICATION_X_PEM_CERT_CHAIN_VALUE, filename);
-    }
-
-    /**
-     * Public certificate download endpoint providing PEM format including the certificate chain
-     *
-     * @param certId the internal certificate id
-     * @return the PEM-encoded certificate chain
-     */
-    @RequestMapping(value = "/certPEMFull/{certId}/{filename}", method = GET)
-    public ResponseEntity<?> getCertificatePEMFull(@PathVariable final long certId, @PathVariable final String filename) {
-
-        LOG.info("Received certificate download request (PEM with full chain) for id {} as file '{}'", certId, filename);
-        return buildCertResponseForId(certId, AcmeController.APPLICATION_PEM_CERT_CHAIN_VALUE, filename);
     }
 
     /**
@@ -249,19 +204,6 @@ public class CertificateDownloadController {
     /**
      * Public certificate download endpoint providing PEM format
      *
-     * @param certId the internal certificate id
-     * @return the PEM-encoded certificate
-     */
-    @RequestMapping(value = "/certPEM/{certId}/{filename}", method = GET)
-    public ResponseEntity<?> getCertificatePEM(@PathVariable final long certId, @PathVariable final String filename) {
-
-        LOG.info("Received certificate download request (PEM) for id {} as file '{}'", certId, filename);
-        return buildCertResponseForId(certId, AcmeController.APPLICATION_PEM_CERT_VALUE, filename);
-    }
-
-    /**
-     * Public certificate download endpoint providing PEM format
-     *
      * @param ski the internal certificate ski
      * @return the PEM-encoded certificate
      */
@@ -275,21 +217,6 @@ public class CertificateDownloadController {
             AcmeController.APPLICATION_PEM_CERT_VALUE, filename);
     }
 
-    /**
-     * Public certificate download endpoint
-     *
-     * @param certId the internal certificate id
-     * @param accept the description of the requested format
-     * @return the certificate in the requested encoded form
-     */
-    @RequestMapping(value = "/cert/{certId}", method = GET)
-    public ResponseEntity<?> getCertificate(@PathVariable final long certId,
-                                            @RequestHeader(name = "Accept", defaultValue = AcmeController.APPLICATION_PKIX_CERT_VALUE) final String accept) {
-
-        LOG.info("Received certificate request for id {}", certId);
-
-        return buildCertResponseForId(certId, accept, "cert_" + certId + ".cer");
-    }
 
     /**
      * Public certificate download endpoint
@@ -371,9 +298,6 @@ public class CertificateDownloadController {
             CSR csr = buildCSRForClientCert(login, containerSecret.getSecret());
 
             Optional<Certificate> certOpt = Optional.of(csr.getCertificate());
-            if( certOpt.isEmpty() ){
-                throw new NotFoundException("Failed to create client certificate");
-            }
 
             final HttpHeaders headers = new HttpHeaders();
             headers.add("x-cert-id", certOpt.get().getId().toString());
@@ -481,7 +405,12 @@ public class CertificateDownloadController {
         TypedValue typedValue = new TypedValue(login);
         certAttributeArr[0].setValues(new TypedValue[]{typedValue});
 
-        return certificateServiceImpl.createServersideKeyAndCertificate(pipelineRepository.findById(29L),
+        List<Pipeline> pipelineList = pipelineRepository.findByAttributePresent(PipelineUtil.CAN_ISSUE_2_FACTOR_CLIENT_CERTS);
+        if( pipelineList.isEmpty() ){
+            throw new UnauthorizedException("No pipeline defined for second factor client certificate creation");
+        }
+
+        return certificateServiceImpl.createServersideKeyAndCertificate(Optional.of(pipelineList.get(0)),
             KeyAlgoLengthOrSpec.RSA_4096,
             certAttributeArr,
             new NamedValues[0],

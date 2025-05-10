@@ -631,14 +631,16 @@ public class ContentUploadProcessor {
                         null, // no ACMEOrder available
                         nvArr, messageList);
                 } catch (KeyApplicableException e) {
-                    // no extra handling, just go on ...
+                    LOG.info("cpUtil.buildCSR rejects key", e);
                 }
 
                 p10ReqData.setWarnings(messageList.toArray(new String[0]));
 
                 if (csr != null) {
                     p10ReqData.setCreatedCSRId(csr.getId().toString());
-                    csr.setTenant(userUtil.getCurrentUser().getTenant());
+                    if (userUtil.getCurrentUser() != null) {
+                        csr.setTenant(userUtil.getCurrentUser().getTenant());
+                    }
 
                     if(uploaded.isTosAgreed()) {
                         csrUtil.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TOS_AGREED, "true",

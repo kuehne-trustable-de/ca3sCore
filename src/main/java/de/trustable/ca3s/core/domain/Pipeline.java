@@ -3,7 +3,6 @@ package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.NameMessages;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Cache;
 
@@ -43,8 +42,16 @@ import javax.validation.constraints.*;
     @NamedQuery(name = "Pipeline.findByName",
         query = "SELECT p FROM Pipeline p WHERE " +
             "p.name = :name "
+    ),
+    @NamedQuery(name = "Pipeline.findByAttributePresent",
+        query = "SELECT p FROM Pipeline p JOIN p.pipelineAttributes att1 WHERE " +
+            "att1.name = :name "
+    ),
+    @NamedQuery(name = "Pipeline.findByAttributeValue",
+        query = "SELECT p FROM Pipeline p JOIN p.pipelineAttributes att1 WHERE " +
+            "att1.name = :name and " +
+            "att1.value = :value"
     )
-
 })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @SuppressWarnings("common-java:DuplicatedBlocks")

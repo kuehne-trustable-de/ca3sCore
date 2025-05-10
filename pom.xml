@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.2</version>
 
     <packaging>jar</packaging>
 
@@ -83,6 +83,8 @@
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
         <run.addResources>false</run.addResources>
 
+        <maven.autoPublish>false</maven.autoPublish>
+
         <packaging.executable>false</packaging.executable>
 
         <!-- These remain empty unless the corresponding profile is active -->
@@ -109,7 +111,7 @@
         https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
         <javassist.version>3.27.0-GA</javassist.version>
 
-        <liquibase.version>4.31.1</liquibase.version>
+        <liquibase.version>4.19.0</liquibase.version>
         <liquibase-hibernate5.version>${liquibase.version}</liquibase-hibernate5.version>
 
         <mssql.jdbc.version>9.4.0.jre11</mssql.jdbc.version>
@@ -800,6 +802,12 @@
             <version>2.0.6</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.2.30</version>
+        </dependency>
+
         <!--dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-spring-boot-starter</artifactId>
@@ -900,19 +908,8 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
-            <version>1.8.0</version>
+            <version>1.6.15</version>
         </dependency>
-
-        <!--dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-webmvc-core</artifactId>
-            <version>1.6.14</version>
-        </dependency-->
-        <!--dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi</artifactId>
-            <version>1.6.8</version>
-        </dependency-->
 
         <dependency>
             <groupId>com.zaxxer</groupId>
@@ -1745,6 +1742,7 @@
                         <class>de.trustable.ca3s.core.web.rest.data.DataSet</class>
                         <class>de.trustable.ca3s.core.web.rest.data.BpmnCheckResult</class>
                         <class>de.trustable.ca3s.core.web.rest.data.AcmeAccountStatusAdministration</class>
+                        <class>de.trustable.ca3s.core.web.rest.vm.LoginData</class>
 
                     </classes>
                     <addTypeNamePrefix>I</addTypeNamePrefix>
@@ -1776,6 +1774,17 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>${maven.autoPublish}</autoPublish>
+                </configuration>
             </plugin>
 
             <plugin>

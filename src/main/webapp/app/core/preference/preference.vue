@@ -1,7 +1,7 @@
 <template>
     <div>
        <h2 id="page-heading">
-            <span v-text="$t('ca3SApp.preference.home.title')" id="preference-heading">Preferences</span>
+            <span v-text="$t('ca3SApp.preference.home.title')" id="preference-heading"></span>
         </h2>
         <b-alert :show="dismissCountDown"
             dismissible
@@ -15,12 +15,12 @@
         <div class="row justify-content-center">
             <div class="col-8">
                 <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
-                    <h2 id="ca3SApp.preference.home.createOrEditLabel" v-text="$t('ca3SApp.preference.home.editLabel')">Edit a Preference</h2>
+                    <h2 id="ca3SApp.preference.home.createOrEditLabel" v-text="$t('ca3SApp.preference.home.editLabel')"></h2>
                     <div>
                         <div class="form-group">
                             <div class="row">
                                 <div class="col ">
-                                    <label for="preferences-notifyRAOnRequest" v-text="$t('ca3SApp.preference.notifyRAOnRequest')">Notify RA officer on new request</label>
+                                    <label for="preferences-notifyRAOnRequest" v-text="$t('ca3SApp.preference.notifyRAOnRequest')"></label>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="checkbox" class="form-check-inline" name="preferences-notifyRAOnRequest" id="preferences-notifyRAOnRequest" v-model="preferences.notifyRAOnRequest" />
@@ -29,7 +29,7 @@
 
                             <div class="row">
                                 <div class="col ">
-                                    <label for="preferences-checkCRL" v-text="$t('ca3SApp.preference.checkCRL')">Check CRLs (to update certificate state)</label>  <help-tag role="Admin" target="preference.check-crl"/>
+                                    <label for="preferences-checkCRL" v-text="$t('ca3SApp.preference.checkCRL')"></label>  <help-tag role="Admin" target="preference.check-crl"/>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="checkbox" class="form-check-inline" name="preferences-checkCRL" id="preferences-checkCRL" v-model="preferences.checkCRL" />
@@ -38,7 +38,7 @@
 
                             <div class="row" v-if="preferences.checkCRL">
                                 <div class="col ">
-                                    <label for="preferences-maxNextUpdatePeriodCRLHour" v-text="$t('ca3SApp.preference.maxNextUpdatePeriodCRLHour')">Store CRLs for up to N hours</label>  <help-tag role="Admin" target="preference.max-next-update-crl"/>
+                                    <label for="preferences-maxNextUpdatePeriodCRLHour" v-text="$t('ca3SApp.preference.maxNextUpdatePeriodCRLHour')"></label>  <help-tag role="Admin" target="preference.max-next-update-crl"/>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="number" class="form-check-inline" name="preferences-maxNextUpdatePeriodCRLHour" id="preferences-maxNextUpdatePeriodCRLHour" v-model="preferences.maxNextUpdatePeriodCRLHour" />
@@ -48,7 +48,7 @@
                             <h3 v-text="$t('ca3SApp.preference.home.edit.keyCreation')"></h3>
                             <div class="row">
                                 <div class="col ">
-                                    <label for="preferences-serverSideKeyCreationAllowed" v-text="$t('ca3SApp.preference.serverSideKeyCreationAllowed')">Server side key creation allowed</label>  <help-tag role="Admin" target="preference.server-side-allowed"/>
+                                    <label for="preferences-serverSideKeyCreationAllowed" v-text="$t('ca3SApp.preference.serverSideKeyCreationAllowed')"></label>  <help-tag role="Admin" target="preference.server-side-allowed"/>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="checkbox" class="form-check-inline" name="preferences-serverSideKeyCreationAllowed" id="preferences-serverSideKeyCreationAllowed" v-model="preferences.serverSideKeyCreationAllowed" />
@@ -57,7 +57,7 @@
 
                             <div v-if="preferences.serverSideKeyCreationAllowed"class="row">
                                 <div class="col ">
-                                    <label for="preferences-deleteKeyAfterDays" v-text="$t('ca3SApp.preference.deleteKeyAfterDays')">Delete key after N days</label>  <help-tag role="Admin" target="preference.delete-key-after-days"/>
+                                    <label for="preferences-deleteKeyAfterDays" v-text="$t('ca3SApp.preference.deleteKeyAfterDays')"></label>  <help-tag role="Admin" target="preference.delete-key-after-days"/>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="number" class="form-check-inline" name="preferences-deleteKeyAfterDays" id="preferences-deleteKeyAfterDays" v-model="preferences.deleteKeyAfterDays" />
@@ -66,7 +66,7 @@
 
                             <div v-if="preferences.serverSideKeyCreationAllowed" class="row">
                                 <div class="col ">
-                                    <label for="preferences-deleteKeyAfterUses" v-text="$t('ca3SApp.preference.deleteKeyAfterUses')">Delete key after N uses</label>  <help-tag role="Admin" target="preference.delete-key-after-uses"/>
+                                    <label for="preferences-deleteKeyAfterUses" v-text="$t('ca3SApp.preference.deleteKeyAfterUses')"></label>  <help-tag role="Admin" target="preference.delete-key-after-uses"/>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="number" class="form-check-inline" name="preferences-deleteKeyAfterUses" id="preferences-deleteKeyAfterUses" v-model="preferences.deleteKeyAfterUses" />
@@ -77,21 +77,19 @@
                             <h3 v-text="$t('ca3SApp.preference.home.edit.acme')"></h3>
                             <div class="row">
                                 <div class="col ">
-                                    <label for="preferences-acmeHTTP01TimeoutMilliSec" v-text="$t('ca3SApp.preference.acmeHTTP01TimeoutMilliSec')">ACME HTTP01 callback timeout (milli sec)</label>  <help-tag role="Admin" target="preference.http-01-callback-timeout"/>
+                                    <label for="preferences-acmeHTTP01TimeoutMilliSec" v-text="$t('ca3SApp.preference.acmeHTTP01TimeoutMilliSec')"></label>  <help-tag role="Admin" target="preference.http-01-callback-timeout"/>
                                 </div>
                                 <div class="col colContent" >
                                     <input type="number" class="form-control" name="preferences-acmeHTTP01TimeoutMilliSec" id="preferences-acmeHTTP01TimeoutMilliSec"
                                            :class="{'valid': !$v.preferences.acmeHTTP01TimeoutMilliSec.$invalid, 'invalid': $v.preferences.acmeHTTP01TimeoutMilliSec.$invalid }"
                                         v-model.number="$v.preferences.acmeHTTP01TimeoutMilliSec.$model" required/>
-                                    <small class="form-text text-danger" v-if="$v.preferences.acmeHTTP01TimeoutMilliSec.$invalid" v-text="$t('entity.validation.number')">
-                                        This field should be a number.
-                                    </small>
+                                    <small class="form-text text-danger" v-if="$v.preferences.acmeHTTP01TimeoutMilliSec.$invalid" v-text="$t('entity.validation.number')"></small>
                                 </div>
                             </div>
 
 							<div class="row">
 								<div class="col ">
-                                    <label  v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')">ACME HTTP01 callback ports</label>  <help-tag role="Admin" target="preference.http-01-callback-ports"/>
+                                    <label  v-text="$t('ca3SApp.preference.acmeHTTP01CallbackPorts')"></label>  <help-tag role="Admin" target="preference.http-01-callback-ports"/>
 								</div>
 								<div class="col colContent" v-for="(v, portIndex) in $v.preferences.acmeHTTP01CallbackPortArr.$each.$iter">
                                     <input
@@ -99,9 +97,7 @@
                                            v-model="v.$model"
                                            v-on:input="alignCallbackPortArraySize(portIndex)"
                                     />
-                                    <small class="form-text text-danger" v-if="v.$invalid" v-text="$t('entity.validation.number')">
-                                        This field should be a valid port number.
-                                    </small>
+                                    <small class="form-text text-danger" v-if="v.$invalid" v-text="$t('entity.validation.number')"></small>
                                 </div>
 							</div>
 
@@ -109,7 +105,7 @@
 
                             <div class="row" v-if="preferences.selectedHashes">
                                 <div class="col ">
-                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.hashes')" for="ca3SApp-preference-hash">HashAlgos</label>  <help-tag role="Admin" target="preference.hash"/>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.hashes')" for="ca3SApp-preference-hash"></label>  <help-tag role="Admin" target="preference.hash"/>
                                 </div>
                                 <div class="col colContent">
                                     <select class="form-control" multiple="true" id="ca3SApp-preference-hash" name="ca3SApp-preference-hash" v-model="preferences.selectedHashes">
@@ -120,7 +116,7 @@
 
                             <div class="row" v-if="preferences.selectedSigningAlgos">
                                 <div class="col ">
-                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.algos')" for="ca3SApp-preference-algos">SigningAlgos</label><help-tag role="Admin" target="preference.algo"/>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.algos')" for="ca3SApp-preference-algos"></label><help-tag role="Admin" target="preference.algo"/>
                                 </div>
                                 <div class="col colContent">
                                     <select class="form-control" multiple="true" id="ca3SApp-preference-algos" name="ca3SApp-preference-algos" v-model="preferences.selectedSigningAlgos">
@@ -129,6 +125,7 @@
                                 </div>
                             </div>
 
+                            <!--
                             <h3 v-text="$t('ca3SApp.preference.home.edit.userAuthentication')"></h3>
                             <div class="row">
                                 <div class="col ">
@@ -165,15 +162,15 @@
                                            v-model="preferences.sms" />
                                 </div>
                             </div>
-
+                            -->
                         </div>
                     </div>
                     <div>
                         <button type="button" id="cancel-save" class="btn btn-secondary" v-on:click="previousState()">
-                            <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.cancel')">Cancel</span>
+                            <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.cancel')"></span>
                         </button>
                         <button type="submit" id="save-entity" class="btn btn-primary">
-                            <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.save')">Save</span>
+                            <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.save')"></span>
                         </button>
                     </div>
                 </form>

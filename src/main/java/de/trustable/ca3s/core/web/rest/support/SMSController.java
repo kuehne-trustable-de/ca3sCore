@@ -4,8 +4,6 @@ import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.SMSService;
-import de.trustable.ca3s.core.service.util.BPMNUtil;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.service.UserCredentialService;
 import de.trustable.ca3s.core.web.rest.errors.AccountResourceException;
@@ -23,30 +21,26 @@ import java.util.Optional;
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 @RestController
-@RequestMapping("/publicapi")
 public class SMSController {
 
     private final Logger LOG = LoggerFactory.getLogger(SMSController.class);
 
-    final private CertificateUtil certificateUtil;
     private final UserCredentialService userCredentialService;
 
     private final UserRepository userRepository;
     final private UserUtil userUtil;
-    final private BPMNUtil bpmnUtil;
     final private SMSService smsService;
 
-    public SMSController(CertificateUtil certificateUtil, UserCredentialService userCredentialService, UserRepository userRepository, UserUtil userUtil, BPMNUtil bpmnUtil, SMSService smsService) {
-        this.certificateUtil = certificateUtil;
+    public SMSController(UserCredentialService userCredentialService, UserRepository userRepository,
+                         UserUtil userUtil, SMSService smsService) {
         this.userCredentialService = userCredentialService;
         this.userRepository = userRepository;
         this.userUtil = userUtil;
-        this.bpmnUtil = bpmnUtil;
         this.smsService = smsService;
     }
 
 
-    @RequestMapping(value = "/smsDelivery", method = POST)
+    @RequestMapping(value = "/api/smsDelivery", method = POST)
     public ResponseEntity<String> sendSMS() {
 
         String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccountResourceException("Current user login not found"));
@@ -60,7 +54,7 @@ public class SMSController {
         return ResponseEntity.ok(msg);
     }
 
-    @RequestMapping(value = "/smsDelivery/{user}", method = POST)
+    @RequestMapping(value = "/publicapi/smsDelivery/{user}", method = POST)
     public ResponseEntity<Void> sendSMS(@PathVariable final String user, @RequestBody LoginData loginData) {
 
         userUtil.checkIPBlocked(loginData.getUsername());

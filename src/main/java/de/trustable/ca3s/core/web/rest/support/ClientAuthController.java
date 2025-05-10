@@ -2,9 +2,6 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import de.trustable.ca3s.core.security.jwt.JWTFilter;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
-import de.trustable.ca3s.core.service.dto.UserLoginData;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.web.rest.JWTToken;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
@@ -15,13 +12,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import javax.validation.Valid;
 import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.util.Iterator;
@@ -34,15 +29,10 @@ public class ClientAuthController {
 
     private final Logger LOG = LoggerFactory.getLogger(ClientAuthController.class);
 
-    final private CertificateUtil certificateUtil;
-
     final private TokenProvider tokenProvider;
-    final private UserUtil userUtil;
 
-    public ClientAuthController(CertificateUtil certificateUtil, TokenProvider tokenProvider, UserUtil userUtil) {
-        this.certificateUtil = certificateUtil;
+    public ClientAuthController(TokenProvider tokenProvider) {
         this.tokenProvider = tokenProvider;
-        this.userUtil = userUtil;
     }
 
 

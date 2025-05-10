@@ -15,6 +15,9 @@ public class WebConfigItems implements Serializable{
 
     private String processInfoNameRequestAuthorization;
 
+    private Boolean issuesSecondFactorClientCert;
+
+
     public WebConfigItems(){}
 
     public String getAdditionalEMailRecipients() {
@@ -40,4 +43,13 @@ public class WebConfigItems implements Serializable{
     public void setProcessInfoNameRequestAuthorization(String processInfoNameRequestAuthorization) {
         this.processInfoNameRequestAuthorization = processInfoNameRequestAuthorization;
     }
+
+    public Boolean getIssuesSecondFactorClientCert() {
+        return issuesSecondFactorClientCert;
+    }
+
+    public void setIssuesSecondFactorClientCert(Boolean issuesSecondFactorClientCert) {
+        this.issuesSecondFactorClientCert = issuesSecondFactorClientCert;
+    }
+
 }

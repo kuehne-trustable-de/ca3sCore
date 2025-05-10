@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.security;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -88,41 +87,6 @@ public class OIDCRestService {
 
     }
 
-    /**
-     *  login by using username and password to oidc, and capturing token on response body
-     *
-     * @param username
-     * @param password
-     * @return
-
-    public KeycloakUserId login(String keycloakTokenUri, String username, String password) throws JsonProcessingException {
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("username",username);
-        map.add("password",password);
-        map.add("client_id",clientId);
-        map.add("grant_type",grantType);
-        map.add("client_secret",clientSecret);
-        map.add("scope",scope);
-
-        LOG.info("map: {}", map);
-
-        RestTemplate restTemplate = new RestTemplate();
-
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-
-        String userId = restTemplate.postForObject(keycloakTokenUri, request, String.class);
-
-        LOG.info("userId: {}", userId);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        return objectMapper.readValue(userId, KeycloakUserId.class);
-    }
-*/
 
     public String exchangeCodeToToken( final String keycloakTokenUri, final String authCode, final String redirectUri ) throws JsonProcessingException, UnsupportedEncodingException {
 

@@ -245,7 +245,6 @@ public class CertificateProcessingUtil {
 
             if(cert != null) {
                 certificateRepository.save(cert);
-
                 auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));
 
                 return cert;

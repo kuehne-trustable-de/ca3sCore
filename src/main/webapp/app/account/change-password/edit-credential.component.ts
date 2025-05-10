@@ -301,7 +301,7 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
     this.smsSent = '';
     const self = this;
     axios
-      .post('/publicapi/smsDelivery')
+      .post('/api/smsDelivery')
       .then(response => {
         self.smsSent = response.data.toString();
         //        document.getElementById("sms-test-value").focus();

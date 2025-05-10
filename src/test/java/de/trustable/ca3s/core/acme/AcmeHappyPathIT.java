@@ -169,9 +169,9 @@ public class AcmeHappyPathIT {
             new AccountBuilder()
                 .useKeyPair(accountKeyPair)
                 .create(session);
-            fail("empty contact, exception expected");
+            Assertions.fail("empty contact, exception expected");
         } catch( AcmeServerException ase) {
-            assertEquals("Contact matching regEx '^$' were rejected.", ase.getMessage());
+            Assertions.assertEquals("Contact matching regEx '^$' were rejected.", ase.getMessage());
         }
 
         // ensure account wasn't created
@@ -183,7 +183,7 @@ public class AcmeHappyPathIT {
                 .useKeyPair(accountKeyPair)
                 .create(session);
 
-        assertNotNull("created account MUST NOT be null", account);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
 
         accListExisting = acctRepository.findByPublicKeyHashBase64(jwtUtil.getJWKThumbPrint(accountKeyPair.getPublic()));
         Assertions.assertFalse(accListExisting.isEmpty(), "contact provided, account MUST be created");
@@ -216,9 +216,9 @@ public class AcmeHappyPathIT {
                     .addContact(contact)
                     .agreeToTermsOfService()
                     .create(sessionContactRegEx);
-                fail("empty contact, exception expected");
+                Assertions.fail("empty contact, exception expected");
             } catch (AcmeServerException ase) {
-                assertEquals("Contact email address does not match requirements", ase.getMessage());
+                assertEquals("Contact matching regEx '.*@localhost|.*@127.0.0.1|.*@servicedesk.*' were rejected.", ase.getMessage());
             }
         }
 
@@ -245,7 +245,7 @@ public class AcmeHappyPathIT {
             .useKeyPair(accountKeyPair)
             .create(session);
 
-        assertNotNull("created account MUST NOT be null", account);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
 		URL accountLocationUrl = account.getLocation();
 		LOG.debug("accountLocationUrl {}", accountLocationUrl);
 
@@ -255,8 +255,8 @@ public class AcmeHappyPathIT {
 		        .useKeyPair(accountKeyPair)
 		        .create(session);
 
-		assertNotNull("created account MUST NOT be null", retrievedAccount);
-		assertEquals("expected to fimnd the smae account (URL)", accountLocationUrl, retrievedAccount.getLocation());
+		Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+		Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to fimnd the smae account (URL)");
 
 		account.modify()
 	      .addContact("mailto:acmeHappyPathTest@ca3s.org")
@@ -266,7 +266,7 @@ public class AcmeHappyPathIT {
 
 		account.changeKey(accountNewKeyPair);
 
-		assertNotNull("account contacts MUST NOT be null", account.getContacts());
+		Assertions.assertNotNull(account.getContacts(), "account contacts MUST NOT be null");
 
 		KeyPair accountECKeyPair = KeyPairUtils.createECKeyPair("secp256r1");
 		account.changeKey(accountECKeyPair);
@@ -275,11 +275,11 @@ public class AcmeHappyPathIT {
 	      .addContact("mailto:acmeHappyPathECTest@ca3s.org")
 	      .commit();
 
-		assertEquals("three account contact expected", 3, account.getContacts().size());
+		Assertions.assertEquals(3, account.getContacts().size(), "three account contact expected");
 
 		account.deactivate();
 
-		assertEquals("account status 'deactivated' expected", AccountStatus.DEACTIVATED.toString().toLowerCase(), account.getStatus().toString().toLowerCase() );
+		Assertions.assertEquals(AccountStatus.DEACTIVATED.toString().toLowerCase(), account.getStatus().toString().toLowerCase(), "account status 'deactivated' expected");
 	}
 
 	@Test
@@ -367,11 +367,11 @@ public class AcmeHappyPathIT {
 
 		order.execute(csr);
 		Certificate acmeCert = order.getCertificate();
-		assertNotNull("Expected to receive a certificate", acmeCert);
+		Assertions.assertNotNull(acmeCert, "Expected to receive a certificate");
 
 		java.security.cert.X509Certificate x509Cert = acmeCert.getCertificate();
-        assertNotNull("Expected to receive a x509Cert", x509Cert);
-        assertNotNull("Expected the certificate to have a x509Cert", x509Cert.getSubjectDN().getName());
+        Assertions.assertNotNull(x509Cert, "Expected to receive a x509Cert");
+        Assertions.assertNotNull(x509Cert.getSubjectDN().getName(), "Expected the certificate to have a x509Cert");
 
 		Iterator<Order> orderIt = account.getOrders();
 		assertTrue(orderIt.hasNext(), "Expected to find at least one order");
@@ -381,7 +381,7 @@ public class AcmeHappyPathIT {
 		}
 
         Iterator<Order> orderIt2 = account.getOrders();
-        assertNotNull("Expected to find at least one order", orderIt2.hasNext());
+        Assertions.assertNotNull(orderIt2.hasNext(), "Expected to find at least one order");
         System.out.println("Account orders : " + orderIt2);
 
 /*
@@ -480,37 +480,37 @@ public class AcmeHappyPathIT {
 
 			order.execute(csr);
 
-			assertEquals("Expecting the finalize request to pass", Status.VALID, order.getStatus());
+			Assertions.assertEquals(Status.VALID, order.getStatus(), "Expecting the finalize request to pass");
 
 			Certificate acmeCert = order.getCertificate();
-			assertNotNull("Expected to receive no certificate", acmeCert);
+			Assertions.assertNotNull(acmeCert, "Expected to receive no certificate");
 
 
             // try to revoke a certificate with a session from another realm
             try {
                 Login login = sessionOtherRealm.login(otherRealmAccount.getLocation(), otherRealmAccountKeyPair);
                 Certificate.revoke(login, acmeCert.getCertificate(), RevocationReason.KEY_COMPROMISE);
-                fail("certificate already revoked, exception expected");
+                Assertions.fail("certificate already revoked, exception expected");
             }catch (AcmeServerException acmeServerException){
-                assertEquals("problem authenticating account / order / certificate for RevokeRequest", acmeServerException.getMessage());
+                Assertions.assertEquals("problem authenticating account / order / certificate for RevokeRequest", acmeServerException.getMessage());
             }
 
             // try to revoke a certificate not related to the given account
             try {
                 Login login = session.login(dummyAccount.getLocation(), dummyAccountKeyPair);
                 Certificate.revoke(login, acmeCert.getCertificate(), RevocationReason.KEY_COMPROMISE);
-                fail("certificate already revoked, exception expected");
+                Assertions.fail("certificate already revoked, exception expected");
             }catch (AcmeServerException acmeServerException){
-                assertEquals("problem authenticating account / order / certificate for RevokeRequest", acmeServerException.getMessage());
+                Assertions.assertEquals("problem authenticating account / order / certificate for RevokeRequest", acmeServerException.getMessage());
             }
 
             // try to revoke a certificate but signing the request with an unrelated key
             KeyPair dummyKeyPair = KeyPairUtils.createKeyPair(2048);
             try {
                 Certificate.revoke(session, dummyKeyPair, acmeCert.getCertificate(), RevocationReason.KEY_COMPROMISE);
-                fail("certificate revocation expected to fail, unrelated key used for request signing");
+                Assertions.fail("certificate revocation expected to fail, unrelated key used for request signing");
             }catch (AcmeServerException acmeServerException){
-                assertEquals("Certificate revocation failed, neither KID nor JWK found in request", acmeServerException.getMessage());
+                Assertions.assertEquals("Certificate revocation failed, neither KID nor JWK found in request", acmeServerException.getMessage());
             }
 
             // revoke without account authentication but with the certificate's private key
@@ -518,9 +518,9 @@ public class AcmeHappyPathIT {
 
             try {
                 acmeCert.revoke(RevocationReason.CESSATION_OF_OPERATION);
-                fail("certificate already revoked, exception expected");
+                Assertions.fail("certificate already revoked, exception expected");
             }catch (AcmeServerException acmeServerException){
-                assertEquals("certificate already revoked", acmeServerException.getMessage());
+                Assertions.assertEquals("certificate already revoked", acmeServerException.getMessage());
             }
 
         }
@@ -551,10 +551,10 @@ public class AcmeHappyPathIT {
 
             order.execute(csr);
 
-            assertEquals("Expecting the finalize request to succeed", Status.VALID, order.getStatus());
+            Assertions.assertEquals(Status.VALID, order.getStatus(), "Expecting the finalize request to succeed");
 
             Certificate acmeCert = order.getCertificate();
-            assertNotNull("Expected to receive no certificate", acmeCert);
+            Assertions.assertNotNull(acmeCert, "Expected to receive no certificate");
 		}
 
 
@@ -579,18 +579,18 @@ public class AcmeHappyPathIT {
 
             order.execute(csr);
 
-            assertEquals("Expecting the finalize request to succeed", Status.VALID, order.getStatus());
+            Assertions.assertEquals(Status.VALID, order.getStatus(), "Expecting the finalize request to succeed");
 
             Certificate acmeCert = order.getCertificate();
-            assertNotNull("Expected to receive no certificate", acmeCert);
+            Assertions.assertNotNull(acmeCert, "Expected to receive no certificate");
 
             acmeCert.revoke(RevocationReason.CESSATION_OF_OPERATION);
 
             try {
                 acmeCert.revoke(RevocationReason.CESSATION_OF_OPERATION);
-                fail("certificate already revoked, exception expected");
+                Assertions.fail("certificate already revoked, exception expected");
             }catch (AcmeServerException acmeServerException){
-                assertEquals("certificate already revoked", acmeServerException.getMessage());
+                Assertions.assertEquals("certificate already revoked", acmeServerException.getMessage());
             }
         }
 
@@ -612,7 +612,7 @@ public class AcmeHappyPathIT {
             byte[] csr = csrb.getEncoded();
 
             order.execute(csr);
-            assertEquals("Expecting the finalize request to succeed, policy allows key reuse", Status.VALID, order.getStatus());
+            Assertions.assertEquals(Status.VALID, order.getStatus(), "Expecting the finalize request to succeed, policy allows key reuse");
 
         }
 
@@ -631,9 +631,9 @@ public class AcmeHappyPathIT {
 
             try {
                 order.execute(csr);
-                fail("certificate reuses key pair, not allowed by pipeline");
+                Assertions.fail("certificate reuses key pair, not allowed by pipeline");
             }catch (AcmeServerException acmeServerException){
-                assertEquals("Key usage scope not applicable. Hint: create a new keypair for each request", acmeServerException.getMessage());
+                Assertions.assertEquals("Key usage scope not applicable. Hint: create a new keypair for each request", acmeServerException.getMessage());
             }
         }
 
@@ -652,7 +652,7 @@ public class AcmeHappyPathIT {
             csrb.sign(domainKeyPairForSuccessfulMultiUse);
 
             order.execute(csrb.getEncoded());
-            assertEquals("Expecting the finalize request to succeed, policy allows key reuse", Status.VALID, order.getStatus());
+            Assertions.assertEquals(Status.VALID, order.getStatus(), "Expecting the finalize request to succeed, policy allows key reuse");
 
             Order order2 = domainReuseRealmAccount.newOrder()
                 .domains("localhost")
@@ -665,7 +665,7 @@ public class AcmeHappyPathIT {
             csrb2.sign(domainKeyPairForSuccessfulMultiUse);
 
             order2.execute(csrb2.getEncoded());
-            assertEquals("Expecting the finalize request to succeed, policy allows key reuse", Status.VALID, order2.getStatus());
+            Assertions.assertEquals(Status.VALID, order2.getStatus(), "Expecting the finalize request to succeed, policy allows key reuse");
 
             Order order127 = domainReuseRealmAccount.newOrder()
                 .domains("127.0.0.1")
@@ -679,9 +679,9 @@ public class AcmeHappyPathIT {
 
             try {
                 order127.execute(csrb127.getEncoded());
-                fail("certificate reuses key pair, not allowed by pipeline");
+                Assertions.fail("certificate reuses key pair, not allowed by pipeline");
             }catch (AcmeServerException acmeServerException){
-                assertEquals("Key usage scope not applicable. Hint: create a new keypair for each request", acmeServerException.getMessage());
+                Assertions.assertEquals("Key usage scope not applicable. Hint: create a new keypair for each request", acmeServerException.getMessage());
             }
 
         }
@@ -699,7 +699,7 @@ public class AcmeHappyPathIT {
             csrb.sign(domainKeyPairForMultiUse);
 
             order.execute(csrb.getEncoded());
-            assertEquals("Expecting the finalize request to succeed, policy allows key reuse", Status.VALID, order.getStatus());
+            Assertions.assertEquals(Status.VALID, order.getStatus(), "Expecting the finalize request to succeed, policy allows key reuse");
 
         }
 
@@ -785,10 +785,10 @@ public class AcmeHappyPathIT {
 
 			order.execute(csr);
 			Certificate acmeCert = order.getCertificate();
-			assertNotNull("Expected to receive a certificate", acmeCert);
+			Assertions.assertNotNull(acmeCert, "Expected to receive a certificate");
 
 			java.security.cert.X509Certificate x509Cert = acmeCert.getCertificate();
-			assertNotNull("Expected to receive a x509Cert", x509Cert);
+			Assertions.assertNotNull(x509Cert, "Expected to receive a x509Cert");
 
 			X509Certificate[] chain = new X509Certificate[acmeCert.getCertificateChain().size()];
 			acmeCert.getCertificateChain().toArray(chain);

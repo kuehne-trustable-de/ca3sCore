@@ -4,13 +4,11 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
-import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.NameMessages;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.service.util.StateOverview;
-import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -262,7 +260,7 @@ public class NotificationService {
 
             // Process all admins
             for( User admin: adminList) {
-                Locale locale = Locale.forLanguageTag(admin.getLangKey());
+                Locale locale = getUserLocale(admin);
                 Context context = new Context(locale);
                 context.setVariable("connectorMsgList", connectorMsgList);
                 context.setVariable("stateOverviewConnector", stateOverviewConnector);
@@ -283,6 +281,14 @@ public class NotificationService {
         }
 
         return connectorMsgList.size() + pipelineMsgList.size();
+    }
+
+    private static Locale getUserLocale(User user) {
+
+        if( user != null && user.getLangKey() != null ) {
+            return Locale.forLanguageTag(user.getLangKey());
+        }
+        return Locale.forLanguageTag("en");
     }
 
 
@@ -318,7 +324,7 @@ public class NotificationService {
 
             // Process all CSRs for RA officers
             for( User raOfficer: raOfficerList) {
-                Locale locale = Locale.forLanguageTag(raOfficer.getLangKey());
+                Locale locale = getUserLocale(raOfficer);
                 Context context = new Context(locale);
                 context.setVariable("expiringCAList", expiringCAList);
                 context.setVariable("expiringEECertList", expiringEECertList);
@@ -346,7 +352,7 @@ public class NotificationService {
                     }
                 }
 
-                Locale locale = Locale.forLanguageTag(domainOfficer.getLangKey());
+                Locale locale = getUserLocale(domainOfficer);
                 Context context = new Context(locale);
                 context.setVariable("expiringCAList", expiringCAList);
                 context.setVariable("expiringEECertList", expiringEECertList);
@@ -381,7 +387,7 @@ public class NotificationService {
 
         Instant now = Instant.now();
 
-        int maxExpiry = notificationDayList.stream().max(Integer::compareTo).get();
+        int maxExpiry = notificationDayList.stream().max(Integer::compareTo).orElse(40);
         Instant beforeEE = now.plus(maxExpiry, ChronoUnit.DAYS);
         List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE);
 
@@ -450,6 +456,12 @@ public class NotificationService {
                             certListGroupedByUser.put(user, certificateList);
                         }
                     }
+                }else{
+                    LOG.debug("Expiring certificate #{} not applicable for notification: csr {}, requestor {}, pipeline {}",
+                        cert.getId(),
+                        cert.getCsr(),
+                        cert.getCsr().getRequestedBy() == null ? "null": cert.getCsr().getRequestedBy(),
+                        cert.getCsr().getPipeline() == null ? "null": cert.getCsr().getPipeline().getName() );
                 }
             }
 
@@ -457,7 +469,7 @@ public class NotificationService {
 
                 LOG.info("#{} expiring certificates for requestor {}.", certListGroupedByUser.get(requestor).size(), requestor.getId());
 
-                Locale locale = Locale.forLanguageTag(requestor.getLangKey());
+                Locale locale = getUserLocale(requestor);
                 Context context = new Context(locale);
                 context.setVariable("now", now);
                 context.setVariable("user", requestor);
@@ -587,7 +599,7 @@ public class NotificationService {
 
             // Notify RA officers
         for( User raOfficer: raOfficerList) {
-            Locale locale = Locale.forLanguageTag(raOfficer.getLangKey());
+            Locale locale = getUserLocale(raOfficer);
             Context context = new Context(locale);
             context.setVariable("cert", certificate);
             context.setVariable("revokedByUser", revokedByUser);
@@ -612,7 +624,7 @@ public class NotificationService {
             for (User domainOfficer : domainOfficerList) {
 
                 if (pipelineUtil.isUserValidAsRA(pipeline, domainOfficer)) {
-                    Locale locale = Locale.forLanguageTag(domainOfficer.getLangKey());
+                    Locale locale = getUserLocale(domainOfficer);
                     Context context = new Context(locale);
                     context.setVariable("cert", certificate);
                     context.setVariable("revokedByUser", revokedByUser);
@@ -653,7 +665,7 @@ public class NotificationService {
 
         // Notify RA officers
         for( User raOfficer: raOfficerList) {
-            Locale locale = Locale.forLanguageTag(raOfficer.getLangKey());
+            Locale locale = getUserLocale(raOfficer);
             Context context = new Context(locale);
             context.setVariable("newCsrList", newCsrList);
             try {
@@ -672,7 +684,7 @@ public class NotificationService {
         for( User domainOfficer: domainOfficerList) {
 
             if( pipelineUtil.isUserValidAsRA(csr.getPipeline(), domainOfficer) ){
-                Locale locale = Locale.forLanguageTag(domainOfficer.getLangKey());
+                Locale locale = getUserLocale(domainOfficer);
                 Context context = new Context(locale);
                 context.setVariable("newCsrList", newCsrList);
                 try {
@@ -695,7 +707,7 @@ public class NotificationService {
             return;
         }
 
-        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
+        Locale locale = getUserLocale(requestor);
         Context context = new Context(locale);
 
         context.setVariable("certId", cert.getId());
@@ -736,7 +748,7 @@ public class NotificationService {
             return;
         }
 
-        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
+        Locale locale = getUserLocale(requestor);
         Context context = new Context(locale);
         context.setVariable("csr", csr);
         mailService.sendEmailFromTemplate(context, requestor,
@@ -755,7 +767,7 @@ public class NotificationService {
             return;
         }
 
-        Locale locale = Locale.forLanguageTag(requestor.getLangKey());
+        Locale locale = getUserLocale(requestor);
         Context context = new Context(locale);
         context.setVariable("csr", csr);
         context.setVariable("cert", cert);

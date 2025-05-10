@@ -245,7 +245,7 @@ public class OrderController extends AcmeController {
                     LOG.error("Account identified by key (account {}) does not match account {} of requested order", acctDao, orderDao.getAccount());
                     return ResponseEntity.badRequest().build();
                 }
-                /**
+                /*
                  * check validity
                  */
                 updateAcmeOrderState(orderDao);
@@ -274,6 +274,7 @@ public class OrderController extends AcmeController {
                             BAD_REQUEST,
                             "Public key of CSR already in use by account",
                             NO_INSTANCE);
+                        logFinalizeRejection(orderDao, problem);
                         throw new AcmeProblemException(problem);
                     }
 
@@ -294,8 +295,11 @@ public class OrderController extends AcmeController {
                             orderDao.setStatus(AcmeOrderStatus.INVALID);
                             orderRepository.save(orderDao);
 
-                            throw new AcmeProblemException(new ProblemDetail(AcmeUtil.BAD_CSR, msg,
-                                BAD_REQUEST, NO_DETAIL, NO_INSTANCE));
+                            final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, msg,
+                                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
+
+                            logFinalizeRejection(orderDao, problem);
+                            throw new AcmeProblemException(problem);
                         }
                     }
 
@@ -331,7 +335,8 @@ public class OrderController extends AcmeController {
                         }
                         final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "Restriction check failed.",
                             BAD_REQUEST, detail, NO_INSTANCE);
-                        sendProblemNotificationPerEmail(pipeline, orderDao, problem);
+//                        sendProblemNotificationPerEmail(pipeline, orderDao, problem);
+                        logFinalizeRejection(orderDao, problem);
                         throw new AcmeProblemException(problem);
                     }
 
@@ -350,8 +355,10 @@ public class OrderController extends AcmeController {
                 } else {
                     String msg = "unexpected finalize call at order status " + orderDao.getStatus() + " for order " + orderDao.getOrderId();
                     LOG.debug(msg);
-                    throw new AcmeProblemException(new ProblemDetail(AcmeUtil.ORDER_NOT_READY, msg,
-                        HttpStatus.FORBIDDEN, NO_DETAIL, NO_INSTANCE));
+                    final ProblemDetail problem = new ProblemDetail(AcmeUtil.ORDER_NOT_READY, msg,
+                        HttpStatus.FORBIDDEN, NO_DETAIL, NO_INSTANCE);
+                    logFinalizeRejection(orderDao, problem);
+                    throw new AcmeProblemException(problem);
                 }
 
                 notifyOnCertificate(orderDao);
@@ -371,6 +378,12 @@ public class OrderController extends AcmeController {
                 BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
             return buildProblemResponseEntity(new AcmeProblemException(problem));
         }
+
+    }
+
+    private void logFinalizeRejection(AcmeOrder orderDao, ProblemDetail problem) {
+        auditService.saveAuditTrace(auditService.createAuditTraceOrderRejected(orderDao,
+            problem.getTitle() + " " + problem.getDetail()));
 
     }
 

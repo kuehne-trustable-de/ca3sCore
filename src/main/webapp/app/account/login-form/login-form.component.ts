@@ -23,6 +23,9 @@ export default class LoginForm extends Vue {
   public loginData: ILoginData = { authSecondFactor: 'NONE' };
 
   public isBlocked = false;
+  public isNoClientCertificate = false;
+  public validatingClientCertificate = false;
+  public sendingSMS = false;
   public isSmsSent = false;
   public blockedUntil = '';
 
@@ -30,9 +33,10 @@ export default class LoginForm extends Vue {
 
   async mounted() {
     const authSecondFactorString = localStorage.getItem(STORAGE_SECONDFACTOR) || 'NONE';
-    this.loginData.authSecondFactor = authSecondFactorString;
+    this.loginData.authSecondFactor = authSecondFactorString as IAuthSecondFactor;
     window.console.info('local storage: ' + STORAGE_SECONDFACTOR + ' : ' + this.loginData.authSecondFactor);
   }
+
   public retrievePreference(): void {
     axios
       .get('/api/preference/1')
@@ -65,7 +69,7 @@ export default class LoginForm extends Vue {
     return !valid;
   }
   public showUsernameWarning(): boolean {
-    if (!this.loginData.username || this.loginData.username.trim().length < 4) {
+    if (!this.loginData.username || this.loginData.username.trim().length < 1) {
       return true;
     }
     return false;
@@ -112,8 +116,11 @@ export default class LoginForm extends Vue {
       this.authenticateCredentials();
     }
   }
+
   public authenticateCredentials(): void {
     this.isBlocked = false;
+    this.isNoClientCertificate = false;
+
     const self = this;
 
     axios
@@ -174,6 +181,8 @@ export default class LoginForm extends Vue {
     const clientAuthTarget = this.$store.state.uiConfigStore.config.cryptoConfigView.clientAuthTarget;
 
     this.loginData.secondSecret = '';
+    this.validatingClientCertificate = true;
+    this.isNoClientCertificate = false;
     const self = this;
 
     axios
@@ -186,25 +195,33 @@ export default class LoginForm extends Vue {
           console.info('client_cert_token: ' + self.loginData.secondSecret);
           self.authenticateCredentials();
         }
+        self.validatingClientCertificate = false;
       })
       .catch(error => {
         // Handle the error response
         console.error('----' + error);
+        self.isNoClientCertificate = true;
+        self.validatingClientCertificate = false;
         self.loginData.secondSecret = '';
       });
   }
 
   public sendSMS(): void {
     this.isSmsSent = false;
+    this.sendingSMS = true;
     const self = this;
+
     axios
       .post('/publicapi/smsDelivery/' + encodeURIComponent(this.loginData.username), this.loginData)
       .then(response => {
         self.isSmsSent = true;
+        self.sendingSMS = false;
       })
       .catch(function (error) {
         console.log(error);
         const message = self.$t('problem processing request: ' + error);
+
+        self.sendingSMS = false;
 
         const err = error as AxiosError;
         if (err.response) {

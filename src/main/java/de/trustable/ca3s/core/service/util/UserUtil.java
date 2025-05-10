@@ -22,7 +22,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -86,7 +85,7 @@ public class UserUtil {
         }
 
         Optional<User> optCurrentUser = userRepository.findOneByLogin(userName);
-        if (!optCurrentUser.isPresent()) {
+        if (optCurrentUser.isEmpty()) {
             String msg ="Name '"+userName+ "' not found as user";
             LOG.warn(msg);
             throw new UserNotFoundException(msg);
@@ -185,7 +184,9 @@ public class UserUtil {
         user.setBlockedUntilDate(null);
         userRepository.save(user);
 
-        auditService.saveAuditTrace(auditService.createAuditTraceLoginSucceeded( user, authSecondFactor.toString(), clientIP));
+        auditService.saveAuditTrace(auditService.createAuditTraceLoginSucceeded( user,
+            authSecondFactor == null ? "":authSecondFactor.toString(),
+            clientIP));
 
     }
     public void handleBadCredentials(String username, final AuthSecondFactor authSecondFactor) {

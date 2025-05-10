@@ -4,6 +4,11 @@
             <div class="col-md-8">
                 <b-alert show variant="danger" v-if="authenticationError" v-html="$t('login.messages.error.authentication')"></b-alert>
                 <b-alert show variant="danger" v-if="isBlocked" v-html="$t('login.messages.error.blocked', { 'blockedUntil': convertDateTimeFromServer(blockedUntil) })"></b-alert>
+
+                <b-alert show variant="danger" v-if="isNoClientCertificate" v-html="$t('login.messages.error.noClientCertificate')"></b-alert>
+                <b-alert show variant="info" v-if="validatingClientCertificate" v-html="$t('login.messages.info.validatingClientCertificate')"></b-alert>
+                <b-alert show variant="info" v-if="sendingSMS" v-html="$t('login.messages.info.sendingSMS')"></b-alert>
+
             </div>
 
             <div class="col-md-8">
@@ -11,7 +16,6 @@
                     <b-form-group v-bind:label="$t('global.form.username.label')" label-for="username">
                         <b-form-input id="username" type="text" name="username" autofocus v-bind:placeholder="$t('global.form.username.placeholder')" v-model="loginData.username">
                         </b-form-input>
-
                         <small v-if="showUsernameWarning()"
                                class="form-text text-danger" v-text="$t('entity.validation.required')"></small>
                     </b-form-group>

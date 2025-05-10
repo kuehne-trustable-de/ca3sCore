@@ -2,7 +2,6 @@ package de.trustable.ca3s.core.web.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.JOSEException;
-import de.trustable.ca3s.adcsCertUtil.ADCSException;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AcmeChallengeService;
@@ -32,8 +31,6 @@ import java.security.GeneralSecurityException;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
-
-import static de.trustable.ca3s.core.web.rest.acme.AcmeController.HEADER_X_JWS_SIGNATURE;
 
 /**
  * REST controller for managing {@link de.trustable.ca3s.core.domain.AcmeChallenge}.
@@ -88,11 +85,10 @@ public class AcmeChallengeResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated acmeChallenge,
      * or with status {@code 400 (Bad Request)} if the acmeChallenge is not valid,
      * or with status {@code 500 (Internal Server Error)} if the acmeChallenge couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/acme-challenges")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<AcmeChallenge> updateAcmeChallenge(@Valid @RequestBody AcmeChallenge acmeChallenge) throws URISyntaxException {
+    public ResponseEntity<AcmeChallenge> updateAcmeChallenge(@Valid @RequestBody AcmeChallenge acmeChallenge) {
         log.debug("REST request to update AcmeChallenge : {}", acmeChallenge);
         if (acmeChallenge.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -146,10 +142,10 @@ public class AcmeChallengeResource {
 
 
     /**
-     * {@code POST  /acme-challenges/pending/request-proxy-configs/{requestProxyId} : get all pending AcmeChallenges for a given realm.
-     *
+     * {@code POST  /acme-challenges/pending/request-proxy-configs/{requestProxyId}} : get all pending AcmeChallenges for a given realm.
      * @param requestProxyId of the pending acmeChallenges to retrieve.
      * @param body a JWS containing an AcmeChallengeValidation object.
+     *
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of acmeChallenges in body.
      */
     @PostMapping("/acme-challenges/pending/request-proxy-configs/{requestProxyId}")
@@ -174,7 +170,7 @@ public class AcmeChallengeResource {
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
             }
         }else {
-            return new ResponseEntity(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+            return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         }
 
     }
@@ -185,7 +181,6 @@ public class AcmeChallengeResource {
      *
      * @param body a JWS containing an AcmeChallengeValidation object.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new acmeChallenge, or with status {@code 400 (Bad Request)} if the acmeChallenge has already an ID.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/acme-challenges/validation")
     public ResponseEntity<Void> processChallengeValidation(@Parameter(description = "AcmeChallengeValidation wrapped in a JWS") @Valid @RequestBody String body,
@@ -201,12 +196,12 @@ public class AcmeChallengeResource {
 
             } catch (IOException | GeneralSecurityException e) {
                 log.error("Couldn't process request", e);
-                return new ResponseEntity<Void>(HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
             } catch (JOSEException | ParseException e) {
                 log.error("Couldn't process JOSE element", e);
                 return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);            }
         }else {
-            return new ResponseEntity<Void>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
+            return new ResponseEntity<>(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
         }
 
     }

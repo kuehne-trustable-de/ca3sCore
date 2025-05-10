@@ -49,10 +49,12 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
   public csrId = 1;
   public certificateId = 1;
 
-  public phone = '555-123-456';
-  public msg = 'message';
+  public phone = '+49 123 456789';
+  public msg = 'test message';
 
   public accountId = '';
+
+  public updateCounter = 1;
 
   public options: {
     propertiesPanel: {};
@@ -110,6 +112,7 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
 
   public mounted(): void {
     window.console.info('in mounted()) ');
+    this.phone = this.$store.getters.account ? this.$store.getters.account.phone : '+49 123 456789';
   }
 
   public showSemVerRegExpFieldWarning(value: string): boolean {
@@ -160,11 +163,13 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
           // preserve last element
           this.bpmnUpload.bpmnProcessAttributes.splice(index, 1);
           window.console.info('in alignBPAArraySize(' + index + '): dropped empty element');
+          this.updateCounter++;
         }
       } else {
         if (index + 1 === currentSize) {
           this.bpmnUpload.bpmnProcessAttributes.push({});
           window.console.info('in alignBPAArraySize(' + index + '): appended one element');
+          this.updateCounter++;
         }
       }
     }

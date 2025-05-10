@@ -210,17 +210,15 @@
                         </Fragment>
 
                         <dt v-if="certificateView.isServersideKeyGeneration && isEditable()">
-                            <span v-text="$t('ca3SApp.certificate.download.PKCS12')">PKCS12 keystore</span> <help-tag target="ca3SApp.certificate.download.PKCS12"/>
+                            <span v-text="$t('ca3SApp.certificate.download.PKCS12')"></span> <help-tag target="ca3SApp.certificate.download.PKCS12"/>
                         </dt>
 
                         <dd v-if="certificateView.isServersideKeyGeneration && isEditable() && isPrivateKeyAvailable()">
                             <div class="row">
                                 <div class="col">
-                                    <label class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12Alias')" for="p12Alias">Alias</label>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12Alias')" for="p12Alias"></label>
                                     <input type="text" class="form-check-inline" name="p12Alias" id="p12Alias" v-model="p12Alias" />
-                                    <small class="form-text text-danger" v-if="showRegExpFieldWarning(p12Alias, '^[a-zA-Z0-9_.-]{5,100}$')" v-text="$t('ca3SApp.messages.password.requirement.min5NumberOrChars')">
-                                        secret must match RegEx!
-                                    </small>
+                                    <small class="form-text text-danger" v-if="showRegExpFieldWarning(p12Alias, '^[a-zA-Z0-9_.-]{5,100}$')" v-text="$t('ca3SApp.messages.password.requirement.min5NumberOrChars')"></small>
 
                                 </div>
                                 <div class="col colContent" v-if="!showRegExpFieldWarning(p12Alias, '^[a-zA-Z0-9_.-]{5,100}$')">

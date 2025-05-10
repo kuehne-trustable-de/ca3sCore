@@ -43,6 +43,7 @@ public class AuditService {
     public static final String AUDIT_ACME_ORDER_SUCCEEDED = "ACME_ORDER_SUCCEEDED";
     public static final String AUDIT_ACME_ORDER_INVALID = "ACME_ORDER_INVALID";
     public static final String AUDIT_ACME_ORDER_EXPIRED = "ACME_ORDER_EXPIRED";
+    public static final String AUDIT_ACME_FINALIZE_FAILED = "ACME_FINALIZE_FAILED";
 
     public static final String AUDIT_ACME_CERTIFICATE_CREATED = "ACME_CERTIFICATE_CREATED";
     public static final String AUDIT_SCEP_CERTIFICATE_REQUESTED = "SCEP_CERTIFICATE_REQUESTED";
@@ -255,6 +256,14 @@ public class AuditService {
             null,
             AUDIT_ACME_ORDER_EXPIRED,
             null);
+    }
+
+    public AuditTrace createAuditTraceOrderRejected(final AcmeOrder acmeOrder, final String msg) {
+        return createAuditTraceACMEInfo(acmeOrder.getAccount(),
+            acmeOrder,
+            null,
+            AUDIT_ACME_FINALIZE_FAILED,
+            msg);
     }
 
     public AuditTrace createAuditTraceAcmeChallengeSucceeded(final AcmeAccount acmeAccount,

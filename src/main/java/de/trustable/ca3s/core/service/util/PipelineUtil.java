@@ -115,6 +115,7 @@ public class PipelineUtil {
     public static final String DOMAIN_RA_OFFICER = "DOMAIN_RA_OFFICER";
     public static final String NOTIFY_RA_OFFICER_ON_PENDING = "NOTIFY_RA_OFFICER_ON_PENDING";
     public static final String ADDITIONAL_EMAIL_RECIPIENTS = "ADDITIONAL_EMAIL_RECIPIENTS";
+    public static final String CAN_ISSUE_2_FACTOR_CLIENT_CERTS = "CAN_ISSUE_2_FACTOR_CLIENT_CERTS";
 
     public static final String ACME_ALLOW_CHALLENGE_HTTP01 = "ACME_ALLOW_CHALLENGE_HTTP01";
     public static final String ACME_ALLOW_CHALLENGE_ALPN = "ACME_ALLOW_CHALLENGE_ALPN";
@@ -300,6 +301,8 @@ public class PipelineUtil {
                 webConfigItems.setNotifyRAOfficerOnPendingRequest(Boolean.parseBoolean(plAtt.getValue()));
             } else if (ADDITIONAL_EMAIL_RECIPIENTS.equals(plAtt.getName())) {
                 webConfigItems.setAdditionalEMailRecipients(plAtt.getValue());
+            } else if (CAN_ISSUE_2_FACTOR_CLIENT_CERTS.equals(plAtt.getName())) {
+                webConfigItems.setIssuesSecondFactorClientCert(Boolean.parseBoolean(plAtt.getValue()));
             } else if (SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
                 scepConfigItems.setScepRecipientDN(plAtt.getValue());
             } else if (SCEP_RECIPIENT_KEY_TYPE_LEN.equals(plAtt.getName())) {
@@ -777,7 +780,7 @@ public class PipelineUtil {
         // Process Request Authorization
         String oldProcessNameRequestAuthorization = "";
         if (p.getProcessInfoRequestAuthorization() != null) {
-            oldProcessNameNotify = p.getProcessInfoRequestAuthorization().getName();
+            oldProcessNameRequestAuthorization = p.getProcessInfoRequestAuthorization().getName();
         }
 
         List<BPMNProcessInfo> bpmnProcessInfoRequestAuthorizationList = new ArrayList<>();
@@ -956,6 +959,7 @@ public class PipelineUtil {
         if (pv.getWebConfigItems() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, NOTIFY_RA_OFFICER_ON_PENDING, pv.getWebConfigItems().isNotifyRAOfficerOnPendingRequest());
             addPipelineAttribute(pipelineAttributes, p, auditList, ADDITIONAL_EMAIL_RECIPIENTS, pv.getWebConfigItems().getAdditionalEMailRecipients());
+            addPipelineAttribute(pipelineAttributes, p, auditList, CAN_ISSUE_2_FACTOR_CLIENT_CERTS, pv.getWebConfigItems().getIssuesSecondFactorClientCert());
         }
 
         if (pv.getDomainRaOfficerList() != null) {
@@ -967,7 +971,6 @@ public class PipelineUtil {
         ProtectedContent pc;
         List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW, p.getId());
         if (listPC.isEmpty()) {
-//            pc = protectedContentUtil.createProtectedContent("", ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW, p.getId());
 
             pc = new ProtectedContent();
             pc.setType(ProtectedContentType.PASSWORD);
@@ -1065,6 +1068,30 @@ public class PipelineUtil {
         pipelineRepository.save(p);
         auditTraceRepository.saveAll(auditList);
 
+        if( pv.getWebConfigItems() != null &&
+            ( pv.getWebConfigItems().getIssuesSecondFactorClientCert() != null ) &&
+            pv.getWebConfigItems().getIssuesSecondFactorClientCert() ) {
+
+            List<Pipeline> pipelineList2FAClientCert = pipelineRepository.findByAttributePresent(CAN_ISSUE_2_FACTOR_CLIENT_CERTS);
+            for (Pipeline p2fa : pipelineList2FAClientCert) {
+                if (p2fa != p) {
+                    auditList.clear();
+                    Set<PipelineAttribute> pipelineAttributes2FA = p2fa.getPipelineAttributes();
+                    for(PipelineAttribute att: pipelineAttributes2FA){
+                        if( att.getName().equals(CAN_ISSUE_2_FACTOR_CLIENT_CERTS)){
+                            if("true".equalsIgnoreCase(att.getValue())) {
+                                att.setValue("false");
+                                auditList.add(auditService.createAuditTracePipelineAttribute(CAN_ISSUE_2_FACTOR_CLIENT_CERTS, "true", "false", p2fa));
+                            }
+                        }
+                    }
+                    pipelineAttRepository.saveAll(pipelineAttributes2FA);
+                    pipelineRepository.save(p2fa);
+                    auditTraceRepository.saveAll(auditList);
+                }
+            }
+        }
+
         return p;
     }
 
@@ -1104,7 +1131,8 @@ public class PipelineUtil {
     }
 
     public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, List<AuditTrace> auditList, String name, Boolean value) {
-        addPipelineAttribute(pipelineAttributes, p, auditList, name, value.toString());
+        addPipelineAttribute(pipelineAttributes, p, auditList, name,
+            (value == null)? Boolean.FALSE.toString() : value.toString());
     }
 
     public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, List<AuditTrace> auditList, String name, String value) {

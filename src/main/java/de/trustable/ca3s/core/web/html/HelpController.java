@@ -3,11 +3,7 @@ package de.trustable.ca3s.core.web.html;
 import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Value;
 
 import com.vladsch.flexmark.util.ast.Node;
@@ -18,7 +14,7 @@ import com.vladsch.flexmark.util.data.MutableDataSet;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
-@Controller
+@RestController
 @RequestMapping("/app/help")
 public class HelpController {
 

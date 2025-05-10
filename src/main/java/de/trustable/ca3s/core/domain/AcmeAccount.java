@@ -64,7 +64,7 @@ public class AcmeAccount implements Serializable {
     private Instant createdOn;
 
 
-    @OneToMany(mappedBy = "account")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "account")
     @JsonIgnoreProperties(value = { "account" }, allowSetters = true)
     private Set<AcmeContact> contacts = new HashSet<>();
 

@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.service.util;
 
-import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,10 +18,10 @@ public class BPMNAsyncUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(BPMNAsyncUtil.class);
 
-    private final RuntimeService runtimeService;
+    private final BPMNExecutor bpmnExecutor;
 
-    public BPMNAsyncUtil(RuntimeService runtimeService) {
-        this.runtimeService = runtimeService;
+    public BPMNAsyncUtil(BPMNExecutor bpmnExecutor) {
+        this.bpmnExecutor = bpmnExecutor;
     }
 
     @Async
@@ -47,16 +46,16 @@ public class BPMNAsyncUtil {
                 securityContext.setAuthentication(auth);
             }
 
-            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceById(processName).setVariables(variables).executeWithVariablesInReturn();
-            String processInstanceId = processInstance.getId();
-
-            String status = processInstance.getVariables().get("status").toString();
-            LOG.info("ProcessInstance '{}' terminates with status {}", processInstanceId, status);
-
-        }catch(RuntimeException processException){
-            if(LOG.isDebugEnabled()){
-                String msg = "Exception while calling bpmn process '"+processName+"'";
-                LOG.debug( msg, processException);
+            for( int retryCounter = 0; retryCounter < 3; retryCounter ++) {
+                try {
+                    ProcessInstanceWithVariables processInstance = bpmnExecutor.executeBPMNProcessByName(processName, variables);
+                    String status = processInstance.getVariables().get("status").toString();
+                    LOG.info("ProcessInstance '{}' terminates with status {}", processInstance.getId(), status);
+                    break;
+                } catch (RuntimeException processException) {
+                    String msg = "Exception while calling bpmn process '" + processName + "', retry: " + retryCounter;
+                    LOG.debug(msg, processException);
+                }
             }
         }finally{
             String currentAuthName = currentAuth == null ? null : currentAuth.getName();

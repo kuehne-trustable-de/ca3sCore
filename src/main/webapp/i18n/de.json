@@ -648,6 +648,7 @@
   "ca3SApp.pipeline.requestProxies": "Request-Proxies",
   "ca3SApp.pipeline.tenants": "Mandanten",
   "ca3SApp.pipeline.tosAgreed": "Zustimmung zu Geschäftsbedingungen notwendig",
+  "ca3SApp.pipeline.issuesSecondFactorClientCert": "Stellt Client-Zertifikate für 2-Faktor-Autorisierung aus",
 
   "ca3SApp.pipelineAttribute.created": "Pipeline Attribut erstellt mit ID {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Soll Pipeline Attribut {{ id }} wirklich dauerhaft gelöscht werden?",
@@ -1021,6 +1022,10 @@
 
   "login.messages.error.authentication": "<strong>Anmeldung fehlgeschlagen!</strong> Überprüfen Sie bitte Ihre Angaben und versuchen Sie es erneut.",
   "login.messages.error.blocked": "<strong>Zu viele fehlgeschlagene Anmeldeversuche!</strong> Der Account ist bis {{blockedUntil}} gesperrt.",
+  "login.messages.error.noClientCertificate": "Kein Nutzer-Zertifikat",
+  "login.messages.info.validatingClientCertificate": "Prüfung Nutzer-Zertifikat ...",
+  "login.messages.info.sendingSMS": "SMS wird versandt ...",
+
   "login.password.forgot": "Sie haben Ihr Passwort vergessen?",
   "login.title": "Anmeldung",
   "logs.filter": "Filter",

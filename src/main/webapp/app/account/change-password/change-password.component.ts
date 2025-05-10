@@ -139,6 +139,7 @@ export default class ChangePassword extends mixins(AlertMixin) {
   public canCreateSecondFactor(secondFactorType: string): boolean {
     return this.$store.state.uiConfigStore.config.scndFactorTypes.includes(secondFactorType);
   }
+
   public showRequiredWarning(isRequired: boolean, value: string): boolean {
     console.log('showRequiredWarning( ' + isRequired + ', "' + value + '")');
     if (isRequired) {

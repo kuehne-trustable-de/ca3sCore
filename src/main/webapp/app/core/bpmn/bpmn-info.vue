@@ -10,7 +10,7 @@
         <br/>
 
         <div class="row justify-content-center">
-            <div class="col-8">
+            <div class="col-8" :key="updateCounter">
                 <div v-if="bPNMProcessInfo">
                     <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.detail.title')">BPMN Info</span> {{bPNMProcessInfo.id}}</h2>
 

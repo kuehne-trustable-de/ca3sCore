@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.repository;
 
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 
@@ -9,8 +8,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import javax.persistence.NamedQuery;
 
 
 /**
@@ -36,5 +33,11 @@ public interface PipelineRepository extends JpaRepository<Pipeline, Long> {
 
     @Query(name = "Pipeline.findByName")
     List<Pipeline> findByName(@Param("name") String name);
+
+    @Query(name = "Pipeline.findByAttributePresent")
+    List<Pipeline> findByAttributePresent(@Param("name") String name);
+
+    @Query(name = "Pipeline.findByAttributeValue")
+    List<Pipeline> findByAttributeValue(@Param("name") String name, @Param("value") String value);
 
 }

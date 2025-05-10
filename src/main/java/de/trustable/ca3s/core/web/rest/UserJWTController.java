@@ -2,11 +2,15 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.AuthSecondFactor;
+import de.trustable.ca3s.core.exception.UserNotAuthenticatedException;
 import de.trustable.ca3s.core.security.jwt.JWTFilter;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import de.trustable.ca3s.core.service.*;
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
+import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.service.UserCredentialService;
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import de.trustable.ca3s.core.web.rest.vm.LoginData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -56,9 +61,9 @@ public class UserJWTController {
         this.clientAuthService = clientAuthService;
     }
 
-    @Transactional(dontRollbackOn = {BadCredentialsException.class, AuthenticationException.class})
+    @Transactional(dontRollbackOn = {BadCredentialsException.class, AuthenticationException.class, InternalAuthenticationServiceException.class, UserNotAuthenticatedException.class})
     @PostMapping("/authenticate")
-    public ResponseEntity<JWTToken> authorize(@Valid @RequestBody LoginData loginData) {
+    public ResponseEntity<?> authorize(@Valid @RequestBody LoginData loginData) {
 
         userUtil.checkIPBlocked(loginData.getUsername());
 
@@ -130,10 +135,19 @@ public class UserJWTController {
         }catch(BadCredentialsException badCredentialsException) {
             log.info("login failed for user '" + loginData.getUsername() + "'!", badCredentialsException);
             userUtil.handleBadCredentials(loginData.getUsername(), loginData.getAuthSecondFactor());
-            throw badCredentialsException;
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Authentication problem",
+                HttpStatus.FORBIDDEN, badCredentialsException.getMessage(), AcmeUtil.NO_INSTANCE);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
+
         }catch(AuthenticationException authenticationException){
             log.info("login failed for user '" + loginData.getUsername() + "'!", authenticationException );
-            throw authenticationException;
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Authentication problem",
+                HttpStatus.FORBIDDEN, authenticationException.getMessage(), AcmeUtil.NO_INSTANCE);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
+
+        }catch(Throwable th){
+            log.info("login failed for user '" + loginData.getUsername() + "' with unexpected exception !", th );
+            throw th;
         }
     }
 

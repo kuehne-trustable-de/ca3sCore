@@ -686,6 +686,7 @@
   "ca3SApp.pipeline.filter.state": " State: ",
   "ca3SApp.pipeline.filter.connector": " Connector: ",
   "ca3SApp.pipeline.tosAgreed": "Terms of Service agreement required",
+  "ca3SApp.pipeline.issuesSecondFactorClientCert": "Issues client certificates for 2-factor-authentication",
 
   "ca3SApp.preference.home.editLabel": "Edit Preferences",
   "ca3SApp.preference.home.title": "Preferences",
@@ -1058,6 +1059,10 @@
 
   "login.messages.error.authentication": "<strong>Failed to sign in!</strong> Please check your credentials and try again.",
   "login.messages.error.blocked": "<strong>Too many failed login attempts!</strong> Your account is blocked until {{blockedUntil}}",
+  "login.messages.error.noClientCertificate": "No Client Certificate",
+  "login.messages.info.validatingClientCertificate": "Checking Client Certificate ...",
+  "login.messages.info.sendingSMS": "Sending SMS ...",
+
   "login.password.forgot": "Did you forget your password?",
   "login.title": "Sign in",
   "logs.filter": "Filter",

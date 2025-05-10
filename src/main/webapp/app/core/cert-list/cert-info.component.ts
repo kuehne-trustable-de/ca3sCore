@@ -74,25 +74,29 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
 
   public downloadItem() {
-    const filename = this.getDownloadFilename();
+    const filename = encodeURIComponent(this.getDownloadFilename());
+    const ski = encodeURIComponent(this.certificateView.ski.replace('+', '-').replace('/', '_'));
 
-    let url = '/publicapi/certPKIX/' + this.certificateView.id + '/' + filename;
+    const urlPreFix = '/publicapi/cert';
+    const urlPostFix = '/' + this.certificateView.id + '/ski/' + ski + '/' + filename;
+
+    let url = urlPreFix + 'PKIX' + urlPostFix;
     let mimetype = 'application/pkix-cert';
 
     if (this.downloadFormat === 'pem') {
-      url = '/publicapi/certPEM/' + this.certificateView.id + '/' + filename;
+      url = urlPreFix + 'PEM' + urlPostFix;
       mimetype = 'application/pem-certificate';
     } else if (this.downloadFormat === 'pemPart') {
-      url = '/publicapi/certPEMPart/' + this.certificateView.id + '/' + filename;
+      url = urlPreFix + 'PEMPart' + urlPostFix;
       mimetype = 'application/x-pem-certificate-chain';
     } else if (this.downloadFormat === 'pemFull') {
-      url = '/publicapi/certPEMFull/' + this.certificateView.id + '/' + filename;
+      url = urlPreFix + 'PEMFull' + urlPostFix;
       mimetype = 'application/pem-certificate-chain';
     }
 
     const headers: any = { Accept: mimetype };
 
-    this.download(url, filename, mimetype, headers);
+    this.download(url, this.getDownloadFilename(), mimetype, headers);
   }
 
   public downloadKeystore(extension: string, mimetype: string) {

@@ -3,8 +3,10 @@ package de.trustable.ca3s.core.ui;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.TypedValue;
+import de.trustable.ca3s.core.test.util.UserTestSupport;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.ca3s.core.web.rest.data.CreationMode;
@@ -12,7 +14,6 @@ import de.trustable.ca3s.core.service.dto.PkcsXXData;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
 import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
 import de.trustable.util.JCAManager;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -97,21 +98,27 @@ public class PipelineAdministrationIT extends WebTestBase{
     PreferenceTestConfiguration prefTC;
 
     @Autowired
+    UserTestSupport userTestSupport;
+
+    @Autowired
     private ContentUploadProcessor contentUploadProcessor;
 
     long createdCertificateId;
+    User intTestUser;
 
     @BeforeAll
 	public static void setUpBeforeClass() {
 
         JCAManager.getInstance();
-//        WebDriverManager.chromedriver().setup();
 	}
 
 	@BeforeEach
 	void init() {
 
 	    waitForUrl();
+
+        intTestUser = userTestSupport.createTestUser("integrationTest" + rand.nextInt());
+        userTestSupport.setCurrentUser(intTestUser);
 
 		ptc.getInternalWebDirectTestPipeline();
 		ptc.getInternalWebRACheckTestPipeline();
@@ -120,6 +127,7 @@ public class PipelineAdministrationIT extends WebTestBase{
         UploadPrecheckData uploaded = new UploadPrecheckData();
         uploaded.setPipelineId(1L);
         uploaded.setKeyAlgoLength("rsa-4096");
+        uploaded.setTosAgreed(true);
 
         NamedValues[] namedValues = new NamedValues[1];
         namedValues[0] = new NamedValues();
@@ -134,12 +142,12 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         uploaded.setSecret("S3cr3t!S");
 
-        ResponseEntity<PkcsXXData> responseEntity = contentUploadProcessor.buildServerSideKeyAndRequest(uploaded, "integrationTest");
+        ResponseEntity<PkcsXXData> responseEntity = contentUploadProcessor.buildServerSideKeyAndRequest(uploaded, intTestUser.getLogin());
         if(responseEntity != null && responseEntity.getBody() != null && responseEntity.getBody().getCertsHolder() != null &&
             responseEntity.getBody().getCertsHolder().length > 0 ) {
             createdCertificateId = responseEntity.getBody().getCertsHolder()[0].getCertificateId();
         }else{
-            Assert.fail("creation of certificate failed: " + responseEntity);
+            Assertions.fail("creation of certificate failed: " + responseEntity);
         }
 
         if( driver == null) {

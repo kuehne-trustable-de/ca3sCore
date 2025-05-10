@@ -29,7 +29,7 @@
                     <option value="REQUEST_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION')" ></option>
                     <option value="CERTIFICATE_NOTIFY" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_NOTIFY')" ></option>
                     <option value="CERTIFICATE_REVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION')" ></option>
-                    <option v-if="canCreateSecondFactor('SMS')" value="SEND_SMS" v-text="$t('ca3SApp.bPNMProcessInfo.type.SEND_SMS')"></option>
+                    <option v-if="!canCreateSecondFactor('SMS')" value="SEND_SMS" v-text="$t('ca3SApp.bPNMProcessInfo.type.SEND_SMS')"></option>
                     <option value="ACME_ACCOUNT_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.ACME_ACCOUNT_AUTHORIZATION')" ></option>
 
                     <!--option value="BATCH" v-text="$t('ca3SApp.bPNMProcessInfo.type.TIMED')" >TIMED</option-->

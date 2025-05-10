@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-04-20 22:30:55.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-07 22:08:29.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -205,6 +205,7 @@ export interface ICertificateView extends ISerializable {
   trusted?: boolean;
   fingerprintSha1?: string;
   fingerprintSha256?: string;
+  ski?: string;
   type?: string;
   keyLength?: string;
   keyAlgorithm?: string;
@@ -515,6 +516,14 @@ export interface IAcmeAccountStatusAdministration extends ISerializable {
   comment?: string;
 }
 
+export interface ILoginData {
+  username?: string;
+  password?: string;
+  rememberMe?: boolean;
+  secondSecret?: string;
+  authSecondFactor?: IAuthSecondFactor;
+}
+
 export interface ISerializable {}
 
 export interface IURI extends IComparable<IURI>, ISerializable {}
@@ -602,6 +611,7 @@ export interface IWebConfigItems extends ISerializable {
   additionalEMailRecipients?: string;
   notifyRAOfficerOnPendingRequest?: boolean;
   processInfoNameRequestAuthorization?: string;
+  issuesSecondFactorClientCert?: boolean;
 }
 
 export interface INamedValues {

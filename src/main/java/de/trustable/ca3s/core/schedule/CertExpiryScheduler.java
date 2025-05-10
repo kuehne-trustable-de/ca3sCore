@@ -205,11 +205,7 @@ public class CertExpiryScheduler {
                     Set<? extends X509CRLEntry> crlEntrySet = crl.getRevokedCertificates();
                     if( crlEntrySet != null) {
                         LOG.debug("CRL {} contains #{} items", crlUrl, crlEntrySet.size());
-                        List<String> revokedSerialsList = new ArrayList<>();
-                        for( X509CRLEntry entry: crlEntrySet){
-                            revokedSerialsList.add(entry.getSerialNumber().toString());
-                        }
-                        List<Certificate> certWithRevokedSerialList = certificateRepo.findActiveCertificatesBySerialInList(crlUrl,revokedSerialsList );
+                        List<Certificate> certWithRevokedSerialList = getAllKnownCertificatesinList(crlUrl, crlEntrySet);
                         LOG.debug("CRL {} has #{} probable revocation candidates", crlUrl, certWithRevokedSerialList.size());
 
                         for(Certificate cert: certWithRevokedSerialList){
@@ -244,8 +240,6 @@ public class CertExpiryScheduler {
     /**
 	 * @return number of expiring certificates
 	 */
-//	@Scheduled(cron = "0 15 2 * * ?")
-//	@Scheduled(cron = "0 15 2 * * ?")
 //	@Scheduled(fixedDelay = 60000)
     @Scheduled(cron="${ca3s.schedule.cron.expiryNotificationCron:0 15 2 * * ?}")
 	public int notifyRAOfficerHolderOnExpiry() {
@@ -260,4 +254,21 @@ public class CertExpiryScheduler {
 
         return 0;
     }
+
+    List<Certificate> getAllKnownCertificatesinList(final String crlUrl, final Set<? extends X509CRLEntry> crlEntrySet){
+
+        List<Certificate> certWithRevokedSerialList = new ArrayList<>();
+        List<String> revokedSerialsList = new ArrayList<>();
+        for( X509CRLEntry entry: crlEntrySet){
+            revokedSerialsList.add(entry.getSerialNumber().toString());
+            if( revokedSerialsList.size() > 1000){
+                certWithRevokedSerialList.addAll(certificateRepo.findActiveCertificatesBySerialInList(crlUrl,revokedSerialsList ));
+                revokedSerialsList.clear();
+            }
+        }
+        certWithRevokedSerialList.addAll(certificateRepo.findActiveCertificatesBySerialInList(crlUrl,revokedSerialsList ));
+
+        return certWithRevokedSerialList;
+    }
+
 }

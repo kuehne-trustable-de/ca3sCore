@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -100,7 +100,6 @@ public class CRLExpirationNotificationResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated cRLExpirationNotification,
      * or with status {@code 400 (Bad Request)} if the cRLExpirationNotification is not valid,
      * or with status {@code 500 (Internal Server Error)} if the cRLExpirationNotification couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/crl-expiration-notifications/{id}")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")

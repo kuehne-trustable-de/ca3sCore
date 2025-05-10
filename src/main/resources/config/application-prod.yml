@@ -161,6 +161,10 @@ spring:
   thymeleaf:
     cache: true
 
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+
 # ===================================================================
 # To enable TLS in production, generate a certificate using:
 # keytool -genkey -alias ca3s_jh -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
@@ -234,8 +238,12 @@ jhipster:
 
 # the application provides an OAS endpoint to access the APIs metadata
 springdoc:
-  packagesToScan: de.trustable.ca3s.core.web.rest
-  pathsToMatch: /v1, /api/**, /publicapi/**
+  #  packagesToScan: de.trustable.ca3s.core.web.rest,de.trustable.ca3s.core.web.rest.support,de.trustable.ca3s.core.web.rest.acme,de.trustable.ca3s.core.web.rest.vm
+  #  pathsToMatch: /v1, /api/**, /publicapi/**
+  show-actuator: true
+  model-and-view-allowed: true
+  remove-broken-reference-definitions: false
+  show-login-endpoint: true
 
 # deprecated, use ca3s.protectionSecret
 # protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl

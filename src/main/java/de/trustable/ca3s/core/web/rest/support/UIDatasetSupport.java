@@ -39,9 +39,7 @@ public class UIDatasetSupport {
     private final CaConnectorAdapter caConnectorAdapter;
 
     private final PipelineRepository pipelineRepo;
-
     private final PipelineUtil pipelineUtil;
-
     private final ProtectedContentUtil protUtil;
 
     private final UserPreferenceRepository userPreferenceRepository;
@@ -122,7 +120,12 @@ public class UIDatasetSupport {
         List<AuthSecondFactor> effSecondFactorList = new ArrayList<>(secondFactorList);
         if( bpmnProcessInfoRepository.findByType(BPMNProcessType.SEND_SMS).isEmpty()){
             LOG.debug("No SEND_SMS process defined");
-            secondFactorList.remove(AuthSecondFactor.SMS);
+            effSecondFactorList.remove(AuthSecondFactor.SMS);
+        }
+
+        if( pipelineRepo.findByAttributeValue(PipelineUtil.CAN_ISSUE_2_FACTOR_CLIENT_CERTS, "true").isEmpty()){
+            LOG.debug("No Client Cert pipeline defined");
+            effSecondFactorList.remove(AuthSecondFactor.CLIENT_CERT);
         }
 
         UIConfigView uiConfigView = new UIConfigView(appName,
