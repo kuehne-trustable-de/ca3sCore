@@ -8,7 +8,7 @@ export default class HealthService {
   }
 
   public checkHealth(): AxiosPromise<any> {
-    return axios.get('management/health');
+    return axios.get('actuator/health');
   }
 
   public transformHealthData(data: any): any {

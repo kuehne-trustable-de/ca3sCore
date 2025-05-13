@@ -39,12 +39,12 @@
         For professional support please contact <a href="mailto:info@trustable.de">trustable's support</a>.
         <p/>
 
-        <h2 v-if="info.git" id="configuration-page-heading" v-text="$t('ca3SApp.info.title')">Info</h2>
+        <h2 v-if="info.git" id="configuration-page-heading" v-text="$t('ca3SApp.info.title')"></h2>
         <table v-if="info.git" class="table table-striped table-bordered table-responsive d-table">
             <thead>
             <tr>
-                <th class="w-40"><span v-text="$t('ca3SApp.info.table.item')">Item</span></th>
-                <th class="w-60"><span v-text="$t('ca3SApp.info.table.properties')">Value</span></th>
+                <th class="w-40"><span v-text="$t('ca3SApp.info.table.item')"></span></th>
+                <th class="w-60"><span v-text="$t('ca3SApp.info.table.properties')"></span></th>
             </tr>
             </thead>
             <tbody>
@@ -52,7 +52,7 @@
             <tr>
                 <td><span>Maven build version</span></td>
                 <td>
-                    <span class="float-right">{{ info.git.build.version }} from {{ info.git.build.time }}</span>
+                    <span class="float-right">{{ info.git.branch }}</span>
                 </td>
             </tr>
             <tr>
@@ -64,7 +64,7 @@
             <tr>
                 <td><span>Git Commit</span></td>
                 <td>
-                    <span class="float-right">{{ info.git.commit.id.full }} from {{ info.git.commit.time }}</span>
+                    <span class="float-right">{{ info.git.commit.id }} from {{ info.git.commit.time }}</span>
                 </td>
             </tr>
             </tbody>
@@ -75,13 +75,13 @@
                 <button type="button" id="retrieveCertificates" class="btn btn-primary"
                         v-on:click="postSchedule('retrieveCertificates')">
                     <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span
-                    v-text="$t('ca3SApp.schedule.action.retrieveCertificates')">Retrieve Certificates</span>
+                    v-text="$t('ca3SApp.schedule.action.retrieveCertificates')"></span>
                 </button>
 
                 <button type="button" id="updateRevocationStatus" class="btn btn-primary"
                         v-on:click="postSchedule('updateRevocationStatus')">
                     <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span
-                    v-text="$t('ca3SApp.schedule.action.updateRevocationStatus')">Update Revocation Status</span>
+                    v-text="$t('ca3SApp.schedule.action.updateRevocationStatus')"></span>
                 </button>
             </form>
         </div>

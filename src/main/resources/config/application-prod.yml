@@ -29,7 +29,7 @@ logging:
     de.trustable.ca3s.core.Ca3SApp: DEBUG
     de.trustable.ca3s.core.PropertiesLogger: INFO
     de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
-    de.trustable.ca3s.core.schedule.CertExpiryScheduler: INFO
+    de.trustable.ca3s.core.schedule.CertExpiryScheduler: DEBUG
     de.trustable.ca3s.core.service.NotificationService: DEBUG
     de.trustable.ca3s.core.service.MailService: DEBUG
     de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
@@ -57,6 +57,11 @@ management:
     export:
       prometheus:
         enabled: false
+
+  endpoints:
+    web:
+      exposure:
+        include: health,info
 
 spring:
   # devtools should NOT be enabled for productive use

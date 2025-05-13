@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.2</version>
+    <version>1.2.3</version>
 
     <packaging>jar</packaging>
 
@@ -2010,7 +2010,7 @@
                         </from>
                         <to>
                             <image>${jib-maven-plugin.to.image}</image>
-                            <tags>${version}</tags>
+                            <tags>${project.version}</tags>
                             <auth>
                                 <username>${dockerUser}</username>
                                 <password>${dockerAccessTokens}</password>
