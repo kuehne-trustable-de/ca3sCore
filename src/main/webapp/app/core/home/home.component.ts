@@ -31,6 +31,10 @@ export default class Home extends Vue {
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 
+  public infoMsg(): string {
+    return this.$store.state.uiConfigStore.config.infoMsg ? this.$store.state.uiConfigStore.config.infoMsg : '';
+  }
+
   beforeRouteEnter(to, from, next) {
     next(vm => {
       window.console.info('################ Home to.params : ' + to.params.bearer);

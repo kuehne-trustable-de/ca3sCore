@@ -128,6 +128,8 @@ public class UIDatasetSupport {
             effSecondFactorList.remove(AuthSecondFactor.CLIENT_CERT);
         }
 
+        String infoMessage = "Interessante Info";
+
         UIConfigView uiConfigView = new UIConfigView(appName,
             cryptoConfigView,
             autoSSOLogin,
@@ -135,7 +137,9 @@ public class UIDatasetSupport {
             samlEntityBaseUrl,
             effSecondFactorList.toArray(new AuthSecondFactor[0]),
             certificateAttributeRepository.findDistinctValues(
-                CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE).toArray(new String[0]));
+                CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE).toArray(new String[0]),
+            infoMessage
+        );
 
 
         LOG.debug("returning uiConfigView: {}", uiConfigView);
@@ -179,7 +183,7 @@ public class UIDatasetSupport {
         if(SecurityUtils.isAuthenticated()){
             List<Pipeline> pipelineList = pipelineRepo.findActiveByType(PipelineType.WEB);
 
-            if( userUtil.isAdministrativeUser(currentUser) ||
+            if( UserUtil.isAdministrativeUser(currentUser) ||
                 "none".equalsIgnoreCase(certificateStoreIsolation)){
                 LOG.debug("returning all web pipelines");
                 pvList = pipelinesToPipelineViews(pipelineList);
@@ -188,11 +192,11 @@ public class UIDatasetSupport {
                 pvList = tenantPipelinesToPipelineViews(currentUser.getTenant(), pipelineList);
             }
 
-            Collections.sort(pvList, new Comparator(){
+            pvList.sort(new Comparator() {
                 @Override
                 public int compare(Object o1, Object o2) {
-                    PipelineView pv1 = (PipelineView)o1;
-                    PipelineView pv2 = (PipelineView)o2;
+                    PipelineView pv1 = (PipelineView) o1;
+                    PipelineView pv2 = (PipelineView) o2;
                     int result = Integer.compare(pv1.getListOrder(), pv2.getListOrder());
 //                    LOG.debug("result {} comparing {}:{} and {}:{}", result, pv1.getName(), pv1.getListOrder(), pv2.getName(), pv2.getListOrder());
                     return result;

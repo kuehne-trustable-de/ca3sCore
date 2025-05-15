@@ -241,9 +241,6 @@ public class CertificateServiceImpl implements CertificateService {
             csBuilder = new JcaContentSignerBuilder(algo);
         }
 
-
-
-//            JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder(algo);
         ContentSigner signer = csBuilder.build(pk);
 
         PKCS10CertificationRequest p10CR = p10Builder.build(signer);

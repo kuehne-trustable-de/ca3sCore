@@ -415,6 +415,9 @@ public class NotificationService {
 
         Instant now = Instant.now();
 
+        LOG.debug("list of notification days: " + notificationDayList.stream().map(n -> Integer.toString(n))
+            .collect(Collectors.joining(",")));
+
         if( expiringEECertList.isEmpty()) {
             LOG.info("No expiring certificates in the next {} days / no pending requests requested in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiryEE, nDaysPending);
         }else {

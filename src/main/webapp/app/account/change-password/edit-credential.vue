@@ -78,24 +78,6 @@
                         </div>
                     </div>
 
-                    <!--div class="row"
-                         v-if="!showRegExpFieldWarning($v.clientAuthSecret.$model, regExpSecret())" >
-                        <div class="col">
-                            <label class="form-control-label"
-                                   v-text="$t('ca3SApp.form.client.cert.download')"
-                                   for="personal-certificate-download">
-                            </label>
-                        </div>
-                        <div class="col colContent">
-                            <button :disabled="!canCreateCertificate()"
-                                    class="btn btn-primary"
-                                    @click.prevent="downloadPersonalCertificate($v.clientAuthSecret.$model)"
-                                    v-text="$t('ca3SApp.form.create.client.certificate')">
-                                <font-awesome-icon icon="plus"></font-awesome-icon>
-                            </button>
-                        </div>
-                    </div-->
-
                     <div class="row justify-content-start" v-if="credentialChange.clientAuthCertId !== 0">
                         <div class="col-sm">
                             <label class="form-control-label"

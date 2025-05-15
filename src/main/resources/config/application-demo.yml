@@ -26,9 +26,9 @@ management:
         enabled: false
 
 spring:
-  profiles:
-    active: prod
-    include:
+#  profiles:
+#    active: demo
+#    include:
     # - swagger
     # (Un)comment to activate TLS for the prod profile
     # - tls
@@ -41,7 +41,7 @@ spring:
     type: com.zaxxer.hikari.HikariDataSource
     url: jdbc:mysql://localhost:3306/ca3s_jh_demo?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC
     username: ca3s_jh_demo
-    password: nYbA4Jm4rnQJ
+    password: s3cr3t
     hikari:
       poolName: Hikari
       auto-commit: false
@@ -146,17 +146,17 @@ jhipster:
         token-validity-in-seconds-for-remember-me: 2592000
   mail: # specific JHipster mail property, for standard properties see MailProperties
     base-url: http://my-server-url-to-change # Modify according to your server's URL
-  metrics:
-    logs: # Reports metrics in the logs
-      enabled: false
-      report-frequency: 60 # in seconds
+#  metrics:
+#    logs: # Reports metrics in the logs
+#      enabled: false
+#      report-frequency: 60 # in seconds
   logging:
     use-json-format: false # By default, logs are not in Json format
     logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
       enabled: false
       host: localhost
       port: 5000
-      queue-size: 512
+#      queue-size: 512
   audit-events:
     retention-period: 30 # Number of days before audit events are deleted.
 
@@ -172,4 +172,4 @@ jhipster:
 # application:
 protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl
 
-acmeClientPorts: 80, 5544, 8800
+acmeClientPorts: 80

@@ -1,6 +1,8 @@
 <template>
     <div>
         <div>
+            <!--b-alert v-if="infoMsg().length > 0" show variant="info" >{{infoMsg()}}</b-alert-->
+
             <div class="wideColumn">
                 <div class="box">
                     <div><h4 v-text="$t('home.dashboard.expiringCertificatesByDate')"></h4></div>

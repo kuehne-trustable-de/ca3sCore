@@ -290,10 +290,11 @@ ca3s:
     #    https: true
 
     # settings for client certificate authentication
-    tlsClientAuth:
-      external:
-        port: 8442
-        host: laptop-2iguatf5
+  tlsClientAuth:
+    port: 8442
+    external:
+      port: 8442
+      host: akuehne-ThinkPad-E16-Gen-1
 
   # settings for ra user access
   #  raAccess:

@@ -11,8 +11,7 @@
 
 		<div class="row justify-content-center" v-cloak @drop.prevent="catchDroppedFile" @dragover.prevent>
 			<div class="col-8" >
-				<form name="editForm" role="form" autocomplete="off" novalidate >
-
+                <form name="editForm" role="form" autocomplete="off" novalidate >
 					<h2 class="jh-entity-heading">
                         <span v-if="(authenticated === false) && (creationMode === 'CSR_AVAILABLE')" v-text="$t('pkcsxx.subtitle.check.csr')"></span>
                         <span v-else-if="creationMode === 'CSR_AVAILABLE'" v-text="$t('pkcsxx.subtitle.csr')"></span>
