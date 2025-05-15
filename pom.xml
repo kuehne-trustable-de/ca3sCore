@@ -2010,7 +2010,7 @@
                         </from>
                         <to>
                             <image>${jib-maven-plugin.to.image}</image>
-                            <tags>${project.version}</tags>
+                            <tags>${version}</tags>
                             <auth>
                                 <username>${dockerUser}</username>
                                 <password>${dockerAccessTokens}</password>

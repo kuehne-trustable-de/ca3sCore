@@ -1,8 +1,15 @@
 <template>
   <div>
-    <h2 id="configuration-page-heading" v-text="$t('configuration.title')" data-cy="configurationPageHeading">Configuration</h2>
+      <b-alert :show="dismissCountDown"
+               dismissible
+               :variant="alertType"
+               @dismissed="dismissCountDown=0"
+               @dismiss-count-down="countDownChanged">
+          {{alertMessage}}
+      </b-alert>
 
-    <div v-if="allConfiguration && configuration">
+    <h2 id="configuration-page-heading" v-text="$t('configuration.title')" data-cy="configurationPageHeading">Configuration</h2>
+      <div v-if="allConfiguration && configuration">
       <span v-text="$t('configuration.filter')">Filter (by prefix)</span> <input type="text" v-model="filtered" class="form-control" />
       <h3>Spring configuration</h3>
       <table class="table table-striped table-bordered table-responsive d-table" aria-describedby="Configuration">

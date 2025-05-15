@@ -16,4 +16,9 @@ import '@/shared/config/dayjs';
     'jhi-footer': JhiFooter,
   },
 })
-export default class App extends Vue {}
+export default class App extends Vue {
+  public infoMsg(): string {
+    return this.$store.state.uiConfigStore.config.infoMsg ? this.$store.state.uiConfigStore.config.infoMsg : '';
+  }
+
+}

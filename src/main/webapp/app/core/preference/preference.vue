@@ -125,6 +125,15 @@
                                 </div>
                             </div>
 
+                            <div class="row">
+                                <div class="col ">
+                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.infoMsg')" for="ca3SApp-preference-infoMsg"></label><help-tag role="Admin" target="preference.algo"/>
+                                </div>
+                                <div class="col colContent">
+                                    <input type="text" class="form-check-inline" name="ca3SApp-preference-infoMsg" id="ca3SApp-preference-infoMsg" v-model="preferences.infoMsg" />
+                                </div>
+                            </div>
+
                             <!--
                             <h3 v-text="$t('ca3SApp.preference.home.edit.userAuthentication')"></h3>
                             <div class="row">

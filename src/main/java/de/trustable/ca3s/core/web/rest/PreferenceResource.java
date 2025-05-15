@@ -153,6 +153,8 @@ public class PreferenceResource {
         updateValue(upMap, PreferenceUtil.AUTH_EMAIL, String.valueOf(preferences.isAuthEmail()), userId, auditList);
         updateValue(upMap, PreferenceUtil.AUTH_SMS, String.valueOf(preferences.isSms()), userId, auditList);
 
+        updateValue(upMap, PreferenceUtil.INFO_MSG, preferences.getInfoMsg(), userId, auditList);
+
         auditService.saveAuditTrace(auditList);
 
         return ResponseEntity.ok()

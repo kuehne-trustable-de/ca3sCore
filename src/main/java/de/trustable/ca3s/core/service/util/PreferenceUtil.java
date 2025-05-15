@@ -37,6 +37,7 @@ public class PreferenceUtil {
     public static final String AUTH_TOTP = "AuthTotp";
     public static final String AUTH_EMAIL = "AuthEmail";
     public static final String AUTH_SMS = "AuthSms";
+    public static final String INFO_MSG = "INFO_MSG";
 
     private final UserPreferenceService userPreferenceService;
 

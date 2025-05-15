@@ -38,6 +38,8 @@ public class Preferences implements Serializable {
     private boolean authClientCertEnabled = false;
     private boolean smsEnabled = false;
 
+    private String infoMsg = "";
+
     public Preferences() {}
 
 	public boolean isServerSideKeyCreationAllowed() {
@@ -182,5 +184,13 @@ public class Preferences implements Serializable {
 
     public void setSmsEnabled(boolean smsEnabled) {
         this.smsEnabled = smsEnabled;
+    }
+
+    public String getInfoMsg() {
+        return infoMsg;
+    }
+
+    public void setInfoMsg(String infoMsg) {
+        this.infoMsg = infoMsg;
     }
 }
