@@ -12,6 +12,7 @@ import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.service.UserCredentialService;
 import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import de.trustable.ca3s.core.web.rest.vm.LoginData;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -22,12 +23,12 @@ import org.springframework.security.authentication.InternalAuthenticationService
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 
 /**
@@ -61,7 +62,7 @@ public class UserJWTController {
         this.clientAuthService = clientAuthService;
     }
 
-    @Transactional(dontRollbackOn = {BadCredentialsException.class, AuthenticationException.class, InternalAuthenticationServiceException.class, UserNotAuthenticatedException.class})
+    @Transactional(noRollbackFor = {BadCredentialsException.class, AuthenticationException.class, InternalAuthenticationServiceException.class, UserNotAuthenticatedException.class})
     @PostMapping("/authenticate")
     public ResponseEntity<?> authorize(@Valid @RequestBody LoginData loginData) {
 
@@ -75,6 +76,10 @@ public class UserJWTController {
         try {
             Authentication authentication = userCredentialService.validateUserPassword(loginData.getUsername(),
                 loginData.getPassword());
+
+            if( authentication == null){
+                return buildProblemDetailForAuthenticationFailure(loginData, "authentication failed");
+            }
 
             User user = userUtil.getUserByLogin(loginData.getUsername());
             if(loginData.getAuthSecondFactor() == AuthSecondFactor.TOTP ){
@@ -132,23 +137,20 @@ public class UserJWTController {
 
             return new ResponseEntity<>(new JWTToken(jwt), httpHeaders, HttpStatus.OK);
 
-        }catch(BadCredentialsException badCredentialsException) {
-            log.info("login failed for user '" + loginData.getUsername() + "'!", badCredentialsException);
-            userUtil.handleBadCredentials(loginData.getUsername(), loginData.getAuthSecondFactor());
-            final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Authentication problem",
-                HttpStatus.FORBIDDEN, badCredentialsException.getMessage(), AcmeUtil.NO_INSTANCE);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
+        } catch(AuthenticationException authenticationException){
+            return buildProblemDetailForAuthenticationFailure(loginData, authenticationException.getMessage());
 
-        }catch(AuthenticationException authenticationException){
-            log.info("login failed for user '" + loginData.getUsername() + "'!", authenticationException );
-            final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Authentication problem",
-                HttpStatus.FORBIDDEN, authenticationException.getMessage(), AcmeUtil.NO_INSTANCE);
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
-
-        }catch(Throwable th){
+        } catch(Throwable th){
             log.info("login failed for user '" + loginData.getUsername() + "' with unexpected exception !", th );
             throw th;
         }
+    }
+
+    private @NotNull ResponseEntity<ProblemDetail> buildProblemDetailForAuthenticationFailure(LoginData loginData, String authenticationExceptionMsg) {
+        log.info("login failed for user '{}' with reason {} !", loginData.getUsername(), authenticationExceptionMsg);
+        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "Authentication problem",
+            HttpStatus.FORBIDDEN, authenticationExceptionMsg, AcmeUtil.NO_INSTANCE);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
     }
 
 }

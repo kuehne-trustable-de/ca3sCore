@@ -341,6 +341,8 @@ public class SecurityConfiguration{
             .antMatchers("/api/profile-info").permitAll()
             .antMatchers("/api/ui/config").permitAll()
             .antMatchers("/api/certificateSelectionAttributes").permitAll()
+
+            // really all??
             .antMatchers("/api/pipelineViews").permitAll()
             .antMatchers("/api/pipeline-attributes").permitAll()
             .antMatchers("/api/pipeline/activeWeb").permitAll()
@@ -349,6 +351,12 @@ public class SecurityConfiguration{
             .antMatchers("/saml/SSO").permitAll()
             .antMatchers("/saml/**").permitAll()
             .antMatchers("/publicapi/**").permitAll()
+
+            .antMatchers("/management/loggers").permitAll()
+            .antMatchers("/api/audits").permitAll()
+            .antMatchers("/management/health").permitAll()
+            .antMatchers("/management/info").permitAll()
+            .antMatchers("/management/prometheus").permitAll()
 
             .antMatchers("/api/userProperties/filterList/CertList").authenticated()
 
@@ -437,11 +445,6 @@ public class SecurityConfiguration{
 
             .antMatchers("/websocket/tracker").hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/websocket/**").permitAll()
-            .antMatchers("/management/loggers").permitAll()
-            .antMatchers("/management/audits").permitAll()
-            .antMatchers("/management/health").permitAll()
-            .antMatchers("/management/info").permitAll()
-            .antMatchers("/management/prometheus").permitAll()
 
             .requestMatchers(forPortAndPath(adminPort, "/api/notification/**")).hasAuthority(AuthoritiesConstants.ADMIN)
             .requestMatchers(forPortAndPath(adminPort, "/api/schedule/**")).hasAuthority(AuthoritiesConstants.ADMIN)

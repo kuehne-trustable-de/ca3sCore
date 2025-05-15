@@ -22,7 +22,7 @@ import java.util.List;
  * REST controller for getting the {@link AuditEvent}s.
  */
 @RestController
-@RequestMapping("/management/audits")
+@RequestMapping("/api/audits")
 public class AuditResource {
 
     private final AuditEventService auditEventService;

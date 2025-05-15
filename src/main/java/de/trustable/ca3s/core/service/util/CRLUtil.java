@@ -24,13 +24,9 @@ package de.trustable.ca3s.core.service.util;
  */
 
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.repository.CertificateSpecifications;
-import de.trustable.ca3s.core.service.dto.CertificateView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import javax.naming.CommunicationException;
@@ -40,8 +36,6 @@ import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.InitialDirContext;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
 import javax.security.auth.x500.X500Principal;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -49,7 +43,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.cert.*;
-import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +57,7 @@ public class CRLUtil {
      * Downloads CRL from given URL. Supports http, https, ftp and ldap based
      * URLs.
      */
-	@Cacheable("CRLs")
+//	@Cacheable("CRLs")
     public X509CRL downloadCRL(String crlURL) throws IOException,
             CertificateException, CRLException, NamingException {
 

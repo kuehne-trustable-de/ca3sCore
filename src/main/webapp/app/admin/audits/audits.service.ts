@@ -17,7 +17,7 @@ export default class AuditsService {
     }
     return new Promise(resolve => {
       axios
-        .get(`management/audits?fromDate=${req.fromDate}&toDate=${req.toDate}&${sorts}&page=${req.page}&size=${req.size}`)
+        .get(`api/audits?fromDate=${req.fromDate}&toDate=${req.toDate}&${sorts}&page=${req.page}&size=${req.size}`)
         .then(res => resolve(res));
     });
   }

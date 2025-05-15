@@ -62,7 +62,7 @@ export default class AccountService {
   }
 
   public retrieveProfiles(): void {
-    axios.get('management/info').then(res => {
+    axios.get('actuator/info').then(res => {
       if (res.data && res.data.activeProfiles) {
         this.store.commit('setRibbonOnProfiles', res.data['display-ribbon-on-profiles']);
         this.store.commit('setActiveProfiles', res.data['activeProfiles']);

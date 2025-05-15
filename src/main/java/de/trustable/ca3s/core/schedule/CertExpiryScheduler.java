@@ -175,6 +175,11 @@ public class CertExpiryScheduler {
     @Scheduled(fixedRateString="${ca3s.schedule.rate.revocationCheck:10000}")
     public void updateRevocationStatus2() {
 
+        if( !preferenceUtil.isCheckCrl()){
+            LOG.info("Check of CRL status disabled");
+            return;
+        }
+
         long now = System.currentTimeMillis();
 
         List<String> crlURLList = certificateRepo.findDistinctCrlURLForActiveCertificates();

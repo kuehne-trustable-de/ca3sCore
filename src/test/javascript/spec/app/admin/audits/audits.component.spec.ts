@@ -17,7 +17,7 @@ localVue.component('font-awesome-icon', FontAwesomeIcon);
 
 jest.mock('axios', () => ({
   get: jest.fn(),
-  put: jest.fn()
+  put: jest.fn(),
 }));
 
 describe('Audits Component', () => {
@@ -33,11 +33,11 @@ describe('Audits Component', () => {
       localVue,
       stubs: {
         bPagination: true,
-        jhiItemCount: true
+        jhiItemCount: true,
       },
       provide: {
-        auditsService: () => new AuditsService()
-      }
+        auditsService: () => new AuditsService(),
+      },
     });
     audits = wrapper.vm;
   });
@@ -86,7 +86,7 @@ describe('Audits Component', () => {
 
       // THEN
       expect(mockedAxios.get).toHaveBeenCalledWith(
-        `management/audits?fromDate=${fromDate}&toDate=${today}&sort=auditEventDate,desc&sort=id&page=0&size=20`
+        `api/audits?fromDate=${fromDate}&toDate=${today}&sort=auditEventDate,desc&sort=id&page=0&size=20`
       );
       expect(audits.audits.length).toEqual(1);
     });

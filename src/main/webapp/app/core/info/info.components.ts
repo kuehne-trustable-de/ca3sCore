@@ -8,26 +8,13 @@ export interface IInfo {
 }
 
 export interface IGit {
-  build?: IBuild;
+  branch?: string;
   commit?: ICommit;
 }
 
-export interface IBuild {
-  host?: string;
-  version?: string;
-  time?: string;
-  branch?: string;
-}
-
 export interface ICommit {
-  id?: IId;
+  id?: string;
   time?: string;
-}
-
-export interface IId {
-  describe?: string;
-  abbrev?: string;
-  full?: string;
 }
 
 @Component
@@ -44,12 +31,12 @@ export default class Info extends Vue {
 
     axios({
       method: 'get',
-      url: 'management/info',
-      responseType: 'stream'
-    }).then(function(response) {
-      window.console.info('management/info returns ' + response.data);
+      url: '/actuator/info',
+      responseType: 'stream',
+    }).then(function (response) {
+      window.console.info('actuator/info returns ' + response.data);
       self.info = response.data;
-      window.console.info('management/info returns ' + self.info);
+      window.console.info('actuator/info returns ' + self.info);
     });
   }
 
@@ -60,8 +47,8 @@ export default class Info extends Vue {
     axios({
       method: 'post',
       url: 'api/schedule/' + methodName,
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       window.console.info('api/schedule returns ' + response.data);
       self.info = response.data;
       window.console.info('api/schedule returns ' + self.info);
