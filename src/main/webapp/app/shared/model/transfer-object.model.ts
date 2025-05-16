@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-15 16:44:07.
+// Generated using typescript-generator version 3.2.1263 on 2025-05-15 18:46:33.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -262,10 +262,10 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  auditPresent?: boolean;
-  serversideKeyGeneration?: boolean;
-  fullChainAvailable?: boolean;
   issuingActiveCertificates?: boolean;
+  fullChainAvailable?: boolean;
+  serversideKeyGeneration?: boolean;
+  auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -343,8 +343,8 @@ export interface ICSRView extends ISerializable {
   isAdministrable?: boolean;
   tosAgreed?: boolean;
   tosAgreementLink?: string;
-  csrvalid?: boolean;
   administrable?: boolean;
+  csrvalid?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -366,6 +366,7 @@ export interface IPreferences extends ISerializable {
   sms?: boolean;
   authClientCertEnabled?: boolean;
   smsEnabled?: boolean;
+  infoMsg?: string;
 }
 
 export interface IX509CertificateHolderShallow {
@@ -525,11 +526,9 @@ export interface ILoginData {
   authSecondFactor?: IAuthSecondFactor;
 }
 
-export interface ISerializable {
-}
+export interface ISerializable {}
 
-export interface IURI extends IComparable<IURI>, ISerializable {
-}
+export interface IURI extends IComparable<IURI>, ISerializable {}
 
 export interface IAcmeChallengeView extends ISerializable {
   authorizationType?: string;
@@ -815,8 +814,7 @@ export interface ICAConnectorConfig extends ISerializable {
   expiryDate?: Date;
 }
 
-export interface IComparable<T> {
-}
+export interface IComparable<T> {}
 
 export interface IPipelineAttribute extends ISerializable {
   id?: number;
@@ -843,8 +841,7 @@ export interface IRequestProxyConfig extends ISerializable {
   pipelines?: IPipeline[];
 }
 
-export interface IAlgorithmParameterSpec {
-}
+export interface IAlgorithmParameterSpec {}
 
 export interface IBadKeysResultDetails extends ISerializable {
   blocklist?: IBadKeysBlocklist;
@@ -921,48 +918,88 @@ export interface IRequestAttributeValue extends ISerializable {
   reqAttr?: IRequestAttribute;
 }
 
-export type ICAStatus = "Active" | "Deactivated" | "Problem" | "Unknown";
+export type ICAStatus = 'Active' | 'Deactivated' | 'Problem' | 'Unknown';
 
-export type ISelector = "EQUAL" | "NOT_EQUAL" | "LIKE" | "NOTLIKE" | "LESSTHAN" | "GREATERTHAN" | "HEX" | "DECIMAL" | "ON" | "BEFORE" | "AFTER" | "ISTRUE" | "ISFALSE" | "IN" | "NOT_IN" | "PERIOD_BEFORE" | "PERIOD_AFTER";
+export type ISelector =
+  | 'EQUAL'
+  | 'NOT_EQUAL'
+  | 'LIKE'
+  | 'NOTLIKE'
+  | 'LESSTHAN'
+  | 'GREATERTHAN'
+  | 'HEX'
+  | 'DECIMAL'
+  | 'ON'
+  | 'BEFORE'
+  | 'AFTER'
+  | 'ISTRUE'
+  | 'ISFALSE'
+  | 'IN'
+  | 'NOT_IN'
+  | 'PERIOD_BEFORE'
+  | 'PERIOD_AFTER';
 
-export type IAccountStatus = "valid" | "pending" | "deactivated" | "revoked";
+export type IAccountStatus = 'valid' | 'pending' | 'deactivated' | 'revoked';
 
-export type IAcmeOrderStatus = "pending" | "ready" | "processing" | "valid" | "invalid";
+export type IAcmeOrderStatus = 'pending' | 'ready' | 'processing' | 'valid' | 'invalid';
 
-export type IScepOrderStatus = "PENDING" | "READY" | "INVALID";
+export type IScepOrderStatus = 'PENDING' | 'READY' | 'INVALID';
 
-export type IBPMNProcessType = "CA_INVOCATION" | "CERTIFICATE_CREATION" | "CERTIFICATE_REVOCATION" | "CERTIFICATE_NOTIFY" | "REQUEST_AUTHORIZATION" | "ACME_ACCOUNT_AUTHORIZATION" | "SEND_SMS" | "TIMED";
+export type IBPMNProcessType =
+  | 'CA_INVOCATION'
+  | 'CERTIFICATE_CREATION'
+  | 'CERTIFICATE_REVOCATION'
+  | 'CERTIFICATE_NOTIFY'
+  | 'REQUEST_AUTHORIZATION'
+  | 'ACME_ACCOUNT_AUTHORIZATION'
+  | 'SEND_SMS'
+  | 'TIMED';
 
-export type ICAConnectorType = "INTERNAL" | "CMP" | "ADCS" | "ADCS_CERTIFICATE_INVENTORY" | "DIRECTORY" | "VAULT" | "VAULT_INVENTORY" | "EJBCA_INVENTORY";
+export type ICAConnectorType =
+  | 'INTERNAL'
+  | 'CMP'
+  | 'ADCS'
+  | 'ADCS_CERTIFICATE_INVENTORY'
+  | 'DIRECTORY'
+  | 'VAULT'
+  | 'VAULT_INVENTORY'
+  | 'EJBCA_INVENTORY';
 
-export type IInterval = "MINUTE" | "HOUR" | "DAY" | "WEEK" | "MONTH";
+export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
 
-export type IPipelineType = "ACME" | "SCEP" | "WEB" | "INTERNAL" | "MANUAL_REQUEST";
+export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL' | 'MANUAL_REQUEST';
 
-export type IKeyUniqueness = "KEY_UNIQUE" | "DOMAIN_REUSE" | "KEY_REUSE" | "KEY_UNIQUE_WARN_ONLY" | "DOMAIN_REUSE_WARN_ONLY";
+export type IKeyUniqueness = 'KEY_UNIQUE' | 'DOMAIN_REUSE' | 'KEY_REUSE' | 'KEY_UNIQUE_WARN_ONLY' | 'DOMAIN_REUSE_WARN_ONLY';
 
-export type ICsrUsage = "TLS_SERVER" | "TLS_CLIENT" | "DOC_SIGNING" | "CODE_SIGNING";
+export type ICsrUsage = 'TLS_SERVER' | 'TLS_CLIENT' | 'DOC_SIGNING' | 'CODE_SIGNING';
 
-export type IAuthSecondFactor = "NONE" | "CLIENT_CERT" | "TOTP" | "EMAIL" | "SMS";
+export type IAuthSecondFactor = 'NONE' | 'CLIENT_CERT' | 'TOTP' | 'EMAIL' | 'SMS';
 
-export type ICsrStatus = "PROCESSING" | "ISSUED" | "REJECTED" | "PENDING";
+export type ICsrStatus = 'PROCESSING' | 'ISSUED' | 'REJECTED' | 'PENDING';
 
-export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "X509_CERTIFICATE_CREATED" | "UNKNOWN" | "CONTAINER" | "CONTAINER_WITH_KEY" | "CONTAINER_REQUIRING_PASSPHRASE";
+export type IPKCSDataType =
+  | 'CSR'
+  | 'X509_CERTIFICATE'
+  | 'X509_CERTIFICATE_CREATED'
+  | 'UNKNOWN'
+  | 'CONTAINER'
+  | 'CONTAINER_WITH_KEY'
+  | 'CONTAINER_REQUIRING_PASSPHRASE';
 
-export type IAccountCredentialsType = "ACCOUNT_TOKEN" | "OTP_SECRET" | "CLIENT_CERTIFICATE" | "SMS_ENABLED";
+export type IAccountCredentialsType = 'ACCOUNT_TOKEN' | 'OTP_SECRET' | 'CLIENT_CERTIFICATE' | 'SMS_ENABLED';
 
-export type ICredentialUpdateType = "PASSWORD" | "CLIENT_CERT" | "TOTP" | "TOKEN" | "EMAIL" | "SMS";
+export type ICredentialUpdateType = 'PASSWORD' | 'CLIENT_CERT' | 'TOTP' | 'TOKEN' | 'EMAIL' | 'SMS';
 
-export type IAdministrationType = "ACCEPT" | "REJECT" | "REVOKE" | "UPDATE" | "UPDATE_CRL";
+export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE' | 'UPDATE_CRL';
 
-export type ICreationMode = "CSR_AVAILABLE" | "COMMANDLINE_TOOL" | "SERVERSIDE_KEY_CREATION";
+export type ICreationMode = 'CSR_AVAILABLE' | 'COMMANDLINE_TOOL' | 'SERVERSIDE_KEY_CREATION';
 
-export type IContainerType = "PKCS_12" | "JKS";
+export type IContainerType = 'PKCS_12' | 'JKS';
 
-export type IChallengeStatus = "pending" | "valid" | "invalid" | "deactivated" | "expired" | "revoked";
+export type IChallengeStatus = 'pending' | 'valid' | 'invalid' | 'deactivated' | 'expired' | 'revoked';
 
-export type IRDNCardinalityRestriction = "NOT_ALLOWED" | "ZERO_OR_ONE" | "ONE" | "ONE_OR_SAN" | "ZERO_OR_MANY" | "ONE_OR_MANY";
+export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' | 'ONE_OR_SAN' | 'ZERO_OR_MANY' | 'ONE_OR_MANY';
 
-export type IARAContentType = "NO_TYPE" | "EMAIL_ADDRESS";
+export type IARAContentType = 'NO_TYPE' | 'EMAIL_ADDRESS';
 
-export type IAlgorithmType = "SIGNING" | "PADDING" | "HASH" | "CURVE";
+export type IAlgorithmType = 'SIGNING' | 'PADDING' | 'HASH' | 'CURVE';

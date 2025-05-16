@@ -6,7 +6,7 @@
         </div>
         <div class="container-fluid">
             <div>
-                <b-alert v-if="infoMsg().length > 0" show variant="info">{{ infoMsg() }}</b-alert>
+                <b-alert v-if="infoMsg().length > 0" show variant="info" v-html="infoMsg()"></b-alert>
             </div>
             <div class="card jh-card">
                 <router-view></router-view>

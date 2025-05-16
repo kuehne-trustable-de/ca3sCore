@@ -299,7 +299,7 @@ ca3s:
     port: 8442
     external:
       port: 8442
-      host: akuehne-ThinkPad-E16-Gen-1
+      host: laptop-2iguatf5
 
   # settings for ra user access
   #  raAccess:

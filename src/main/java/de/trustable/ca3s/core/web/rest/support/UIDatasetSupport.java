@@ -128,7 +128,12 @@ public class UIDatasetSupport {
             effSecondFactorList.remove(AuthSecondFactor.CLIENT_CERT);
         }
 
-        String infoMessage = "Interessante Info";
+        String infoMessage = "";
+        Optional<UserPreference> userPreferenceOptional = userPreferenceRepository.findByNameforUser(PreferenceUtil.INFO_MSG,1L);
+        if(userPreferenceOptional.isPresent()){
+            UserPreference userPreference = userPreferenceOptional.get();
+            infoMessage = userPreference.getContent();
+        }
 
         UIConfigView uiConfigView = new UIConfigView(appName,
             cryptoConfigView,

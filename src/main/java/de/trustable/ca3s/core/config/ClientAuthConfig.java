@@ -14,13 +14,13 @@ public class ClientAuthConfig {
 
     private final Logger LOG = LoggerFactory.getLogger(ClientAuthConfig.class);
 
-    @Value("${" + Ca3SApp.SERVER_TLS_CLIENT_AUTH_PREFIX + ".port:8442}")
+    @Value("${" + Ca3SApp.SERVER_TLS_CLIENT_AUTH_PREFIX + "port:8442}")
     int tlsClientAuthPort;
 
-    @Value("${" + Ca3SApp.SERVER_TLS_CLIENT_AUTH_PREFIX + ".external.port:#{null}}")
+    @Value("${" + Ca3SApp.SERVER_TLS_CLIENT_AUTH_PREFIX + "external.port:#{null}}")
     Integer tlsClientAuthExternalPort;
 
-    @Value("${" + Ca3SApp.SERVER_TLS_CLIENT_AUTH_PREFIX + ".external.host:#{null}}")
+    @Value("${" + Ca3SApp.SERVER_TLS_CLIENT_AUTH_PREFIX + "external.host:#{null}}")
     String tlsClientAuthHost;
 
 
