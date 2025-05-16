@@ -107,6 +107,10 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
       this.isSaving = false;
       const message = this.$t('ca3SApp.preference.updated', { param: 1 });
       this.alertService().showAlert(message, 'info');
+
+      self.$store.state.uiConfigStore.config.infoMsg = self.preferences.infoMsg;
+      self.$store.commit('updateCV', self.$store.state.uiConfigStore);
+
       console.log(message);
     });
   }

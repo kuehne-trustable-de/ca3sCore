@@ -1292,6 +1292,7 @@
   "ca3SApp.preference.auth.totp": "Authenticator App",
   "ca3SApp.preference.auth.email": "Email",
   "ca3SApp.preference.auth.sms": "SMS Benachrichtigung",
+  "ca3SApp.preference.infoMsg": "Genereller Hinweis",
 
   "status": "Status",
   "pipelineId": "Pipelines",

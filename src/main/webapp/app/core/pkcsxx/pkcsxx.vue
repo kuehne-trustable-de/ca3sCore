@@ -185,7 +185,7 @@
                                        :class="(showRequiredWarning(true, secret) ? 'invalid' : ' valid')"
                                        name="upload-secret" id="upload-secret"
                                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                       required="true"
+                                       required="required"
                                        v-model="secret"
                                        v-on:input="updateForm()" />
                                     <small v-if="showRequiredWarning(true, secret)"
@@ -203,7 +203,7 @@
                                        :class="(showRequiredWarning(true, secretRepeat) ? 'invalid' : ' valid')"
                                        name="upload-secret-repeat" id="upload-secret-repeat"
                                        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                       required="true"
+                                       required="required"
                                        v-model="secretRepeat"
                                        v-on:input="updateForm()" />
 
@@ -374,7 +374,7 @@
                             </dd>
 
                             <dt v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
-                                <img width="16" height="16" src="../../../content/images/badkeys.svg"/>
+                                <img width="16" height="16" src="../../../content/images/badkeys.svg" alt="bad keys"/>
                                 <span v-text="$t('pkcsxx.upload.badkeys')"></span>
                             </dt>
                             <dd v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
@@ -441,7 +441,7 @@
 							</dd>
 
                             <dt v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
-                                <a href="https://badkeys.info/" target="_blank"><img width="16" height="16" src="../../../content/images/badkeys.svg"/></a>
+                                <a href="https://badkeys.info/" target="_blank"><img width="16" height="16" src="../../../content/images/badkeys.svg" alt="bad	keys"/></a>
                                 <span v-text="$t('pkcsxx.upload.badkeys')"></span>
                             </dt>
                             <dd v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
@@ -473,15 +473,17 @@
 								<span v-text="$t('pkcsxx.upload.certificates')"></span>
 							</dt>
 							<dd>
-								<ul>
-									<li v-for="cert in precheckResponse.certificates" :key="cert.serial">
-                                        <div v-if="cert.certificatePresentInDB" v-text="$t('pkcsxx.upload.container.presentInDB')"></div>
-                                        <div v-else v-text="$t('pkcsxx.upload.container.unknown')"></div>
-                                        <div v-if="cert.keyPresent" v-text="$t('pkcsxx.upload.container.keyPresent')"></div>{{cert.subject}}</li>
-								</ul>
-							</dd>
+                <ul>
+                  <li v-for="cert in precheckResponse.certificates" :key="cert.serial">
+                    <div v-if="cert.certificatePresentInDB" v-text="$t('pkcsxx.upload.container.presentInDB')"></div>
+                    <div v-else v-text="$t('pkcsxx.upload.container.unknown')"></div>
+                    <div v-if="cert.keyPresent" v-text="$t('pkcsxx.upload.container.keyPresent')"></div>
+                    {{ cert.subject }}
+                  </li>
+                </ul>
+              </dd>
 
-						</dl>
+            </dl>
 
                         <div class="form-group" v-if="precheckResponse.dataType === 'CONTAINER_WITH_KEY'">
                             <label class="form-control-label" v-text="$t('pkcsxx.upload.importKey')" for="upload-importKey"></label>

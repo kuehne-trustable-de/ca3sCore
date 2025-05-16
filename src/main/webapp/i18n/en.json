@@ -709,6 +709,7 @@
   "ca3SApp.preference.auth.totp": "Authenticator",
   "ca3SApp.preference.auth.email": "Email",
   "ca3SApp.preference.auth.sms": "SMS notifiction",
+  "ca3SApp.preference.infoMsg": "Info message",
 
   "ca3SApp.preference.updated": "System settings updated",
   "ca3SApp.protectedContent.contentBase64": "Content Base 64",

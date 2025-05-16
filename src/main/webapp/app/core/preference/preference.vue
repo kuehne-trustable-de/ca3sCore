@@ -108,7 +108,7 @@
                                     <label class="form-control-label" v-text="$t('ca3SApp.preference.hashes')" for="ca3SApp-preference-hash"></label>  <help-tag role="Admin" target="preference.hash"/>
                                 </div>
                                 <div class="col colContent">
-                                    <select class="form-control" multiple="true" id="ca3SApp-preference-hash" name="ca3SApp-preference-hash" v-model="preferences.selectedHashes">
+                                    <select class="form-control" multiple="multiple" id="ca3SApp-preference-hash" name="ca3SApp-preference-hash" v-model="preferences.selectedHashes">
                                         <option v-bind:value="hash.id" v-for="hash in allHashes" :key="hash.id">{{hash.name}}</option>
                                     </select>
                                 </div>
@@ -119,7 +119,7 @@
                                     <label class="form-control-label" v-text="$t('ca3SApp.preference.algos')" for="ca3SApp-preference-algos"></label><help-tag role="Admin" target="preference.algo"/>
                                 </div>
                                 <div class="col colContent">
-                                    <select class="form-control" multiple="true" id="ca3SApp-preference-algos" name="ca3SApp-preference-algos" v-model="preferences.selectedSigningAlgos">
+                                    <select class="form-control" multiple="multiple" id="ca3SApp-preference-algos" name="ca3SApp-preference-algos" v-model="preferences.selectedSigningAlgos">
                                         <option v-bind:value="algo.id" v-for="algo in allSignAlgos" :key="algo.id">{{algo.name}}</option>
                                     </select>
                                 </div>
@@ -130,7 +130,10 @@
                                     <label class="form-control-label" v-text="$t('ca3SApp.preference.infoMsg')" for="ca3SApp-preference-infoMsg"></label><help-tag role="Admin" target="preference.algo"/>
                                 </div>
                                 <div class="col colContent">
-                                    <input type="text" class="form-check-inline" name="ca3SApp-preference-infoMsg" id="ca3SApp-preference-infoMsg" v-model="preferences.infoMsg" />
+                                    <textarea class="form-control"
+                                      name="ca3SApp-preference-infoMsg" id="ca3SApp-preference-infoMsg"
+                                      maxlength="250"
+                                      v-model="preferences.infoMsg" />
                                 </div>
                             </div>
 

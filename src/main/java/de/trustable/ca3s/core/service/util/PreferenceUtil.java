@@ -202,7 +202,8 @@ public class PreferenceUtil {
                 prefs.setAuthEmail(Boolean.parseBoolean(up.getContent()));
             } else if (PreferenceUtil.AUTH_SMS.equals(name)) {
                 prefs.setSms(Boolean.parseBoolean(up.getContent()));
-
+            } else if (PreferenceUtil.INFO_MSG.equals(name)) {
+                prefs.setInfoMsg(up.getContent());
             }
         }
         return prefs;
