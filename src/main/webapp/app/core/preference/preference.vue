@@ -127,7 +127,7 @@
 
                             <div class="row">
                                 <div class="col ">
-                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.infoMsg')" for="ca3SApp-preference-infoMsg"></label><help-tag role="Admin" target="preference.algo"/>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.preference.infoMsg')" for="ca3SApp-preference-infoMsg"></label><help-tag role="Admin" target="preference.infoMsg"/>
                                 </div>
                                 <div class="col colContent">
                                     <textarea class="form-control"

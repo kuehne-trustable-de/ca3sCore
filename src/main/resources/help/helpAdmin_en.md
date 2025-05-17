@@ -46,6 +46,12 @@ Use Ctrl-Click to select multiple entries.
 This listbox allows the selection of encryption algorithms. Please consider your security requirements to select an appropriate set of algorithms. Establish a reminder (e.g. once a year) to re-evaluate the set.
 Use Ctrl-Click to select multiple entries.
 
+#### <a id="preference.infoMsg"></a> General information mesage
+
+This text area allows to define a html (or just plain text) message that will be displayed in a text block at the top of any page.
+It may be useful to inform the users about e.g. new features, addítional restrictions or planned outages.
+The length of the message is limited to 250 characters.
+
 ### Administration of CA connectors
 
 #### <a id="ca-connector.name"></a> Connector Name
@@ -168,6 +174,11 @@ Activate this checkbox if an approval required by an RA officer for issuing a ce
 An approval is quite common for web based requests, deactivate it only e.g. for testing environments, where an authorization is not required.
 On the other hand it is unusual to request an approval for auto-enrollment protocols like ACME and SCEP.
 
+#### <a id="pipeline.pipeline.issuesSecondFactorClientCert"></a> Pipeline producing client certificates
+
+Using the option 'client certificate' for second factor authentication requires a pipeline for producing the certificate.
+This option can be selected at one pipeline, only.
+
 #### <a id="pipeline.type"></a> Request type
 
 Select a mode of certificate request. Depending on the request type the set of optional and required settings for the pipeline will vary. The different types are
@@ -197,6 +208,14 @@ If there is a long list of 'WEB' typed pipelines, for users the retrieval of the
 
 This listbox allows the selection of the appropriate CA for request processing.
 
+#### <a id="pipeline.key.unique"></a> Key requirements
+
+There are different options for key reuse:
+
+- Reuse key: Already used keys can be reused for new requests without restrictions
+- Domain reuse: Already used keys can be used in requests for the same domain
+- Key must be unique: No reuse of keys under any circumstances
+
 #### <a id="pipeline.dn-cardinality"></a> DN part's cardinalities
 
 This listbox allows to define the cardinality of the parts of the distinguished name:
@@ -220,15 +239,21 @@ Define a regular expression that the value of this part of the distinguished nam
 
 Define restriction on the subject alternative names (SAN) of the request analog to the distinguished name.
 
-#### <a id="pipeline.san.restrictions"></a> Additional request attribute
+#### <a id="pipeline.ara.restrictions"></a> Additional request attribute
 
 Define additional attribute required for processing of this pipeline. The aspects defined here are:
 
 - Name: Define a name identifying this information chunk.
 - Template: A preselected value.
 - Regular Expression: A regular expression that this attribute name must match.
+- Type: Select the type of content
 - Attribute Required: Is this attribute required or just informative.
 - Attribute Comment: A hint for the user to provide the expected value.
+
+#### <a id="pipeline.tosAgreed"></a> Terms of Service agreed
+
+Require the user to agree to the terms of service. If selected, provide a link to the service document.
+This option is available for ACME and Web protocol, only.
 
 #### <a id="pipeline.pending-on-failure"></a> Pending on failure
 
