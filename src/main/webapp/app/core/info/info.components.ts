@@ -1,6 +1,5 @@
 import { Component, Vue } from 'vue-property-decorator';
 import axios from 'axios';
-import { ISerializable } from '@/shared/model/transfer-object.model';
 
 export interface IInfo {
   git?: IGit;
@@ -26,7 +25,7 @@ export default class Info extends Vue {
   }
 
   public getInfo(): void {
-    window.console.info('calling management/info');
+    window.console.info('calling actuator/info');
     const self = this;
 
     axios({

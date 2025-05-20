@@ -49,10 +49,11 @@
             </thead>
             <tbody>
 
-            <tr>
+            <tr v-if="info.git.build[version]">
                 <td><span>Maven build version</span></td>
                 <td>
-                    <span class="float-right">{{ info.git.branch }}</span>
+                    <span class="float-right">{{ info.git.build.version }}</span>
+                    <span v-if="info.git.build[time]" class="float-right">{{ info.git.build.time }}</span>
                 </td>
             </tr>
             <tr>

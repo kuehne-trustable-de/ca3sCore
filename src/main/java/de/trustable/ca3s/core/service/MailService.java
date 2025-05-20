@@ -52,7 +52,7 @@ public class MailService {
                        JavaMailSender javaMailSender,
                        MessageSource messageSource,
                        SpringTemplateEngine templateEngine,
-                       @Value("${ca3s.email.template.useTitleAsMailSubject:false}") boolean useTitleAsMailSubject,
+                       @Value("${ca3s.template.email.useTitleAsMailSubject:false}") boolean useTitleAsMailSubject,
                        @Value("${ca3s.email.all.bcc:#{null}}") String[] defaultBCC) {
 
         this.jHipsterProperties = jHipsterProperties;

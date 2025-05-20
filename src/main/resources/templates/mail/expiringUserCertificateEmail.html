@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title th:if="${expiringCertList.isEmpty()}" th:text="#{email.expiringCertificate.title(${expiringCertList.get(0).subject})}">Certificate '${expiringCertList.get(0).subject}' will expire soon!</title>
-        <title th:if="${!expiringCertList.isEmpty()}" th:text="#{email.expiringCertificate2.title(${expiringCertList.size()})}">${expiringCertList.size()} certificates will expire soon</title>
+        <title th:if="${expiringCertList.size() == 1}" th:text="#{email.expiringCertificate.title(${expiringCertList.get(0).subject})}">Certificate '${expiringCertList.get(0).subject}' will expire soon!</title>
+        <title th:if="${expiringCertList.size() > 1}" th:text="#{email.expiringCertificates.title(${expiringCertList.size()})}">${expiringCertList.size()} certificates will expire soon</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
         <style>

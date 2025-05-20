@@ -5,6 +5,7 @@ import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.CryptoUtil;
@@ -40,10 +41,7 @@ import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.Assert.fail;
 
@@ -153,12 +151,6 @@ public class CSRSubmitIT extends WebTestBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(CSRSubmitIT.class);
 
-    protected static final String USER_NAME_USER = "user";
-    protected static final String USER_PASSWORD_USER = "user";
-
-    protected static final String USER_NAME_RA = "ra";
-    protected static final String USER_PASSWORD_RA = "s3cr3t";
-
     private static final Random rand = new Random();
 
     String randomComment;
@@ -174,6 +166,9 @@ public class CSRSubmitIT extends WebTestBase {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    UserUtil userUtil;
 
     public CSRSubmitIT() {
         super();
@@ -196,6 +191,8 @@ public class CSRSubmitIT extends WebTestBase {
     public void init() throws InterruptedException {
 
         waitForUrl();
+
+        userUtil.updateUserByLogin( USER_NAME_USER, USER_PASSWORD_USER);
 
         ptc.getInternalWebDirectTestPipeline();
         ptc.getInternalWebDirectKeyReuseTestPipeline();
@@ -314,6 +311,8 @@ public class CSRSubmitIT extends WebTestBase {
         explain("csr.submit.12.0");
 
         validatePresent(LOC_INP_TOS_AGREED);
+        scrollToElement(LOC_SEL_CERTIFICATE_DOWNLOAD_FORMAT);
+
         validatePresent(LOC_A_TOS_LINK);
         selectElementText(LOC_A_TOS_LINK, "csr.submit.12.1");
         explain("csr.submit.12.2");
@@ -369,10 +368,12 @@ public class CSRSubmitIT extends WebTestBase {
         explain("csr.submit.23");
         checkPEMDownload(cn, "pemFull");
 
+        validatePresent(LOC_SEL_REVOCATION_REASON);
+        scrollToElement(LOC_SEL_REVOCATION_REASON);
+
         explain("csr.submit.24");
         explain("csr.submit.25");
         explain("csr.submit.26");
-        validatePresent(LOC_SEL_REVOCATION_REASON);
         selectOptionByValue(LOC_SEL_REVOCATION_REASON, "keyCompromise");
         explain("csr.submit.27");
 
@@ -652,6 +653,7 @@ public class CSRSubmitIT extends WebTestBase {
  */
     }
 
+    @Test
     public void testCSRUploadDirect() throws GeneralSecurityException, IOException, InterruptedException {
 
         /*
@@ -1062,7 +1064,6 @@ public class CSRSubmitIT extends WebTestBase {
                 X509Certificate cert = (new JcaX509CertificateConverter()).setProvider("BC").getCertificate((X509CertificateHolder) parsedObj);
                 x509CertificateList.add(cert);
             }
-            ;
         } catch (IOException var13) {
             LOG.error("IOException, convertPemToCertificate", var13);
             throw new GeneralSecurityException("Parsing of certificate failed! Not PEM encoded?");

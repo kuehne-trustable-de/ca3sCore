@@ -41,6 +41,9 @@ public class AccountHandlingIT extends WebTestBase{
     public static final By LOC_LNK_ACCOUNT_REGISTER_MENUE = By.xpath("//nav//a [span [text() = 'Register']]");
     public static final By LOC_LNK_ACCOUNT_PASSWORD_MENUE = By.xpath("//nav//a [span [text() = 'Password']]");
 
+    public static final By LOC_LNK_ADMIN_MENUE = By.xpath("//nav//a [span [text() = 'Administration']]");
+    public static final By LOC_LNK_USER_MANAGEMENT_MENUE = By.xpath("//nav//a [span [text() = 'User Management']]");
+
     public static final By LOC_TEXT_REGISTER_HEADER = By.xpath("//div/h1 [text() = 'Registration']");
 
     public static final By LOC_INP_LOGIN_VALUE = By.xpath("//div/input [@name = 'login']");
@@ -111,6 +114,7 @@ public class AccountHandlingIT extends WebTestBase{
         rand.nextBytes(passwordBytes);
         String loginPassword = "S3cr3t!S_" + encodeBytesToText(passwordBytes);
         String newPassword = "New!S_" + encodeBytesToText(passwordBytes);
+        String wrongPassword = "Wron#g_" + encodeBytesToText(passwordBytes);
 
         IMAPStore imapStore;
         Folder inbox;
@@ -250,7 +254,7 @@ public class AccountHandlingIT extends WebTestBase{
 </html>
          */
         String emailReset = msgResetReceived.getContent().toString();
-        Pattern patternResetKey = Pattern.compile("<a href=\"http:\\/\\/.*:.*(\\/account\\/reset\\/finish\\?key=.*)\">");
+        Pattern patternResetKey = Pattern.compile("<a href=\"http://.*:.*(/account/reset/finish\\?key=.*)\">");
         Matcher matchReset = patternResetKey.matcher(emailReset);
         assertTrue(matchReset.find());
 
@@ -269,6 +273,7 @@ public class AccountHandlingIT extends WebTestBase{
 
         signIn("admin", newPassword);
 
+        wait(1000);
         validatePresent(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
         click(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
 
@@ -301,11 +306,31 @@ public class AccountHandlingIT extends WebTestBase{
         Assertions.assertTrue(tableSize > 0, "credential table contains at least one entry");
 
         signIn("admin", newPassword, totp );
+        wait(1000);
+
+
+        String wrongSeed = "A" + seed.substring(2);
+        if(seed.charAt(1) == 'A'){
+            wrongSeed = "B" + seed.substring(2);
+        }
+        Totp wrongTotp = new Totp(wrongSeed);
+
+        signIn("admin", newPassword, wrongTotp, null, 0,true);
+
+        signIn("admin", wrongPassword, totp, null, 0,true);
+
+        signIn("admin", newPassword, totp );
+
+
+        validatePresent(LOC_LNK_ACCOUNT_REGISTER_MENUE);
+        click(LOC_LNK_ACCOUNT_REGISTER_MENUE);
+        validatePresent(LOC_LNK_USER_MANAGEMENT_MENUE);
+        click(LOC_LNK_USER_MANAGEMENT_MENUE);
 
         inbox.close();
         imapStore.close();
 
-        /*
+/*
         try {
             System.out.println("... waiting ...");
             System.in.read();
@@ -313,8 +338,6 @@ public class AccountHandlingIT extends WebTestBase{
             e.printStackTrace();
         }
 */
-
-
     }
 
 
