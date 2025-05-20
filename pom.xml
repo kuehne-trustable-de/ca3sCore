@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.4</version>
+    <version>1.2.5</version>
 
     <packaging>jar</packaging>
 
@@ -318,7 +318,7 @@
             </dependency>
 
             <!-- check whether required after jhispter update ( > 7.5.1 ) -->
-            <dependency>
+            <!--dependency>
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-transport</artifactId>
                 <version>3.5.1</version>
@@ -327,7 +327,7 @@
                 <groupId>com.github.docker-java</groupId>
                 <artifactId>docker-java-api</artifactId>
                 <version>3.5.1</version>
-            </dependency>
+            </dependency-->
 
             <dependency>
                 <groupId>com.mysql</groupId>
@@ -761,6 +761,25 @@
                 <version>2.3.5</version>
             </dependency>
 
+            <dependency>
+                <groupId>org.apache.httpcomponents.client5</groupId>
+                <artifactId>httpclient5</artifactId>
+                <!--version>5.1.4</version-->
+                <version>5.4.4</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5</artifactId>
+                <version>5.3.4</version>
+            </dependency>
+            <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5-h2 -->
+            <dependency>
+                <groupId>org.apache.httpcomponents.core5</groupId>
+                <artifactId>httpcore5-h2</artifactId>
+                <version>5.3.4</version>
+            </dependency>
+
         </dependencies>
 
     </dependencyManagement>
@@ -915,11 +934,11 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mysql</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
@@ -943,8 +962,8 @@
         <dependency>
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
-            <version>5.9.3</version>
-            <!--version>6.1.0</version-->
+            <!--version>5.9.3</version-->
+            <version>6.1.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -966,7 +985,7 @@
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
-            <version>5.4.4</version>
+            <!--version>5.4.4</version-->
         </dependency>
 
         <dependency>
@@ -2011,7 +2030,7 @@
                         </from>
                         <to>
                             <image>${jib-maven-plugin.to.image}</image>
-                            <tags>${version}</tags>
+                            <tags>${project.version}</tags>
                             <auth>
                                 <username>${dockerUser}</username>
                                 <password>${dockerAccessTokens}</password>

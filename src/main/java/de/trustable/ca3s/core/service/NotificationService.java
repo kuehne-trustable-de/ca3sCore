@@ -807,6 +807,7 @@ public class NotificationService {
                 LOG.info("Problem occurred while sending a notification eMail to acme account contact address '" + email + "'",e);
             }
         }
+
     }
 
     @Transactional

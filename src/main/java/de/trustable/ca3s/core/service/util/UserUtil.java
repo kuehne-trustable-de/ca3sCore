@@ -18,10 +18,12 @@ import org.hibernate.validator.internal.constraintvalidators.hv.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,19 +50,27 @@ public class UserUtil {
 
     private final RateLimiterService rateLimiterService;
 
+    private final PasswordEncoder passwordEncoder;
+
+
     private final HttpServletRequest request;
 
-    public UserUtil(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserRepository userRepository, AuditService auditService,
+    public UserUtil(TokenProvider tokenProvider,
+                    AuthenticationManagerBuilder authenticationManagerBuilder,
+                    UserRepository userRepository,
+                    AuditService auditService,
                     @Value("${ca3s.ui.login.allowEmailAddress:false}") boolean loginByEmailAddress,
                     @Value("${ca3s.ui.login.ratelimit.second:0}") int rateSec,
                     @Value("${ca3s.ui.login.ratelimit.minute:20}") int rateMin,
                     @Value("${ca3s.ui.login.ratelimit.hour:0}") int rateHour,
+                    @Lazy PasswordEncoder passwordEncoder,
                     HttpServletRequest request) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.loginByEmailAddress = loginByEmailAddress;
+        this.passwordEncoder = passwordEncoder;
 
         this.rateLimiterService = new RateLimiterService("Login", rateSec, rateMin, rateHour);
 
@@ -146,7 +156,16 @@ public class UserUtil {
         }else{
             return optionalUser.get();
         }
+    }
 
+    public void updateUserByLogin( final String login, final String password) {
+        Optional<User> optionalUser = userRepository.findOneByLogin(login);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            String encryptedPassword = passwordEncoder.encode(password);
+            user.setPassword(encryptedPassword);
+            userRepository.save(user);
+        }
     }
 
     public String validateCredentials( UserLoginData userLoginData) {

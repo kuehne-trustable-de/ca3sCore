@@ -199,14 +199,13 @@
   "ca3SApp.acmeOrder.certificate": "Zertifikat",
   "ca3SApp.acmeOrder.certificateUrl": "Zertifikat Url",
   "ca3SApp.acmeOrder.created": "ACME Order erstellt mit ID {{ param }}",
-  "ca3SApp.acmeOrder.expires": "Order expires on",
 
   "ca3SApp.acmeOrder.csr": "Csr",
   "ca3SApp.acmeOrder.delete.question": "Soll ACME Order {{ id }} wirklich dauerhaft gelöscht werden?",
   "ca3SApp.acmeOrder.deleted": "ACME Order gelöscht mit ID {{ param }}",
   "ca3SApp.acmeOrder.detail.title": "ACME Order",
   "ca3SApp.acmeOrder.error": "Fehler",
-  "ca3SApp.acmeOrder.expires": "Verfällt",
+  "ca3SApp.acmeOrder.expires": "Verfällt am",
   "ca3SApp.acmeOrder.created.expires": "Erstellt / verfällt",
   "ca3SApp.acmeOrder.finalizeUrl": "Url finalisieren",
   "ca3SApp.acmeOrder.home.createLabel": "ACME Order erstellen",
@@ -372,8 +371,8 @@
   "ca3SApp.cSR.updated": "CSR aktualisiert mit ID {{ param }}",
   "ca3SApp.cSR.x509KeySpec": "X 509 Key Spec",
 
-  "ca3SApp.csr.requestor.details": "{{ login }}, {{fistName}} {{lastName}}",
-  "ca3SApp.csr.requestor.tenant": "Mandant {{ tenant }}",
+  "ca3SApp.cSR.requestor.details": "{{ login }}, {{fistName}} {{lastName}}",
+  "ca3SApp.cSR.requestor.tenant": "Mandant {{ tenant }}",
 
   "ca3SApp.certificate.subtitle.cert.list": "Zertifikatsliste",
   "ca3SApp.certificate.active": "Aktiv",

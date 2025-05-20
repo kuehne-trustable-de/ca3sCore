@@ -40,13 +40,10 @@ public class TutorialIT extends CSRSubmitIT {
     static String targetDirectoryPrefix = "/tmp/tutorial/";
     static File targetDirectory;
 
-
-
     public TutorialIT(@Value("${ca3s.test.speechify.apiTokens:}") String[] speechifyApiTokenArr) {
         super();
         setSpeechifyApiTokenArr( speechifyApiTokenArr);
     }
-
 
     @BeforeAll
     public static void setUpBeforeAll() throws IOException, MessagingException {
@@ -70,9 +67,8 @@ public class TutorialIT extends CSRSubmitIT {
         super.recordSession = true;
         super.playSound = true;
 
-        super.setLocale("en");
-        super.setAllUserLocale("en");
-
+        super.setLocale("de");
+        super.setAllUserLocale("de");
 
 
         obsClient.connect();
@@ -86,7 +82,9 @@ public class TutorialIT extends CSRSubmitIT {
             latchReadyToStart.countDown();
         }));
 
+        LOG.info( "waiting for latch");
         latchReadyToStart.await();
+        LOG.info( "starting ...");
 
     }
 

@@ -4,7 +4,6 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.sun.mail.imap.protocol.FLAGS;
 import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.test.speech.SoundOutput;
 import org.jboss.aerogear.security.otp.Totp;
 import org.openqa.selenium.By;
@@ -58,6 +57,13 @@ public class WebTestBase extends LocomotiveBase {
 
     public static final By LOC_BTN_SIGNIN_SUBMIT = By.xpath("//form//button [(@type='submit') and (@id = 'login.form.submit')]");
     public static final By LOC_TXT_SPOKEN_TEXT = By.xpath("//div[@name='spokenTextBox']");
+
+    public static final By LOC_LOGIN_FAILED_TEXT = By.xpath("//div/strong [text() = 'Failed to sign in!']");
+
+    public static final String USER_NAME_USER = "user";
+    public static final String USER_PASSWORD_USER = "S3cr3t!S_user";
+    public static final String USER_NAME_RA = "ra";
+    public static final String USER_PASSWORD_RA = "s3cr3t";
 
     public static int testPortHttp;
     public static int testPortHttps;
@@ -526,13 +532,13 @@ public class WebTestBase extends LocomotiveBase {
     }
 
     void signIn(String user, String password, Totp totp) {
-        signIn ( user, password, totp, null, 0);
+        signIn ( user, password, totp, null, 0, false);
     }
 
     void signIn(final String user, final String password, String s, int waitMillis) {
-        signIn(user, password, null, s, waitMillis);
+        signIn(user, password, null, s, waitMillis, false);
     }
-    void signIn(final String user, final String password, Totp totp, String s, int waitMillis) {
+    void signIn(final String user, final String password, Totp totp, String s, int waitMillis, boolean expectFailure) {
 
         if( isPresent(LOC_TXT_WEBPACK_ERROR) ) {
             System.err.println(
@@ -569,6 +575,13 @@ public class WebTestBase extends LocomotiveBase {
         explain(s);
         wait(waitMillis);
         click(LOC_BTN_SIGNIN_SUBMIT);
+
+        if( expectFailure ) {
+            validatePresent(LOC_LOGIN_FAILED_TEXT);
+            driver.findElement(LOC_LNK_SIGNIN_PASSWORD).sendKeys(Keys.ESCAPE);
+        } else {
+            validateNotPresent(LOC_LOGIN_FAILED_TEXT);
+        }
 
     }
 
