@@ -73,8 +73,8 @@ public class NotificationService {
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ee:30}") int nDaysExpiryEE,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ca:90}")int nDaysExpiryCA,
                                @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending,
-                               @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays,
-                               @Value("${ca3s.schedule.requestor.notification.attributes:}") String notificationARAAttributesString,
+                               @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") List<Integer> notificationDayList,
+                               @Value("${ca3s.schedule.requestor.notification.attributes:}") List<String> notificationARAAttributeList,
                                PipelineRepository pipelineRepository, @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly,
                                @Value("${ca3s.notify.adminOnConnectorExpiry:true}") boolean doNotifyAdminOnConnectorExpiry,
                                @Value("${ca3s.notify.raOfficerHolderOnExpiry:true}") boolean doNotifyRAOfficerHolderOnExpiry,
@@ -108,6 +108,8 @@ public class NotificationService {
         this.doNotifyRAOfficerOnUserRevocation = doNotifyRAOfficerOnUserRevocation;
         this.doNotifyRequestorOnExcessiveActiveCertificates = doNotifyRequestorOnExcessiveActiveCertificates;
 
+        this.notificationDayList = notificationDayList;
+/*
         this.notificationDayList = new ArrayList<>();
         String[] parts = notificationDays.split(",");
         for( String part: parts){
@@ -117,10 +119,12 @@ public class NotificationService {
                 LOG.info("Unexpected value '{}' in 'ca3s.schedule.requestor.notification.days': {}", part, nfe.getMessage());
             }
         }
-
+*/
+        this.notificationARAAttributes = notificationARAAttributeList;
+        /*
         String[] araParts = notificationARAAttributesString.split(",");
         notificationARAAttributes = Arrays.asList(araParts);
-
+*/
     }
 
 

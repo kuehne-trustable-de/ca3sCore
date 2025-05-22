@@ -157,7 +157,7 @@ public class DirectoryController extends AcmeController {
         MetaInformation metaInformation = new MetaInformation();
         String caaListString = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.CAA_IDENTITIES, "");
         if( !caaListString.isEmpty() ) {
-            metaInformation.setCaaIdentities(caaListString.split(","));
+            metaInformation.setCaaIdentities(caaListString.split(", "));
         }
         String webSiteLink = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.WEBSITE_LINK, "");
         if( !webSiteLink.isEmpty() ) {

@@ -2267,7 +2267,7 @@ public class CertificateUtil {
 
     public static GeneralName[] splitSANString(final String sans, final String hostname) {
 
-        String[] sanArr = sans.split(",");
+        String[] sanArr = sans.split(", ");
         List<GeneralName> generalNameList = new ArrayList<>();
         if( hostname == null || hostname.trim().isEmpty()){
             //

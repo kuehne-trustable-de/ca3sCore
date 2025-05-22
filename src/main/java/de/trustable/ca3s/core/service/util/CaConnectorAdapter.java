@@ -46,7 +46,13 @@ public class CaConnectorAdapter {
 
     private List<CAConnectorStatus> caConnectorStatus = new ArrayList<>();
 
-    public CaConnectorAdapter(ADCSConnector adcsConnector, CaCmpConnector cmpConnector, VaultPKIConnector vaultPKIConnector, CaInternalConnector internalConnector, DirectoryConnector dirConnector, CAConnectorConfigRepository caConfigRepository, CSRUtil csrUtil) {
+    public CaConnectorAdapter(ADCSConnector adcsConnector,
+                              CaCmpConnector cmpConnector,
+                              VaultPKIConnector vaultPKIConnector,
+                              CaInternalConnector internalConnector,
+                              DirectoryConnector dirConnector,
+                              CAConnectorConfigRepository caConfigRepository,
+                              CSRUtil csrUtil) {
         this.adcsConnector = adcsConnector;
         this.cmpConnector = cmpConnector;
         this.vaultPKIConnector = vaultPKIConnector;
@@ -152,6 +158,9 @@ public class CaConnectorAdapter {
             LOGGER.debug("CAConnectorType INTERNAL signs CSR");
             return internalConnector.signCertificateRequest(csr, caConfig);
 
+        } else if (CAConnectorType.ACME_CLIENT.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType ACME_CLIENT signs CSR");
+            throw new GeneralSecurityException("To Do implement ca connector type '" + caConfig.getCaConnectorType() + "' !");
         } else {
             throw new GeneralSecurityException("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
         }
