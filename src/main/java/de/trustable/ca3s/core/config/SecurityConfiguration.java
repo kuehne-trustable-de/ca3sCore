@@ -86,9 +86,11 @@ public class SecurityConfiguration{
 	@Value("${ca3s.acmeAccess.port:0}")
 	int acmePort;
 
-	@Value("${ca3s.scepAccess.port:0}")
-	int scepPort;
+    @Value("${ca3s.scepAccess.port:0}")
+    int scepPort;
 
+    @Value("${ca3s.estAccess.port:0}")
+    int estPort;
 
     @Value("${ca3s.saml.activate:true}")
     private boolean samlActivate;
@@ -436,6 +438,9 @@ public class SecurityConfiguration{
 
             .requestMatchers(forPortAndPath(acmePort, "/acme/**")).permitAll()
             .antMatchers("/acme/**").denyAll()
+
+            .requestMatchers(forPortAndPath(estPort, "/.well-known/est/**")).permitAll()
+            .antMatchers("/.well-known/est/**").denyAll()
 
             .requestMatchers(forPortAndPath(scepPort, "/scep/**")).permitAll()
             .antMatchers("/scep/**").denyAll()

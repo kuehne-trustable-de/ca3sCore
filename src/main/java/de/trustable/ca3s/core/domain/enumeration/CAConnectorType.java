@@ -11,6 +11,6 @@ public enum CAConnectorType {
     DIRECTORY,
     VAULT,
     VAULT_INVENTORY,
-
-    EJBCA_INVENTORY
+    EJBCA_INVENTORY,
+    ACME_CLIENT
 }

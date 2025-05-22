@@ -299,7 +299,8 @@ ca3s:
     port: 8442
     external:
       port: 8442
-      host: laptop-2iguatf5
+      host: ca3s.test.de
+  #     host: laptop-2iguatf5
 
   # settings for ra user access
   #  raAccess:
@@ -464,7 +465,7 @@ ca3s:
   https:
     certificate:
       dnSuffix: O=Trustable Solutions,OU=CA3S Instance,C=DE
-      sans: ca3s.org, www.ca3s.org
+      sans: ca3s.org, www.ca3s.org, ca3s.test.de
       persist: DB
 
   #  certificateSelectionAttributes: Foo,Bar,Baz

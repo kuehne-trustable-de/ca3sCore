@@ -34,7 +34,15 @@ entity CAConnectorConfigAttribute{
 }
 
 enum CAConnectorType {
-    INTERNAL, CMP, ADCS, ADCS_CERTIFICATE_INVENTORY, DIRECTORY, VAULT, VAULT_INVENTORY, EJBCA_INVENTORY
+    INTERNAL,
+    CMP,
+    ADCS,
+    ADCS_CERTIFICATE_INVENTORY,
+    DIRECTORY,
+    VAULT,
+    VAULT_INVENTORY,
+    EJBCA_INVENTORY,
+    ACME_CLIENT
 }
 
 entity RequestProxyConfig{
@@ -256,7 +264,8 @@ enum BPMNProcessType {
     REQUEST_AUTHORIZATION,
     ACME_ACCOUNT_AUTHORIZATION,
     SEND_SMS,
-    TIMED}
+    TIMED
+}
 
 @skipClient
 entity BPMNProcessInfo{

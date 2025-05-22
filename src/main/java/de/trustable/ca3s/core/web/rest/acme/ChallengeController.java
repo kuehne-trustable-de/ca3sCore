@@ -385,7 +385,7 @@ public class ChallengeController extends AcmeController {
 		String portList = preferenceUtil.getAcmeHTTP01CallbackPorts();
 
 		if(portList != null && !portList.trim().isEmpty()) {
-			String[] parts = portList.split(",");
+			String[] parts = portList.split(", ");
 			ports = new int[parts.length];
 		    for( int i = 0; i < parts.length; i++) {
 		    	ports[i] = -1;
@@ -699,7 +699,7 @@ public class ChallengeController extends AcmeController {
                 String msg = "Encoding problem parsing ALPN certificate";
                 LOG.info(msg);
                 challengeDao.setLastError(msg);
-                e.printStackTrace();
+                LOG.debug(msg, e);
                 return false;
             }
         }

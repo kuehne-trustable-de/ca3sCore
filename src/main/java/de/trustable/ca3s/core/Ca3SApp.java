@@ -54,6 +54,8 @@ public class Ca3SApp implements InitializingBean {
     public static final String SERVER_RA_PREFIX = "ca3s.raAccess.";
     public static final String SERVER_ACME_PREFIX = "ca3s.acmeAccess.";
     public static final String SERVER_SCEP_PREFIX = "ca3s.scepAccess.";
+    public static final String SERVER_EST_PREFIX = "ca3s.estAccess.";
+
     public static final String DEFAULT_BINDING_HOST = "0.0.0.0";
     public static final String HTTPS_CERTIFICATE_DN_SUFFIX = "ca3s.https.certificate.dnSuffix";
     public static final String O_TRUSTABLE_SOLUTIONS_C_DE = "O=trustable solutions, C=DE";
@@ -238,7 +240,8 @@ public class Ca3SApp implements InitializingBean {
 
         EndpointConfigs epc = new EndpointConfigs();
 
-        epc.addConfig(getPortForUsage(SERVER_TLS_CLIENT_AUTH_PREFIX, 8442),
+        int httpsClientAuthPort = getPortForUsage(SERVER_TLS_CLIENT_AUTH_PREFIX, 8442);
+        epc.addConfig(httpsClientAuthPort,
             true, true,
             getBindingHostForUsage( SERVER_TLS_CLIENT_AUTH_PREFIX, DEFAULT_BINDING_HOST), "TLS Client Auth Port");
 
@@ -265,6 +268,14 @@ public class Ca3SApp implements InitializingBean {
                 getHTTPSForUsage(SERVER_SCEP_PREFIX, false),
                 getBindingHostForUsage( SERVER_SCEP_PREFIX, DEFAULT_BINDING_HOST), "SCEP Port");
         }
+
+        int estPort = getPortForUsage(SERVER_EST_PREFIX, 8446);
+        if( estPort != httpsClientAuthPort) {
+            epc.addConfig(estPort,
+                getHTTPSForUsage(SERVER_EST_PREFIX, true),
+                getBindingHostForUsage( SERVER_EST_PREFIX, DEFAULT_BINDING_HOST), "EST Port");
+        }
+
         return epc;
     }
 
