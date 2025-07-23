@@ -234,7 +234,6 @@ public class CertificateProcessingUtil {
      */
     public Certificate processCertificateRequestImmediate(CSR csr, final String requestorName, final String certificateAuditType )  {
 
-
         if( csr == null) {
             LOG.warn("creation of certificate requires a csr!");
             return null;
@@ -246,7 +245,6 @@ public class CertificateProcessingUtil {
             if(cert != null) {
                 certificateRepository.save(cert);
                 auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));
-
                 return cert;
             } else {
                 LOG.warn("creation of certificate requested by {} failed ", requestorName);
