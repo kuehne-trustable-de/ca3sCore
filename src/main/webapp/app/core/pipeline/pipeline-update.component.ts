@@ -141,11 +141,17 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (to.params.pipelineId) {
+        window.console.info('++++++++++++++++++ in beforeRouteEnter for ' + to.params.pipelineId);
         vm.retrievePipeline(to.params.pipelineId, to.params.mode);
       }
-      vm.initRelationships();
     });
   }
+
+  public mounted(): void {
+    window.console.info('++++++++++++++++++ in mounted ');
+    this.initRelationships();
+  }
+
 
   public readableUserName(user: IUser): string {
     let result = user.login;
@@ -201,30 +207,6 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
 
     this.fillData();
 
-    /*
-    this.pipelineViewService()
-      .find(pipelineId)
-      .then(res => {
-        this.pipeline = res;
-
-        if (mode === 'copy') {
-          this.pipeline.name = 'Copy of ' + this.pipeline.name;
-          this.pipeline.id = null;
-        }
-
-        if (!this.pipeline.acmeConfigItems.allowChallengeDNS) {
-          this.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
-          this.pipeline.acmeConfigItems.allowWildcards = false;
-        }
-        if (this.pipeline.araRestrictions && this.pipeline.araRestrictions.length > 0) {
-          window.console.info('pipeline.araRestrictions.length' + this.pipeline.araRestrictions.length);
-        } else {
-          window.console.info('pipeline.araRestrictions undefined');
-          this.pipeline.araRestrictions = [];
-          this.pipeline.araRestrictions.push({});
-        }
-      });
- */
   }
 
   public previousState(): void {
@@ -233,32 +215,40 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   }
 
   public initRelationships(): void {
+
+    window.console.info('++++++++++++++++++ in initRelationships ');
+    const self = this;
+
     this.requestProxyConfigService()
       .retrieve()
       .then(res => {
-        this.requestProxyConfigs = res.data;
+        self.requestProxyConfigs = res.data;
+        window.console.info('++++++++++++++++++ requestProxyConfigs: ' + self.requestProxyConfigs);
       });
 
     this.cAConnectorConfigService()
       .retrieve()
       .then(res => {
-        this.cAConnectorConfigs = res.data;
+        self.cAConnectorConfigs = res.data;
+        window.console.info('++++++++++++++++++ cAConnectorConfigs: ' + self.cAConnectorConfigs);
       });
 
     this.bPNMProcessInfoService()
       .retrieve()
       .then(res => {
-        this.bPNMProcessInfos = res.data;
+        self.bPNMProcessInfos = res.data;
+        window.console.info('++++++++++++++++++ bPNMProcessInfos: ' + self.bPNMProcessInfos);
       });
 
     this.userManagementService()
       .retrieveUsersByRole('ROLE_RA_DOMAIN')
       .then(res => {
-        this.domainRAs = res.data;
+        self.domainRAs = res.data;
+        window.console.info('++++++++++++++++++ domainRAs: ' + self.domainRAs);
       });
-  }
 
-  public mounted(): void {}
+    this.fillData();
+  }
 
   public fillData(): void {
     window.console.info('calling fillData ');
@@ -272,29 +262,31 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       window.console.info('allCertGenerators returns ' + response.data);
       self.allCertGenerators = response.data;
 
-      self
-        .pipelineViewService()
-        .find(self.pipelineId)
-        .then(res => {
-          self.pipeline = res;
+      if( self.pipelineId) {
+        self
+          .pipelineViewService()
+          .find(self.pipelineId)
+          .then(res => {
+            self.pipeline = res;
 
-          if (self.mode === 'copy') {
-            self.pipeline.name = 'Copy of ' + self.pipeline.name;
-            self.pipeline.id = null;
-          }
+            if (self.mode === 'copy') {
+              self.pipeline.name = 'Copy of ' + self.pipeline.name;
+              self.pipeline.id = null;
+            }
 
-          if (!self.pipeline.acmeConfigItems.allowChallengeDNS) {
-            self.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
-            self.pipeline.acmeConfigItems.allowWildcards = false;
-          }
-          if (self.pipeline.araRestrictions && self.pipeline.araRestrictions.length > 0) {
-            window.console.info('pipeline.araRestrictions.length' + self.pipeline.araRestrictions.length);
-          } else {
-            window.console.info('pipeline.araRestrictions undefined');
-            self.pipeline.araRestrictions = [];
-            self.pipeline.araRestrictions.push({});
-          }
-        });
+            if (!self.pipeline.acmeConfigItems.allowChallengeDNS) {
+              self.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
+              self.pipeline.acmeConfigItems.allowWildcards = false;
+            }
+            if (self.pipeline.araRestrictions && self.pipeline.araRestrictions.length > 0) {
+              window.console.info('pipeline.araRestrictions.length' + self.pipeline.araRestrictions.length);
+            } else {
+              window.console.info('pipeline.araRestrictions undefined');
+              self.pipeline.araRestrictions = [];
+              self.pipeline.araRestrictions.push({});
+            }
+          });
+      }
     });
 
     this.retrieveAllTenants();

@@ -58,6 +58,11 @@ public class PipelineTestConfiguration {
 
     public static final String SCEP_PASSWORD = "abc123#*/";
 
+    private static final String PIPELINE_NAME_EST = "estTest";
+    public static final String EST_DEFAULT_REALM = "default";
+    public static final String EST_REALM = "estTest";
+    public static final String EST_PASSWORD = "S3cr3t!S";
+
     @Autowired
     CAConnectorConfigRepository cacRepo;
 
@@ -244,6 +249,81 @@ public class PipelineTestConfiguration {
         return newCAC;
 
 
+    }
+
+    @Transactional
+    public Pipeline getInternalESTTestPipelineDefaultLaxRestrictions() {
+
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_EST);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_EST);
+
+            return existingPLList.get(0);
+        }
+
+        LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_EST);
+
+        PipelineView pv_EstLaxPWRestrictions = new PipelineView();
+        pv_EstLaxPWRestrictions.setRestriction_C(new RDNRestriction());
+        pv_EstLaxPWRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_EstLaxPWRestrictions.setRestriction_CN(new RDNRestriction());
+        pv_EstLaxPWRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_EstLaxPWRestrictions.setRestriction_L(new RDNRestriction());
+        pv_EstLaxPWRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_EstLaxPWRestrictions.setRestriction_O(new RDNRestriction());
+        pv_EstLaxPWRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_EstLaxPWRestrictions.setRestriction_OU(new RDNRestriction());
+        pv_EstLaxPWRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+        pv_EstLaxPWRestrictions.setRestriction_S(new RDNRestriction());
+        pv_EstLaxPWRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_EstLaxPWRestrictions.setRestriction_E(new RDNRestriction());
+        pv_EstLaxPWRestrictions.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+
+        pv_EstLaxPWRestrictions.setRestriction_SAN(new RDNRestriction());
+        pv_EstLaxPWRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+
+        pv_EstLaxPWRestrictions.setIpAsSubjectAllowed(true);
+        pv_EstLaxPWRestrictions.setIpAsSANAllowed(true);
+
+        pv_EstLaxPWRestrictions.setApprovalRequired(false);
+
+        pv_EstLaxPWRestrictions.setCaConnectorId(internalTestCAC().getId());
+        pv_EstLaxPWRestrictions.setCaConnectorName(internalTestCAC().getName());
+        pv_EstLaxPWRestrictions.setName(PIPELINE_NAME_EST);
+        pv_EstLaxPWRestrictions.setActive(true);
+        pv_EstLaxPWRestrictions.setType(PipelineType.EST);
+        pv_EstLaxPWRestrictions.setUrlPart(EST_DEFAULT_REALM);
+
+        pv_EstLaxPWRestrictions.setKeyUniqueness(KeyUniqueness.KEY_REUSE);
+
+        ProtectedContent pc = new ProtectedContent();
+        pc.setType(ProtectedContentType.PASSWORD);
+        pc.setRelationType(ContentRelationType.EST_PW);
+        pc.setCreatedOn(Instant.now());
+        pc.setLeftUsages(-1);
+        pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
+        pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
+        pc.setContentBase64(protectedContentUtil.protectString(EST_PASSWORD));
+        protectedContentRepository.save(pc);
+
+        SCEPConfigItems scepConfigItems = new SCEPConfigItems();
+        scepConfigItems.setScepSecret(EST_PASSWORD);
+        scepConfigItems.setScepSecretPCId(String.valueOf(pc.getId()));
+
+        pv_EstLaxPWRestrictions.setScepConfigItems(scepConfigItems);
+
+        Pipeline pipeline = pipelineUtil.toPipeline(pv_EstLaxPWRestrictions);
+        pipelineRepo.save(pipeline);
+
+        pc.setRelatedId(pipeline.getId());
+        protectedContentRepository.save(pc);
+
+        return pipeline;
     }
 
     @Transactional
