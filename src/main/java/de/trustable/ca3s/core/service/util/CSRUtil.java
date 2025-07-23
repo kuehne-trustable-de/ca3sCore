@@ -29,10 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static de.trustable.ca3s.core.service.util.PipelineUtil.ADDITIONAL_EMAIL_RECIPIENTS;
 
@@ -114,22 +111,35 @@ public class CSRUtil {
     }
 */
     /**
-	 *
-	 * @param csrBase64
-	 * @return
-	 * @throws IOException
-	 * @throws GeneralSecurityException
-	 */
-	public Pkcs10RequestHolder parseBase64CSR(final String csrBase64) throws IOException, GeneralSecurityException {
+     *
+     * @param csrBytes
+     * @return
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    public Pkcs10RequestHolder parseCSR(final byte[] csrBytes) throws IOException, GeneralSecurityException {
 
-	      Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrBase64);
+        return cryptoUtil.parseCertificateRequest(Base64.getEncoder().encodeToString(csrBytes));
 
-	      // @ToDo perform some checks
+    }
 
-	      return p10ReqHolder;
-	}
+    /**
+     *
+     * @param csrBase64
+     * @return
+     * @throws IOException
+     * @throws GeneralSecurityException
+     */
+    public Pkcs10RequestHolder parseBase64CSR(final String csrBase64) throws IOException, GeneralSecurityException {
 
-	public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, Pipeline pipeline) throws IOException {
+        Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(csrBase64);
+
+        // @ToDo perform some checks
+
+        return p10ReqHolder;
+    }
+
+    public CSR buildCSR(final String csrBase64, String requestorName, final Pkcs10RequestHolder p10ReqHolder, Pipeline pipeline) throws IOException {
 
 		return buildCSR(csrBase64, requestorName, p10ReqHolder, pipeline.getType(), pipeline);
 	}
@@ -406,7 +416,7 @@ public class CSRUtil {
 	 * @param p10ReqHolder
 	 * @return
 	 */
-	Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
+	public Set<GeneralName> getSANList(Pkcs10RequestHolder p10ReqHolder){
 		return(getSANList(p10ReqHolder.getReqAttributes() ) );
 	}
 

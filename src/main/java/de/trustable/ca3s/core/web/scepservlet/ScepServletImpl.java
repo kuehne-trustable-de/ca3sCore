@@ -78,6 +78,9 @@ public class ScepServletImpl extends ScepServlet {
     private CertificateUtil certUtil;
 
     @Autowired
+    private CSRUtil csrUtil;
+
+    @Autowired
     private CertificateProcessingUtil cpUtil;
 
     @Autowired
@@ -264,32 +267,23 @@ public class ScepServletImpl extends ScepServlet {
                     cnString = cnArr[0].getFirst().getValue().toString();
                 }
 
-                // currently no email notification target available.
-                // Check again once requestors are bound to user accounts
-                List<Certificate> replacementCertificateList =
-                    replacementCandidateUtil.findReplaceCandidates(Instant.now(),
-                        cnString,
-                        gnStringList, null);
+                if( senderCert.getCsr() != null &&
+                    senderCert.getCsr().getPipeline() != null &&
+                    PipelineType.SCEP.equals(senderCert.getCsr().getPipeline().getType())) {
+                    LOGGER.debug("SCEP request authentication by certificate issued by SCEP!");
+                }else{
+                    LOGGER.warn("SCEP request authentication by certificate not issued by SCEP!");
+                    scepOrder.setStatus(ScepOrderStatus.INVALID);
+                    throw new OperationFailureException(FailInfo.badRequest);
+                }
 
-                if( replacementCertificateList.isEmpty()){
-                    LOGGER.warn("SCEP request authentication by certificate failed, csr matches no existing certificate!");
+                if( !checkCertificateAuthenticatesCSR( senderCert, csr)){
+                    LOGGER.warn("SCEP request authentication by certificate failed, csr does not match authenticating certificate!");
                     scepOrder.setStatus(ScepOrderStatus.INVALID);
                     throw new OperationFailureException(FailInfo.badRequest);
+
                 }
-                boolean issuedBySCEP = false;
-                for( Certificate replacementCert : replacementCertificateList){
-                    if( replacementCert.getCsr() != null &&
-                        replacementCert.getCsr().getPipeline() != null &&
-                        PipelineType.SCEP.equals(replacementCert.getCsr().getPipeline().getType())){
-                        issuedBySCEP = true;
-                        break;
-                    }
-                }
-                if( !issuedBySCEP){
-                    LOGGER.warn("SCEP request authentication by certificate failed, referenced certificate not issued by SCEP!");
-                    scepOrder.setStatus(ScepOrderStatus.INVALID);
-                    throw new OperationFailureException(FailInfo.badRequest);
-                }
+
             }
 
             String p10ReqPem = CryptoUtil.pkcs10RequestToPem(csr);
@@ -334,6 +328,34 @@ public class ScepServletImpl extends ScepServlet {
         }finally{
             scepOrderRepository.save(scepOrder);
         }
+    }
+
+    boolean checkCertificateAuthenticatesCSR( Certificate authenticatingCertificate, PKCS10CertificationRequest csr) {
+
+        Set<GeneralName> generalNameSetCSR = CSRUtil.getSANList(csr.getAttributes());
+        for (RDN rdn : csr.getSubject().getRDNs()) {
+            for (AttributeTypeAndValue atv : rdn.getTypesAndValues()) {
+                if (BCStyle.CN.equals(atv.getType())) {
+                    String cnValue = atv.getValue().toString();
+                    LOGGER.debug("cn found in CSR: " + cnValue);
+                    generalNameSetCSR.add(new GeneralName(GeneralName.dNSName, cnValue));
+                }
+            }
+        }
+
+        boolean found = true;
+        List<String> vsanList = certUtil.getCertAttributes(authenticatingCertificate,CsrAttribute.ATTRIBUTE_TYPED_VSAN);
+        for(GeneralName generalName: generalNameSetCSR){
+            String typedSan = CertificateUtil.getTypedSAN(generalName);
+            if( vsanList.contains(typedSan)){
+                LOGGER.debug("typedSan '{}' found in CSR and cert ", typedSan);
+            }else{
+                LOGGER.info("typedSan '{}' found in CSR, not in cert ", typedSan);
+                found = false;
+            }
+        }
+
+        return found;
     }
 
     void checkPassword(final Pipeline pipeline, final String password) throws OperationFailureException{

@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest.est;
 
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.est.ESTService;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1EncodableVector;
@@ -12,11 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.transaction.Transactional;
 import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
 @RestController
+@Transactional(dontRollbackOn = AcmeProblemException.class)
 @RequestMapping("/.well-known/est")
 public class ESTController {
 
@@ -28,7 +31,7 @@ public class ESTController {
         this.estService = estService;
     }
 
-    @GetMapping(value = "/cacerts", produces = {"application/pkcs7-mime"} )
+    @GetMapping(value = "/cacerts")
     public ResponseEntity<?> get_Cacerts() {
 
         Pipeline pipeline = getESTDefaultPipeline();
@@ -76,7 +79,8 @@ public class ESTController {
         return serverkeygenLabel(pipeline, csr);
     }
 
-    @PostMapping(value = "/{label}/serverkeygen", consumes = {"application/pkcs10"})
+    @PostMapping(value = "/{label}/serverkeygen",
+        consumes = {"application/pkcs10"})
     public ResponseEntity<Void> postServerkeygenLabel(@PathVariable("label") String label, @RequestBody byte[] csr
     ) {
         Pipeline pipeline = getESTPipelineForLabel(label);
@@ -86,7 +90,6 @@ public class ESTController {
 
 
     @PostMapping(value = "/simpleenroll",
-        produces = {"application/pkcs7-mime; smime-type=certs-only"},
         consumes = {"application/pkcs10"})
     public ResponseEntity<?> postSimpleenroll(HttpServletRequest request, @RequestBody byte[] csr
     ) {
@@ -96,7 +99,6 @@ public class ESTController {
 
 
     @PostMapping(value = "/{label}/simpleenroll",
-        produces = {"application/pkcs7-mime; smime-type=certs-only"},
         consumes = {"application/pkcs10"})
     public ResponseEntity<?> postSimpleenrollLabel(HttpServletRequest request, @PathVariable("label") String label, @RequestBody byte[] csr
     ) {
@@ -106,7 +108,6 @@ public class ESTController {
 
 
     @PostMapping(value = "/simplereenroll",
-        produces = {"application/pkcs7-mime; smime-type=certs-only"},
         consumes = {"application/pkcs10"})
     public ResponseEntity<?> postSimplereenroll(HttpServletRequest request, @RequestBody byte[] csr
     ) {
@@ -115,7 +116,6 @@ public class ESTController {
     }
 
     @PostMapping(value = "/{label}/simplereenroll",
-        produces = {"application/pkcs7-mime; smime-type=certs-only"},
         consumes = {"application/pkcs10"})
     public ResponseEntity<?> postSimplereenrollLabel(HttpServletRequest request, @PathVariable("label") String label, @RequestBody byte[] csr
     ) {
@@ -124,16 +124,16 @@ public class ESTController {
     }
 
     private Pipeline getESTPipelineForLabel(String label) {
-        return null;
+        return estService.getPipelineForLabel(label);
     }
 
-    private Pipeline getESTDefaultPipeline() {
-        return null;
+    private Pipeline getESTDefaultPipeline(){
+        return estService.getPipelineForLabel("default");
     }
 
     private ResponseEntity<?> getCacerts(Pipeline pipeline) {
         List<X509Certificate> x509CertificateList = estService.getESTRootCertificates();
-        return estService.buildPKCS7CertsResponse(x509CertificateList);
+        return estService.buildPKCS7CertsResponse(x509CertificateList, false);
     }
 
     private ResponseEntity<?> getCsrattrs(Pipeline pipeline) {
@@ -162,12 +162,11 @@ public class ESTController {
         ASN1EncodableVector csrAttrs = new ASN1EncodableVector();
 
         try {
-        Base64 base64 = new Base64(78);
-        return ResponseEntity.ok().headers(httpHeaders)
-            .body(base64.encode(new DERSequence(csrAttrs).getEncoded("DER")));
+            Base64 base64 = new Base64(78);
+            return ResponseEntity.ok().headers(httpHeaders)
+                .body(base64.encode(new DERSequence(csrAttrs).getEncoded("DER")));
         } catch (IOException e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
-
 }

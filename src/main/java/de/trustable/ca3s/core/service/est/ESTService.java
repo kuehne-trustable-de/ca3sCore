@@ -1,10 +1,20 @@
 package de.trustable.ca3s.core.service.est;
 
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
-import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.util.CryptoService;
+import de.trustable.ca3s.core.repository.PipelineRepository;
+import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
+import de.trustable.ca3s.core.service.util.*;
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
+import de.trustable.util.CryptoUtil;
+import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.ASN1EncodableVector;
 import org.bouncycastle.asn1.ASN1Set;
@@ -12,64 +22,175 @@ import org.bouncycastle.asn1.DERSet;
 import org.bouncycastle.asn1.cms.CMSObjectIdentifiers;
 import org.bouncycastle.asn1.cms.ContentInfo;
 import org.bouncycastle.asn1.cms.SignedData;
+import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
 public class ESTService {
-    private final Logger log = LoggerFactory.getLogger(ESTService.class);
+    public static final String CREATION_OF_CERTIFICATE_BY_EST_REQUEST_FAILED = "creation of certificate by EST request failed ";
+    private final Logger LOG = LoggerFactory.getLogger(ESTService.class);
 
     private final CertificateRepository certificateRepository;
 
-    public ESTService(CertificateRepository certificateRepository) {
+    private final PipelineRepository pipelineRepository;
+    private final CryptoUtil cryptoUtil;
+    private final CSRUtil csrUtil;
+    private final PipelineUtil pipelineUtil;
+    private final CertificateProcessingUtil cpUtil;
+    private final AuditService auditService;
+    private final CertificateUtil certificateUtil;
+    private final ProtectedContentRepository protectedContentRepository;
+    private final ProtectedContentUtil protectedContentUtil;
+
+
+    public ESTService(CertificateRepository certificateRepository,
+                      PipelineRepository pipelineRepository,
+                      CryptoUtil cryptoUtil, CSRUtil csrUtil,
+                      PipelineUtil pipelineUtil,
+                      CertificateProcessingUtil cpUtil,
+                      AuditService auditService,
+                      CertificateUtil certificateUtil, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil) {
         this.certificateRepository = certificateRepository;
+        this.pipelineRepository = pipelineRepository;
+        this.cryptoUtil = cryptoUtil;
+        this.csrUtil = csrUtil;
+        this.pipelineUtil = pipelineUtil;
+        this.cpUtil = cpUtil;
+        this.auditService = auditService;
+        this.certificateUtil = certificateUtil;
+        this.protectedContentRepository = protectedContentRepository;
+        this.protectedContentUtil = protectedContentUtil;
     }
 
 
     public List<X509Certificate> getESTRootCertificates(){
         List<X509Certificate> x509CertificateList = new ArrayList<>();
 
-        List<Certificate> certList = certificateRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CA3S_ROOT, "true");
+        List<Certificate> certList = certificateRepository.findByAttributeValue( CertificateAttribute.ATTRIBUTE_CA, "true");
         for(Certificate certificate: certList) {
             try {
                 X509Certificate x509Cert = CryptoService.convertPemToCertificate(certificate.getContent());
                 x509CertificateList.add(x509Cert);
             } catch (GeneralSecurityException e) {
-                log.info("problem handling internal root certificate: {}", e.getMessage());
+                LOG.info("problem handling internal root certificate: {}", e.getMessage());
             }
         }
         return x509CertificateList;
     }
 
     public ResponseEntity<?> enroll(HttpServletRequest request, Pipeline pipeline, byte[] csr) {
-        List<X509Certificate> certList = new ArrayList<>();
-        return buildPKCS7CertsResponse(certList);
+
+        final String authorization = request.getHeader("Authorization");
+        if( authorization == null || authorization.isEmpty()){
+            LOG.info("No 'Authorization' header provided");
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.add(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=" + pipeline.getUrlPart());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .headers(httpHeaders)
+                .build();
+        }else {
+            String[] authParts = parseBasicAuth(authorization);
+            if (authParts == null) {
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "authentication problem",
+                    HttpStatus.FORBIDDEN, "no authentication provided", AcmeController.NO_INSTANCE);
+                throw new AcmeProblemException(problem);
+            }
+            LOG.debug("basic auth: {}:{}", authParts[0], "*****");
+            if( !isPasswordValid(pipeline, authParts[1])){
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "authentication problem",
+                    HttpStatus.FORBIDDEN, "no valid authentication provided", AcmeController.NO_INSTANCE);
+                throw new AcmeProblemException(problem);
+            }
+        }
+        return buildCertificateResponse(pipeline, csr);
     }
+
 
     public ResponseEntity<?> reenroll(HttpServletRequest request, Pipeline pipeline, byte[] csr) {
-        List<X509Certificate> certList = new ArrayList<>();
-        return buildPKCS7CertsResponse(certList);
+
+        Certificate authenticatingCertificate = findClientCertificate(request);
+        if( authenticatingCertificate == null ){
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "client cert problem",
+                HttpStatus.FORBIDDEN, "no authentication by certificate", AcmeController.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
+
+        try {
+            Pkcs10RequestHolder p10Holder = csrUtil.parseCSR(csr);
+
+            Set<GeneralName> generalNameSetCSR = csrUtil.getSANList(p10Holder);
+
+            for (RDN rdn : p10Holder.getSubjectRDNs()) {
+                for (AttributeTypeAndValue atv : rdn.getTypesAndValues()) {
+                    if (BCStyle.CN.equals(atv.getType())) {
+                        String cnValue = atv.getValue().toString();
+                        LOG.debug("cn found in CSR: " + cnValue);
+                        generalNameSetCSR.add(new GeneralName(GeneralName.dNSName, cnValue));
+                    }
+                }
+            }
+
+            boolean found = true;
+            List<String> vsanList = certificateUtil.getCertAttributes(authenticatingCertificate,CsrAttribute.ATTRIBUTE_TYPED_VSAN);
+            for(GeneralName generalName: generalNameSetCSR){
+                String typedSan = CertificateUtil.getTypedSAN(generalName);
+                if( vsanList.contains(typedSan)){
+                    LOG.debug("typedSan '{}' found in CSR: ", typedSan);
+                }else{
+                    LOG.info("typedSan '{}' not found in CSR: ", typedSan);
+                    found = false;
+                }
+            }
+
+            if( !found ){
+                final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "client cert / csr mismatch",
+                    BAD_REQUEST, "provided client certificate does not authorize CSR", AcmeController.NO_INSTANCE);
+                throw new AcmeProblemException(problem);
+            }
+
+        } catch (GeneralSecurityException | IOException e) {
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "CSR problem",
+                BAD_REQUEST, "problem parsing CSR", AcmeController.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
+
+        return buildCertificateResponse(pipeline, csr);
     }
 
-    public ResponseEntity<?> buildPKCS7CertsResponse(List<X509Certificate> x509CertificateList) {
+    public ResponseEntity<?> buildPKCS7CertsResponse(List<X509Certificate> x509CertificateList, boolean bCertsOnly) {
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("Content-Transfer-Encoding", "base64");
+        if(bCertsOnly) {
+            httpHeaders.add("Content-Type", "application/pkcs7-mime; smime-type=certs-only");
+        }else {
+            httpHeaders.add("Content-Type", "application/pkcs7-mime");
+        }
 
         try {
             ASN1EncodableVector certsVector = new ASN1EncodableVector();
             for (X509Certificate x509Certificate : x509CertificateList) {
+                LOG.debug("adding certificate {} ", x509Certificate.getSubjectX500Principal().getName());
                 certsVector.add(org.bouncycastle.asn1.x509.Certificate.getInstance(x509Certificate.getEncoded()));
             }
             ASN1Set certSet = new DERSet(certsVector);
@@ -82,10 +203,177 @@ public class ESTService {
 
             ContentInfo ci = new ContentInfo(CMSObjectIdentifiers.signedData, sd);
             Base64 base64 = new Base64(78);
-            return ResponseEntity.ok().headers(httpHeaders).body(base64.encode(ci.getEncoded("DER")));
+            byte[] base64Response = base64.encode(ci.getEncoded("DER"));
+            LOG.debug("base64 response: {}", new String(base64Response));
+            return ResponseEntity.ok()
+                .headers(httpHeaders).body(base64Response);
         } catch (IOException | CertificateEncodingException e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
+    /**
+     * get the pipeline for a given label
+     *
+     * @param label
+     * @return
+     */
+    public Pipeline getPipelineForLabel(final String label) {
+
+        List<Pipeline> pipelineList = pipelineRepository.findActiveByTypeUrl(PipelineType.EST, label);
+
+        if(pipelineList.isEmpty()) {
+            LOG.warn("label {} is not known", label);
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.REALM_DOES_NOT_EXIST, "label not found",
+                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
+
+        if(pipelineList.size() > 1) {
+            LOG.warn("misconfiguration for label '{}', multiple configurations handling this label", label);
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, "Pipeline configuration broken",
+                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
+
+        return pipelineList.get(0);
+
+    }
+
+    private Certificate startCertificateCreationProcess(final byte[] csrBase64, Pipeline pipeline){
+
+        Pkcs10RequestHolder p10Holder;
+        String csrAsPEM;
+        try {
+            Base64 base64 = new Base64(78);
+            p10Holder = cryptoUtil.parseCertificateRequest(base64.decode(csrBase64));
+            csrAsPEM = CryptoUtil.pkcs10RequestToPem(p10Holder.getP10Req());
+        } catch (IOException | GeneralSecurityException e) {
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "CSR processing failed",
+                BAD_REQUEST, e.getMessage(), AcmeController.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
+
+        if( !pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10Holder, new ArrayList<>())){
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "request restriction mismatch",
+                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
+
+        String pipelineName = ( pipeline == null) ? "NoPipeline":pipeline.getName();
+        String requestorName = "EST client";
+        LOG.debug("doEnrol: processing request by {} using pipeline {}", requestorName,pipelineName);
+
+        CSR csr = cpUtil.buildCSR(csrAsPEM, requestorName, AuditService.AUDIT_EST_CERTIFICATE_REQUESTED, "", pipeline );
+
+        if( csr == null) {
+            String msg = CREATION_OF_CERTIFICATE_BY_EST_REQUEST_FAILED;
+            auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr, msg));
+            LOG.info(msg);
+            return null;
+        }
+
+        Certificate cert = null;
+        try {
+            cert = cpUtil.processCertificateRequest(csr, requestorName,  AuditService.AUDIT_ESTP_CERTIFICATE_CREATED, pipeline );
+        }catch (CAFailureException caFailureException){
+            LOG.info("certificate creation failed", caFailureException);
+        }
+
+        if( cert == null) {
+            String msg = CREATION_OF_CERTIFICATE_BY_EST_REQUEST_FAILED;
+            auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr, msg));
+            LOG.info(msg);
+        }else {
+            LOG.debug("new certificate id '{}' for EST request", cert.getId());
+        }
+        return cert;
+    }
+
+    String[] parseBasicAuth(final String authorization) {
+        if (authorization != null && authorization.toLowerCase().startsWith("basic")) {
+            // Authorization: Basic base64credentials
+            String base64Credentials = authorization.substring("Basic".length()).trim();
+            byte[] credDecoded = java.util.Base64.getDecoder().decode(base64Credentials);
+            String credentials = new String(credDecoded, StandardCharsets.UTF_8);
+            // credentials = username:password
+            return credentials.split(":", 2);
+        }
+        return null;
+    }
+
+    private Certificate findClientCertificate(HttpServletRequest request) {
+
+        X509Certificate[] certs = (X509Certificate[]) request.getAttribute("jakarta.servlet.request.X509Certificate");
+        if (certs == null || certs.length == 0) {
+            // fallback for Spring boot 2.*
+            certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
+        }
+        if (certs == null || certs.length == 0) {
+            return null;
+        }
+        try {
+            LOG.info("user authenticated by client cert with subject '{}' / swrial {}",
+                certs[0].getSubjectX500Principal().getName(),
+                certs[0].getSerialNumber());
+            JcaX509ExtensionUtils util = new JcaX509ExtensionUtils();
+            SubjectKeyIdentifier ski = util.createSubjectKeyIdentifier(certs[0].getPublicKey());
+            String b46Ski = Base64.encodeBase64String(ski.getKeyIdentifier());
+
+            List<Certificate> certificateList =  certificateRepository.findActiveBySKI(b46Ski);
+            if( certificateList.isEmpty()){
+                LOG.info("pre-issued certificate unknown");
+                return null;
+            }
+            return certificateList.get(0);
+        } catch( GeneralSecurityException e) {
+            LOG.info("problem processing client certificate", e);
+        }
+
+        return null;
+    }
+
+    private ResponseEntity<?> buildCertificateResponse(Pipeline pipeline, byte[] csr) {
+        Certificate certificate = startCertificateCreationProcess(csr, pipeline);
+        try {
+            return buildPKCS7CertsResponse(
+                Collections.singletonList(certificateUtil.getX509CertificateChain(certificate)[0]), true);
+        } catch (GeneralSecurityException e) {
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, "certificate parsing problem",
+                HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), AcmeController.NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
+    }
+
+    boolean isPasswordValid(final Pipeline pipeline, final String password) {
+
+        if( password == null || password.isEmpty()) {
+            LOG.warn("password not present in EST request / is empty!");
+            return false;
+        }
+
+        List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.EST_PW,pipeline.getId());
+        for(ProtectedContent pc: listPC){
+            String expectedPassword = protectedContentUtil.unprotectString(pc.getContentBase64()).trim();
+            if( password.trim().equals(expectedPassword)) {
+                LOG.debug("Protected Content found matching EST password");
+                return true; // the only successful exit !!
+            } else {
+
+                LOG.debug("Protected Content password does not match EST password '{}' != '{}'",
+                    truncatePassword(expectedPassword),
+                    truncatePassword(password));
+            }
+        }
+
+        LOG.warn("no (active) password present in pipeline '" + pipeline.getName() + "' !");
+        return false;
+    }
+
+    public String truncatePassword(final String password){
+        if( password == null || (password.length() < 5)){
+            return "******r3t";
+        }
+        return password.substring(password.length() - 4);
+    }
 }

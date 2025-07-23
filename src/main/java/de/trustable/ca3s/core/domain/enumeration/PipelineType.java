@@ -6,6 +6,7 @@ package de.trustable.ca3s.core.domain.enumeration;
 public enum PipelineType {
     ACME,
     SCEP,
+    EST,
     WEB,
     INTERNAL,
     MANUAL_REQUEST,

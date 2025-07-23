@@ -267,6 +267,7 @@ public class SecurityConfiguration{
                 .antMatchers("/css/*.css")
                 .antMatchers("/i18n/**")
                 .antMatchers("/content/**")
+                .antMatchers("/.well-known/est/**")
                 .antMatchers("/h2-console/**")
                 .antMatchers("/swagger-ui/index.html")
                 .antMatchers("/test/**")
@@ -439,9 +440,10 @@ public class SecurityConfiguration{
             .requestMatchers(forPortAndPath(acmePort, "/acme/**")).permitAll()
             .antMatchers("/acme/**").denyAll()
 
+            /*
             .requestMatchers(forPortAndPath(estPort, "/.well-known/est/**")).permitAll()
             .antMatchers("/.well-known/est/**").denyAll()
-
+*/
             .requestMatchers(forPortAndPath(scepPort, "/scep/**")).permitAll()
             .antMatchers("/scep/**").denyAll()
 
