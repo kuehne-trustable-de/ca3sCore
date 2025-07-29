@@ -179,7 +179,7 @@
         <keycloak.version>26.0.6</keycloak.version>
         <keycloak.adapter.version>25.0.3</keycloak.adapter.version>
 
-        <bouncyCastleVersion>1.80</bouncyCastleVersion>
+        <bouncyCastleVersion>1.81</bouncyCastleVersion>
 
         <cryptoUtilVersion>1.3.31</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
