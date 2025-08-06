@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.15_6-jre-alpine
+FROM eclipse-temurin:17.0.16_8-jre-alpine
 
 RUN apk add --no-cache python3 py3-pip
 
