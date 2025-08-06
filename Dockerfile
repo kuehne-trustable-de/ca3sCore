@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17.0.15_6-jdk-alpine
+FROM eclipse-temurin:17.0.16_8-jdk-alpine
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
 COPY data/certs/ /trusted
