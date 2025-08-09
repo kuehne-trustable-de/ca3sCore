@@ -6,6 +6,7 @@ import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.TypedValue;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.test.util.UserTestSupport;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
@@ -31,7 +32,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Random;
 
-import static org.junit.Assert.fail;
+import static de.trustable.ca3s.core.service.util.ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER;
+
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Config(
@@ -63,6 +65,14 @@ public class CAConnectorAdministrationIT extends WebTestBase{
     public static final By LOC_INP_CA_CONFIG_PASSPHRASE = By.xpath("//div/input [@type = 'password'][@id = 'ca-connector-config-plainSecret']");
     public static final By LOC_INP_CA_ISSUER_NAME = By.xpath("//div/input [@type = 'text'][@id = 'ca-connector-config-issuerName']");
     public static final By LOC_INP_CA_MESSAGE_CONTENT_TYPE = By.xpath("//div/input [@type = 'text'][@id = 'ca-connector-config-msgContentType']");
+
+    public static final By LOC_SEL_CA_KDF_TYPE = By.xpath("//div//select [@id = 'authentication-selection-kdf-type']");
+    public static final By LOC_INP_CA_PLAIN_SECRET = By.xpath("//div/input [@type = 'password'][@id = 'ca-connector-config-plainSecret']");
+    public static final By LOC_INP_CA_SALT = By.xpath("//div/input [@type = 'text'][@id = 'authentication-selection-salt']");
+    public static final By LOC_INP_CA_CYCLES = By.xpath("//div/input [@type = 'number'][@id = 'authentication-selection-cycles']");
+    public static final By LOC_INP_CA_API_SALT = By.xpath("//div/input [@type = 'text'][@id = 'authentication-selection-api-salt']");
+    public static final By LOC_INP_CA_API_CYCLES = By.xpath("//div/input [@type = 'number'][@id = 'authentication-selection-api-cycles']");
+
     public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='submit'][span [text() = 'Save']]");
     public static final By LOC_TEXT_CONNECTOR_LIST = By.xpath("//div/h2/span [text() = 'CA Connector Configs']");
     private static final Logger LOG = LoggerFactory.getLogger(CAConnectorAdministrationIT.class);
@@ -174,7 +184,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_CA_CONFIG_TYPE);
         click(LOC_SEL_CA_CONFIG_TYPE);
-        selectOptionByText(LOC_SEL_CA_CONFIG_TYPE, "CMP");
+        selectOptionByValue(LOC_SEL_CA_CONFIG_TYPE, "CMP");
 
         validatePresent(LOC_INP_CA_CONFIG_DEFAULT_CA);
 
@@ -211,6 +221,12 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validatePresent(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
         click(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
         setText(LOC_INP_CA_MESSAGE_CONTENT_TYPE, newCAConnectorMessageContenType);
+
+        validateNotPresent(LOC_SEL_CA_KDF_TYPE);
+        validateNotPresent(LOC_INP_CA_SALT);
+        validateNotPresent(LOC_INP_CA_CYCLES);
+        validateNotPresent(LOC_INP_CA_API_SALT);
+        validateNotPresent(LOC_INP_CA_API_CYCLES);
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
@@ -269,7 +285,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_CA_CONFIG_TYPE);
         click(LOC_SEL_CA_CONFIG_TYPE);
-        selectOptionByText(LOC_SEL_CA_CONFIG_TYPE, "ADCS");
+        selectOptionByValue(LOC_SEL_CA_CONFIG_TYPE, "ADCS");
 
         validatePresent(LOC_INP_CA_CONFIG_DEFAULT_CA);
 
@@ -280,6 +296,28 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validatePresent(LOC_INP_CA_CONFIG_SELECTOR);
         click(LOC_INP_CA_CONFIG_SELECTOR);
         setText(LOC_INP_CA_CONFIG_SELECTOR, newCAConnectorTemplate);
+
+        validatePresent(LOC_SEL_CA_KDF_TYPE);
+
+        validatePresent(LOC_INP_CA_PLAIN_SECRET);
+        click(LOC_INP_CA_PLAIN_SECRET);
+        setText(LOC_INP_CA_PLAIN_SECRET, "FooBarBaz");
+
+        validatePresent(LOC_INP_CA_SALT);
+        click(LOC_INP_CA_SALT);
+        setText(LOC_INP_CA_SALT, "SaltSalt");
+
+        validatePresent(LOC_INP_CA_CYCLES);
+        click(LOC_INP_CA_CYCLES);
+        setText(LOC_INP_CA_CYCLES, "100000");
+
+        validatePresent(LOC_INP_CA_API_SALT);
+        click(LOC_INP_CA_API_SALT);
+        setText(LOC_INP_CA_API_SALT, "SaltAPISalt");
+
+        validatePresent(LOC_INP_CA_API_CYCLES);
+        click(LOC_INP_CA_API_CYCLES);
+        setText(LOC_INP_CA_API_CYCLES, "100001");
 
         validateNotPresent(LOC_INP_CA_CONFIG_TLS_AUTH);
         validateNotPresent(LOC_INP_CA_CONFIG_PW_PROT);
@@ -326,6 +364,14 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
         Assertions.assertEquals( updatedCAConnectorUrl, getText(LOC_SEL_CA_CONFIG_URL));
 
+        Assertions.assertEquals("PBKDF2", getText(LOC_SEL_CA_KDF_TYPE));
+        Assertions.assertEquals(PLAIN_SECRET_PLACEHOLDER, getText(LOC_INP_CA_PLAIN_SECRET));
+        Assertions.assertEquals("SaltSalt", getText(LOC_INP_CA_SALT));
+        Assertions.assertEquals("100000", getText(LOC_INP_CA_CYCLES));
+        Assertions.assertEquals("SaltAPISalt", getText(LOC_INP_CA_API_SALT));
+        Assertions.assertEquals("100001", getText(LOC_INP_CA_API_CYCLES));
+
+
     }
 
     @Test
@@ -354,7 +400,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_CA_CONFIG_TYPE);
         click(LOC_SEL_CA_CONFIG_TYPE);
-        selectOptionByText(LOC_SEL_CA_CONFIG_TYPE, "ADCS_CERTIFICATE_INVENTORY");
+        selectOptionByValue(LOC_SEL_CA_CONFIG_TYPE, "ADCS_CERTIFICATE_INVENTORY");
 
         validatePresent(LOC_SEL_CA_CONFIG_URL);
         click(LOC_SEL_CA_CONFIG_URL);
@@ -366,7 +412,29 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_CA_CONFIG_INTERVAL);
         click(LOC_SEL_CA_CONFIG_INTERVAL);
-        selectOptionByText(LOC_SEL_CA_CONFIG_INTERVAL, "HOUR");
+        selectOptionByValue(LOC_SEL_CA_CONFIG_INTERVAL, "HOUR");
+
+        validatePresent(LOC_SEL_CA_KDF_TYPE);
+
+        validatePresent(LOC_INP_CA_PLAIN_SECRET);
+        click(LOC_INP_CA_PLAIN_SECRET);
+        setText(LOC_INP_CA_PLAIN_SECRET, "FooBarBaz");
+
+        validatePresent(LOC_INP_CA_SALT);
+        click(LOC_INP_CA_SALT);
+        setText(LOC_INP_CA_SALT, "SaltSalt");
+
+        validatePresent(LOC_INP_CA_CYCLES);
+        click(LOC_INP_CA_CYCLES);
+        setText(LOC_INP_CA_CYCLES, "100000");
+
+        validatePresent(LOC_INP_CA_API_SALT);
+        click(LOC_INP_CA_API_SALT);
+        setText(LOC_INP_CA_API_SALT, "SaltAPISalt");
+
+        validatePresent(LOC_INP_CA_API_CYCLES);
+        click(LOC_INP_CA_API_CYCLES);
+        setText(LOC_INP_CA_API_CYCLES, "100001");
 
         validateNotPresent(LOC_INP_CA_CONFIG_DEFAULT_CA);
         validateNotPresent(LOC_INP_CA_CONFIG_SELECTOR);
@@ -401,7 +469,14 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         Assertions.assertEquals(newCAConnectorUrl, getText(LOC_SEL_CA_CONFIG_URL));
         Assertions.assertEquals(newCAConnectorPollingOffset, getText(LOC_INP_CA_CONFIG_POLLING_OFFSET));
         Assertions.assertEquals("HOUR", getText(LOC_SEL_CA_CONFIG_INTERVAL));
-        Assertions.assertEquals("*****", getText(LOC_INP_CA_CONFIG_PASSPHRASE));
+        Assertions.assertEquals(PLAIN_SECRET_PLACEHOLDER, getText(LOC_INP_CA_CONFIG_PASSPHRASE));
+
+        Assertions.assertEquals("PBKDF2", getText(LOC_SEL_CA_KDF_TYPE));
+        Assertions.assertEquals(PLAIN_SECRET_PLACEHOLDER, getText(LOC_INP_CA_PLAIN_SECRET));
+        Assertions.assertEquals("SaltSalt", getText(LOC_INP_CA_SALT));
+        Assertions.assertEquals("100000", getText(LOC_INP_CA_CYCLES));
+        Assertions.assertEquals("SaltAPISalt", getText(LOC_INP_CA_API_SALT));
+        Assertions.assertEquals("100001", getText(LOC_INP_CA_API_CYCLES));
 
     }
 
@@ -428,7 +503,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_CA_CONFIG_TYPE);
         click(LOC_SEL_CA_CONFIG_TYPE);
-        selectOptionByText(LOC_SEL_CA_CONFIG_TYPE, "DIRECTORY");
+        selectOptionByValue(LOC_SEL_CA_CONFIG_TYPE, "DIRECTORY");
 
         validatePresent(LOC_SEL_CA_CONFIG_URL);
         click(LOC_SEL_CA_CONFIG_URL);
@@ -438,7 +513,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_CA_CONFIG_INTERVAL);
         click(LOC_SEL_CA_CONFIG_INTERVAL);
-        selectOptionByText(LOC_SEL_CA_CONFIG_INTERVAL, "DAY");
+        selectOptionByValue(LOC_SEL_CA_CONFIG_INTERVAL, "DAY");
 
         validateNotPresent(LOC_INP_CA_CONFIG_DEFAULT_CA);
         validateNotPresent(LOC_INP_CA_CONFIG_POLLING_OFFSET);
@@ -448,6 +523,13 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validateNotPresent(LOC_INP_CA_CONFIG_MESSAGE_PROTECTION);
         validateNotPresent(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
         validateNotPresent(LOC_INP_CA_CONFIG_PASSPHRASE);
+
+        validateNotPresent(LOC_SEL_CA_KDF_TYPE);
+        validateNotPresent(LOC_INP_CA_PLAIN_SECRET);
+        validateNotPresent(LOC_INP_CA_SALT);
+        validateNotPresent(LOC_INP_CA_CYCLES);
+        validateNotPresent(LOC_INP_CA_API_SALT);
+        validateNotPresent(LOC_INP_CA_API_CYCLES);
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
@@ -495,7 +577,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_CA_CONFIG_TYPE);
         click(LOC_SEL_CA_CONFIG_TYPE);
-        selectOptionByText(LOC_SEL_CA_CONFIG_TYPE, "INTERNAL");
+        selectOptionByValue(LOC_SEL_CA_CONFIG_TYPE, "INTERNAL");
 
         validatePresent(LOC_INP_CA_CONFIG_DEFAULT_CA);
 
@@ -509,6 +591,13 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validateNotPresent(LOC_INP_CA_CONFIG_MESSAGE_PROTECTION);
         validateNotPresent(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
         validateNotPresent(LOC_INP_CA_CONFIG_PASSPHRASE);
+
+        validateNotPresent(LOC_SEL_CA_KDF_TYPE);
+        validateNotPresent(LOC_INP_CA_PLAIN_SECRET);
+        validateNotPresent(LOC_INP_CA_SALT);
+        validateNotPresent(LOC_INP_CA_CYCLES);
+        validateNotPresent(LOC_INP_CA_API_SALT);
+        validateNotPresent(LOC_INP_CA_API_CYCLES);
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);

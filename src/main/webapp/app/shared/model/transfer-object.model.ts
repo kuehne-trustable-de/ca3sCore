@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-15 18:46:33.
+// Generated using typescript-generator version 3.2.1263 on 2025-08-05 16:40:25.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -83,6 +83,16 @@ export interface IAcmeOrderView extends ISerializable {
   accountId?: string;
 }
 
+export interface IAuthenticationParameter {
+  kdfType?: IKDFType;
+  plainSecret?: string;
+  secretValidTo?: Date;
+  salt?: string;
+  cycles?: number;
+  apiKeySalt?: string;
+  apiKeyCycles?: number;
+}
+
 export interface IScepOrderView extends ISerializable {
   id?: number;
   transId?: string;
@@ -125,8 +135,6 @@ export interface ICaConnectorConfigView extends ISerializable {
   selector?: string;
   interval?: IInterval;
   messageProtectionPassphrase?: boolean;
-  plainSecret?: string;
-  secretValidTo?: Date;
   tlsAuthenticationId?: number;
   messageProtectionId?: number;
   ignoreResponseMessageVerification?: boolean;
@@ -136,6 +144,7 @@ export interface ICaConnectorConfigView extends ISerializable {
   implicitConfirm?: boolean;
   fillEmptySubjectWithSAN?: boolean;
   expiryDate?: Date;
+  authenticationParameter?: IAuthenticationParameter;
 }
 
 export interface IPipelineView extends ISerializable {
@@ -262,10 +271,10 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  issuingActiveCertificates?: boolean;
-  fullChainAvailable?: boolean;
   serversideKeyGeneration?: boolean;
+  fullChainAvailable?: boolean;
   auditPresent?: boolean;
+  issuingActiveCertificates?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -597,6 +606,8 @@ export interface IAcmeConfigItems extends ISerializable {
 
 export interface ISCEPConfigItems extends ISerializable {
   capabilityRenewal?: boolean;
+  periodDaysRenewal?: number;
+  percentageOfValidtyBeforeRenewal?: number;
   capabilityPostPKIOperation?: boolean;
   recepientCertSubject?: string;
   recepientCertSerial?: string;
@@ -942,6 +953,8 @@ export type ISelector =
 export type IAccountStatus = 'valid' | 'pending' | 'deactivated' | 'revoked';
 
 export type IAcmeOrderStatus = 'pending' | 'ready' | 'processing' | 'valid' | 'invalid';
+
+export type IKDFType = 'PBKDF2';
 
 export type IScepOrderStatus = 'PENDING' | 'READY' | 'INVALID';
 
