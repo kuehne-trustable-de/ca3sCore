@@ -11,7 +11,7 @@ import java.util.*;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.*;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
-import de.trustable.ca3s.core.exception.SMSSendingFaiedException;
+import de.trustable.ca3s.core.exception.SMSSendingFailedException;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.AuditService;
@@ -393,9 +393,9 @@ public class BPMNUtil{
 
         List<BPMNProcessInfo> bpmnProcessInfoList = bpnmInfoRepo.findByType(BPMNProcessType.SEND_SMS);
         if( bpmnProcessInfoList.isEmpty()){
-            throw new SMSSendingFaiedException("No BPMN Process Info with type BPMNProcessType.SEND_SMS not present!");
+            throw new SMSSendingFailedException("No BPMN Process Info with type BPMNProcessType.SEND_SMS not present!");
         }else if( bpmnProcessInfoList.size() > 1) {
-            throw new SMSSendingFaiedException("Too many BPMN Process Info with type BPMNProcessType.SEND_SMS present!");
+            throw new SMSSendingFailedException("Too many BPMN Process Info with type BPMNProcessType.SEND_SMS present!");
         }else {
 
             BPMNProcessInfo smsProcessInfo = bpmnProcessInfoList.get(0);
@@ -404,7 +404,7 @@ public class BPMNUtil{
 
             Object reason = processInstanceWithVariables.getVariables().get("failureReason");
             if( reason != null && !reason.toString().isEmpty()) {
-                throw new SMSSendingFaiedException(reason.toString());
+                throw new SMSSendingFailedException(reason.toString());
             }
         }
     }
@@ -654,7 +654,6 @@ public class BPMNUtil{
             }
         });
     }
-
     public BPMNProcessInfoView toBPMNProcessInfoView( BPMNProcessInfo bpmnProcessInfo) {
         BPMNProcessInfoView bpmnProcessInfoView = new BPMNProcessInfoView();
         bpmnProcessInfoView.setId(bpmnProcessInfo.getId());

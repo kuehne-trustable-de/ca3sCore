@@ -71,6 +71,9 @@
                 <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()">Cancel</button>
                 <button type="button" class="btn btn-primary" id="jhi-confirm-delete-pipeline" v-text="$t('entity.action.delete')" v-on:click="removeBPMNProcess()">Delete</button>
             </div>
+            <div v-if="deletionWarningMessage">
+              <span id="ca3SApp.bpmn.delete.error">{{deletionWarningMessage}}</span>
+            </div>
         </b-modal>
     </div>
 </template>

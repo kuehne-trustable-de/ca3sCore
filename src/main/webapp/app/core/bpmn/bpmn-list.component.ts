@@ -95,6 +95,8 @@ VuejsDatatableFactory.registerTableType<any, any, any, any, any>('bpmn-table', t
 export default class BpmnList extends mixins(AlertMixin, Vue) {
   @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
 
+  public deletionWarningMessage: string = null;
+
   public get authenticated(): boolean {
     return this.$store.getters.authenticated;
   }
@@ -218,14 +220,17 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
 
   public prepareRemove(instance: IBPMNProcessInfo): void {
     this.removeId = instance.id;
+    this.deletionWarningMessage = null;
   }
 
   public removeBPMNProcess(): void {
     const self = this;
+    const removeId = this.removeId;
 
-    this.bPNMProcessInfoService()
-      .delete(this.removeId)
-      .then(() => {
+    this.deletionWarningMessage = null;
+
+    axios.delete(`api/bpmn-process-infos/${removeId}`).then(
+      data => {
         const message = this.$t('ca3SApp.bpmn.deleted', { param: this.removeId });
         self.alertService().showAlert(message, 'danger');
         self.getAlertFromStore();
@@ -233,7 +238,16 @@ export default class BpmnList extends mixins(AlertMixin, Vue) {
         self.removeId = null;
         self.buildContentAccessUrl();
         self.closeDialog();
-      });
+      },
+      error => {
+        console.log(error);
+        if (error.response.data.detail) {
+          self.deletionWarningMessage = error.response.data.detail;
+        } else if (error.response.data.message) {
+          self.deletionWarningMessage = error.response.data.message;
+        }
+      }
+    );
   }
 
   public closeDialog(): void {

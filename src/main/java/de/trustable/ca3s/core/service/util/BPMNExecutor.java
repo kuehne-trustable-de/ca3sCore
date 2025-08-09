@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BPMNExecutor {
@@ -29,6 +27,7 @@ public class BPMNExecutor {
         this.runtimeService = runtimeService;
         this.bpnmInfoRepo = bpnmInfoRepo;
         this.protectedContentUtil = protectedContentUtil;
+
     }
 
 
@@ -46,10 +45,16 @@ public class BPMNExecutor {
 
         LOG.debug("execute BPMN Process Info ''{}' ", bpmnProcessInfo.getName());
 
-        for( BPMNProcessAttribute bpmnProcessAttribute :bpmnProcessInfo.getBpmnProcessAttributes()){
+         Set<BPMNProcessAttribute> variableSet = bpmnProcessInfo.getBpmnProcessAttributes();
+         HashSet<String> protectedNameSet = new HashSet<>();
+
+        for( BPMNProcessAttribute bpmnProcessAttribute : variableSet){
 
             String value = bpmnProcessAttribute.getValue();
+
             if( Boolean.TRUE.equals(bpmnProcessAttribute.getProtectedContent())) {
+
+                protectedNameSet.add("processAttribute_" + bpmnProcessAttribute.getName());
                 List<ProtectedContent> protectedContents = protectedContentUtil.retrieveProtectedContent(
                     ProtectedContentType.SECRET,
                     ContentRelationType.BPMN_ATTRIBUTE,
@@ -72,18 +77,25 @@ public class BPMNExecutor {
         variables.put("status", "Failed");
         variables.put("failureReason", "");
 
+        ProcessInstanceWithVariables processInstance = null;
         try {
-            ProcessInstanceWithVariables processInstance = runtimeService.createProcessInstanceById(bpmnProcessInfo.getProcessId()).setVariables(variables).executeWithVariablesInReturn();
+            processInstance = runtimeService.createProcessInstanceById(bpmnProcessInfo.getProcessId()).setVariables(variables).executeWithVariablesInReturn();
             String processInstanceId = processInstance.getId();
             LOG.info("ProcessInstance: {}", processInstanceId);
-            return processInstance;
-        }catch(RuntimeException processException){
+
+            Map<String, Object> resultvariables = processInstance.getVariables();
+            for(String key: resultvariables.keySet()){
+                LOG.debug("bpmn process resultvariables: {}", key);
+                if(protectedNameSet.contains(key)){
+                    resultvariables.replace(key, "**********");
+                }
+            }
+        }catch(Exception processException){
             if(LOG.isDebugEnabled()){
                 LOG.debug("Exception while calling bpmn process '"+bpmnProcessInfo.getProcessId()+"'", processException);
             }
-            throw processException;
         }
+        return processInstance;
     }
-
 
 }
