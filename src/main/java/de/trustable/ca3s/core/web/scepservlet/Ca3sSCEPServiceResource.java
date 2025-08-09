@@ -48,11 +48,8 @@ public class Ca3sSCEPServiceResource {
         Pipeline pipeline = pipeUtil.getPipelineByRealm(PipelineType.SCEP, realm);
         if( pipeline == null ) {
             LOGGER.info("no matching pipeline for scep request realm {}", realm);
-//            throw new ServletException("Request URL not found");
-
         }else if( !pipeline.isActive() ) {
             LOGGER.info("Deactivated pipeline '{}' found for scep request realm '{}'", pipeline.getName(), realm);
-//          throw new ServletException("Request URL not found");
             pipeline = null;
         }
 

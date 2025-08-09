@@ -10,8 +10,10 @@ public class SCEPConfigItems implements Serializable {
 	 */
 	private static final long serialVersionUID = 7551079211047239363L;
 
-	private boolean capabilityRenewal = true;
+    private boolean capabilityRenewal = true;
 	private boolean capabilityPostPKIOperation = true;
+    private int periodDaysRenewal = 5 * 365;
+    private int percentageOfValidtyBeforeRenewal = 80;
 
     private String recepientCertSubject = "";
     private String recepientCertSerial = "1";
@@ -42,6 +44,22 @@ public class SCEPConfigItems implements Serializable {
 	public void setCapabilityPostPKIOperation(boolean capabilityPostPKIOperation) {
 		this.capabilityPostPKIOperation = capabilityPostPKIOperation;
 	}
+
+    public int getPeriodDaysRenewal() {
+        return periodDaysRenewal;
+    }
+
+    public void setPeriodDaysRenewal(int periodDaysRenewal) {
+        this.periodDaysRenewal = periodDaysRenewal;
+    }
+
+    public int getPercentageOfValidtyBeforeRenewal() {
+        return percentageOfValidtyBeforeRenewal;
+    }
+
+    public void setPercentageOfValidtyBeforeRenewal(int percentageOfValidtyBeforeRenewal) {
+        this.percentageOfValidtyBeforeRenewal = percentageOfValidtyBeforeRenewal;
+    }
 
     public String getScepSecretPCId() {
         return scepSecretPCId;
