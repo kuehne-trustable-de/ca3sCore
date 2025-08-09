@@ -9,7 +9,6 @@ import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.exception.PasswordRestrictionMismatchException;
 import de.trustable.ca3s.core.exception.UserNotFoundException;
 import de.trustable.ca3s.core.repository.CertificateRepository;

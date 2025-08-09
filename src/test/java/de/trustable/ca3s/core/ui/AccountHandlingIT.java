@@ -39,10 +39,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class AccountHandlingIT extends WebTestBase{
 
     public static final By LOC_LNK_ACCOUNT_REGISTER_MENUE = By.xpath("//nav//a [span [text() = 'Register']]");
-    public static final By LOC_LNK_ACCOUNT_PASSWORD_MENUE = By.xpath("//nav//a [span [text() = 'Password']]");
+    public static final By LOC_LNK_ACCOUNT_PASSWORD_MENUE = By.xpath("//nav//a [span/@id='menu-account-password']");
 
-    public static final By LOC_LNK_ADMIN_MENUE = By.xpath("//nav//a [span [text() = 'Administration']]");
-    public static final By LOC_LNK_USER_MANAGEMENT_MENUE = By.xpath("//nav//a [span [text() = 'User Management']]");
+    public static final By LOC_LNK_USER_MANAGEMENT_MENUE = By.xpath("//nav//a [span/@id='admin-user-management']");
 
     public static final By LOC_TEXT_REGISTER_HEADER = By.xpath("//div/h1 [text() = 'Registration']");
 
