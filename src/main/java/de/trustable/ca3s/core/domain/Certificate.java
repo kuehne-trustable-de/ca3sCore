@@ -34,10 +34,19 @@ import javax.validation.constraints.*;
         " c.serial = :serial"
     ),
 
+    @NamedQuery(name = "Certificate.findActiveByAttribute",
+        query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+            " att1.name = :name and att1.value is not null AND " +
+            " c.active = TRUE "
+    ),
     @NamedQuery(name = "Certificate.findActiveByAttributeValue",
         query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
             " att1.name = :name and att1.value = :value AND " +
             " c.active = TRUE "
+    ),
+    @NamedQuery(name = "Certificate.findByAttribute",
+        query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +
+            " att1.name = :name"
     ),
     @NamedQuery(name = "Certificate.findByAttributeValue",
         query = "SELECT distinct c FROM Certificate c JOIN c.certificateAttributes att1 WHERE " +

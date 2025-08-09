@@ -28,6 +28,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
@@ -98,7 +99,7 @@ public class PipelineUtil {
     public static final String RESTR_ARA_REGEXMATCH = "REGEXMATCH";
     public static final String RESTR_ARA_REQUIRED = "REQUIRED";
     public static final String RESTR_ARA_COMMENT = "COMMENT";
-    public static final String RESTR_ARA_CONTENT_TYPE = "CONTENTTYPE";
+    public static final String RESTR_ARA_CONTENT_TYPE = "ARAContentType";
 
     public static final String KEY_UNIQUENESS = "KEY_UNIQUENESS";
     public static final String TOS_AGREEMENT_REQUIRED = "TOS_AGREEMENT_REQUIRED";
@@ -148,6 +149,8 @@ public class PipelineUtil {
     public static final String SCEP_RECIPIENT_DN = "SCEP_RECIPIENT_DN";
     public static final String SCEP_RECIPIENT_KEY_TYPE_LEN = "SCEP_RECIPIENT_KEY_TYPE_LEN";
     public static final String SCEP_CA_CONNECTOR_RECIPIENT_NAME = "SCEP_CA_CONNECTOR_RECIPIENT_NAME";
+    public static final String SCEP_PERIOD_DAYS_RENEWAL = "SCEP_PERIOD_DAYS_RENEWAL";
+    public static final String SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL = "SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL";
 
 
     Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
@@ -271,7 +274,9 @@ public class PipelineUtil {
 
         List<String> domainRaOfficerList = new ArrayList<>();
 
-        pv.setRequestProxyConfigIds(pipeline.getRequestProxies().stream().mapToLong(r -> r.getId()).toArray());
+        if( pipeline.getRequestProxies() != null) {
+            pv.setRequestProxyConfigIds(pipeline.getRequestProxies().stream().mapToLong(r -> r.getId()).toArray());
+        }
 
 //    	acmeConfigItems.setProcessInfoNameAccountValidation(processInfoNameAccountValidation);
 
@@ -310,6 +315,12 @@ public class PipelineUtil {
                 scepConfigItems.setKeyAlgoLength(keyAlgoLength);
             } else if (SCEP_CA_CONNECTOR_RECIPIENT_NAME.equals(plAtt.getName())) {
                 scepConfigItems.setCaConnectorRecipientName(plAtt.getValue());
+            } else if (SCEP_CAPABILITY_RENEWAL.equals(plAtt.getName())) {
+                scepConfigItems.setCapabilityRenewal(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (SCEP_PERIOD_DAYS_RENEWAL.equals(plAtt.getName())) {
+                scepConfigItems.setPeriodDaysRenewal(Integer.parseInt(plAtt.getValue()));
+            } else if (SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL.equals(plAtt.getName())) {
+                scepConfigItems.setPercentageOfValidtyBeforeRenewal(Integer.parseInt(plAtt.getValue()));
             } else if (SCEP_SECRET_PC_ID.equals(plAtt.getName())) {
 
                 Optional<ProtectedContent> optPC = protectedContentRepository.findById(Long.parseLong(plAtt.getValue()));
@@ -951,6 +962,9 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_RENEWAL, pv.getScepConfigItems().isCapabilityRenewal());
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_POST, pv.getScepConfigItems().isCapabilityPostPKIOperation());
 
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_PERIOD_DAYS_RENEWAL, Integer.toString(pv.getScepConfigItems().getPeriodDaysRenewal()));
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL, Integer.toString(pv.getScepConfigItems().getPercentageOfValidtyBeforeRenewal()));
+
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_DN, pv.getScepConfigItems().getScepRecipientDN());
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_KEY_TYPE_LEN, pv.getScepConfigItems().getKeyAlgoLength().toString());
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CA_CONNECTOR_RECIPIENT_NAME, pv.getScepConfigItems().getCaConnectorRecipientName());
@@ -968,49 +982,13 @@ public class PipelineUtil {
             }
         }
 
-        ProtectedContent pc;
-        List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW, p.getId());
-        if (listPC.isEmpty()) {
+        if (PipelineType.SCEP.equals(pv.getType())) {
+            ProtectedContent pc = getProtectedContent(pv, p,
+                ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,
+                auditList);
 
-            pc = new ProtectedContent();
-            pc.setType(ProtectedContentType.PASSWORD);
-            pc.setRelationType(ContentRelationType.SCEP_PW);
-            pc.setRelatedId(p.getId());
-            pc.setCreatedOn(Instant.now());
-            pc.setLeftUsages(-1);
-            pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
-            pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
-
-            LOG.debug("Protected Content created for SCEP password");
-        } else {
-            pc = listPC.get(0);
-            LOG.debug("Protected Content found for SCEP password");
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_SECRET_PC_ID, pc.getId().toString());
         }
-
-        if( pv.getScepConfigItems() != null && pv.getScepConfigItems().getScepSecret() != null ) {
-
-            String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
-            Instant validTo = Instant.now().plus(365, ChronoUnit.DAYS);
-            if( pv.getScepConfigItems().getScepSecretValidTo() != null) {
-                validTo = pv.getScepConfigItems().getScepSecretValidTo();
-            }
-
-            if (oldContent == null ||
-                !oldContent.equals(pv.getScepConfigItems().getScepSecret()) ||
-                pc.getValidTo() == null ||
-                !pc.getValidTo().equals(validTo)) {
-
-
-                pc.setContentBase64(protectedContentUtil.protectString(pv.getScepConfigItems().getScepSecret()));
-                pc.setValidTo(validTo);
-                pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
-                protectedContentRepository.save(pc);
-//                LOG.debug("SCEP password updated {} -> {}, {} -> {}", oldContent, pv.getScepConfigItems().getScepSecret(), validTo, pc.getValidTo());
-                auditList.add(auditService.createAuditTracePipelineAttribute("SCEP_SECRET", "#######", "******", p));
-            }
-        }
-
-        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_SECRET_PC_ID, pc.getId().toString());
 
         p.setPipelineAttributes(pipelineAttributes);
 
@@ -1093,6 +1071,54 @@ public class PipelineUtil {
         }
 
         return p;
+    }
+
+    private ProtectedContent getProtectedContent(PipelineView pv, Pipeline p,
+                                                 ProtectedContentType protectedContentType,
+                                                 ContentRelationType contentRelationType,
+                                                 List<AuditTrace> auditList) {
+        ProtectedContent pc;
+        List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(protectedContentType, contentRelationType, p.getId());
+        if (listPC.isEmpty()) {
+
+            pc = new ProtectedContent();
+            pc.setType(protectedContentType);
+            pc.setRelationType(contentRelationType);
+            pc.setRelatedId(p.getId());
+            pc.setCreatedOn(Instant.now());
+            pc.setLeftUsages(-1);
+            pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
+            pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
+
+            LOG.debug("Protected Content created for {}", contentRelationType);
+        } else {
+            pc = listPC.get(0);
+            LOG.debug("Protected Content found for {}", contentRelationType);
+        }
+
+        if( pv.getScepConfigItems() != null && pv.getScepConfigItems().getScepSecret() != null ) {
+
+            String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
+            Instant validTo = Instant.now().plus(365, ChronoUnit.DAYS);
+            if( pv.getScepConfigItems().getScepSecretValidTo() != null) {
+                validTo = pv.getScepConfigItems().getScepSecretValidTo();
+            }
+
+            if (oldContent == null ||
+                !oldContent.equals(pv.getScepConfigItems().getScepSecret()) ||
+                pc.getValidTo() == null ||
+                !pc.getValidTo().equals(validTo)) {
+
+
+                pc.setContentBase64(protectedContentUtil.protectString(pv.getScepConfigItems().getScepSecret()));
+                pc.setValidTo(validTo);
+                pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
+                protectedContentRepository.save(pc);
+//                LOG.debug("SCEP password updated {} -> {}, {} -> {}", oldContent, pv.getScepConfigItems().getScepSecret(), validTo, pc.getValidTo());
+                auditList.add(auditService.createAuditTracePipelineAttribute(contentRelationType.toString(), "#######", "******", p));
+            }
+        }
+        return pc;
     }
 
     private void auditTraceForAttributes(Pipeline p, List<AuditTrace> auditList, Set<PipelineAttribute> pipelineOldAttributes) {

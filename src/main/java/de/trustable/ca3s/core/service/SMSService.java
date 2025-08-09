@@ -5,7 +5,7 @@ import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.exception.ResendProhibitException;
-import de.trustable.ca3s.core.exception.SMSSendingFaiedException;
+import de.trustable.ca3s.core.exception.SMSSendingFailedException;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -32,7 +32,7 @@ public class SMSService {
     public String sendPIN_SMS(User user){
 
         if( user.getPhone() == null || user.getPhone().isEmpty()){
-            throw new SMSSendingFaiedException("user #{} has no phone number defined");
+            throw new SMSSendingFailedException("user #{} has no phone number defined");
         }
 
         List<ProtectedContent> protectedContents = protectedContentUtil.retrieveProtectedContent(

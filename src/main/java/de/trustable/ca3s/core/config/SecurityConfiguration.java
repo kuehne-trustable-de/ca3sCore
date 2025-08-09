@@ -369,6 +369,7 @@ public class SecurityConfiguration{
             .antMatchers("/api/administerCertificate").denyAll()
 
             // Check this block for usefulness of endpoints
+//            .antMatchers("/camunda/**").permitAll()
             .antMatchers("/api/cockpit/**").permitAll()
             .antMatchers("/api/tasklist/**").permitAll()
             .antMatchers("/api/engine/**").permitAll()

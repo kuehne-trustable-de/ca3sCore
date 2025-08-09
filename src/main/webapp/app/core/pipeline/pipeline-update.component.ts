@@ -2,7 +2,7 @@ import { Component, Inject } from 'vue-property-decorator';
 
 import axios from 'axios';
 
-import { required } from 'vuelidate/lib/validators';
+import { minValue, maxValue, required } from 'vuelidate/lib/validators';
 
 import RequestProxyConfigService from '../request-proxy-config/request-proxy-config.service';
 import {
@@ -13,6 +13,7 @@ import {
   IBPMNProcessType,
   ICsrUsage,
   IKeyAlgoLengthOrSpec,
+  IKeyUniqueness,
   IPipelineType,
   IPipelineView,
   IRDNCardinalityRestriction,
@@ -67,6 +68,18 @@ const validations: any = {
       issuesSecondFactorClientCert: {},
     },
     scepConfigItems: {
+      capabilityRenewal: {},
+      periodDaysRenewal: {
+        required,
+        minValue: minValue(0),
+        maxValue: maxValue(3650),
+      },
+      percentageOfValidtyBeforeRenewal: {
+        required,
+        minValue: minValue(0),
+        maxValue: maxValue(99),
+      },
+
       scepSecretPCId: {},
       scepSecret: {},
       scepSecretValidTo: {},
@@ -256,6 +269,8 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       .then(res => {
         this.domainRAs = res.data;
       });
+
+    this.fillData();
   }
 
   public mounted(): void {}
@@ -353,7 +368,8 @@ export class PipelineView implements IPipelineView {
     public webConfigItems?: IWebConfigItems,
     public auditViewArr?: IAuditView[],
     public csrUsage?: ICsrUsage,
-    public requestProxyConfigIds?: number[]
+    public requestProxyConfigIds?: number[],
+    public keyUniqueness?: IKeyUniqueness
   ) {
     this.toPendingOnFailedRestrictions = this.toPendingOnFailedRestrictions || false;
     this.approvalRequired = this.approvalRequired || false;
@@ -361,6 +377,7 @@ export class PipelineView implements IPipelineView {
     this.ipAsSubjectAllowed = this.ipAsSubjectAllowed || false;
     this.active = this.active || false;
 
+    this.keyUniqueness = this.keyUniqueness || 'KEY_UNIQUE';
     this.acmeConfigItems = new AcmeConfigItems();
     this.scepConfigItems = new SCEPConfigItems();
     this.webConfigItems = new WebConfigItems();
@@ -400,6 +417,8 @@ export class SCEPConfigItems implements ISCEPConfigItems {
   constructor(
     public capabilityRenewal?: boolean,
     public capabilityPostPKIOperation?: boolean,
+    public periodDaysRenewal?: number,
+    public percentageOfValidtyBeforeRenewal?: number,
     public recepientCertSubject?: string,
     public recepientCertSerial?: string,
     public recepientCertId?: number,
@@ -412,6 +431,8 @@ export class SCEPConfigItems implements ISCEPConfigItems {
   ) {
     this.capabilityRenewal = this.capabilityRenewal || false;
     this.capabilityPostPKIOperation = this.capabilityPostPKIOperation || false;
+    this.periodDaysRenewal = this.periodDaysRenewal || 3650;
+    this.percentageOfValidtyBeforeRenewal = this.percentageOfValidtyBeforeRenewal || 70;
   }
 }
 

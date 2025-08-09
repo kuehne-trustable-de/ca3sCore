@@ -28,6 +28,7 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
 import java.util.Random;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -157,7 +158,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 	}
 
 	@Test
-	public void testCAConnectorCreateWeb() {
+	public void testPipelineCreateWeb() {
 
         String newPipelineName = "Pipeline_" + Math.random();
 //        String newPipelineUrl = "http://acme.server/Url_" + Math.random();
@@ -199,6 +200,14 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_PIPELINE_CA_CONNECTOR);
         click(LOC_SEL_PIPELINE_CA_CONNECTOR);
+/*
+        try {
+            System.out.println("... waiting ...");
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+ */
         selectOptionByText(LOC_SEL_PIPELINE_CA_CONNECTOR, "InternalTestCA" );
 
         validateNotPresent(LOC_INP_PIPELINE_PENDING_ON_FAILURE);
@@ -246,7 +255,7 @@ public class PipelineAdministrationIT extends WebTestBase{
     }
 
     @Test
-    public void testCAConnectorCreateSCEP() {
+    public void testPipelineCreateSCEP() {
 
         String newPipelineName = "Pipeline_" + Math.random();
         String newPipelineUrlPart = "scep_" + Math.random();
@@ -333,7 +342,7 @@ public class PipelineAdministrationIT extends WebTestBase{
     }
 
     @Test
-    public void testCAConnectorCreateACME() {
+    public void testPipelineCreateACME() {
 
         String newPipelineName = "Pipeline_" + Math.random();
         String newPipelineUrlPart = "acme_" + Math.random();
@@ -427,5 +436,4 @@ public class PipelineAdministrationIT extends WebTestBase{
         Assertions.assertEquals( newPipelineUrlPart, getText(LOC_INP_PIPELINE_URL_PART));
 
     }
-
 }

@@ -66,6 +66,9 @@ public class Ca3SApp implements InitializingBean {
     @Autowired
     Ca3sTrustManager ca3sTrustManager;
 
+    @Autowired
+    Ca3sClientCertTrustManager ca3sClientCertTrustManager;
+
     public Ca3SApp(Environment env) {
         this.env = env;
     }
@@ -204,7 +207,7 @@ public class Ca3SApp implements InitializingBean {
                     sslContext = SSLContext.getInstance("TLS");
                     sslContext.init(keyManagers, null, null);
 
-                    TrustManager[] trustManagers = {ca3sTrustManager};
+                    TrustManager[] trustManagers = {ca3sClientCertTrustManager};
                     SSLContext sslContextClientAuth;
                     sslContextClientAuth = SSLContext.getInstance("TLS");
                     sslContextClientAuth.init(keyManagers, trustManagers, null);

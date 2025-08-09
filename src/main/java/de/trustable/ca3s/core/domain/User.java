@@ -148,6 +148,7 @@ public class User extends AbstractAuditingEntity implements Serializable {
     }
 
     public void setPassword(String password) {
+
         this.password = password;
     }
 

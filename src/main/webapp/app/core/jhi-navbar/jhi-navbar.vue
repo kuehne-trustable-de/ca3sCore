@@ -141,7 +141,7 @@
 
                     <b-dropdown-item to="/admin/user-list">
                         <font-awesome-icon icon="user" />
-                        <span v-text="$t('global.menu.admin.userManagement')"></span>
+                        <span id="admin-user-management" v-text="$t('global.menu.admin.userManagement')"></span>
                     </b-dropdown-item>
 
                     <!-- replaced with implementation above -->
@@ -195,7 +195,7 @@
                     :class="{'router-link-active': subIsActive('/account')}"
                     active-class="active"
                     class="pointer">
-                    <span slot="button-content" class="navbar-dropdown-menu">
+                    <span id="account-menu-span" slot="button-content" class="navbar-dropdown-menu">
                         <font-awesome-icon icon="user" />
                         <span v-text="$t('global.menu.account.main')"></span>
                     </span>
@@ -212,7 +212,7 @@
                     </b-dropdown-item>
                     <b-dropdown-item to="/account/password" tag="b-dropdown-item" v-if="authenticated">
                         <font-awesome-icon icon="lock" />
-                        <span v-text="$t('global.menu.account.password')"></span>
+                        <span id="menu-account-password" v-text="$t('global.menu.account.password')"></span>
                     </b-dropdown-item>
                     <b-dropdown-item v-if="authenticated"  v-on:click="logout()" id="logout">
                         <font-awesome-icon icon="sign-out-alt" />

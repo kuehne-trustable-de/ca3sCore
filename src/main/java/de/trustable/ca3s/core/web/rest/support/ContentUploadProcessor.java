@@ -572,22 +572,7 @@ public class ContentUploadProcessor {
     private KeyPair generateKeyPair(KeyAlgoLengthOrSpec keyAlgoLength) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException {
 
         return keyAlgoLength.generateKeyPair();
-/*
-        KeyPairGenerator kpg;
-        if( keyAlgoLength.getAlgoName().toLowerCase().startsWith("falcon")) {
-            kpg = KeyPairGenerator.getInstance(keyAlgoLength.getAlgoName(), BouncyCastlePQCProvider.PROVIDER_NAME);
-        }else{
-            kpg = KeyPairGenerator.getInstance(keyAlgoLength.getAlgoName(), BouncyCastleProvider.PROVIDER_NAME);
-        }
 
-        if( keyAlgoLength.getAlgorithmParameterSpec() != null){
-            kpg.initialize(keyAlgoLength.getAlgorithmParameterSpec());
-        }else {
-            kpg.initialize(keyAlgoLength.getKeyLength());
-        }
-		return kpg.generateKeyPair();
-
- */
 	}
 
 
@@ -675,11 +660,7 @@ public class ContentUploadProcessor {
                     if (pipeline.isApprovalRequired()) {
                         LOG.debug("deferring certificate creation for csr #{}", csr.getId());
                         p10ReqData.setCsrPending(true);
-
-                        if( "TRUE".equalsIgnoreCase(pipelineUtil.getPipelineAttribute(pipeline,NOTIFY_RA_OFFICER_ON_PENDING, String.valueOf(preferenceUtil.isNotifyRAOnRequest())))) {
-                            asyncNotificationService.notifyRAOfficerOnRequestAsync(csr);
-                        }
-
+                        asyncNotificationService.notifyRAOfficerOnRequestAsync(csr);
                     } else {
                         auditService.saveAuditTrace(auditService.createAuditTraceWebAutoAccepted(csr));
                         try {

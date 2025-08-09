@@ -158,12 +158,13 @@ public class UserUtil {
         }
     }
 
-    public void updateUserByLogin( final String login, final String password) {
+    public void updateUserByLogin( final String login, final String password, final String email) {
         Optional<User> optionalUser = userRepository.findOneByLogin(login);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             String encryptedPassword = passwordEncoder.encode(password);
             user.setPassword(encryptedPassword);
+            user.setEmail(email);
             userRepository.save(user);
         }
     }

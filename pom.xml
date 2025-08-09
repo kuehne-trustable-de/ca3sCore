@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.5</version>
+    <version>1.2.6</version>
 
     <packaging>jar</packaging>
 
@@ -822,6 +822,12 @@
         </dependency>
 
         <dependency>
+            <groupId>ch.qos.logback.access</groupId>
+            <artifactId>logback-access-common</artifactId>
+            <version>2.0.6</version>
+        </dependency>
+
+        <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>2.2.32</version>
@@ -1293,6 +1299,18 @@
             <version>2.9.0</version>
         </dependency>
 
+        <!--dependency>
+            <groupId>org.camunda.bpm.springboot</groupId>
+            <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
+            <version>${camunda.spring-boot.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency-->
+
         <dependency>
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
@@ -1728,6 +1746,7 @@
                         <class>de.trustable.ca3s.core.service.dto.AuditTraceView</class>
                         <class>de.trustable.ca3s.core.service.dto.AcmeAccountView</class>
                         <class>de.trustable.ca3s.core.service.dto.AcmeOrderView</class>
+                        <class>de.trustable.ca3s.core.service.dto.AuthenticationParameter</class>
                         <class>de.trustable.ca3s.core.service.dto.ScepOrderView</class>
 
                         <class>de.trustable.ca3s.core.service.dto.BPMNUpload</class>

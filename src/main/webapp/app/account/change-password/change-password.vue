@@ -10,7 +10,7 @@
         <br/>
         <div class="row justify-content-center">
             <div class="col-md-8 toastify-container">
-                <h2 v-if="account" id="password-title"><span v-html="$t('password.title', { 'username': username})">Password for [<b>{{username}}</b>]</span></h2>
+                <h2 v-if="account" id="password-title"><span v-html="$t('password.title', { 'username': username})"></span></h2>
 
                 <div class="alert alert-success" role="alert" v-if="success" v-html="$t('password.messages.success')">
                     <strong>Password changed!</strong>
@@ -26,7 +26,7 @@
                 <form name="form" role="form" id="password-form" v-on:submit.prevent="changePassword()">
 
                     <div class="form-group">
-                        <label class="form-control-label" for="currentPassword" v-text="$t('global.form.currentpassword.label')">Current password</label>
+                        <label class="form-control-label" for="currentPassword" v-text="$t('global.form.currentpassword.label')"></label>
                         <input type="password" class="form-control" id="currentPassword" name="currentPassword"
                                :class="{'valid': !$v.resetPassword.currentPassword.$invalid, 'invalid': $v.resetPassword.currentPassword.$invalid }"
                                v-bind:placeholder="$t('global.form.currentpassword.placeholder')"
@@ -40,7 +40,7 @@
                     </div>
 
                     <div v-if="credentialChange.credentialUpdateType === 'PASSWORD'" class="form-group">
-                        <label class="form-control-label" for="newPassword" v-text="$t('global.form.newpassword.label')">New password</label>
+                        <label class="form-control-label" for="newPassword" v-text="$t('global.form.newpassword.label')"></label>
                         <input type="password" class="form-control" id="newPassword" name="newPassword"
                                v-bind:placeholder="$t('global.form.newpassword.placeholder')"
                                :class="{'valid': !$v.resetPassword.newPassword.$invalid, 'invalid': $v.resetPassword.newPassword.$invalid }"
@@ -55,7 +55,7 @@
                         <!--<jhi-password-strength-bar [passwordToCheck]="newPassword"></jhi-password-strength-bar>-->
                     </div>
                     <div v-if="credentialChange.credentialUpdateType === 'PASSWORD'" class="form-group">
-                        <label class="form-control-label" for="confirmPassword" v-text="$t('global.form.confirmpassword.label')">New password confirmation</label>
+                        <label class="form-control-label" for="confirmPassword" v-text="$t('global.form.confirmpassword.label')"></label>
                         <input type="password" class="form-control" id="confirmPassword" name="confirmPassword"
                                :class="{'valid': !$v.resetPassword.confirmPassword.$invalid, 'invalid': $v.resetPassword.confirmPassword.$invalid }"
                                v-bind:placeholder="$t('global.form.confirmpassword.placeholder')"
@@ -114,15 +114,13 @@
                         <tbody>
                         <tr v-for="accountCredential in accountCredentialArr"
                             :key="accountCredential.id">
-                            <td>{{accountCredential.relationType}}</td>
+
+                            <td v-if="accountCredential.relationType === 'CLIENT_CERTIFICATE'" @click="$router.push({name: 'CertInfo', params: {certificateId: accountCredential.id}})">{{accountCredential.relationType}} {{accountCredential.id}}</td>
+                            <td v-if="accountCredential.relationType !== 'CLIENT_CERTIFICATE'">{{accountCredential.relationType}} </td>
                             <td>{{toLocalDate(accountCredential.createdOn)}}</td>
                             <td>{{toLocalDate(accountCredential.validTo)}}</td>
                             <td class="text-right">
                                 <div class="btn-group">
-                                    <!--router-link :to="{name: 'RequestProxyConfigEdit', params: {requestProxyConfigId: requestProxyConfig.id}}"  tag="button" class="btn btn-primary btn-sm edit">
-                                        <font-awesome-icon icon="pencil-alt"></font-awesome-icon>
-                                        <span class="d-none d-md-inline" v-text="$t('entity.action.edit')">Edit</span>
-                                    </router-link-->
                                     <b-button v-on:click="prepareRemove(accountCredential)"
                                               variant="danger"
                                               class="btn btn-sm"

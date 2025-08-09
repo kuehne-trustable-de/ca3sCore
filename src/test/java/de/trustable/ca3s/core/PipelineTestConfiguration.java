@@ -24,6 +24,10 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import static de.trustable.ca3s.core.service.dto.ARAContentType.EMAIL_ADDRESS;
+import static de.trustable.ca3s.core.service.util.PipelineUtil.*;
 
 
 @Service
@@ -45,6 +49,7 @@ public class PipelineTestConfiguration {
     private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
     private static final String PIPELINE_NAME_ACME1CNNOIP = "acme1CNNoIP";
     private static final String PIPELINE_NAME_SCEP = "scep";
+    private static final String PIPELINE_NAME_SCEP_SHORT_RENEWAL = "scep_short_renewal";
     private static final String PIPELINE_NAME_SCEP1CN = "scep1CN";
     public static final String ACME_REALM = "acmeTest";
     public static final String ACME_REALM_DOMAIN_REUSE  = "acmeTestDomainReuse";
@@ -54,6 +59,7 @@ public class PipelineTestConfiguration {
     public static final String ACME1CN_REALM = "acmeTest1CN";
     public static final String ACME1CNNOIP_REALM = "acmeTest1CNNoIP";
     public static final String SCEP_REALM = "scepTest";
+    public static final String SCEP_REALM_SHORT_RENEWAL = "scepTestShortRenewal";
     public static final String SCEP1CN_REALM = "scepTest1CN";
 
     public static final String SCEP_PASSWORD = "abc123#*/";
@@ -614,6 +620,24 @@ public class PipelineTestConfiguration {
         pipelineWeb.setName(PIPELINE_NAME_WEB_RA_ISSUANCE);
         pipelineWeb.setType(PipelineType.WEB);
         pipelineWeb.setUrlPart("test");
+
+        Set<PipelineAttribute> attrs = pipelineWeb.getPipelineAttributes();
+
+        PipelineAttribute attName = new PipelineAttribute();
+        attName.setPipeline(pipelineWeb);
+        attName.setName(RESTR_ARA_PREFIX + "0" + RESTR_ARA_NAME);
+        attName.setValue("additional_email");
+        attrs.add(attName);
+
+        PipelineAttribute attType = new PipelineAttribute();
+        attType.setPipeline(pipelineWeb);
+        attType.setName(RESTR_ARA_PREFIX + "0" + RESTR_ARA_CONTENT_TYPE);
+        attType.setValue(EMAIL_ADDRESS.toString());
+        attrs.add(attType);
+
+        pipelineAttributeRepository.saveAll(attrs);
+        pipelineWeb.setPipelineAttributes(attrs);
+
         pipelineRepo.save(pipelineWeb);
         return pipelineWeb;
     }
@@ -705,6 +729,9 @@ public class PipelineTestConfiguration {
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();
         scepConfigItems.setScepSecret(SCEP_PASSWORD);
         scepConfigItems.setScepSecretPCId(String.valueOf(pc.getId()));
+
+        scepConfigItems.setPercentageOfValidtyBeforeRenewal(0);
+
         pv_LaxRestrictions.setScepConfigItems(scepConfigItems);
 
         Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_LaxRestrictions);
@@ -715,6 +742,78 @@ public class PipelineTestConfiguration {
 
         return pipelineLaxRestrictions;
 
+    }
+
+    @Transactional
+    public Pipeline getInternalSCEPTestPipelineLaxRestrictionsShortRenewalPeriod() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_SCEP_SHORT_RENEWAL);
+        examplePipeline.setActive(true);
+
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_SCEP_SHORT_RENEWAL);
+
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxRestrictions = new PipelineView();
+        pv_LaxRestrictions.setRestriction_C(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_CN(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_L(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_O(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_OU(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+        pv_LaxRestrictions.setRestriction_S(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_E(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+
+        pv_LaxRestrictions.setRestriction_SAN(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+
+        pv_LaxRestrictions.setApprovalRequired(false);
+
+        pv_LaxRestrictions.setCaConnectorId(internalTestCAC().getId());
+        pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
+        pv_LaxRestrictions.setName(PIPELINE_NAME_SCEP_SHORT_RENEWAL);
+        pv_LaxRestrictions.setType(PipelineType.SCEP);
+        pv_LaxRestrictions.setActive(true);
+        pv_LaxRestrictions.setUrlPart(SCEP_REALM_SHORT_RENEWAL);
+
+
+        ProtectedContent pc = new ProtectedContent();
+        pc.setType(ProtectedContentType.PASSWORD);
+        pc.setRelationType(ContentRelationType.SCEP_PW);
+        pc.setCreatedOn(Instant.now());
+        pc.setLeftUsages(-1);
+        pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
+        pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
+        pc.setContentBase64(protectedContentUtil.protectString(SCEP_PASSWORD));
+        protectedContentRepository.save(pc);
+
+        SCEPConfigItems scepConfigItems = new SCEPConfigItems();
+        scepConfigItems.setScepSecret(SCEP_PASSWORD);
+        scepConfigItems.setScepSecretPCId(String.valueOf(pc.getId()));
+
+        scepConfigItems.setCapabilityRenewal(true);
+        scepConfigItems.setPeriodDaysRenewal(0);
+
+        pv_LaxRestrictions.setScepConfigItems(scepConfigItems);
+
+        Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_LaxRestrictions);
+        pipelineRepo.save(pipelineLaxRestrictions);
+
+        pc.setRelatedId(pipelineLaxRestrictions.getId());
+        protectedContentRepository.save(pc);
+
+        return pipelineLaxRestrictions;
     }
 
     @Transactional

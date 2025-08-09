@@ -246,7 +246,7 @@ Define additional attribute required for processing of this pipeline. The aspect
 - Name: Define a name identifying this information chunk.
 - Template: A preselected value.
 - Regular Expression: A regular expression that this attribute name must match.
-- Type: Select the type of content
+- Type: Select the type of content. Values of the type 'EMAIL_ADDRESS' will be used as targets for notification email delivery.
 - Attribute Required: Is this attribute required or just informative.
 - Attribute Comment: A hint for the user to provide the expected value.
 
@@ -281,9 +281,9 @@ This checkbox enables an email notification to be sent for incoming requests tha
 
 #### <a id="pipeline.additional-email-recipients"></a> Define additional email recipients
 
-This input field allows the definition of additional email recipients that will be notified on certificate creation by this pipeline.
+This input field allows the definition of additional email recipients that will be notified on certificate creation or revocation by this pipeline. Multiple values may be separated by commas.
 
-#### <a id="pipeline.process.create"></a> BPMN process 'Create'
+#### <a id="pipeline.process.create"></a> BPMN process 'Request Authorization'
 
 This listbox allows the selection of a BPMN process that will be invoked for certificate creation by this pipeline.
 
@@ -295,6 +295,10 @@ This listbox allows the selection of a BPMN process that will be invoked for cer
 
 This listbox allows the selection of a BPMN process that will be invoked after successful certificate creation by this pipeline. As the certificate is already created this BPMN process has no option to veto on it. This is useful to forward the certificate ( and / or certificate information) to e.g. resource management systems.
 The process is also invoked on revocations.
+
+#### <a id="pipeline.tenants"></a> Tenants list
+
+This multi-selection listbox assigns this pipeline to different tenants. If no tenant is selected, no user is able to use this pipeline.
 
 #### SCEP specific settings
 
@@ -408,3 +412,18 @@ Select a BPMN process file to be uploaded into the ca3s database.
 #### <a id="bpmn.checkBpmn"></a> Check a BPMN process
 
 This button starts the test run of this BPMN process. Depending on the process type, a certificate or csr id must be provided in the input fields. Especially for the revocation processes make your you are in a test environment or select non-productive certificates!
+
+### EMail Notifications
+
+Despite the success of automatic certificate management protocols (e.g. ACME) the notifications emails regarding the certificate lifecycle are still an important issue.
+Different lifecycle events may cause a notifications:
+
+| event                                    | requestor | additional email addresses in the request | ra officers | additional email addresses in the pipeline | email template                    |
+| ---------------------------------------- | --------- | ----------------------------------------- | ----------- | ------------------------------------------ | --------------------------------- |
+| new request                              | X         | X                                         | X           | X                                          | newPendingRequestEmail.html       |
+| accepted request, new certificate issued | X         | X                                         |             | X                                          | acceptedRequestEmail.html         |
+| rejected request, no certificate issued  | X         | X                                         |             | X                                          | rejectedRequestEmail.html         |
+| ra officer revoked certificate           | X         | X                                         |             | X                                          | revokedCertificateEmail.html      |
+| user revoked certificate                 | X         | X                                         |             | X                                          | userRevokedCertificateEmail.html  |
+| certificate issued                       | X         | X                                         |             | X                                          | userRevokedCertificateEmail.html  |
+| certificate expires soon                 | X         | X                                         |             | X                                          | expiringUserCertificateEmail.html |

@@ -102,6 +102,7 @@ public class AuditService {
     public static final String AUDIT_ACME_ORDER_PIPELINE_UPDATED = "AUDIT_ACME_ORDER_PIPELINE_UPDATED";
     public static final String AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED = "AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED";
 
+    public static final String AUDIT_SCEP_ORDER_REJECTED = "AUDIT_SCEP_ORDER_REJECTED";
 
     public static final String AUDIT_CA_CONNECTOR_NAME_CHANGED = "AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED";
     public static final String AUDIT_CA_CONNECTOR_TYPE_CHANGED = "AUDIT_CA_CONNECTOR_TYPE_CHANGED";
@@ -132,6 +133,16 @@ public class AuditService {
     public static final String AUDIT_CERTIFICATE_ADMINISTRATION_FAILED = "AUDIT_CERTIFICATE_ADMINISTRATION_FAILED";
     public static final String AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED = "AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED";
     public static final String AUDIT_BPMN_ATTRIBUTE_CHANGED = "AUDIT_BPMN_ATTRIBUTE_CHANGED";
+    public static final String AUDIT_KDF_TYPE_CHANGED = "AUDIT_KDF_TYPE_CHANGED";
+    public static final String AUDIT_KDF_SALT_CHANGED = "AUDIT_KDF_SALT_CHANGED";
+    public static final String AUDIT_KDF_CYCLES_CHANGED = "AUDIT_KDF_CYCLES_CHANGED";
+    public static final String AUDIT_KDF_API_KEY_SALT_CHANGED = "AUDIT_KDF_API_KEY_SALT_CHANGED";
+    public static final String AUDIT_KDF_API_KEY_CYCLES_CHANGED = "AUDIT_KDF_API_KEY_CYCLES_CHANGED";
+    public static final String AUDIT_FILL_EMPTY_KDF_TYPE_CHANGED = "AUDIT_FILL_EMPTY_KDF_TYPE_CHANGED";
+    public static final String AUDIT_FILL_EMPTY_SALT_CHANGED = "AUDIT_FILL_EMPTY_SALT_CHANGED";
+    public static final String AUDIT_FILL_EMPTY_CYCLES_CHANGED = "AUDIT_FILL_EMPTY_CYCLES_CHANGED";
+    public static final String AUDIT_FILL_EMPTY_API_KEY_SALT_CHANGED = "AUDIT_FILL_EMPTY_API_KEY_SALT_CHANGED";
+    public static final String AUDIT_FILL_EMPTY_API_KEY_CYCLES_CHANGED = "AUDIT_FILL_EMPTY_API_KEY_CYCLES_CHANGED";
     private static final String AUDIT_USER_LOGIN_SUCEEDED = "AUDIT_USER_LOGIN_SUCEEDED";
     private static final String AUDIT_USER_LOGIN_FAILED = "AUDIT_USER_LOGIN_FAILED";
     private static final String AUDIT_USER_LOGIN_BLOCKED = "AUDIT_USER_LOGIN_BLOCKED";
@@ -190,7 +201,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
 
     }
 
@@ -216,7 +229,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
 
     }
 
@@ -232,8 +247,15 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
 
+    }
+
+    public AuditTrace createAuditTraceSCEPRequestRejected(final ScepOrder scepOrder, String msg){
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_SCEP_ORDER_REJECTED, scepOrder, msg);
     }
 
     public AuditTrace createAuditTraceACMERequest(final CSR csr){
@@ -325,7 +347,9 @@ public class AuditService {
             null,
             null,
             acmeAccount,
-            acmeOrder, null);
+            acmeOrder,
+            null,
+            null);
 
     }
 
@@ -346,6 +370,23 @@ public class AuditService {
         return createAuditTraceRequest(nar.getName(), nar.getRole(), AUDIT_REQUEST_RESTRICTIONS_FAILED, csr);
     }
 
+
+    public AuditTrace createAuditTraceRequest(final String actor, final String actorRole, final String template, final ScepOrder scepOrder, final String msg){
+
+        return createAuditTrace(actor, actorRole, template,
+            null,
+            null,
+            msg,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            scepOrder,
+            null);
+    }
 
     public AuditTrace createAuditTraceRequest(final String actor, final String actorRole, final String template, final CSR csr){
 
@@ -394,6 +435,7 @@ public class AuditService {
             null,
             null,
             null,
+            null,
             null );
     }
 
@@ -405,6 +447,7 @@ public class AuditService {
             name,
             null,
             value,
+            null,
             null,
             null,
             null,
@@ -426,6 +469,7 @@ public class AuditService {
             name,
             oldValue,
             newValue,
+            null,
             null,
             null,
             null,
@@ -506,6 +550,7 @@ public class AuditService {
             null,
             null,
             null,
+            null,
             null);
     }
 
@@ -515,6 +560,7 @@ public class AuditService {
             template,
             null,
             oldVal, newVal,
+            null,
             null,
             null,
             null,
@@ -538,6 +584,7 @@ public class AuditService {
             null,
             null,
             null,
+            null,
             null);
     }
 
@@ -554,12 +601,14 @@ public class AuditService {
             null,
             null,
             null,
+            null,
             requestProxyConfig);
     }
     public AuditTrace createAuditTraceRequestProxyConfigSecretChanged(RequestProxyConfig requestProxyConfig) {
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             requestProxyConfig.getName(),
+            null,
             null,
             null,
             null,
@@ -586,7 +635,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
     public AuditTrace createAuditTraceNotificationFailed(String email) {
@@ -602,7 +653,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
     public AuditTrace createAuditTraceCertificateTrusted(String filename, Certificate certificate, final CAConnectorConfig caConnectorConfig) {
@@ -617,7 +670,9 @@ public class AuditService {
             caConnectorConfig,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
     public AuditTrace  createAuditTraceCAConfigCreatedChange(final String attributeName, final String oldVal, final String newVal, final CAConnectorConfig caConnectorConfig){
@@ -633,7 +688,9 @@ public class AuditService {
             caConnectorConfig,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
 
     }
 
@@ -675,7 +732,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
     public AuditTrace createAuditTracePipelineProxyAdded(final String proxyName, final Pipeline pipeline){
@@ -691,7 +750,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
     public AuditTrace createAuditTracePipelineProxyRemoved(final String proxyName, final Pipeline pipeline){
@@ -707,7 +768,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
 
@@ -726,7 +789,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
     public AuditTrace createAuditTraceCertificateAttribute(final String attributeName, final String oldVal, final String newVal, final Certificate certificate){
@@ -742,7 +807,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
     public AuditTrace createAuditTraceCertificateImported(final String source, final Certificate certificate, CAConnectorConfig caConfig){
@@ -758,7 +825,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
 
@@ -775,7 +844,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
     public AuditTrace createAuditTracePKCS12CertificateDownload(final Certificate certificate){
@@ -791,7 +862,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
 
@@ -808,7 +881,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
     public AuditTrace createAuditTraceAcmeAcountCreatedOnUpdated(final int nUpdated){
@@ -824,7 +899,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
     public AuditTrace createAuditTraceLoginSucceeded(final User user, final String secondFactor, final String clientIP){
@@ -839,7 +916,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
     public AuditTrace createAuditTraceLoginFailed(final String loginName, final String clientIP){
 
@@ -853,7 +932,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
     public AuditTrace createAuditTraceLoginBlocked(final String loginName, final String clientIP, int duration){
 
@@ -867,7 +948,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
     public AuditTrace createAuditTraceLoginForIPBlocked(final String loginName, final String clientIP){
 
@@ -881,7 +964,9 @@ public class AuditService {
             null,
             null,
             null,
-            null, null);
+            null,
+            null,
+            null);
     }
 
 
@@ -917,7 +1002,7 @@ public class AuditService {
         certificate,
         pipeline,
         caConnector,
-        processInfo,null, null, null);
+        processInfo,null, null,null, null);
     }
 
     public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,
@@ -930,6 +1015,7 @@ public class AuditService {
                                        final BPMNProcessInfo processInfo,
                                        final AcmeAccount acmeAccount,
                                        final AcmeOrder acmeOrder,
+                                       final ScepOrder scepOrder,
                                        final RequestProxyConfig requestProxyConfig){
 
         String msg = "";
@@ -969,6 +1055,9 @@ public class AuditService {
 
         auditTrace.setAcmeAccount(acmeAccount);
         auditTrace.setAcmeOrder(acmeOrder);
+
+        auditTrace.setScepOrder(scepOrder);
+
         return auditTrace;
     }
 

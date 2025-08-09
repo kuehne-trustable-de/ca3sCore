@@ -86,7 +86,7 @@ public class Pipeline implements Serializable {
     @Column(name = "approval_required")
     private Boolean approvalRequired;
 
-    @OneToMany(mappedBy = "pipeline")
+    @OneToMany(mappedBy = "pipeline", fetch = FetchType.EAGER)
     @JsonIgnoreProperties(value = { "pipeline" }, allowSetters = true)
     private Set<PipelineAttribute> pipelineAttributes = new HashSet<>();
 
@@ -124,7 +124,7 @@ public class Pipeline implements Serializable {
     private Set<AlgorithmRestriction> algorithms = new HashSet<>();
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_pipeline__request_proxy",
         joinColumns = @JoinColumn(name = "pipeline_id"),
@@ -133,7 +133,7 @@ public class Pipeline implements Serializable {
     @JsonIgnoreProperties(value = { "secret", "pipelines" }, allowSetters = true)
     private Set<RequestProxyConfig> requestProxies = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_pipeline__tenants",
         joinColumns = @JoinColumn(name = "pipeline_id"),

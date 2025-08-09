@@ -56,7 +56,12 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.urlPart')" for="pipeline-urlPart"></label>  <help-tag role="Admin" target="pipeline.url-part"/>
                         <input type="text" class="form-control" name="urlPart" id="pipeline-urlPart"
                             :class="{'valid': !$v.pipeline.urlPart.$invalid, 'invalid': $v.pipeline.urlPart.$invalid }" v-model="$v.pipeline.urlPart.$model" />
+
+                        <label v-if="$v.pipeline.type.$model === 'ACME'" class="form-check-inline" name="pipeline-acme-url" id="pipeline-acme-url">ACME-URL: https://SERVER/acme/{{encodeURIComponent($v.pipeline.urlPart.$model)}}/directory</label>
+                        <label v-if="$v.pipeline.type.$model === 'SCEP'" class="form-check-inline" name="pipeline-scep-url" id="pipeline-scep-url">SCEP-URL: http://SERVER/scep/{{encodeURIComponent($v.pipeline.urlPart.$model)}}</label>
+
                     </div>
+
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.description')" for="pipeline-description"></label>  <help-tag role="Admin" target="pipeline.description"/>
                         <textarea type="text" class="form-control" name="description" id="pipeline-description"
@@ -74,11 +79,11 @@
                         <select class="form-control" id="pipeline-caConnector" name="caConnector"
                                 :class="{'valid': !$v.pipeline.caConnectorName.$invalid, 'invalid': $v.pipeline.caConnectorName.$invalid }"
                                 v-model="pipeline.caConnectorName">
-                            <option v-bind:value="null"></option>
+                          <option v-bind:value="null"></option>
                           <!--option v-bind:value="pipeline.caConnectorName && cAConnectorConfigOption.name === pipeline.caConnectorName ? pipeline.caConnectorName : cAConnectorConfigOption.name" -->
                           <option v-bind:value="cAConnectorConfigOption.name"
                                   v-for="cAConnectorConfigOption in allCertGenerators"
-                                    :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.name}}</option>
+                                  :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.name}}</option>
                         </select>
                         <div v-if="$v.pipeline.caConnectorName.$anyDirty && $v.pipeline.caConnectorName.$invalid">
                             <small class="form-text text-danger" v-if="$v.pipeline.caConnectorName.required" v-text="$t('entity.validation.required')"></small>
@@ -86,6 +91,25 @@
                     </div>
 
                     <div class="form-group" v-if="$v.pipeline.type.$model === 'SCEP'">
+
+                        <div>
+                            <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRenewalAllowed')" for="pipeline-scepRenewalAllowed"></label>
+                            <input type="checkbox" class="form-check-inline" name="pipeline-scepRenewalAllowed" id="pipeline-scepRenewalAllowed" v-model="$v.pipeline.scepConfigItems.capabilityRenewal.$model" />
+                        </div>
+
+                        <div v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model">
+                            <label v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model" class="form-control-label" v-text="$t('ca3SApp.pipeline.periodDaysRenewal')" for="pipeline-periodDaysRenewal"></label>
+                            <input v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model" type="text" class="form-control" name="pipeline-periodDaysRenewal" id="pipeline-periodDaysRenewal"
+                                   :class="{'valid': !$v.pipeline.scepConfigItems.periodDaysRenewal.$invalid, 'invalid': $v.pipeline.scepConfigItems.periodDaysRenewal.$invalid }"
+                                   v-model="$v.pipeline.scepConfigItems.periodDaysRenewal.$model" />
+
+                            <label v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model" class="form-control-label" v-text="$t('ca3SApp.pipeline.percentageOfValidtyBeforeRenewal')" for="pipeline-percentageOfValidtyBeforeRenewal"></label>
+                            <input v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model" type="text" class="form-control" name="pipeline-percentageOfValidtyBeforeRenewal" id="pipeline-percentageOfValidtyBeforeRenewal"
+                                   :class="{'valid': !$v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$invalid, 'invalid': $v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$invalid }"
+                                   v-model="$v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$model" />
+                        </div>
+
+
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepSecret')" for="pipeline-scepSecret"></label>  <help-tag role="Admin" target="pipeline.scep.secret"/>
                         <input type="text" class="form-control" name="scepSecret" id="pipeline-scepSecret"
                                :class="{'valid': !$v.pipeline.scepConfigItems.scepSecret.$invalid, 'invalid': $v.pipeline.scepConfigItems.scepSecret.$invalid }" v-model="$v.pipeline.scepConfigItems.scepSecret.$model" />
@@ -329,7 +353,6 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.acme.contact.email.regex')" for="pipeline-contact-email-regex"></label>  <help-tag role="Admin" target="pipeline.acmeAccountEmailRegex"/>
                         <input type="text" class="form-check-inline" name="pipeline-contact-email-regex" id="pipeline-contact-email-regex" v-model="pipeline.acmeConfigItems.contactEMailRegEx" />
                         <input type="text" class="form-check-inline" name="pipeline-contact-email-reject-regex" id="pipeline-contact-email-reject-regex" v-model="pipeline.acmeConfigItems.contactEMailRejectRegEx" />
-
                     </div>
 
                     <div class="form-group">
@@ -499,8 +522,8 @@
                     </div>
 
                     <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB'">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.notifyRAOnPendingRequest')" for="pipeline-notifyRAOnPendingRequest"></label>  <help-tag role="Admin" target="pipeline.notify-ra-on-pending-request"/>
-                        <input type="checkbox" class="form-check-inline" name="notifyRAOnPendingRequest" id="pipeline-notifyRAOnPendingRequest" v-model="$v.pipeline.webConfigItems.notifyRAOfficerOnPendingRequest.$model" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.notifyRAOnCertificateLifecycleEvents')" for="pipeline-notifyRAOnCertificateLifecycleEvents"></label>  <help-tag role="Admin" target="pipeline.notify-ra-on-pending-request"/>
+                        <input type="checkbox" class="form-check-inline" name="notifyRAOnCertificateLifecycleEvents" id="pipeline-notifyRAOnCertificateLifecycleEvents" v-model="$v.pipeline.webConfigItems.notifyRAOfficerOnPendingRequest.$model" />
                     </div>
 
                     <div class="container" v-if="$v.pipeline.type.$model === 'WEB'">
@@ -559,8 +582,8 @@
                         <input type="checkbox" class="form-check-inline" name="checkCAA" id="pipeline-isNotifyContactsOnError" v-model="pipeline.acmeConfigItems.notifyContactsOnError" />
                     </div>
 
-                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB'">
-                        <label v-text="$t('ca3SApp.pipeline.tenants')"></label>
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB' && pipeline.selectedTenantList">
+                        <label v-text="$t('ca3SApp.pipeline.tenants')"></label> <help-tag role="Admin" target="pipeline.tenants"/>
                         <select class="form-control" multiple name="selectedTenants" v-model="pipeline.selectedTenantList">
                             <option v-for="tenant of tenants" :value="tenant" :key="tenant.id">{{ tenant.longname }}</option>
                         </select>

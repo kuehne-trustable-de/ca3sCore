@@ -26,6 +26,7 @@
 
 package de.trustable.ca3s.core.web.rest.advice;
 
+import de.trustable.ca3s.core.exception.UserNotAuthenticatedException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.web.rest.acme.AcmeController;
@@ -47,6 +48,15 @@ import javax.annotation.concurrent.Immutable;
 @ControllerAdvice
 @Immutable
 public final class UserProblemsAdvice {
+
+
+    @ExceptionHandler(value = UserNotAuthenticatedException.class)
+    public ResponseEntity<ProblemDetail> respondTo(final UserNotAuthenticatedException exception) {
+
+        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED, "User not authenticated!",
+            HttpStatus.UNAUTHORIZED, exception.getMessage(), AcmeUtil.NO_INSTANCE);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
+    }
 
     @ExceptionHandler(value = BadCredentialsException.class)
     public ResponseEntity<ProblemDetail> respondTo(final BadCredentialsException exception) {

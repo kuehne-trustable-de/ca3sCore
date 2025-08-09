@@ -38,7 +38,7 @@ logging:
     de.trustable.ca3s.core.service.cmp: DEBUG
     de.trustable.ca3s.core.service.vault: DEBUG
     de.trustable.ca3s.core.service.dir: WARN
-    de.trustable.ca3s.core.security.provider.Ca3sTrustManager: DEBUG
+    de.trustable.ca3s.core.security.provider: DEBUG
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
     de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
     de.trustable.ca3s.core.repository.UserSpecifications: DEBUG

@@ -1285,6 +1285,14 @@ public class CertificateUtil {
         return value;
     }
 
+    public long getCertAttribute(Certificate certDao, String name, long defaultValue) {
+        String value = getCertAttribute(certDao, name);
+        if (value == null) {
+            return defaultValue;
+        }
+        return Long.parseLong(value);
+    }
+
     public String getCertAttribute(Certificate certDao, String name) {
         for (CertificateAttribute certAttr : certDao.getCertificateAttributes()) {
             if (certAttr.getName().equals(name)) {
@@ -1296,12 +1304,40 @@ public class CertificateUtil {
 
     @Transactional
     public void deleteCertAttribute(Certificate certDao, String name) {
+        /*
+        certDao.getCertificateAttributes().removeIf(certAttr -> {
+            if( certAttr.getName().equals(name)) {
+                certificateAttributeRepository.delete(certAttr);
+                return true;
+            }
+            return false;
+        });
+
+         */
+
+        Set<CertificateAttribute> newSet = new HashSet<>();
+
         for (CertificateAttribute certAttr : certDao.getCertificateAttributes()) {
             if (certAttr.getName().equals(name)) {
                 LOG.info("deleting certificateAttribute {}", certAttr);
                 certificateAttributeRepository.delete(certAttr);
+            }else{
+                newSet.add(certAttr);
+            }
+
+        }
+        certDao.setCertificateAttributes(newSet);
+        certificateRepository.save(certDao);
+        /*
+        for (CertificateAttribute certAttr : certDao.getCertificateAttributes()) {
+            if (certAttr.getName().equals(name)) {
+                LOG.info("deleting certificateAttribute {}", certAttr);
+                certDao.getCertificateAttributes().remove(certAttr);
+                certificateAttributeRepository.delete(certAttr);
             }
         }
+
+         */
     }
 
     public List<String> getCertAttributes(Certificate certDao, String name) {
