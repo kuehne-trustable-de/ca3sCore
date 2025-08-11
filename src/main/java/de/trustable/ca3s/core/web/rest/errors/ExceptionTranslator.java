@@ -10,13 +10,18 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 
+import de.trustable.ca3s.core.exception.*;
+import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.exception.InvalidCredentialException;
+import de.trustable.ca3s.core.service.util.AcmeUtil;
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.dao.DataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.validation.BindingResult;
@@ -169,6 +174,51 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleInvalidCredentialException(InvalidCredentialException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder().withStatus(Status.BAD_REQUEST).with(MESSAGE_KEY, ex.getMessage()).build();
+        return create(ex, problem, request);
+    }
+
+    /*
+     * EST related exceptions
+     */
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleCertificateProcessingException(CertificateProcessingException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder().withStatus(Status.INTERNAL_SERVER_ERROR).with(MESSAGE_KEY, ex.getMessage()).build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleUserCredentialsMissingException(UserCredentialsMissingException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder().withStatus(Status.UNAUTHORIZED).with(MESSAGE_KEY, ex.getMessage()).build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleCsrCertificateAuthorizationMismatchException(CsrCertificateAuthorizationMismatch ex, NativeWebRequest request) {
+        Problem problem = Problem.builder().withStatus(Status.BAD_REQUEST).with(MESSAGE_KEY, ex.getMessage()).build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleInvalidCsrException(InvalidCsrException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder().withStatus(Status.BAD_REQUEST).with(MESSAGE_KEY, ex.getMessage()).build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleLabelDoesNotExistException(LabelDoesNotExistException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder().withStatus(Status.BAD_REQUEST).with(MESSAGE_KEY, ex.getMessage()).build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleLabelNotUniqueException(LabelNotUniqueException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder().withStatus(Status.INTERNAL_SERVER_ERROR).with(MESSAGE_KEY, ex.getMessage()).build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handlePipelineRestrictionViolatedException(PipelineRestrictionViolatedException ex, NativeWebRequest request) {
         Problem problem = Problem.builder().withStatus(Status.BAD_REQUEST).with(MESSAGE_KEY, ex.getMessage()).build();
         return create(ex, problem, request);
     }

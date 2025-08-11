@@ -92,6 +92,11 @@ public class AccessRestrictionsIT {
 
         knownAnonymousResources.add("post /publicapi/smsDelivery/{user}");
 
+        knownAnonymousResources.add("get /.well-known/est/{label}/csrattrs");
+        knownAnonymousResources.add("get /.well-known/est/{label}/cacerts");
+        knownAnonymousResources.add("get /.well-known/est/csrattrs");
+        knownAnonymousResources.add("get /.well-known/est/cacerts");
+
         knownUserResources.add("put /api/users");
         knownUserResources.add("post /api/users");
         knownUserResources.add("put /api/user-preferences");

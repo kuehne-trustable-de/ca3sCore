@@ -2,6 +2,9 @@ package de.trustable.ca3s.core.web.rest.errors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
+import de.trustable.ca3s.core.exception.UserCredentialsMissingException;
+import de.trustable.ca3s.core.exception.UserNotAuthenticatedException;
 import org.springframework.dao.ConcurrencyFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
@@ -33,7 +36,7 @@ public class ExceptionTranslatorTestController {
 
     @GetMapping("/unauthorized")
     public void unauthorized() {
-        throw new BadCredentialsException("test authentication failed!");
+        throw new UserCredentialsMissingException("test authentication failed!");
     }
 
     @GetMapping("/response-status")

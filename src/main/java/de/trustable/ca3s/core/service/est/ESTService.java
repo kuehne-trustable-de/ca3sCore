@@ -4,13 +4,14 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
-import de.trustable.ca3s.core.exception.CAFailureException;
+import de.trustable.ca3s.core.exception.*;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
+import de.trustable.ca3s.core.service.exception.InvalidCredentialException;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import de.trustable.util.CryptoUtil;
@@ -111,15 +112,11 @@ public class ESTService {
         }else {
             String[] authParts = parseBasicAuth(authorization);
             if (authParts == null) {
-                final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "authentication problem",
-                    HttpStatus.FORBIDDEN, "no authentication provided", AcmeController.NO_INSTANCE);
-                throw new AcmeProblemException(problem);
+                throw new UserCredentialsMissingException("no authentication provided");
             }
             LOG.debug("basic auth: {}:{}", authParts[0], "*****");
             if( !isPasswordValid(pipeline, authParts[1])){
-                final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "authentication problem",
-                    HttpStatus.FORBIDDEN, "no valid authentication provided", AcmeController.NO_INSTANCE);
-                throw new AcmeProblemException(problem);
+                throw new InvalidCredentialException("no valid authentication provided");
             }
         }
         return buildCertificateResponse(pipeline, csr);
@@ -130,9 +127,7 @@ public class ESTService {
 
         Certificate authenticatingCertificate = findClientCertificate(request);
         if( authenticatingCertificate == null ){
-            final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "client cert problem",
-                HttpStatus.FORBIDDEN, "no authentication by certificate", AcmeController.NO_INSTANCE);
-            throw new AcmeProblemException(problem);
+            throw new UserCredentialsMissingException("client cert problem");
         }
 
         try {
@@ -163,15 +158,11 @@ public class ESTService {
             }
 
             if( !found ){
-                final ProblemDetail problem = new ProblemDetail(AcmeUtil.UNAUTHORIZED, "client cert / csr mismatch",
-                    BAD_REQUEST, "provided client certificate does not authorize CSR", AcmeController.NO_INSTANCE);
-                throw new AcmeProblemException(problem);
+                throw new CsrCertificateAuthorizationMismatch("provided client certificate does not authorize CSR");
             }
 
         } catch (GeneralSecurityException | IOException e) {
-            final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "CSR problem",
-                BAD_REQUEST, "problem parsing CSR", AcmeController.NO_INSTANCE);
-            throw new AcmeProblemException(problem);
+            throw new InvalidCsrException(e.getMessage());
         }
 
         return buildCertificateResponse(pipeline, csr);
@@ -224,20 +215,15 @@ public class ESTService {
 
         if(pipelineList.isEmpty()) {
             LOG.warn("label {} is not known", label);
-            final ProblemDetail problem = new ProblemDetail(AcmeUtil.REALM_DOES_NOT_EXIST, "label not found",
-                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
-            throw new AcmeProblemException(problem);
+            throw new LabelDoesNotExistException("label '"+label+"' not found");
         }
 
         if(pipelineList.size() > 1) {
             LOG.warn("misconfiguration for label '{}', multiple configurations handling this label", label);
-            final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, "Pipeline configuration broken",
-                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
-            throw new AcmeProblemException(problem);
+            throw new LabelNotUniqueException("label '"+label+"' ambigous");
         }
 
         return pipelineList.get(0);
-
     }
 
     private Certificate startCertificateCreationProcess(final byte[] csrBase64, Pipeline pipeline){
@@ -249,15 +235,11 @@ public class ESTService {
             p10Holder = cryptoUtil.parseCertificateRequest(base64.decode(csrBase64));
             csrAsPEM = CryptoUtil.pkcs10RequestToPem(p10Holder.getP10Req());
         } catch (IOException | GeneralSecurityException e) {
-            final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "CSR processing failed",
-                BAD_REQUEST, e.getMessage(), AcmeController.NO_INSTANCE);
-            throw new AcmeProblemException(problem);
+            throw new InvalidCsrException(e.getMessage());
         }
 
         if( !pipelineUtil.isPipelineRestrictionsResolved(pipeline, p10Holder, new ArrayList<>())){
-            final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR, "request restriction mismatch",
-                BAD_REQUEST, "", AcmeController.NO_INSTANCE);
-            throw new AcmeProblemException(problem);
+            throw new PipelineRestrictionViolatedException("request restriction mismatch");
         }
 
         String pipelineName = ( pipeline == null) ? "NoPipeline":pipeline.getName();
@@ -339,9 +321,7 @@ public class ESTService {
             return buildPKCS7CertsResponse(
                 Collections.singletonList(certificateUtil.getX509CertificateChain(certificate)[0]), true);
         } catch (GeneralSecurityException e) {
-            final ProblemDetail problem = new ProblemDetail(AcmeUtil.SERVER_INTERNAL, "certificate parsing problem",
-                HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), AcmeController.NO_INSTANCE);
-            throw new AcmeProblemException(problem);
+            throw new CertificateProcessingException(e.getMessage());
         }
     }
 
