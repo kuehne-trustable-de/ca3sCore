@@ -35,11 +35,14 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 
 	private X500Name x500Issuer;
 
-	private CryptoUtil cryptoUtil = new CryptoUtil();
+	private final CryptoUtil cryptoUtil = new CryptoUtil();
+
+    private final int fallbackCertValidity;
 
 
-	public Ca3sFallbackBundleFactory(String dnSuffix, KeyUtil keyUtil) {
+	public Ca3sFallbackBundleFactory(String dnSuffix, int fallbackCertValidity, KeyUtil keyUtil) {
 	    this.dnSuffix = dnSuffix;
+        this.fallbackCertValidity = fallbackCertValidity;
         this.keyUtil = keyUtil;
         try{
 			x500Issuer = new X500Name("CN=RootOn" + InetAddress.getLocalHost().getCanonicalHostName() + ", OU=temporary bootstrap root " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
@@ -49,7 +52,7 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 		}
 	}
 
-	private synchronized KeyPair getRootKeyPair() throws GeneralSecurityException{
+	private synchronized KeyPair getRootKeyPair(){
 
 		if( rootKeyPair == null) {
             rootKeyPair = keyUtil.createKeyPair();
@@ -110,7 +113,7 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
                 getRootKeyPair(),
                 subject,
                 SubjectPublicKeyInfo.getInstance(localKeyPair.getPublic().getEncoded()),
-                Calendar.HOUR, 1,
+                Calendar.HOUR, fallbackCertValidity,
                 gns,
                 extensions,
                 PKILevel.END_ENTITY);

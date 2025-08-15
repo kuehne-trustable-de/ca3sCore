@@ -30,6 +30,8 @@
                             <option value="ADCS" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS')"></option>
                             <option value="ADCS_CERTIFICATE_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS_CERTIFICATE_INVENTORY')"></option>
                             <option value="DIRECTORY" v-bind:label="$t('ca3SApp.CAConnectorType.DIRECTORY')"></option>
+
+                            <option value="VAULT_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.VAULT_INVENTORY')"></option>
                             <!--option value="VAULT" v-bind:label="$t('ca3SApp.CAConnectorType.VAULT')">VAULT</option-->
                             <option value="EJBCA_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.EJBCA_INVENTORY')"></option>
                         </select>
@@ -57,12 +59,12 @@
                                :class="{'valid': !$v.cAConnectorConfig.lastUpdate.$invalid, 'invalid': $v.cAConnectorConfig.lastUpdate.$invalid }" v-model.number="$v.cAConnectorConfig.lastUpdate.$model" />
                     </div>
 
-                    <div class="form-group" v-if="!($v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'EJBCA_INVENTORY')">
+                    <div class="form-group" v-if="!($v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'EJBCA_INVENTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT_INVENTORY' )">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.defaultCA')" for="ca-connector-config-defaultCA"></label>  <help-tag role="Admin" target="ca-connector.default-ca"/>
                         <input type="checkbox" class="form-check" name="defaultCA" id="ca-connector-config-defaultCA"
                                :class="{'valid': !$v.cAConnectorConfig.defaultCA.$invalid, 'invalid': $v.cAConnectorConfig.defaultCA.$invalid }" v-model="$v.cAConnectorConfig.defaultCA.$model" />
                     </div>
-                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'EJBCA_INVENTORY'">
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'EJBCA_INVENTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT_INVENTORY'">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.trustSelfsignedCertificates')" for="ca-connector-config-trustSelfsignedCertificates"></label>  <help-tag role="Admin" target="ca-connector.trust-self-signed-certificates"/>
                         <input type="checkbox" class="form-check" name="trustSelfsignedCertificates" id="ca-connector-config-trustSelfsignedCertificates"
                                :class="{'valid': !$v.cAConnectorConfig.trustSelfsignedCertificates.$invalid, 'invalid': $v.cAConnectorConfig.trustSelfsignedCertificates.$invalid }" v-model="$v.cAConnectorConfig.trustSelfsignedCertificates.$model" />
@@ -95,13 +97,23 @@
 
                     </div>
 
-                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'VAULT' || $v.cAConnectorConfig.caConnectorType.$model === 'CMP'">
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'CMP'">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.selector')" for="ca-connector-config-selector"></label>  <help-tag role="Admin" target="ca-connector.selector"/>
                         <input type="text" class="form-control" name="selector" id="ca-connector-config-selector"
                                :class="{'valid': !$v.cAConnectorConfig.selector.$invalid, 'invalid': $v.cAConnectorConfig.selector.$invalid }" v-model="$v.cAConnectorConfig.selector.$model" />
                     </div>
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'VAULT' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT_INVENTORY'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.pki')" for="ca-connector-config-selector"></label>  <help-tag role="Admin" target="ca-connector.pki"/>
+                        <input type="text" class="form-control" name="selector" id="ca-connector-config-selector"
+                               :class="{'valid': !$v.cAConnectorConfig.selector.$invalid, 'invalid': $v.cAConnectorConfig.selector.$invalid }" v-model="$v.cAConnectorConfig.selector.$model" />
+                    </div>
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'VAULT'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.role')" for="ca-connector-config-role"></label>
+                        <input type="text" class="form-control" name="selector" id="ca-connector-config-role"
+                               :class="{'valid': !$v.cAConnectorConfig.role.$invalid, 'invalid': $v.cAConnectorConfig.role.$invalid }" v-model="$v.cAConnectorConfig.role.$model" />
+                    </div>
 
-                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY'|| $v.cAConnectorConfig.caConnectorType.$model === 'EJBCA_INVENTORY' ">
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY'|| $v.cAConnectorConfig.caConnectorType.$model === 'EJBCA_INVENTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT_INVENTORY' ">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.interval')" for="ca-connector-config-interval"></label>  <help-tag role="Admin" target="ca-connector.interval"/>
                         <select class="form-control" name="interval" :class="{'valid': !$v.cAConnectorConfig.interval.$invalid, 'invalid': $v.cAConnectorConfig.interval.$invalid }" v-model="$v.cAConnectorConfig.interval.$model" id="ca-connector-config-interval" >
                             <option value="MINUTE" v-bind:label="$t('ca3SApp.Interval.MINUTE')"></option>
@@ -125,7 +137,7 @@
                     </div>
 
                   <div class="form-group"
-                       v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' || ($v.cAConnectorConfig.caConnectorType.$model === 'CMP' && cAConnectorConfig.messageProtectionPassphrase)">
+                       v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT_INVENTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' || ($v.cAConnectorConfig.caConnectorType.$model === 'CMP' && cAConnectorConfig.messageProtectionPassphrase)">
 
                     <div class="form-group"v-if="isADCSConnectorConfig()">
                       <label class="form-control-label" v-text="$t('ca3SApp.authenticationSelection.kdfType')"
@@ -141,8 +153,12 @@
                     </div>
 
                     <div class="form-group">
-                      <label class="form-control-label" v-text="$t('ca3SApp.authenticationSelection.plainSecret')"
-                             for="ca-connector-config-plainSecret"></label>
+                        <label  v-if="$v.cAConnectorConfig.caConnectorType.$model === 'VAULT' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT_INVENTORY' "
+                            class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.token')"
+                               for="ca-connector-config-plainSecret"></label>
+                        <label v-else
+                            class="form-control-label" v-text="$t('ca3SApp.authenticationSelection.plainSecret')"
+                               for="ca-connector-config-plainSecret"></label>
                       <input type="password" class="form-control" name="ca-connector-config-plainSecret"
                              id="ca-connector-config-plainSecret"
                              v-model="$v.cAConnectorConfig.authenticationParameter.plainSecret.$model"

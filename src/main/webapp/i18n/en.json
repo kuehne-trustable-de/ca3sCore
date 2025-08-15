@@ -349,6 +349,10 @@
   "ca3SApp.cAConnectorConfig.fillEmptySubjectWithSAN": "Fill empty subject with SAN",
   "ca3SApp.cAConnectorConfig.caname": "CA Name",
   "ca3SApp.cAConnectorConfig.expiresOn": "expires on",
+  "ca3SApp.cAConnectorConfig.pki": "Vault PKI",
+  "ca3SApp.cAConnectorConfig.role": "Vault role",
+  "ca3SApp.cAConnectorConfig.token": "Vault Token",
+  "ca3SApp.cAConnectorConfig.lastUpdate": "Last Update of Inventory",
 
   "ca3SApp.cSR.subtitle.request.list": "Request List",
   "ca3SApp.cSR.administeredBy": "Administered By",

@@ -769,8 +769,6 @@ public class ADCSConnector {
             throw new ADCSException(e.getLocalizedMessage());
         }
     }
-
-
 }
 
 /**

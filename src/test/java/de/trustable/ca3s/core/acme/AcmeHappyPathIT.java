@@ -115,7 +115,7 @@ public class AcmeHappyPathIT {
 
 		JCAManager.getInstance();
 
-		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory("O=test trustable solutions, C=DE", keyUtil));
+		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory("O=test trustable solutions, C=DE", 1, keyUtil));
 		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
     	Security.addProvider(new Ca3sKeyManagerProvider(certMap));
     	new TimedRenewalCertMapHolder().setCertMap(certMap);
@@ -362,7 +362,7 @@ public class AcmeHappyPathIT {
 		byte[] csr = csrb.getEncoded();
 
 		for(Authorization auth: order.getAuthorizations()){
-		    System.out.println( " ################ "  + auth.getIdentifier().toString() + "" + auth.getLocation() );
+		    System.out.println( " ################ "  + auth.getIdentifier().toString() + " " + auth.getLocation() );
         }
 
 		order.execute(csr);

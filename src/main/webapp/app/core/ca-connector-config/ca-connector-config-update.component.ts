@@ -40,6 +40,9 @@ const validations: any = {
     trustSelfsignedCertificates: {},
     active: {},
     selector: {},
+    role: {
+      required,
+    },
     messageProtectionPassphrase: {},
     interval: {},
     tlsAuthenticationId: {},

@@ -10,6 +10,7 @@ import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.service.cmp.CaCmpConnector;
 import de.trustable.ca3s.core.service.dto.CAConnectorStatus;
 import de.trustable.ca3s.core.service.dto.CAStatus;
+import de.trustable.ca3s.core.service.vault.VaultCertificateConnector;
 import de.trustable.ca3s.core.service.vault.VaultPKIConnector;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
@@ -38,7 +39,9 @@ public class CaConnectorAdapter {
 
 	private final CaInternalConnector internalConnector;
 
-	private final DirectoryConnector dirConnector;
+    private final DirectoryConnector dirConnector;
+
+    private final VaultCertificateConnector vaultCertificateConnector;
 
     private final CAConnectorConfigRepository caConfigRepository;
 
@@ -46,12 +49,20 @@ public class CaConnectorAdapter {
 
     private List<CAConnectorStatus> caConnectorStatus = new ArrayList<>();
 
-    public CaConnectorAdapter(ADCSConnector adcsConnector, CaCmpConnector cmpConnector, VaultPKIConnector vaultPKIConnector, CaInternalConnector internalConnector, DirectoryConnector dirConnector, CAConnectorConfigRepository caConfigRepository, CSRUtil csrUtil) {
+    public CaConnectorAdapter(ADCSConnector adcsConnector,
+                              CaCmpConnector cmpConnector,
+                              VaultPKIConnector vaultPKIConnector,
+                              CaInternalConnector internalConnector,
+                              DirectoryConnector dirConnector,
+                              VaultCertificateConnector vaultCertificateConnector,
+                              CAConnectorConfigRepository caConfigRepository,
+                              CSRUtil csrUtil) {
         this.adcsConnector = adcsConnector;
         this.cmpConnector = cmpConnector;
         this.vaultPKIConnector = vaultPKIConnector;
         this.internalConnector = internalConnector;
         this.dirConnector = dirConnector;
+        this.vaultCertificateConnector = vaultCertificateConnector;
         this.caConfigRepository = caConfigRepository;
         this.csrUtil = csrUtil;
     }
@@ -89,9 +100,13 @@ public class CaConnectorAdapter {
 			LOGGER.debug("CAConnectorType INTERNAL is enabled" );
 			return CAStatus.Active;
 
-		} else if (CAConnectorType.DIRECTORY.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType DIRECTORY for " + caConfig.getCaUrl());
-			return dirConnector.getStatus(caConfig);
+        } else if (CAConnectorType.DIRECTORY.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType DIRECTORY for " + caConfig.getCaUrl());
+            return dirConnector.getStatus(caConfig);
+
+        } else if (CAConnectorType.VAULT_INVENTORY.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType VAULT INVENTORY for " + caConfig.getCaUrl());
+            return vaultCertificateConnector.getStatus(caConfig);
 		} else {
 			LOGGER.warn("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
 		}

@@ -43,6 +43,7 @@ public class CaConnectorConfigUtil {
     public static final String ATT_ATTRIBUTE_KDF_CYCLES= "KDF_CYCLES";
     public static final String ATT_ATTRIBUTE_KDF_API_KEY_SALT= "KDF_API_KEY_SALT";
     public static final String ATT_ATTRIBUTE_KDF_API_KEY_CYCLES= "KDF_API_KEY_CYCLES";
+    public static final String ATT_ATTRIBUTE_ROLE = "ROLE";
 
     Logger LOG = LoggerFactory.getLogger(CaConnectorConfigUtil.class);
 
@@ -141,6 +142,8 @@ public class CaConnectorConfigUtil {
                 authenticationParameter.setApiKeySalt(cfgAtt.getValue() );
             }else if (ATT_ATTRIBUTE_KDF_API_KEY_CYCLES.equals(cfgAtt.getName())) {
                 authenticationParameter.setApiKeyCycles(Integer.parseInt(cfgAtt.getValue()));
+            }else if (ATT_ATTRIBUTE_ROLE.equals(cfgAtt.getName())) {
+                cv.setRole(cfgAtt.getValue());
             }
 
         }
@@ -379,6 +382,7 @@ public class CaConnectorConfigUtil {
         boolean hasCycles = false;
         boolean hasApiKeySalt = false;
         boolean hasApiKeyCycles = false;
+        boolean hasRole = false;
 
 
         for( CAConnectorConfigAttribute configAttribute : caConnectorConfig.getCaConnectorAttributes()){
@@ -482,6 +486,14 @@ public class CaConnectorConfigUtil {
                 }
                 hasApiKeyCycles = true;
 
+            }else if (ATT_ATTRIBUTE_ROLE.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.getRole(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_ROLE_CHANGED, configAttribute.getValue(), cv.getRole(), caConnectorConfig));
+                    configAttribute.setValue(cv.getRole());
+                }
+                hasRole = true;
+
+
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(configAttribute.getName())) {
                 LOG.warn("CA Connector ATaV attribute detected!");
             }
@@ -517,6 +529,10 @@ public class CaConnectorConfigUtil {
         if( !hasFillEmptySubjectWithSAN){
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED, null, Boolean.toString(cv.isFillEmptySubjectWithSAN()), caConnectorConfig));
             createAttribute(ATT_FILL_EMPTY_SUBJECT_WITH_SAN, Boolean.toString(cv.isIgnoreResponseMessageVerification()), caConnectorConfig);
+        }
+        if (!hasRole) {
+            auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_ROLE_CHANGED, null, cv.getRole(), caConnectorConfig));
+            createAttribute(ATT_ATTRIBUTE_ROLE, cv.getRole(), caConnectorConfig);
         }
 
         if( hasDerivedSecret(cv)) {

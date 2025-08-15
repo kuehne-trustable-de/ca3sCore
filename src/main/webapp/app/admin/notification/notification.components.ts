@@ -192,7 +192,7 @@ export default class Notification extends Vue {
 
     axios({
       method: 'post',
-      url: '/api/notification/sendExpiryPendingSummary/' + encodeURI(this.orderId),
+      url: '/api/notification/sendExpiryPendingSummary',
       responseType: 'stream',
     })
       .then(function (response) {

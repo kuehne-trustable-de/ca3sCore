@@ -10,7 +10,7 @@
             Dear
         </p>
         <p th:text="#{email.certificate.revoked.text1(${cert.subject}, ${cert.revokedSince}, ${cert.revocationReason})}">
-            Your certificate ${cert.subject} was revoked on ${cert.revokedSince} by the Registration officer  for reason ${cert.revocationReason}!
+            Your certificate ${cert.subject} was revoked on ${cert.revokedSince} by the Registration officer for reason ${cert.revocationReason}!
         </p>
         <p>
             <span th:text="#{email.activation.text2}">Regards, </span>

@@ -40,6 +40,7 @@ public class NotificationService {
     private final CAConnectorConfigRepository caConnectorConfigRepository;
     private final PipelineRepository pipelineRepository;
     private final PipelineUtil pipelineUtil;
+    private final ProtectedContentUtil protectedContentUtil;
     private final CertificateUtil certificateUtil;
     private final CSRUtil csrUtil;
     private final MailService mailService;
@@ -73,7 +74,7 @@ public class NotificationService {
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ee:30}") int nDaysExpiryEE,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ca:90}")int nDaysExpiryCA,
                                @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending,
-                               @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays,
+                               @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays, ProtectedContentUtil protectedContentUtil,
                                @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly,
                                @Value("${ca3s.notify.adminOnConnectorExpiry:true}") boolean doNotifyAdminOnConnectorExpiry,
                                @Value("${ca3s.notify.raOfficerHolderOnExpiry:true}") boolean doNotifyRAOfficerHolderOnExpiry,
@@ -91,6 +92,7 @@ public class NotificationService {
         this.userRepository = userRepository;
         this.pipelineUtil = pipelineUtil;
         this.certificateUtil = certificateUtil;
+        this.protectedContentUtil = protectedContentUtil;
         this.csrUtil = csrUtil;
         this.userUtil = userUtil;
         this.mailService = mailService;
@@ -188,14 +190,14 @@ public class NotificationService {
 
             ProtectedContent protectedContent = caConnectorConfig.getSecret();
             if (protectedContent != null) {
-                if (protectedContent.getLeftUsages() < 10) {
+                if( protectedContentUtil.hasMinimumOrLessLeftUsages(protectedContent, 10)){
                     LOG.warn("unexpected problem with left usages of secret of connector '{}'", caConnectorConfig.getName());
                     connectorMsgList.add(new NameMessages(caConnectorConfig.getName(),
                         "email.connector.protectedContentUsagesExpires",
                         now));
                     expiringSoon = true;
                 }
-                if (beforeEE.isAfter(protectedContent.getValidTo())) {
+                if ((protectedContent.getValidTo() == null) || beforeEE.isAfter(protectedContent.getValidTo())) {
                     connectorMsgList.add(new NameMessages(caConnectorConfig.getName(),
                         "email.connector.protectedContentExpires",
                         protectedContent.getValidTo()));
@@ -459,12 +461,13 @@ public class NotificationService {
                             certListGroupedByUser.put(user, certificateList);
                         }
                     }
-                }else{
+                } else {
+
                     LOG.debug("Expiring certificate #{} not applicable for notification: csr {}, requestor {}, pipeline {}",
                         cert.getId(),
                         cert.getCsr(),
-                        cert.getCsr().getRequestedBy() == null ? "null": cert.getCsr().getRequestedBy(),
-                        cert.getCsr().getPipeline() == null ? "null": cert.getCsr().getPipeline().getName() );
+                        (cert.getCsr() == null) || (cert.getCsr().getRequestedBy() == null) ? "null" : cert.getCsr().getRequestedBy(),
+                        (cert.getCsr() == null) || (cert.getCsr().getPipeline() == null) ? "null" : cert.getCsr().getPipeline().getName());
                 }
             }
 
@@ -663,9 +666,11 @@ public class NotificationService {
         List<CSR> newCsrList = new ArrayList<>();
         newCsrList.add(csr);
 
-        PipelineView pipelineView = pipelineUtil.from(csr.getPipeline());
-
-        List<String> araEmailList = findARAEmailRecipients(pipelineView, csr);
+        List<String> araEmailList = new ArrayList<>();
+        if( csr.getPipeline() != null) {
+            PipelineView pipelineView = pipelineUtil.from(csr.getPipeline());
+            araEmailList = findARAEmailRecipients(pipelineView, csr);
+        }
 
         User requestor = userUtil.getUserByLogin(csr.getRequestedBy());
         if( requestor != null) {

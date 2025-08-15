@@ -56,6 +56,7 @@ public class Ca3SApp implements InitializingBean {
     public static final String SERVER_SCEP_PREFIX = "ca3s.scepAccess.";
     public static final String DEFAULT_BINDING_HOST = "0.0.0.0";
     public static final String HTTPS_CERTIFICATE_DN_SUFFIX = "ca3s.https.certificate.dnSuffix";
+    public static final String HTTPS_CERTIFICATE_FALLBACK_VALIDITY_HOURS = "ca3s.https.certificate.fallback.validityHours";
     public static final String O_TRUSTABLE_SOLUTIONS_C_DE = "O=trustable solutions, C=DE";
 
     private final Environment env;
@@ -167,8 +168,14 @@ public class Ca3SApp implements InitializingBean {
         Security.addProvider(new BouncyCastlePQCProvider());
 
         String dnSuffix = env.getProperty(HTTPS_CERTIFICATE_DN_SUFFIX, O_TRUSTABLE_SOLUTIONS_C_DE);
+        int fallbackCertValidity = 1;
+        try {
+            fallbackCertValidity = Integer.parseInt(env.getProperty(HTTPS_CERTIFICATE_FALLBACK_VALIDITY_HOURS, "1"));
+        } catch (NumberFormatException e) {
+            log.warn("Value of 'ca3s.https.certificate.fallback.validityHours' not parseable, using 1 hour" );
+        }
 
-        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix, keyUtil));
+        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix, fallbackCertValidity, keyUtil));
         Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
         Security.addProvider(new Ca3sKeyManagerProvider(certMap));
 

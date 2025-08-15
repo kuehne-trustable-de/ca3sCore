@@ -96,7 +96,15 @@ public class ProtectedContentUtil {
 	}
 
 
-	public String protectString(String content) {
+    public boolean hasMinimumOrLessLeftUsages(ProtectedContent protectedContent, int minNumber){
+        if (protectedContent.getLeftUsages() < 0){
+            return false;
+        }
+        return (protectedContent.getLeftUsages() <= minNumber);
+
+    }
+
+    public String protectString(String content) {
 		return textEncryptor.encrypt(content);
 	}
 

@@ -207,4 +207,6 @@ public class CertificateAttribute implements Serializable {
     public static final String ATTRIBUTE_CERTIFICATE_NOTIFICATION = "CERTIFICATE_NOTIFICATION_PROCESS";
     public static final String ATTRIBUTE_CERTIFICATE_NOTIFICATION_COUNTER = "CERTIFICATE_NOTIFICATION_COUNTER";
 
+    public static final String ATTRIBUTE_VAULT_KEY = "ATTRIBUTE_VAULT_KEY";
+
 }

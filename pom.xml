@@ -181,6 +181,8 @@
 
         <bouncyCastleVersion>1.81</bouncyCastleVersion>
 
+        <spring-vault.version>2.3.4</spring-vault.version>
+
         <cryptoUtilVersion>1.3.31</cryptoUtilVersion>
         <certBundleVersion>1.1.1</certBundleVersion>
         <cmpClientVersion>3.2.0</cmpClientVersion>
@@ -846,6 +848,12 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.vault</groupId>
+            <artifactId>spring-vault-core</artifactId>
+            <version>${spring-vault.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.keycloak</groupId>
             <artifactId>keycloak-core</artifactId>
             <version>${keycloak.version}</version>
@@ -1233,13 +1241,6 @@
             <artifactId>spring-security-messaging</artifactId>
         </dependency>
         <!-- jhipster-needle-maven-add-dependency -->
-
-        <!-- https://mvnrepository.com/artifact/org.springframework.vault/spring-vault-core -->
-        <!--dependency>
-            <groupId>org.springframework.vault</groupId>
-            <artifactId>spring-vault-core</artifactId>
-            <version>3.1.2</version>
-        </dependency-->
 
         <dependency>
             <groupId>org.camunda.bpm</groupId>

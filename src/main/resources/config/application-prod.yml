@@ -30,6 +30,7 @@ logging:
     de.trustable.ca3s.core.PropertiesLogger: INFO
     de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
     de.trustable.ca3s.core.schedule.CertExpiryScheduler: DEBUG
+    de.trustable.ca3s.core.schedule.CertificateImportScheduler: DEBUG
     de.trustable.ca3s.core.service.NotificationService: DEBUG
     de.trustable.ca3s.core.service.MailService: DEBUG
     de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN

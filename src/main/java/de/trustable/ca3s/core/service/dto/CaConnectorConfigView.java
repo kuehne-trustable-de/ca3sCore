@@ -32,6 +32,8 @@ public class CaConnectorConfigView implements Serializable {
 
     private String selector;
 
+    private String role;
+
     private Interval interval;
 
     private boolean messageProtectionPassphrase;
@@ -122,6 +124,14 @@ public class CaConnectorConfigView implements Serializable {
 
     public void setSelector(String selector) {
         this.selector = selector;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public Interval getInterval() {

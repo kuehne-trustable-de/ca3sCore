@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.schedule;
 
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.ejbca.EjbcaConnector;
+import de.trustable.ca3s.core.service.vault.VaultCertificateConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,26 +29,37 @@ public class CertificateImportScheduler {
 
 	transient Logger LOG = LoggerFactory.getLogger(CertificateImportScheduler.class);
 
-	@Autowired
-	CAConnectorConfigRepository caConfigRepo;
+	private final CAConnectorConfigRepository caConfigRepo;
 
-	@Autowired
-	private ADCSConnector adcsController;
+	private final ADCSConnector adcsController;
 
-	@Autowired
-	private DirectoryConnector dirConnector;
+    private final DirectoryConnector dirConnector;
 
-    @Autowired
-    private EjbcaConnector ejbcaConnector;
+    private final VaultCertificateConnector vaultCertificateConnector;
 
-    @Autowired
-    private AuditService auditService;
+    private final EjbcaConnector ejbcaConnector;
+
+    private final AuditService auditService;
 
 
     @Value("${certificate.import.active:true}")
 	private String certificateImportActive;
 
-	@Scheduled(fixedDelay = 30000)
+    public CertificateImportScheduler(CAConnectorConfigRepository caConfigRepo,
+                                      ADCSConnector adcsController,
+                                      DirectoryConnector dirConnector,
+                                      VaultCertificateConnector vaultCertificateConnector,
+                                      EjbcaConnector ejbcaConnector,
+                                      AuditService auditService) {
+        this.caConfigRepo = caConfigRepo;
+        this.adcsController = adcsController;
+        this.dirConnector = dirConnector;
+        this.vaultCertificateConnector = vaultCertificateConnector;
+        this.ejbcaConnector = ejbcaConnector;
+        this.auditService = auditService;
+    }
+
+    @Scheduled(fixedDelay = 30000)
 	public void runMinute() {
 
 		if ("true".equalsIgnoreCase(certificateImportActive) ) {
@@ -179,6 +191,26 @@ public class CertificateImportScheduler {
                 LOG.info("Directory certificate retrieval for '{}' (url '{}') failed with msg '{}'",
                     caConfig.getName(), caConfig.getCaUrl(), th.getMessage());
                 LOG.debug("Directory certificate retrieval", th);
+            }
+
+        } else if (CAConnectorType.VAULT_INVENTORY.equals(caConfig.getCaConnectorType())) {
+            LOG.debug("CAConnectorType VAULT_INVENTORY for " + caConfig.getCaUrl());
+
+            try {
+                int nNewCerts = vaultCertificateConnector.retrieveCertificates(caConfig);
+
+                if (nNewCerts > 0) {
+                    LOG.info("VAULT_INVENTORY certificate retrieval for '{}' (url '{}') processed {} certificates",
+                        caConfig.getName(), caConfig.getCaUrl(), nNewCerts);
+                    caConfigRepo.save(caConfig);
+                } else {
+                    LOG.debug("VAULT_INVENTORY certificate retrieval for '{}' (url '{}') found no new certificates",
+                        caConfig.getName(), caConfig.getCaUrl());
+                }
+            } catch (Throwable th) {
+                LOG.info("VAULT_INVENTORY certificate retrieval for '{}' (url '{}') failed with msg '{}'",
+                    caConfig.getName(), caConfig.getCaUrl(), th.getMessage());
+                LOG.debug("VAULT_INVENTORY certificate retrieval", th);
             }
 
         } else if (CAConnectorType.EJBCA_INVENTORY.equals(caConfig.getCaConnectorType())) {
