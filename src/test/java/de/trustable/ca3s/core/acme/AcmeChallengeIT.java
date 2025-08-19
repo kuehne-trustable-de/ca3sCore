@@ -65,7 +65,7 @@ public class AcmeChallengeIT {
         try {
             ptc.getInternalACMETestPipelineLaxRestrictions();
             prefTC.getTestUserPreference();
-            httpChallengeHelper = new HttpChallengeHelper(prefTC.getFreePort());
+            httpChallengeHelper = new HttpChallengeHelper(prefTC.getHttpChallengePort());
             dnsChallengeHelper = new DnsChallengeHelper(dnsPort);
         }catch( Exception ex ){
             ex.printStackTrace();

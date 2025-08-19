@@ -62,6 +62,8 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin) {
       vm.initAuthorities();
       if (to.params.userId) {
         vm.init(to.params.userId);
+      }else {
+        vm.userAccount = { "authorities": ["ROLE_USER"]};
       }
     });
   }

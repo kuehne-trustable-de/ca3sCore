@@ -26,13 +26,13 @@ public class PreferenceTestConfiguration {
     @Autowired
     PreferenceUtil prefUtil;
 
-    int freePort = SocketUtils.findAvailableTcpPort(45000);
+    int httpChallengePort = SocketUtils.findAvailableTcpPort(45000);
     int dnsPort = SocketUtils.findAvailableTcpPort(45000);
 
 	@Bean
     public Preferences getTestUserPreference() {
 
-        return getTestUserPreference(freePort);
+        return getTestUserPreference(httpChallengePort);
     }
 
     public Preferences getTestUserPreference(final int primaryPort) {
@@ -59,8 +59,8 @@ public class PreferenceTestConfiguration {
         return prefUtil.getPrefs(SYSTEM_PREFERENCE_ID);
     }
 
-    public int getFreePort(){
-        return freePort;
+    public int getHttpChallengePort(){
+        return httpChallengePort;
     }
 
     public int getDNSPort(){

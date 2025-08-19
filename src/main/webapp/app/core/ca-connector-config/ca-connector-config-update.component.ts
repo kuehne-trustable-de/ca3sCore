@@ -267,6 +267,7 @@ export class CAConnectorConfigView implements ICaConnectorConfigView {
     public trustSelfsignedCertificates?: boolean,
     public active?: boolean,
     public selector?: string,
+    public role?: string,
     public interval?: IInterval,
     public messageProtectionPassphrase?: boolean,
     public plainSecret?: string,
@@ -285,5 +286,6 @@ export class CAConnectorConfigView implements ICaConnectorConfigView {
     this.active = this.active || false;
     this.interval = this.interval || 'DAY';
     this.authenticationParameter = this.authenticationParameter || new AuthenticationParameter();
+    this.role = this.role || "tls_server";
   }
 }

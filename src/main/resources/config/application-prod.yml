@@ -44,7 +44,7 @@ logging:
     de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
     de.trustable.ca3s.core.repository.UserSpecifications: DEBUG
     de.trustable.ca3s.core.web.rest.support.UIDatasetSupport: DEBUG
-    de.trustable.util.CryptoUtil: WARN
+    de.trustable.util.CryptoUtil: DEBUG
     de.trustable.cmp.client.cmpClient.CMPClientImpl: DEBUG
     org.keycloak.adapters: WARN
     org.springframework.security.web.authentication: DEBUG

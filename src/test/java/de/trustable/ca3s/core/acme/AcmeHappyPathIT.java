@@ -104,7 +104,7 @@ public class AcmeHappyPathIT {
 
         prefTC.getTestUserPreference();
 
-        int port = prefTC.getFreePort();
+        int port = prefTC.getHttpChallengePort();
         LOG.info("http challenge on port {}", port);
         httpChallengeHelper = new HttpChallengeHelper(port);
 	}

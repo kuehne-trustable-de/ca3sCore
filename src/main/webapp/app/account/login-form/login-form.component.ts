@@ -166,7 +166,10 @@ export default class LoginForm extends Vue {
   }
 
   public canUseSecondFactor(secondFactorType: string): boolean {
-    return this.$store.state.uiConfigStore.config.scndFactorTypes.includes(secondFactorType);
+    if( this.$store.state.uiConfigStore.config.scndFactorTypes) {
+      return this.$store.state.uiConfigStore.config.scndFactorTypes.includes(secondFactorType);
+    }
+    return false;
   }
 
   public convertDateTimeFromServer(value: Date): string {

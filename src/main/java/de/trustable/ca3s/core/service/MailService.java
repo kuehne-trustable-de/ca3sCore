@@ -141,7 +141,8 @@ public class MailService {
         sendEmailFromTemplate(user, templateName, titleKey, null);
     }
     @Transactional
-    public void sendEmailFromTemplate(User user, String templateName, String titleKey,
+    public void sendEmailFromTemplate(User user, String templateName,
+                                      String titleKey,
                                       String activationKey) throws MessagingException {
         if (user.getEmail() == null) {
             log.debug("Email doesn't exist for user '{}'", user.getLogin());
