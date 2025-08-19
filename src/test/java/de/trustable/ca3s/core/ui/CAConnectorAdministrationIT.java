@@ -6,7 +6,6 @@ import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.TypedValue;
-import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.test.util.UserTestSupport;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
