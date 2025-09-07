@@ -26,6 +26,7 @@
 
 package de.trustable.ca3s.core.service.dto.acme;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -39,7 +40,7 @@ import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 
 @Immutable
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AccountRequest {
+public class AccountRequest implements Serializable {
 
     @JsonProperty("status")
     private AccountStatus status = null;

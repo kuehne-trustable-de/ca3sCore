@@ -432,7 +432,7 @@ ca3s:
       # per default use a secure cookie to transport auth token
       secureCookie: false
   acme:
-    # an apache plugin for ACME support requires a specific header not mention in RFC 8555
+    # an apache plugin for ACME support requires a specific header not mentioned in RFC 8555
     finalizelocationBackwardCompat: true
 
     alpn:

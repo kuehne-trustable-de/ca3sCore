@@ -124,7 +124,11 @@ public class CertificateUtil {
     final private CryptoService cryptoUtil;
 
     final private AuditService auditService;
+
     final private ReplacementCandidateUtil replacementCandidateUtil;
+
+    private final RandomUtil randomUtil;
+
 
     static {
         CertificateUtil.nameGeneralNameMap.put("DNS-NAME", GeneralName.dNSName);
@@ -149,7 +153,7 @@ public class CertificateUtil {
                            PreferenceUtil preferenceUtil,
                            CryptoService cryptoUtil,
                            AuditService auditService,
-                           ReplacementCandidateUtil replacementCandidateUtil) {
+                           ReplacementCandidateUtil replacementCandidateUtil, RandomUtil randomUtil) {
 
 
         this.certificateRepository = certificateRepository;
@@ -161,6 +165,7 @@ public class CertificateUtil {
         this.cryptoUtil = cryptoUtil;
         this.auditService = auditService;
         this.replacementCandidateUtil = replacementCandidateUtil;
+        this.randomUtil = randomUtil;
     }
 
     private static Map<ASN1ObjectIdentifier, Integer> createDnOrderMap() {
@@ -2485,7 +2490,7 @@ public class CertificateUtil {
     public KeyStoreAndPassphrase getContainer(Certificate certDao, String entryAlias, char[] passphraseChars, PrivateKey key, String passwordProtectionAlgo) throws IOException, GeneralSecurityException {
 
         byte[] salt = new byte[20];
-        RandomUtil.getSecureRandom().nextBytes(salt);
+        randomUtil.getSecureRandom().nextBytes(salt);
 
         KeyStore p12 = KeyStore.getInstance("pkcs12");
         p12.load(null, passphraseChars);

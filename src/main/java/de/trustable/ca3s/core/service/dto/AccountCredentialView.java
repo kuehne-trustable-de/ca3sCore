@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.service.dto;
 
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,10 @@ public class AccountCredentialView implements Serializable {
     private Integer leftUsages;
 
     private AccountCredentialsType relationType;
+
+    private String pipelineName;
+
+    private ProtectedContentStatus status;
 
     public Long getId() {
         return id;
@@ -60,5 +65,21 @@ public class AccountCredentialView implements Serializable {
 
     public void setRelationType(AccountCredentialsType relationType) {
         this.relationType = relationType;
+    }
+
+    public String getPipelineName() {
+        return pipelineName;
+    }
+
+    public void setPipelineName(String pipelineName) {
+        this.pipelineName = pipelineName;
+    }
+
+    public ProtectedContentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ProtectedContentStatus status) {
+        this.status = status;
     }
 }

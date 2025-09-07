@@ -473,12 +473,16 @@
 
                     </div>
                     <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.eabRequired')" for="pipeline-eabRequired"></label>  <help-tag role="Admin" target="pipeline.acme.eabRequired"/>
+                        <input type="checkbox" class="form-check-inline" name="pipeline-eabRequired" id="pipeline-eabRequired" v-model="pipeline.acmeConfigItems.externalAccountRequired" />
+                    </div>
+
+                    <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.checkCAA')" for="pipeline-checkCAA"></label>  <help-tag role="Admin" target="pipeline.acme.check-caa"/>
-                        <input type="checkbox" class="form-check-inline" name="checkCAA" id="pipeline-checkCAA" v-model="pipeline.acmeConfigItems.checkCAA" />
+                        <input type="checkbox" class="form-check-inline" name="pipeline-checkCAA" id="pipeline-checkCAA" v-model="pipeline.acmeConfigItems.checkCAA" />
 
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caNameCAA')" for="pipeline-caNameCAA"></label>  <help-tag role="Admin" target="pipeline.acme.ca-name-caa"/>
                         <input type="text" class="form-control" name="caNameCAA" id="pipeline-caNameCAA" v-model="pipeline.acmeConfigItems.caNameCAA" />
-
                     </div>
 
                        <div v-if="($v.pipeline.type.$model === 'ACME') && (requestProxyConfigs.length > 0 )" class="form-inline">
@@ -525,6 +529,12 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.notifyRAOnCertificateLifecycleEvents')" for="pipeline-notifyRAOnCertificateLifecycleEvents"></label>  <help-tag role="Admin" target="pipeline.notify-ra-on-pending-request"/>
                         <input type="checkbox" class="form-check-inline" name="notifyRAOnCertificateLifecycleEvents" id="pipeline-notifyRAOnCertificateLifecycleEvents" v-model="$v.pipeline.webConfigItems.notifyRAOfficerOnPendingRequest.$model" />
                     </div>
+
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB' && pipeline.domainRaOfficerList && (pipeline.domainRaOfficerList.length > 0) ">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.notifyDomainRAOnCertificateLifecycleEvents')" for="pipeline-notifyDomainRAOnCertificateLifecycleEvents"></label>
+                        <input type="checkbox" class="form-check-inline" name="notifyDomainRAOnCertificateLifecycleEvents" id="pipeline-notifyDomainRAOnCertificateLifecycleEvents" v-model="$v.pipeline.webConfigItems.notifyDomainRAOfficerOnPendingRequest.$model" />
+                    </div>
+
 
                     <div class="container" v-if="$v.pipeline.type.$model === 'WEB'">
                         <div class="row" >
@@ -590,6 +600,53 @@
                     </div>
                 </div>
                 <p></p>
+                <div v-if="$v.pipeline.type.$model === 'ACME'">
+                  <div v-if="networkCollapsed">
+                    <button type="button" class="addRemoveSelector" v-on:click="setNetworkCollapsed(false)">
+                      <font-awesome-icon icon="plus"></font-awesome-icon>
+                    </button>
+                    <b v-text="$t('ca3SApp.pipeline.network')"></b>
+                    <p />
+                  </div>
+                  <div v-if="!networkCollapsed">
+                    <button type="button" class="addRemoveSelector" v-on:click="setNetworkCollapsed(true)">
+                      <font-awesome-icon icon="minus"></font-awesome-icon>
+                    </button>
+                    <b v-text="$t('ca3SApp.pipeline.network')"></b>
+                  </div>
+
+                  <div v-if="!networkCollapsed">
+                    <div class="form-group">
+                      <label class="form-control-label" v-text="$t('ca3SApp.pipeline.network.accept')"
+                             for="pipeline-network-accept"></label>
+                      <div v-for="(item, index) in $v.pipeline.networkAcceptArr.$model" :key="index">
+                        <input type="text" class="form-control" name="pipeline-network-accept"
+                               id="pipeline-network-accept"
+                               v-model="$v.pipeline.networkAcceptArr.$model[index]"
+                               v-on:input="alignNetworkAcceptArraySize(index)" />
+                        <small v-if="$v.pipeline.networkAcceptArr.$each[index].$invalid"
+                               class="form-text text-danger"
+                               v-text="$t('entity.validation.subnetRequired')"></small>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-if="!networkCollapsed">
+                    <div class="form-group">
+                      <label class="form-control-label" v-text="$t('ca3SApp.pipeline.network.reject')"
+                             for="pipeline-network-reject"></label>
+                      <div v-for="(item, index) in $v.pipeline.networkRejectArr.$model" :key="index">
+                        <input type="text" class="form-control" name="pipeline-network-reject"
+                               id="pipeline-network-reject"
+                               v-model="$v.pipeline.networkRejectArr.$model[index]"
+                               v-on:input="alignNetworkRejectArraySize(index)" />
+                        <small v-if="$v.pipeline.networkRejectArr.$each[index].$invalid"
+                               class="form-text text-danger"
+                               v-text="$t('entity.validation.subnetRequired')"></small>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <p></p>
                 <div v-if="pipeline.id">
                     <audit-tag :pipelineId="pipeline.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
                 </div>

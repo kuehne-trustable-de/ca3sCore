@@ -2,7 +2,7 @@ import { Component, Inject } from 'vue-property-decorator';
 
 import axios from 'axios';
 
-import { minValue, maxValue, required } from 'vuelidate/lib/validators';
+import { minValue, maxValue, required, integer, helpers } from 'vuelidate/lib/validators';
 
 import RequestProxyConfigService from '../request-proxy-config/request-proxy-config.service';
 import {
@@ -40,6 +40,11 @@ import { mixins } from 'vue-class-component';
 import UserManagementService from '@/admin/user-management/user-management.service';
 import TenantService from '../../admin/tenant/tenant.service';
 
+const subnetRegEx = helpers.regex(
+  'subnet',
+  new RegExp('(^$|(^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}/(?:\\d|[12]\\d|3[01])$')
+);
+
 const validations: any = {
   pipeline: {
     name: {
@@ -59,11 +64,23 @@ const validations: any = {
     ipAsSubjectAllowed: {},
     ipAsSANAllowed: {},
 
+    networkAcceptArr: {
+      $each: {
+        subnetRegEx,
+      },
+    },
+    networkRejectArr: {
+      $each: {
+        subnetRegEx,
+      },
+    },
+
     keyUniqueness: { required },
     tosAgreementLink: {},
 
     webConfigItems: {
       notifyRAOfficerOnPendingRequest: {},
+      notifyDomainRAOfficerOnPendingRequest: {},
       additionalEMailRecipients: {},
       issuesSecondFactorClientCert: {},
     },
@@ -132,6 +149,11 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
 
   public isSaving = false;
 
+  public networkCollapsed = true;
+  public setNetworkCollapsed(networkCollapsed: boolean) {
+    this.networkCollapsed = networkCollapsed;
+  }
+
   public alignARAArraySize(index: number): void {
     window.console.info('in alignARAArraySize(' + index + ')');
     const currentSize = this.pipeline.araRestrictions.length;
@@ -147,6 +169,31 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       if (index + 1 === currentSize) {
         this.pipeline.araRestrictions.push({});
         window.console.info('in alignARAArraySize(' + index + '): appended one element');
+      }
+    }
+  }
+
+  public alignNetworkAcceptArraySize(index: number): void {
+    this.alignNetworkArraySize(this.pipeline.networkAcceptArr, index);
+  }
+  public alignNetworkRejectArraySize(index: number): void {
+    this.alignNetworkArraySize(this.pipeline.networkRejectArr, index);
+  }
+  alignNetworkArraySize(subnetArr: String[], index: number): void {
+    window.console.info('in alignNetworkArraySize(' + index + ')');
+    const currentSize = subnetArr.length;
+    const subnetValue = subnetArr[index] || '';
+
+    if (subnetValue.trim().length === 0) {
+      if (currentSize > 1) {
+        // preserve last element
+        subnetArr.splice(index, 1);
+        window.console.info('in alignNetworkArraySize(' + index + '): dropped empty element');
+      }
+    } else {
+      if (index + 1 === currentSize) {
+        subnetArr.push('');
+        window.console.info('in alignNetworkArraySize(' + index + '): appended one element');
       }
     }
   }
@@ -309,6 +356,19 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
             self.pipeline.araRestrictions = [];
             self.pipeline.araRestrictions.push({});
           }
+
+          if (!self.pipeline.networkAcceptArr) {
+            self.pipeline.networkAcceptArr = [];
+          }
+          if (self.pipeline.networkAcceptArr.length === 0) {
+            self.pipeline.networkAcceptArr.push('');
+          }
+          if (!self.pipeline.networkRejectArr) {
+            self.pipeline.networkRejectArr = [];
+          }
+          if (self.pipeline.networkRejectArr.length === 0) {
+            self.pipeline.networkRejectArr.push('');
+          }
         });
     });
 
@@ -369,7 +429,9 @@ export class PipelineView implements IPipelineView {
     public auditViewArr?: IAuditView[],
     public csrUsage?: ICsrUsage,
     public requestProxyConfigIds?: number[],
-    public keyUniqueness?: IKeyUniqueness
+    public keyUniqueness?: IKeyUniqueness,
+    public networkAcceptArr?: string[],
+    public networkRejectArr?: string[]
   ) {
     this.toPendingOnFailedRestrictions = this.toPendingOnFailedRestrictions || false;
     this.approvalRequired = this.approvalRequired || false;
@@ -390,6 +452,9 @@ export class PipelineView implements IPipelineView {
     this.restriction_S = new RDNRestriction();
     this.restriction_E = new RDNRestriction();
     this.restriction_SAN = new RDNRestriction();
+
+    this.networkAcceptArr = [''];
+    this.networkRejectArr = [''];
   }
 }
 

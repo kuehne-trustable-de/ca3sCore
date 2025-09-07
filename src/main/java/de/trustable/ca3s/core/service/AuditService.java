@@ -151,6 +151,7 @@ public class AuditService {
     private static final String AUDIT_USER_LOGIN_BLOCKED = "AUDIT_USER_LOGIN_BLOCKED";
 
     private static final String AUDIT_USER_LOGIN_FOR_IP_BLOCKED = "AUDIT_USER_LOGIN_FOR_IP_BLOCKED";
+    private static final String AUDIT_PROTECTED_CONTENT_EMPTY_STATUS_UPDATED = "AUDIT_PROTECTED_CONTENT_EMPTY_STATUS_UPDATED";
 
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
@@ -894,6 +895,24 @@ public class AuditService {
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED,
+            "" + nUpdated,
+            null, "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+    public AuditTrace createAuditTraceProtectedContentEmptyStatusUpdated(final int nUpdated){
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_PROTECTED_CONTENT_EMPTY_STATUS_UPDATED,
             "" + nUpdated,
             null, "",
             null,

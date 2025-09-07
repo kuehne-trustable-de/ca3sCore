@@ -59,14 +59,20 @@ export default class ChangePassword extends mixins(AlertMixin) {
 
   public accountCredentialArr: IAccountCredentialView[] = [];
 
+  public tokenArr: IAccountCredentialView[] = [];
+
   public mounted(): void {
     this.refreshUIConfig();
 
     this.getCredentials();
-
+    this.getTokens();
     this.accountService().retrieveAccount();
 
     this.credentialChange.clientAuthCertId = 0;
+  }
+
+  public get settingsAccount(): any {
+    return this.$store.getters.account;
   }
 
   public refreshUIConfig() {
@@ -74,7 +80,6 @@ export default class ChangePassword extends mixins(AlertMixin) {
     axios({
       method: 'get',
       url: 'api/ui/config',
-      responseType: 'stream',
     }).then(function (response) {
       window.console.info('ui/config returns ' + response.data);
       self.$store.commit('updateCV', response.data);
@@ -88,10 +93,22 @@ export default class ChangePassword extends mixins(AlertMixin) {
     axios({
       method: 'get',
       url: 'api/account/credentials',
-      responseType: 'stream',
     }).then(function (response) {
       window.console.info('getCredentials returns ' + response.data);
       self.accountCredentialArr = response.data;
+    });
+  }
+
+  public getTokens(): void {
+    window.console.info('calling getTokens');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api/account/tokens',
+    }).then(function (response) {
+      window.console.info('getTokens returns ' + response.data);
+      self.tokenArr = response.data;
     });
   }
 
@@ -225,6 +242,7 @@ export default class ChangePassword extends mixins(AlertMixin) {
     axios.delete(url).then(function (response) {
       window.console.info('delete credentials returns ' + response.status);
       self.getCredentials();
+      self.getTokens();
       self.closeDialog();
     });
   }

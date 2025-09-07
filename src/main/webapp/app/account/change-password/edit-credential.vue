@@ -8,7 +8,7 @@
             {{alertMessage}}
         </b-alert>
         <br/>
-        <div class="row justify-content-center">
+        <div class="row row-gap-3 justify-content-center">
             <div class="col-md-8 toastify-container">
                 <h2 v-if="account" id="password-title"><span v-html="$t('password.title', { 'username': username})"></span>
                 </h2>
@@ -18,15 +18,21 @@
                 <h3 v-if="credentialChange.credentialUpdateType === 'TOTP'" id="totp-title"><span
                     v-text="$t('global.messages.totp.title')"></span></h3>
                 <h3 v-if="credentialChange.credentialUpdateType === 'SMS'" id="sms-title"><span
-                    v-text="$t('global.messages.totp.title')"></span></h3>
+                    v-text="$t('global.messages.sms.title')"></span></h3>
+                <h3 v-if="credentialChange.credentialUpdateType === 'API_TOKEN'" id="api-token-title"><span
+                    v-text="$t('global.messages.api.token.title')"></span></h3>
+                <h3 v-if="credentialChange.credentialUpdateType === 'EST_TOKEN'" id="est-token-title"><span
+                    v-text="$t('global.messages.est.token.title')"></span></h3>
+                <h3 v-if="credentialChange.credentialUpdateType === 'SCEP_TOKEN'" id="scep-token-title"><span
+                    v-text="$t('global.messages.scep.token.title')"></span></h3>
+                <h3 v-if="credentialChange.credentialUpdateType === 'EAB_PASSWORD'" id="eab.password-title"><span
+                    v-text="$t('global.messages.eab.password.title')"></span></h3>
 
-                <div class="alert alert-danger" role="alert" v-if="oldPasswordMismatch" v-text="$t('global.messages.error.oldPasswordMismatch')">
-                    The password and its confirmation do not match!
-                </div>
+                <div class="alert alert-danger" role="alert" v-if="oldPasswordMismatch" v-text="$t('global.messages.error.oldPasswordMismatch')"></div>
 
                 <form name="form" role="form" id="password-form" v-on:submit.prevent="saveCredentials()">
 
-                    <div class="row justify-content-start">
+                    <div class="row row-gap-3 justify-content-start" v-if="!settingsAccount.managedExternally">
                         <div class="col-sm">
                             <label class="form-control-label" for="currentPassword"
                                    v-text="$t('global.form.currentpassword.label')"></label>
@@ -46,7 +52,7 @@
                         <div class="col">
                         </div>
                     </div>
-                    <div class="row justify-content-start" v-if="credentialChange.credentialUpdateType === 'CLIENT_CERT'">
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'CLIENT_CERT'">
                         <div class="col-sm">
                             <label class="form-control-label" for="client-auth-secret"
                                    v-text="$t('global.form.client.cert')"></label>
@@ -78,7 +84,7 @@
                         </div>
                     </div>
 
-                    <div class="row justify-content-start" v-if="credentialChange.clientAuthCertId !== 0">
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.clientAuthCertId !== 0">
                         <div class="col-sm">
                             <label class="form-control-label"
                                    v-text="$t('ca3SApp.form.client.cert.install')"
@@ -89,7 +95,7 @@
                         <div class="col"></div>
                     </div>
 
-                    <div class="row justify-content-start" v-if="credentialChange.credentialUpdateType === 'TOTP'">
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'TOTP'">
                         <div class="col-sm">
                             <label class="form-control-label"
                                    v-text="$t('ca3SApp.form.client.otp.useGivenSeed')"
@@ -104,7 +110,7 @@
                         <div class="col"></div>
                     </div>
 
-                    <div class="row justify-content-start" v-if="credentialChange.credentialUpdateType === 'TOTP'">
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'TOTP'">
                         <div class="col-sm">
                             <label class="form-control-label" v-text="$t('ca3SApp.form.client.otp.seed')"
                                    for="otp-seed"></label>
@@ -125,7 +131,7 @@
                         <div class="col"></div>
                     </div>
 
-                    <div class="row justify-content-start" v-if="credentialChange.credentialUpdateType === 'TOTP'  && !useGivenSeed">
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'TOTP'  && !useGivenSeed">
                         <div class="col-sm">
                             <label class="form-control-label" v-text="$t('ca3SApp.form.client.otp.qrcode')"
                                    for="request-otp-qrcode"></label>
@@ -136,7 +142,7 @@
                         <div class="col"></div>
                     </div>
 
-                    <div class="row justify-content-start" v-if="credentialChange.credentialUpdateType === 'TOTP'">
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'TOTP'">
                         <div class="col-sm">
                             <label class="form-control-label" v-text="$t('ca3SApp.form.client.otp.value')"
                                    for="otp-test-value"></label>
@@ -156,7 +162,7 @@
                         <div class="col"></div>
                     </div>
 
-                    <div class="row justify-content-start" v-if="credentialChange.credentialUpdateType === 'SMS'">
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'SMS'">
                         <div class="col-sm">
                             <label class="form-control-label" v-text="$t('ca3SApp.form.client.sms.test.label')"
                                    for="sms-test-request"></label>
@@ -170,7 +176,7 @@
                         <div class="col"></div>
                     </div>
 
-                    <div class="row justify-content-start" v-if="credentialChange.credentialUpdateType === 'SMS' && smsSent">
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'SMS' && smsSent">
                         <div class="col-sm">
                             <label class="form-control-label" v-text="$t('ca3SApp.form.client.sms.value')"
                                    for="sms-test-value"></label>
@@ -190,17 +196,91 @@
                         <div class="col"></div>
                     </div>
 
+                    <div class="row row-gap-3 justify-content-start"
+                         v-if="credentialChange.credentialUpdateType === 'SCEP_TOKEN' || credentialChange.credentialUpdateType === 'EST_TOKEN' || credentialChange.credentialUpdateType === 'EAB_PASSWORD'">
+                        <div class="col-sm">
+                            <label class="form-control-label" v-text="$t('ca3SApp.form.client.api.token.validity')"
+                                   for="api-token-validity"></label>
+                        </div>
+                        <div class="col-6">
+                            <select
+                              class="form-control form-check-inline w-50"
+                              id="api-token-validity" name="api-token-validity"
+                              v-model="credentialChange.apiTokenValiditySeconds">
+                              <option value="86400" v-text="$t('ca3SApp.Interval.DAY')" selected="selected"></option>
+                              <option value="604800" v-text="$t('ca3SApp.Interval.WEEK')"></option>
+                              <option value="2678400" v-text="$t('ca3SApp.Interval.MONTH')"></option>
+                              <option value="31536000" v-text="$t('ca3SApp.Interval.YEAR')"></option>
+                            </select>
+                        </div>
+                        <div class="col"></div>
+                    </div>
+
+                  <div class="row row-gap-3 justify-content-start"
+                       v-if="credentialChange.credentialUpdateType === 'SCEP_TOKEN' || credentialChange.credentialUpdateType === 'EST_TOKEN' || credentialChange.credentialUpdateType === 'EAB_PASSWORD'">
+                    <div class="col-sm">
+                        <label class="form-control-label" v-text="$t('ca3SApp.form.client.pipeline')"
+                               for="pipeline"></label>
+                    </div>
+
+                    <div class="col-6">
+                      <select
+                        class="form-control form-check-inline w-50"
+                        id="pipeline" name="pipeline"
+                        v-model="credentialChange.pipelineId">
+                        <option v-for="pipeline in pipelineViewArr"
+                                v-bind:value="pipeline.id"
+                                :key="pipeline.id">{{ pipeline.name }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <div class="col"></div>
+                  </div>
+
+                  <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'API_TOKEN' || credentialChange.credentialUpdateType === 'SCEP_TOKEN' || credentialChange.credentialUpdateType === 'EST_TOKEN' || credentialChange.credentialUpdateType === 'EAB_PASSWORD'">
+
+                        <div class="col-sm">
+                            <label class="form-control-label" v-text="$t('ca3SApp.form.client.api.token.value')"
+                                   for="api-token-value"></label>
+                        </div>
+                        <div class="col-6">
+                            <input type="text"
+                                   class="form-control form-check-inline w-50"
+                                   name="api-token-value"
+                                   id="api-token-value"
+                                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                   readonly
+                                   v-model="credentialChange.apiTokenValue" />
+                            <CopyClipboardButton contentElementId="api-token-value"/>
+
+                        </div>
+
+                        <div class="col" v-if="credentialChange.credentialUpdateType === 'EAB_PASSWORD'">
+                            <input type="text"
+                                   class="form-control form-check-inline w-50"
+                                   name="eab-kid"
+                                   id="eab-kid"
+                                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                   readonly
+                                   v-model="credentialChange.eabKid" />
+                            <CopyClipboardButton contentElementId="eab-kid"/>
+                        </div>
+
+                        <div class="col"  v-if="credentialChange.credentialUpdateType !== 'EAB_PASSWORD'">
+                        </div>
+                    </div>
+
                     <div>
                         <button type="submit"
                                 v-on:click.prevent="previousState()"
                                 class="btn btn-info" :id="updateCounter">
                             <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span
-                            v-text="$t('entity.action.back')"> Back</span>
+                            v-text="$t('entity.action.back')"></span>
                         </button>
 
                         <button type="submit" :disabled="!canSubmit()" class="btn btn-primary"
-                                v-text="$t('password.form.button')">Save
-                        </button>
+                                v-text="$t('password.form.button')"></button>
                     </div>
                 </form>
 

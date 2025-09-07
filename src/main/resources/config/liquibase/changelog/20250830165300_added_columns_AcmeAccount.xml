@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+    <!--
+        Add the eab_kid field to the ACME account.
+    -->
+    <changeSet id="20250830165300-1" author="ak">
+
+        <addColumn tableName="acme_account">
+            <column name="eab_kid" type="varchar(60)">
+                <constraints nullable="true" />
+            </column>
+            <column name="eab_user_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
+        </addColumn>
+    </changeSet>
+
+</databaseChangeLog>

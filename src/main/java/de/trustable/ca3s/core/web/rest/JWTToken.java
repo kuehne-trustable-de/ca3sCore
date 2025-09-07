@@ -9,12 +9,14 @@ public class JWTToken {
 
     private String idToken;
 
+    public JWTToken(){}
+
     public JWTToken(String idToken) {
         this.idToken = idToken;
     }
 
     @JsonProperty("id_token")
-    String getIdToken() {
+    public String getIdToken() {
         return idToken;
     }
 

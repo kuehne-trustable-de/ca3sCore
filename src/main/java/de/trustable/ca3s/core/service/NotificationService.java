@@ -651,10 +651,21 @@ public class NotificationService {
 
     @Transactional
     public void notifyRAOfficerOnRequest(CSR csr) {
+        String ra = "";
+        String domainRa = "";
+        Pipeline pipeline = csr.getPipeline();
+        if( pipeline != null){
+            if( pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.NOTIFY_RA_OFFICER_ON_PENDING, false)){
+                ra = AuthoritiesConstants.RA_OFFICER;
+            }
+            if( pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.NOTIFY_DOMAIN_RA_OFFICER_ON_PENDING, false)){
+                ra = AuthoritiesConstants.DOMAIN_RA_OFFICER;
+            }
+        }
 
         notifyRAOfficerOnRequest( csr,
-            findAllRAOfficer(AuthoritiesConstants.RA_OFFICER),
-            findAllRAOfficer(AuthoritiesConstants.DOMAIN_RA_OFFICER),
+            findAllRAOfficer(ra),
+            findAllRAOfficer(domainRa),
             true);
     }
 

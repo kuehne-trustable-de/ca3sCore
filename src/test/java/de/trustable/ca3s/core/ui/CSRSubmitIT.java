@@ -218,8 +218,8 @@ public class CSRSubmitIT extends WebTestBase {
         randomComment = "Neque porro quisquam est, qui dolorem ipsum, quia dolor sit, amet, consectetur, adipisci velit " +
             Base64.getEncoder().encodeToString(commentBytes);
 
-        userUtil.updateUserByLogin(USER_NAME_USER, USER_PASSWORD_USER, "user@loclahost");
-        userUtil.updateUserByLogin(USER_NAME_RA, USER_PASSWORD_RA, "ra@loclahost");
+        userUtil.updateUserByLogin(USER_NAME_USER, USER_PASSWORD_USER, "user@localhost");
+        userUtil.updateUserByLogin(USER_NAME_RA, USER_PASSWORD_RA, "ra@localhost");
     }
 
     void setAllUserLocale(String locale){

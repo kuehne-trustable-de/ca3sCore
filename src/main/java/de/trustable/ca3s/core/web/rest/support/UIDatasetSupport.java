@@ -181,12 +181,23 @@ public class UIDatasetSupport {
     @GetMapping("/pipeline/activeWeb")
     @Transactional
     public List<PipelineView> activeWeb() {
+        return  activeByPipelineType(PipelineType.WEB);
+    }
+
+    /**
+     * {@code GET  /pipeline/activeWeb} : get all active pipelines for web upload.
+     *
+     * @return the {@link Pipeline} .
+     */
+    @GetMapping("/pipeline/activeByType/{pipelineType}")
+    @Transactional
+    public List<PipelineView> activeByPipelineType(@PathVariable PipelineType pipelineType) {
 
         User currentUser = userUtil.getCurrentUser();
 
         List<PipelineView> pvList = new ArrayList<>();
         if(SecurityUtils.isAuthenticated()){
-            List<Pipeline> pipelineList = pipelineRepo.findActiveByType(PipelineType.WEB);
+            List<Pipeline> pipelineList = pipelineRepo.findActiveByType(pipelineType);
 
             if( UserUtil.isAdministrativeUser(currentUser) ||
                 "none".equalsIgnoreCase(certificateStoreIsolation)){

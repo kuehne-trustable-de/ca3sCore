@@ -1,15 +1,20 @@
 package de.trustable.ca3s.core.service.util;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.springframework.stereotype.Component;
 
 import java.security.SecureRandom;
+import java.util.Base64;
 
 /**
  * Utility class for generating random Strings.
  */
-public final class RandomUtil {
+@Component
+public class RandomUtil {
 
-    private static final int DEF_COUNT = 20;
+    private static final int DEFAULT_LENGTH = 20;
+    private static final int TOKEN_LENGTH = 32;
+    private static final int MAC_KEY_LENGTH = 32;
 
     private static final SecureRandom SECURE_RANDOM;
 
@@ -18,15 +23,16 @@ public final class RandomUtil {
         SECURE_RANDOM.nextBytes(new byte[64]);
     }
 
-    private RandomUtil() {
-    }
-
-    public static SecureRandom getSecureRandom() {
+    public  SecureRandom getSecureRandom() {
         return SECURE_RANDOM;
     }
 
-    private static String generateRandomAlphanumericString() {
-        return RandomStringUtils.random(DEF_COUNT, 0, 0, true, true, null, SECURE_RANDOM);
+    private  String generateRandomAlphanumericString() {
+        return RandomStringUtils.random(DEFAULT_LENGTH, 0, 0, true, true, null, SECURE_RANDOM);
+    }
+
+    private  String generateRandomAlphanumericString(final int length) {
+        return RandomStringUtils.random(length, 0, 0, true, true, null, SECURE_RANDOM);
     }
 
     /**
@@ -34,7 +40,7 @@ public final class RandomUtil {
      *
      * @return the generated password.
      */
-    public static String generatePassword() {
+    public String generatePassword() {
         return generateRandomAlphanumericString();
     }
 
@@ -43,7 +49,7 @@ public final class RandomUtil {
      *
      * @return the generated activation key.
      */
-    public static String generateActivationKey() {
+    public String generateActivationKey() {
         return generateRandomAlphanumericString();
     }
 
@@ -52,7 +58,27 @@ public final class RandomUtil {
      *
      * @return the generated reset key.
      */
-    public static String generateResetKey() {
+    public String generateResetKey() {
         return generateRandomAlphanumericString();
+    }
+
+    /**
+     * Generate a api token.
+     *
+     * @return the generated reset key.
+     */
+    public String generateApiToken() {
+        return generateRandomAlphanumericString(TOKEN_LENGTH);
+    }
+
+    /**
+     * Generate mac key with 256 bits.
+     *
+     * @return the generated reset key.
+     */
+    public String generateMacKey() {
+        byte[] randBytes = new byte[MAC_KEY_LENGTH];
+        getSecureRandom().nextBytes(randBytes);
+        return Base64.getUrlEncoder().encodeToString(randBytes);
     }
 }

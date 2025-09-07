@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn2:definitions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns:bpmn2="http://www.omg.org/spec/BPMN/20100524/MODEL"
+                   xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+                   xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+                   xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="_DdZocL47EeOQo_IRkjDF6w"
+                   targetNamespace="http://camunda.org/schema/1.0/bpmn" exporter="Camunda Modeler"
+                   exporterVersion="5.16.0" xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd">
+    <bpmn2:process id="SendSMSProcess" name="Send an SMS sending request to a backend service" isExecutable="true">
+        <bpmn2:extensionElements/>
+        <bpmn2:startEvent id="StartEvent_1" name="CertificateUpdateNotification">
+            <bpmn2:outgoing>SequenceFlow_1b8to73</bpmn2:outgoing>
+        </bpmn2:startEvent>
+        <bpmn2:sequenceFlow id="SequenceFlow_1b8to73" sourceRef="StartEvent_1" targetRef="Activity_0uefnln"/>
+        <bpmn2:endEvent id="EndEvent_1" name="CA Request&#10;Processed">
+            <bpmn2:extensionElements/>
+            <bpmn2:incoming>Flow_10pvgz6</bpmn2:incoming>
+        </bpmn2:endEvent>
+        <bpmn2:serviceTask id="Activity_0mehnwk" name="RestNotification">
+            <bpmn2:extensionElements>
+                <camunda:connector>
+                    <camunda:inputOutput>
+                        <camunda:inputParameter name="url">${processAttribute_targetUrl}</camunda:inputParameter>
+                        <camunda:inputParameter name="method">POST</camunda:inputParameter>
+                        <camunda:inputParameter name="headers">
+                            <camunda:map>
+                                <camunda:entry key="CONTENT-TYPE">application/x-www-form-urlencoded</camunda:entry>
+                                <camunda:entry key="Authorization">Basic ${basicAuthValue}</camunda:entry>
+                            </camunda:map>
+                        </camunda:inputParameter>
+                        <camunda:inputParameter name="payload">${payload}</camunda:inputParameter>
+                        <camunda:outputParameter name="status">
+                            <camunda:script scriptFormat="groovy">statusCode == 201 ? "Success" : "Failed"
+                            </camunda:script>
+                        </camunda:outputParameter>
+                    </camunda:inputOutput>
+                    <camunda:connectorId>http-connector</camunda:connectorId>
+                </camunda:connector>
+                <camunda:inputOutput>
+                    <camunda:inputParameter name="payload">${payload}</camunda:inputParameter>
+                    <camunda:inputParameter name="basicAuthValue">${basicAuthValue}</camunda:inputParameter>
+                    <camunda:inputParameter name="targetUrl">${processAttribute_targetUrl}</camunda:inputParameter>
+                </camunda:inputOutput>
+            </bpmn2:extensionElements>
+            <bpmn2:incoming>Flow_0mgnc32</bpmn2:incoming>
+            <bpmn2:outgoing>Flow_10pvgz6</bpmn2:outgoing>
+        </bpmn2:serviceTask>
+        <bpmn2:sequenceFlow id="Flow_10pvgz6" sourceRef="Activity_0mehnwk" targetRef="EndEvent_1"/>
+        <bpmn2:scriptTask id="Activity_12ghldc" name="RetrieveCertificate" scriptFormat="groovy">
+            <bpmn2:extensionElements>
+                <camunda:inputOutput>
+                    <camunda:inputParameter name="phone">${phone}</camunda:inputParameter>
+                    <camunda:inputParameter name="msg">${msg}</camunda:inputParameter>
+                    <camunda:inputParameter name="targetUrl">${processAttribute_targetUrl}</camunda:inputParameter>
+                    <camunda:inputParameter name="messagingServiceSid">${processAttribute_MessagingServiceSid}</camunda:inputParameter>
+                    <camunda:inputParameter name="user">${processAttribute_user}</camunda:inputParameter>
+                    <camunda:inputParameter name="password">${processAttribute_password}</camunda:inputParameter>
+                </camunda:inputOutput>
+            </bpmn2:extensionElements>
+            <bpmn2:incoming>Flow_16oe7vp</bpmn2:incoming>
+            <bpmn2:outgoing>Flow_0mgnc32</bpmn2:outgoing>
+            <bpmn2:multiInstanceLoopCharacteristics>
+                <bpmn2:loopCardinality xsi:type="bpmn2:tFormalExpression">1</bpmn2:loopCardinality>
+            </bpmn2:multiInstanceLoopCharacteristics>
+            <bpmn2:script>
+
+                println("######  targetUrl: " + targetUrl)
+                println("######  user +   : " + user)
+                println("######  password : " + password)
+
+                String payload = "To=" + java.net.URLEncoder.encode(phone) + "&amp;MessagingServiceSid=" + messagingServiceSid + "&amp;Body=" + java.net.URLEncoder.encode(msg)
+                execution.setVariable("status", "NotFound")
+                execution.setVariable("payload", payload);
+//                execution.setVariable("basicAuthValue", "QUNiNTEyODQ0M2U5NTA5Y2M3ZTM3Y2FkNDJkYjMzNGFiMzphMDZjZDE4OTExMDVkMjVjZmJiMDIwYTRkZjk1YjlmNg==");
+                String basicAuthValue = java.util.Base64.getEncoder().encodeToString((user + ":" + password).getBytes());
+                println("######  basicAuthValue: " + basicAuthValue)
+                execution.setVariable("basicAuthValue", basicAuthValue);
+
+            </bpmn2:script>
+        </bpmn2:scriptTask>
+        <bpmn2:sequenceFlow id="Flow_0mgnc32" sourceRef="Activity_12ghldc" targetRef="Activity_0mehnwk"/>
+        <bpmn2:serviceTask id="Activity_0uefnln" name="AccessTokenRetrieval">
+            <bpmn2:extensionElements>
+                <camunda:connector>
+                    <camunda:inputOutput>
+                        <camunda:inputParameter name="url">
+                            ${processAttribute_targetUrl}api/ApiToken/GenerateAccessTokenFromApiToken
+                        </camunda:inputParameter>
+                        <camunda:inputParameter name="method">POST</camunda:inputParameter>
+                        <camunda:inputParameter name="headers">
+                            <camunda:map>
+                                <camunda:entry key="CONTENT-TYPE">application/json</camunda:entry>
+                                <camunda:entry key="Authorization">Bearer authCredential</camunda:entry>
+                            </camunda:map>
+                        </camunda:inputParameter>
+                        <camunda:outputParameter name="authToken">
+                            <camunda:script scriptFormat="groovy">statusCode == 200 ?
+                                S(response).prop("RawToken").value() : ""
+                            </camunda:script>
+                        </camunda:outputParameter>
+                    </camunda:inputOutput>
+                    <camunda:connectorId>http-connector</camunda:connectorId>
+                </camunda:connector>
+            </bpmn2:extensionElements>
+            <bpmn2:incoming>SequenceFlow_1b8to73</bpmn2:incoming>
+            <bpmn2:outgoing>Flow_16oe7vp</bpmn2:outgoing>
+        </bpmn2:serviceTask>
+        <bpmn2:sequenceFlow id="Flow_16oe7vp" sourceRef="Activity_0uefnln" targetRef="Activity_12ghldc"/>
+    </bpmn2:process>
+    <bpmn2:error id="Error_0eb6jwi" name="Error_3vlrpis"/>
+    <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+        <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="SendSMSProcess">
+            <bpmndi:BPMNShape id="_BPMNShape_StartEvent_3" bpmnElement="StartEvent_1">
+                <dc:Bounds x="170" y="114" width="36" height="36"/>
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds x="149" y="77" width="80" height="27"/>
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="EndEvent_0y7erx5_di" bpmnElement="EndEvent_1">
+                <dc:Bounds x="952" y="114" width="36" height="36"/>
+                <bpmndi:BPMNLabel>
+                    <dc:Bounds x="940" y="77" width="60" height="27"/>
+                </bpmndi:BPMNLabel>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Activity_18kchyc_di" bpmnElement="Activity_0mehnwk">
+                <dc:Bounds x="760" y="92" width="100" height="80"/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="Activity_1paqwpb_di" bpmnElement="Activity_12ghldc">
+                <dc:Bounds x="540" y="92" width="100" height="80"/>
+                <bpmndi:BPMNLabel/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNShape id="BPMNShape_1dm6sq2" bpmnElement="Activity_0uefnln">
+                <dc:Bounds x="300" y="92" width="100" height="80"/>
+                <bpmndi:BPMNLabel/>
+            </bpmndi:BPMNShape>
+            <bpmndi:BPMNEdge id="SequenceFlow_1b8to73_di" bpmnElement="SequenceFlow_1b8to73">
+                <di:waypoint x="206" y="132"/>
+                <di:waypoint x="300" y="132"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_10pvgz6_di" bpmnElement="Flow_10pvgz6">
+                <di:waypoint x="860" y="132"/>
+                <di:waypoint x="952" y="132"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_0mgnc32_di" bpmnElement="Flow_0mgnc32">
+                <di:waypoint x="640" y="132"/>
+                <di:waypoint x="760" y="132"/>
+            </bpmndi:BPMNEdge>
+            <bpmndi:BPMNEdge id="Flow_16oe7vp_di" bpmnElement="Flow_16oe7vp">
+                <di:waypoint x="400" y="132"/>
+                <di:waypoint x="540" y="132"/>
+            </bpmndi:BPMNEdge>
+        </bpmndi:BPMNPlane>
+    </bpmndi:BPMNDiagram>
+</bpmn2:definitions>

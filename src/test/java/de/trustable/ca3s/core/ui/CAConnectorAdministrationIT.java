@@ -255,6 +255,9 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         Assertions.assertEquals( newCAConnectorMessageContenType, getText(LOC_INP_CA_MESSAGE_CONTENT_TYPE));
         Assertions.assertFalse(isChecked(LOC_INP_CA_CONFIG_DEFAULT_CA));
 
+        validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
+        uncheck(LOC_INP_CA_CONFIG_ACTIVE);
+        isEnabled(LOC_BTN_SAVE);
     }
 
     @Test
@@ -278,7 +281,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validatePresent(LOC_BTN_CA_CONFIG_NEW);
         click(LOC_BTN_CA_CONFIG_NEW);
 
-        // crete new connector
+        // create new connector
         validatePresent(LOC_INP_CA_CONFIG_NAME);
         setText(LOC_INP_CA_CONFIG_NAME, newCAConnectorName);
 
@@ -370,7 +373,9 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         Assertions.assertEquals("SaltAPISalt", getText(LOC_INP_CA_API_SALT));
         Assertions.assertEquals("100001", getText(LOC_INP_CA_API_CYCLES));
 
-
+        validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
+        uncheck(LOC_INP_CA_CONFIG_ACTIVE);
+        isEnabled(LOC_BTN_SAVE);
     }
 
     @Test
@@ -477,6 +482,9 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         Assertions.assertEquals("SaltAPISalt", getText(LOC_INP_CA_API_SALT));
         Assertions.assertEquals("100001", getText(LOC_INP_CA_API_CYCLES));
 
+        validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
+        uncheck(LOC_INP_CA_CONFIG_ACTIVE);
+        isEnabled(LOC_BTN_SAVE);
     }
 
     @Test
@@ -551,6 +559,10 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         Assertions.assertEquals(newCAConnectorUrl, getText(LOC_SEL_CA_CONFIG_URL));
         Assertions.assertEquals("DAY", getText(LOC_SEL_CA_CONFIG_INTERVAL));
         Assertions.assertTrue(isChecked(LOC_INP_CA_CONFIG_TRUST_SELFSIGNED));
+
+        validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
+        uncheck(LOC_INP_CA_CONFIG_ACTIVE);
+        isEnabled(LOC_BTN_SAVE);
     }
 
     @Test
@@ -617,6 +629,11 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         Assertions.assertEquals(newCAConnectorName, getText(LOC_INP_CA_CONFIG_NAME), "Expect the name of the connector");
         Assertions.assertEquals("INTERNAL", getText(LOC_SEL_CA_CONFIG_TYPE));
         Assertions.assertFalse(isChecked(LOC_INP_CA_CONFIG_DEFAULT_CA));
+
+        validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
+        uncheck(LOC_INP_CA_CONFIG_ACTIVE);
+        isEnabled(LOC_BTN_SAVE);
     }
+
 
 }

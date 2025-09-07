@@ -7,7 +7,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.8</version>
+    <version>1.2.9</version>
 
     <packaging>jar</packaging>
 
@@ -913,6 +913,13 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/commons-net/commons-net -->
+        <dependency>
+            <groupId>commons-net</groupId>
+            <artifactId>commons-net</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
         <dependency>
             <groupId>com.password4j</groupId>
             <artifactId>password4j</artifactId>
@@ -1783,6 +1790,7 @@
                         <class>de.trustable.ca3s.core.web.rest.data.BpmnCheckResult</class>
                         <class>de.trustable.ca3s.core.web.rest.data.AcmeAccountStatusAdministration</class>
                         <class>de.trustable.ca3s.core.web.rest.vm.LoginData</class>
+                        <class>de.trustable.ca3s.core.web.rest.vm.TokenRequest</class>
 
                     </classes>
                     <addTypeNamePrefix>I</addTypeNamePrefix>

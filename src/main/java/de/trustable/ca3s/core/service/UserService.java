@@ -3,11 +3,14 @@ package de.trustable.ca3s.core.service;
 import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentStatus;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.dto.AccountCredentialsType;
+import de.trustable.ca3s.core.service.dto.CredentialUpdateType;
 import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 
@@ -16,6 +19,7 @@ import de.trustable.ca3s.core.service.exception.InvalidPasswordException;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.PasswordUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import tech.jhipster.security.RandomUtil;
@@ -48,6 +52,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ProtectedContentUtil protectedContentUtil;
     private final ProtectedContentRepository protContentRepository;
+    final private PipelineRepository pipelineRepository;
     private final AuthorityRepository authorityRepository;
     private final TenantRepository tenantRepository;
     private final CacheManager cacheManager;
@@ -61,7 +66,7 @@ public class UserService {
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        ProtectedContentUtil protectedContentUtil,
-                       ProtectedContentRepository protContentRepository,
+                       ProtectedContentRepository protContentRepository, PipelineRepository pipelineRepository,
                        AuthorityRepository authorityRepository,
                        TenantRepository tenantRepository,
                        CacheManager cacheManager,
@@ -75,6 +80,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
         this.protectedContentUtil = protectedContentUtil;
         this.protContentRepository = protContentRepository;
+        this.pipelineRepository = pipelineRepository;
         this.authorityRepository = authorityRepository;
         this.tenantRepository = tenantRepository;
         this.cacheManager = cacheManager;
@@ -168,6 +174,7 @@ public class UserService {
         Set<Authority> authorities = new HashSet<>();
         authorityRepository.findById(AuthoritiesConstants.USER).ifPresent(authorities::add);
         newUser.setAuthorities(authorities);
+        newUser.setManagedExternally(false);
 
         updateTenant(newUser, userDTO);
 
@@ -401,6 +408,13 @@ public class UserService {
                         }
                         break;
 
+                    case API_TOKEN:
+                    case EST_TOKEN:
+                    case SCEP_TOKEN:
+                    case EAB_PASSWORD:
+                        storeToken(passwordChangeDto, user);
+                        break;
+
                     default:
                         log.warn("unexpected CredentialUpdateType: {}", passwordChangeDto.getCredentialUpdateType());
                         break;
@@ -413,6 +427,91 @@ public class UserService {
             }
         );
     }
+
+    private void storeToken(PasswordChangeDTO passwordChangeDto, @NotNull User user) {
+
+        if( !passwordChangeDto.getApiTokenValue().isEmpty() && (passwordChangeDto.getApiTokenValue().trim().length() >= 16)) {
+
+            ProtectedContentStatus protectedContentStatus = ProtectedContentStatus.ACTIVE;
+            ContentRelationType contentRelationType = ContentRelationType.API_TOKEN;
+            if( passwordChangeDto.getCredentialUpdateType() == CredentialUpdateType.SCEP_TOKEN) {
+                contentRelationType = ContentRelationType.SCEP_TOKEN;
+                protectedContentStatus = ProtectedContentStatus.PENDING;
+            }else if( passwordChangeDto.getCredentialUpdateType() == CredentialUpdateType.EST_TOKEN) {
+                contentRelationType = ContentRelationType.EST_TOKEN;
+                protectedContentStatus = ProtectedContentStatus.PENDING;
+            }else if( passwordChangeDto.getCredentialUpdateType() == CredentialUpdateType.EAB_PASSWORD) {
+                contentRelationType = ContentRelationType.EAB_PASSWORD;
+            }
+
+            Pipeline pipeline = null;
+            if( passwordChangeDto.getPipelineId() != null) {
+                Optional<Pipeline> optionalPipeline = pipelineRepository.findById(passwordChangeDto.getPipelineId());
+                if( optionalPipeline.isPresent()) {
+                    pipeline = optionalPipeline.get();
+                }
+            }
+
+            Instant validTo = Instant.now().plus(passwordChangeDto.getApiTokenValiditySeconds(), ChronoUnit.SECONDS);
+            protectedContentUtil.createProtectedContent(passwordChangeDto.getApiTokenValue(),
+                ProtectedContentType.TOKEN,
+                contentRelationType,
+                user.getId(),
+                -1,
+                validTo,
+                pipeline,
+                protectedContentStatus);
+
+            log.debug("new api token set for user {}", user.getId());
+        }else{
+            log.warn("new {} too short / empty: '{}'", passwordChangeDto.getCredentialUpdateType(), passwordChangeDto.getApiTokenValue());
+        }
+    }
+
+    public User authenticateUserByToken(final String token){
+        String[] tokenParts = token.split("\\.");
+        if(tokenParts.length != 3) {
+            log.warn("unexpected format of token: {}, has {} parts", token, tokenParts.length);
+            String msg = String.format("unexpected format of token '%s' !", token);
+            throw new BadRequestAlertException(msg, "token", "400");
+        }
+
+        try {
+            // check the given value with the enumeration
+            AccountCredentialsType.valueOf(tokenParts[1]);
+        } catch(IllegalArgumentException e){
+            log.warn("unexpected format of token: {}, AccountCredentialsType '{}' unknown", token, tokenParts[1]);
+            String msg = String.format("unexpected format of token '%s' !", token);
+            throw new BadRequestAlertException(msg, "token", "400");
+        }
+
+        long userId = Long.parseLong(tokenParts[2]);
+        Optional<User> optUser = userRepository.findById(userId);
+        if(optUser.isEmpty()){
+            log.warn("unexpected format of token: {}, userid {} unknown!",  token, userId);
+            String msg = String.format("unexpected format of token '%s' !", token);
+            throw new BadRequestAlertException(msg, "token", "400");
+        }
+
+        List<ProtectedContent> protectedContents = protectedContentUtil.findProtectedContentByRelatedIdAndSecret(token,
+            ProtectedContentType.TOKEN,
+            ContentRelationType.API_TOKEN,
+            userId);
+
+        if(protectedContents.isEmpty()){
+            log.warn("problem with token: {}, userid {} unknown!",  token, userId);
+            String msg = String.format("token '%s' not recognized!", token);
+            throw new BadRequestAlertException(msg, "token", "400");
+        }
+        if(protectedContents.size() > 1){
+            log.warn("problem with token: {}, multiple userids selected!", token);
+            String msg = String.format("token '%s' retrieves more than one entry, aborting!", token);
+            throw new BadRequestAlertException(msg, "token", "400");
+        }
+
+        return optUser.get();
+    }
+
 
     public void updateSecondFactorRequirement(User user, boolean downgradeOnly) {
         boolean oldState = user.isSecondFactorRequired();
@@ -466,12 +565,49 @@ public class UserService {
                             log.warn("Unknown certificate id '{}' for credentials deletion", id);
                         }
                         break;
+                    case API_TOKEN:
+                        deleteToken(id, user, ContentRelationType.API_TOKEN);
+                        break;
+
+                    case EST_TOKEN:
+                        deleteToken(id, user, ContentRelationType.EST_TOKEN);
+                        break;
+
+                    case SCEP_TOKEN:
+                        deleteToken(id, user, ContentRelationType.SCEP_TOKEN);
+                        break;
+
+                    case EAB_PASSWORD:
+                        deleteToken(id, user, ContentRelationType.EAB_PASSWORD);
+                        break;
+
+
                     default:
                         log.warn("Unexpected credential type: {}", id);
                 }
                 updateSecondFactorRequirement(user, false);
             }
         );
+    }
+
+    private void deleteToken(Long id, User user, ContentRelationType relationType) {
+        Optional<ProtectedContent> pcOpt = protContentRepository.findById(id);
+        if (pcOpt.isPresent()) {
+            ProtectedContent pc = pcOpt.get();
+            if (pc.getRelatedId().equals(user.getId())){
+                if(pc.getRelationType().equals(relationType)) {
+                    protContentRepository.delete(pc);
+                } else {
+                    log.warn("Content relation type '{}' is not '{}', expected for api token deletion",
+                        pc.getRelationType(), relationType);
+                }
+            } else {
+                log.warn("Current user '{}' not matching user id '{}' for api token deletion",
+                    user.getId(), pc.getId());
+            }
+        } else {
+            log.warn("Unknown ProtectedContent id '{}' for credentials deletion", id);
+        }
     }
 
 

@@ -221,7 +221,7 @@
                              v-text="$t('ca3SApp.authenticationSelection.apiCycles.minValue')"></small>
                     </div>
 
-                    <div class="form-group" v-if="isADCSConnectorConfig() && $v.cAConnectorConfig.authenticationParameter.kdfType.$model === 'PBKDF2'">
+                    <div class="form-group" v-if="isADCSConnectorConfig() && (adcsConfigSnippet.length > 0) && $v.cAConnectorConfig.authenticationParameter.kdfType.$model === 'PBKDF2'">
                             <label class="form-control-label" v-text="$t('ca3SApp.authenticationSelection.configText')"
                               for="authentication-selection-configText"></label> <help-tag target="authentication-selection.cmdline"/>
                             <textarea class="form-control cmd0-content"

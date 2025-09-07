@@ -1,6 +1,8 @@
 package de.trustable.ca3s.core.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentStatus;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -10,6 +12,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.hibernate.annotations.Cache;
 
@@ -53,6 +56,10 @@ import org.hibernate.annotations.Cache;
     @NamedQuery(name = "ProtectedContent.findByDeleteAfterPassed",
         query = "SELECT pc FROM ProtectedContent pc WHERE " +
             "pc.deleteAfter    < :deleteAfter"
+    ),
+    @NamedQuery(name = "ProtectedContent.findByProtectedContentStatusIsNull",
+        query = "SELECT pc FROM ProtectedContent pc WHERE " +
+            "pc.status is null"
     )
 
 })
@@ -66,6 +73,12 @@ public class ProtectedContent implements Serializable {
         ContentRelationType.OTP_SECRET,
         ContentRelationType.SMS_PHONE,
         ContentRelationType.ACCOUNT_TOKEN};
+
+    public static final ContentRelationType[] USER_TOKEN_RELATION_TYPES = new ContentRelationType[]{
+        ContentRelationType.API_TOKEN,
+        ContentRelationType.SCEP_TOKEN,
+        ContentRelationType.EST_TOKEN,
+        ContentRelationType.EAB_PASSWORD};
 
     public static final List<ContentRelationType> USER_CONTENT_RELATION_TYPE_LIST = Arrays.asList(USER_CONTENT_RELATION_TYPES);
 
@@ -99,8 +112,17 @@ public class ProtectedContent implements Serializable {
     @Column(name = "relation_type")
     private ContentRelationType relationType;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private ProtectedContentStatus status;
+
     @Column(name = "related_id")
     private Long relatedId;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties("cSRS")
+    private Pipeline pipeline;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -208,6 +230,7 @@ public class ProtectedContent implements Serializable {
         this.relationType = relationType;
     }
 
+
     public Long getRelatedId() {
         return this.relatedId;
     }
@@ -221,7 +244,24 @@ public class ProtectedContent implements Serializable {
         this.relatedId = relatedId;
     }
 
+    public Pipeline getPipeline() {
+        return pipeline;
+    }
+
+    public ProtectedContentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ProtectedContentStatus status) {
+        this.status = status;
+    }
+
+    public void setPipeline(Pipeline pipeline) {
+        this.pipeline = pipeline;
+    }
+
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+
 
     @Override
     public boolean equals(Object o) {
@@ -236,23 +276,23 @@ public class ProtectedContent implements Serializable {
 
     @Override
     public int hashCode() {
-        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
-        return getClass().hashCode();
+        return Objects.hash(id, contentBase64, type, leftUsages, createdOn, validTo, deleteAfter, relationType, status, relatedId, pipeline);
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
         return "ProtectedContent{" +
-            "id=" + getId() +
-            ", contentBase64='" + getContentBase64() + "'" +
-            ", type='" + getType() + "'" +
-            ", leftUsages=" + getLeftUsages() +
-            ", createdOn='" + getCreatedOn() + "'" +
-            ", validTo='" + getValidTo() + "'" +
-            ", deleteAfter='" + getDeleteAfter() + "'" +
-            ", relationType='" + getRelationType() + "'" +
-            ", relatedId=" + getRelatedId() +
-            "}";
+            "id=" + id +
+            ", contentBase64='" + contentBase64 + '\'' +
+            ", type=" + type +
+            ", leftUsages=" + leftUsages +
+            ", createdOn=" + createdOn +
+            ", validTo=" + validTo +
+            ", deleteAfter=" + deleteAfter +
+            ", relationType=" + relationType +
+            ", status=" + status +
+            ", relatedId=" + relatedId +
+            ", pipeline=" + pipeline +
+            '}';
     }
 }

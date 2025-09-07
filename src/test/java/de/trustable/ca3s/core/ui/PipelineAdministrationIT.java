@@ -28,7 +28,6 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.io.IOException;
 import java.util.Random;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -184,7 +183,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_PIPELINE_TYPE);
         click(LOC_SEL_PIPELINE_TYPE);
-        selectOptionByText(LOC_SEL_PIPELINE_TYPE, "WEB");
+        selectOptionByValue(LOC_SEL_PIPELINE_TYPE, "WEB");
 
         validatePresent(LOC_INP_PIPELINE_APPROVAL_REQUIRED);
 

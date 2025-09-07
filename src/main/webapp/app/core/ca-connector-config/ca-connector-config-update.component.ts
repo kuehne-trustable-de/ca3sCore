@@ -119,6 +119,8 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   }
 
   public isSaveable(): boolean {
+    window.console.info('isSaveable ' + !this.$v.cAConnectorConfig.$invalid);
+
     return !this.$v.cAConnectorConfig.$invalid;
   }
 
@@ -286,6 +288,6 @@ export class CAConnectorConfigView implements ICaConnectorConfigView {
     this.active = this.active || false;
     this.interval = this.interval || 'DAY';
     this.authenticationParameter = this.authenticationParameter || new AuthenticationParameter();
-    this.role = this.role || "tls_server";
+    this.role = this.role || 'tls_server';
   }
 }

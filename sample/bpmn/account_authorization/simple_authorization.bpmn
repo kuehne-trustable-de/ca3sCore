@@ -8,7 +8,10 @@
     <bpmn:scriptTask id="Activity_12ghldc" name="TestActivity" camunda:asyncBefore="true" scriptFormat="groovy">
       <bpmn:extensionElements>
         <camunda:inputOutput>
-          <camunda:inputParameter name="accountRequest">${accountRequest}</camunda:inputParameter>
+            <camunda:inputParameter name="accountRequest">${accountRequest}</camunda:inputParameter>
+            <camunda:inputParameter name="jws">${jws}</camunda:inputParameter>
+            <camunda:inputParameter name="eabPresent">${eabPresent}</camunda:inputParameter>
+            <camunda:inputParameter name="eabJwsNeedsValidation">${eabJwsNeedsValidation}</camunda:inputParameter>
         </camunda:inputOutput>
         <camunda:failedJobRetryTimeCycle>R5/PT1M</camunda:failedJobRetryTimeCycle>
       </bpmn:extensionElements>
@@ -18,26 +21,44 @@
         <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">1</bpmn:loopCardinality>
       </bpmn:multiInstanceLoopCharacteristics>
       <bpmn:script>
-        println "accountRequest " + accountRequest
+          import org.slf4j.*
+          Logger logger = LoggerFactory.getLogger("SimpleAuthorizationLogger")
+          logger.warn("++++++++  accountRequest " + accountRequest )
+
+      if( eabPresent ){
+        logger.warn( "++++++++  jws " + jws)
+        if(eabJwsNeedsValidation){
+          execution.setVariable("failureReason", "validation of JWS not implemented")
+          execution.setVariable("status", "Failure")
+          logger.warn( "++++++++  jws implementation missing")
+          return
+        }
+      } else {
+
+        logger.warn( "++++++++  no eab present, checking the given values")
 
         if(accountRequest.getContacts().isEmpty()){
-            execution.setVariable("failureReason", "no contacts available")
-            execution.setVariable("status", "Failure")
-            return
+          execution.setVariable("failureReason", "no contacts available")
+          execution.setVariable("status", "Failure")
+          logger.warn( "++++++++  contacts missing")
+          return
         }
 
+        logger.warn( "++++++++  iterating all contacts")
         for( String contact: accountRequest.getContacts()){
-            println "contact: " + contact
-            if(!contact.contains("trustable")){
-                execution.setVariable("failureReason", "unexpected contact '" + contact + "'")
-                execution.setVariable("status", "Failure")
-                return
-            }
+          logger.warn( "++++++++  contact: " + contact)
+          if(!contact.contains("trustable")){
+            execution.setVariable("failureReason", "unexpected contact '" + contact + "'")
+            execution.setVariable("status", "Failure")
+            logger.warn( "++++++++  unexpected contact: " + contact)
+            return
+          }
         }
+      }
 
-        execution.setVariable("failureReason", "");
-        execution.setVariable("status", "Success");
-</bpmn:script>
+      execution.setVariable("failureReason", "");
+      execution.setVariable("status", "Success");
+      </bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_0p0maiz">
       <bpmn:incoming>Flow_1ilpuz8</bpmn:incoming>

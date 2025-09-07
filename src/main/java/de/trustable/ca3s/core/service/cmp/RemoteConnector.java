@@ -26,10 +26,13 @@ public class RemoteConnector implements RemoteTargetHandler {
 
     private final Environment environment;
     private final Ca3sTrustManager ca3sTrustManager;
+    private final RandomUtil randomUtil;
 
-    public RemoteConnector(Environment environment, Ca3sTrustManager ca3sTrustManager) {
+
+    public RemoteConnector(Environment environment, Ca3sTrustManager ca3sTrustManager, RandomUtil randomUtil) {
         this.environment = environment;
         this.ca3sTrustManager = ca3sTrustManager;
+        this.randomUtil = randomUtil;
     }
 
 
@@ -92,7 +95,7 @@ public class RemoteConnector implements RemoteTargetHandler {
                 SSLContext sc = SSLContext.getInstance("SSL");
                 sc.init(keyManagers,
                     new TrustManager[]{ca3sTrustManager},
-                    RandomUtil.getSecureRandom());
+                    randomUtil.getSecureRandom());
 
                 SSLSocketFactory socketFactory = sc.getSocketFactory();
                 if (sni != null && !sni.trim().isEmpty()) {

@@ -2,43 +2,43 @@
     <div class="row justify-content-center">
         <div class="col-8">
             <div v-if="acmeAccountView">
-                <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.aCMEAccount.detail.title')">AcmeAccount</span> {{acmeAccountView.id}}</h2>
+                <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.aCMEAccount.detail.title')"></span> {{acmeAccountView.id}}</h2>
                 <dl class="row jh-entity-details">
                     <dt>
-                        <span v-text="$t('ca3SApp.aCMEAccount.accountId')">Account Id</span>
+                        <span v-text="$t('ca3SApp.aCMEAccount.accountId')"></span>
                     </dt>
                     <dd>
                         <span>{{acmeAccountView.accountId}}</span>
                     </dd>
 
                     <dt>
-                        <span v-text="$t('ca3SApp.aCMEAccount.realm')">Realm</span>
+                        <span v-text="$t('ca3SApp.aCMEAccount.realm')"></span>
                     </dt>
                     <dd>
                         <span>{{acmeAccountView.realm}}</span>
                     </dd>
 
                     <dt>
-                        <span v-text="$t('ca3SApp.aCMEAccount.createdOn')">Created On</span>
+                        <span v-text="$t('ca3SApp.aCMEAccount.createdOn')"></span>
                     </dt>
                     <dd>
-                        <span>{{$d(Date.parse(acmeAccountView.createdOn), 'long') }}</span>
+                        <span v-if="acmeAccountView.createdOn">{{$d(Date.parse(acmeAccountView.createdOn), 'long') }}</span>
                     </dd>
 
                     <dt>
-                        <span v-text="$t('ca3SApp.aCMEAccount.status')">Status</span>
+                        <span v-text="$t('ca3SApp.aCMEAccount.status')"></span>
                     </dt>
                     <dd>
                         <span v-text="$t('ca3SApp.aCMEAccount.' + acmeAccountView.status)">{{$t(acmeAccountView.status)}}</span>
                     </dd>
                     <dt>
-                        <span v-text="$t('ca3SApp.aCMEAccount.termsOfServiceAgreed')">Terms Of Service Agreed</span>
+                        <span v-text="$t('ca3SApp.aCMEAccount.termsOfServiceAgreed')"></span>
                     </dt>
                     <dd>
                         <span>{{acmeAccountView.termsOfServiceAgreed}}</span>
                     </dd>
                     <dt>
-                        <span v-text="$t('ca3SApp.aCMEAccount.publicKeyHash')">Public Key Hash</span>
+                        <span v-text="$t('ca3SApp.aCMEAccount.publicKeyHash')"></span>
                     </dt>
                     <dd>
                         <span>{{acmeAccountView.publicKeyHash}}</span>
@@ -59,14 +59,26 @@
                         <span>{{acmeAccountView.orderCount}}</span>
                     </dd-->
 
+                    <dt v-if="acmeAccountView.eabUser">
+                        <span v-text="$t('ca3SApp.aCMEAccount.eabUserName')"></span>
+                    </dt>
+                    <dd v-if="acmeAccountView.eabUser">
+                        <span>{{acmeAccountView.eabUser.login}}</span>
+                        <span v-if="(acmeAccountView.eabUser.firstName || acmeAccountView.eabUser.lastName) && acmeAccountView.eabUser.email"><a :href="'mailto:' + acmeAccountView.eabUser.email">{{$t('ca3SApp.cSR.requestor.details', {login: acmeAccountView.eabUser.login, fistName: acmeAccountView.eabUser.firstName, lastName: acmeAccountView.eabUser.lastName})}}</a></span>
+                        <span v-if="(acmeAccountView.eabUser.firstName || acmeAccountView.eabUser.lastName) && !acmeAccountView.eabUser.email">{{$t('ca3SApp.cSR.requestor.details', {login: acmeAccountView.eabUser.login, fistName: acmeAccountView.eabUser.firstName, lastName: acmeAccountView.eabUser.lastName})}}</span>
+                        <span v-if="acmeAccountView.eabUser.tenantName">{{$t('ca3SApp.cSR.requestor.tenant', {tenant: acmeAccountView.eabUser.tenantName})}}</span>
+                    </dd>
+
                     <dt>
-                        <span v-text="$t('ca3SApp.aCMEAccount.contacts')">Contacts</span>
+                        <span v-text="$t('ca3SApp.aCMEAccount.contacts')"></span>
                     </dt>
                     <dd>
                         <ul v-if="acmeAccountView.contactUrls && acmeAccountView.contactUrls.length > 0">
                             <li v-for="contacts in acmeAccountView.contactUrls" :key="contacts" >{{contacts}}</li>
                         </ul>
                     </dd>
+
+
                 </dl>
             </div>
 

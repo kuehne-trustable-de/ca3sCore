@@ -4,6 +4,7 @@ import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
 import de.trustable.ca3s.core.config.ApplicationProperties;
 import de.trustable.ca3s.core.config.DefaultProfileUtil;
 import de.trustable.ca3s.core.security.provider.*;
+import de.trustable.ca3s.core.service.KeyGenerationService;
 import de.trustable.ca3s.core.service.util.KeyUtil;
 import de.trustable.util.JCAManager;
 import io.undertow.Undertow;
@@ -63,6 +64,9 @@ public class Ca3SApp implements InitializingBean {
 
     @Autowired
     KeyUtil keyUtil;
+
+    @Autowired
+    KeyGenerationService keyGenerationService;
 
     @Autowired
     Ca3sTrustManager ca3sTrustManager;
@@ -175,7 +179,7 @@ public class Ca3SApp implements InitializingBean {
             log.warn("Value of 'ca3s.https.certificate.fallback.validityHours' not parseable, using 1 hour" );
         }
 
-        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix, fallbackCertValidity, keyUtil));
+        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix, fallbackCertValidity, keyGenerationService));
         Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
         Security.addProvider(new Ca3sKeyManagerProvider(certMap));
 

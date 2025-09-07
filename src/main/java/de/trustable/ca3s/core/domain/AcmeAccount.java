@@ -63,6 +63,8 @@ public class AcmeAccount implements Serializable {
     @Column(name = "created_on")
     private Instant createdOn;
 
+    @Column(name = "eab_kid")
+    private String eabKid;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "account")
     @JsonIgnoreProperties(value = { "account" }, allowSetters = true)
@@ -70,6 +72,9 @@ public class AcmeAccount implements Serializable {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "account")
     private Set<AcmeOrder> orders = new HashSet<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private User eabUser;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -177,6 +182,19 @@ public class AcmeAccount implements Serializable {
         return this;
     }
 
+    public String getEabKid() {
+        return eabKid;
+    }
+
+    public void setEabKid(String eabKid) {
+        this.eabKid = eabKid;
+    }
+
+    public AcmeAccount eabKid(String eabKid) {
+        this.eabKid = eabKid;
+        return this;
+    }
+
     public void setCreatedOn(Instant createdOn) {
         this.createdOn = createdOn;
     }
@@ -243,7 +261,14 @@ public class AcmeAccount implements Serializable {
         return this;
     }
 
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+    public User getEabUser() {
+        return eabUser;
+    }
+
+    public void setEabUser(User eabUser) {
+        this.eabUser = eabUser;
+    }
+// jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -262,17 +287,21 @@ public class AcmeAccount implements Serializable {
         return getClass().hashCode();
     }
 
-    // prettier-ignore
     @Override
     public String toString() {
         return "AcmeAccount{" +
-            "id=" + getId() +
-            ", accountId=" + getAccountId() +
-            ", realm='" + getRealm() + "'" +
-            ", status='" + getStatus() + "'" +
-            ", termsOfServiceAgreed='" + getTermsOfServiceAgreed() + "'" +
-            ", publicKeyHash='" + getPublicKeyHash() + "'" +
-            ", publicKey='" + getPublicKey() + "'" +
-            "}";
+            "id=" + id +
+            ", accountId=" + accountId +
+            ", realm='" + realm + '\'' +
+            ", status=" + status +
+            ", termsOfServiceAgreed=" + termsOfServiceAgreed +
+            ", publicKeyHash='" + publicKeyHash + '\'' +
+            ", publicKey='" + publicKey + '\'' +
+            ", createdOn=" + createdOn +
+            ", contacts=" + contacts +
+            ", orders=" + orders +
+            ", eabKid='" + eabKid + '\'' +
+            ", eabUser=" + eabUser +
+            '}';
     }
 }

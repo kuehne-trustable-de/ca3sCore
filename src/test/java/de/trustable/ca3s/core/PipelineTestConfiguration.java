@@ -47,6 +47,10 @@ public class PipelineTestConfiguration {
     private static final String PIPELINE_NAME_ACME_DOMAIN_REUSE_WARN= "acmeDomainReuseWarn";
     private static final String PIPELINE_NAME_ACME_KEY_UNIQUE_WARN= "acmeKeyUniqueWarn";
     private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
+    private static final String PIPELINE_NAME_ACME_EAB = "acmeEab";
+    private static final String PIPELINE_NAME_ACME_REJECT_127_0_0_X = "acmeReject127_0_0_x";
+    private static final String PIPELINE_NAME_ACME_ACCEPT_10_10_X_X = "acmeAccept10_10_x_x";
+
     private static final String PIPELINE_NAME_ACME1CNNOIP = "acme1CNNoIP";
     private static final String PIPELINE_NAME_SCEP = "scep";
     private static final String PIPELINE_NAME_SCEP_SHORT_RENEWAL = "scep_short_renewal";
@@ -57,6 +61,9 @@ public class PipelineTestConfiguration {
     public static final String ACME_REALM_KEY_UNIQUE_WARN  = "acmeTestKeyUniqueWarn";
 
     public static final String ACME1CN_REALM = "acmeTest1CN";
+    public static final String ACME_EAB_REALM = "acmeTestEab";
+    public static final String ACME_REJECT_127_0_0_X_REALM = "acmeTestReject_127_0_0_X";
+    public static final String ACME_ACCEPT_10_10_X_X_REALM = "acmeTestAccept_10_10_X_X";
     public static final String ACME1CNNOIP_REALM = "acmeTest1CNNoIP";
     public static final String SCEP_REALM = "scepTest";
     public static final String SCEP_REALM_SHORT_RENEWAL = "scepTestShortRenewal";
@@ -386,6 +393,87 @@ public class PipelineTestConfiguration {
         pipelineRepo.save(pipelineLaxDomainReuseWarn);
         return pipelineLaxDomainReuseWarn;
     }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineEabRestrictions() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_EAB);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_KEY_UNIQUE_WARN);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_EAB);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_EAB_REALM);
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setExternalAccountRequired(true);
+
+        Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipelineLaxEab);
+        return pipelineLaxEab;
+    }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineNetwort127_0_0_xRejectRestrictions() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_REJECT_127_0_0_X);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_KEY_UNIQUE_WARN);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_REJECT_127_0_0_X);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_REJECT_127_0_0_X_REALM);
+        String[] rejectArr = {"127.0.0.0/24"};
+        pv_LaxDomainReuseWarn.setNetworkRejectArr(rejectArr);
+        Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipelineLaxEab);
+        return pipelineLaxEab;
+    }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineNetwort10_10_x_xAcceptRestrictions() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_ACCEPT_10_10_X_X);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_KEY_UNIQUE_WARN);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_ACCEPT_10_10_X_X);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_ACCEPT_10_10_X_X_REALM);
+        String[] acceptArr = {"10.10.0.0/16"};
+        pv_LaxDomainReuseWarn.setNetworkAcceptArr(acceptArr);
+        Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipelineLaxEab);
+        return pipelineLaxEab;
+    }
+
+
+
 
     @Transactional
     public Pipeline getInternalACMETestPipeline_1_CN_ONLY_Restrictions() {

@@ -5,6 +5,7 @@ import de.trustable.ca3s.core.domain.CAConnectorConfig;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.RandomUtil;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -31,6 +32,7 @@ class EjbcaConnectorTest {
 
     CertificateUtil certUtil = mock(CertificateUtil.class);
     Certificate cert = mock(Certificate.class);
+    RandomUtil randomUtil = mock(RandomUtil.class);
 
     @Test
     void retrieveCertificates() throws IOException, GeneralSecurityException {
@@ -74,7 +76,7 @@ class EjbcaConnectorTest {
         caConfig.setTlsAuthentication(cert);
 
         X509TrustManager trustManager = new TrustAllTrustManager();
-        EjbcaConnector ejbcaConnector = new EjbcaConnector(trustManager, certUtil);
+        EjbcaConnector ejbcaConnector = new EjbcaConnector(trustManager, certUtil, randomUtil);
 
 
         ejbcaConnector.retrieveCertificates(caConfig);

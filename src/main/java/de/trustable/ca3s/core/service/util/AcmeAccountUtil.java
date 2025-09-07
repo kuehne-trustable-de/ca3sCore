@@ -5,7 +5,6 @@ import de.trustable.ca3s.core.domain.AcmeContact;
 import de.trustable.ca3s.core.service.dto.AcmeAccountView;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,6 +35,9 @@ public class AcmeAccountUtil {
             contactList.add(acmeContact.getContactUrl());
         }
         acmeAccountView.setContactUrls(contactList.toArray(new String[0]));
+
+        acmeAccountView.setEabKid(acmeAccount.getEabKid());
+        acmeAccountView.setEabUser(acmeAccount.getEabUser());
 
         return acmeAccountView;
     }

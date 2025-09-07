@@ -71,11 +71,10 @@ public class AcmeAccountResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated aCMEAccount,
      * or with status {@code 400 (Bad Request)} if the aCMEAccount is not valid,
      * or with status {@code 500 (Internal Server Error)} if the aCMEAccount couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/acme-accounts")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<AcmeAccount> updateAcmeAccount(@Valid @RequestBody AcmeAccount aCMEAccount) throws URISyntaxException {
+    public ResponseEntity<AcmeAccount> updateAcmeAccount(@Valid @RequestBody AcmeAccount aCMEAccount) {
         log.debug("REST request to update AcmeAccount : {}", aCMEAccount);
         if (aCMEAccount.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

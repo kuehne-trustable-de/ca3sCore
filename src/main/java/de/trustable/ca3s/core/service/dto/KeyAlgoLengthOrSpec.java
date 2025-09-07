@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.service.dto;
 
-import de.trustable.ca3s.core.service.util.RandomUtil;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPublicKey;
 import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPublicKey;
@@ -125,26 +124,6 @@ public class KeyAlgoLengthOrSpec {
         return csBuilder;
     }
 
-    public KeyPair generateKeyPair() throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException {
-
-        KeyPairGenerator kpg;
-        if( "falcon".equalsIgnoreCase(algoGroup)) {
-            kpg = KeyPairGenerator.getInstance(contentBuilderName, providerName);
-        }else{
-            if( providerName != null) {
-                kpg = KeyPairGenerator.getInstance(getAlgoName(), providerName);
-            }else{
-                kpg = KeyPairGenerator.getInstance(getAlgoName());
-            }
-        }
-
-        if( getAlgorithmParameterSpec() != null){
-            kpg.initialize(getAlgorithmParameterSpec(), RandomUtil.getSecureRandom());
-        }else {
-            kpg.initialize(getKeyLength(), RandomUtil.getSecureRandom());
-        }
-        return kpg.generateKeyPair();
-    }
 
     public String getAlgoGroup() {
         return algoGroup;
@@ -158,6 +137,14 @@ public class KeyAlgoLengthOrSpec {
         return keyLength;
     }
 
+    public String getContentBuilderName() {
+        return contentBuilderName;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+
     public AlgorithmParameterSpec getAlgorithmParameterSpec() {
         return algorithmParameterSpec;
     }
@@ -165,4 +152,5 @@ public class KeyAlgoLengthOrSpec {
     public String toString(){
         return algoName + "-" + keyLength;
     }
+
 }

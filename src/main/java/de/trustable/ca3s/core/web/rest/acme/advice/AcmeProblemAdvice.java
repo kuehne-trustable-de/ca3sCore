@@ -23,7 +23,6 @@
   THE SOFTWARE.
   ===========================================================================
 */
-
 package de.trustable.ca3s.core.web.rest.acme.advice;
 
 import javax.annotation.concurrent.Immutable;
@@ -47,11 +46,11 @@ import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 @Immutable
 public final class AcmeProblemAdvice {
 
-	@ExceptionHandler(value = AcmeProblemException.class)
-	public ResponseEntity<ProblemDetail> respondTo(final AcmeProblemException exception) {
+    @ExceptionHandler(value = AcmeProblemException.class)
+    public ResponseEntity<ProblemDetail> respondTo(final AcmeProblemException exception) {
 
-		final ProblemDetail problem = exception.getProblem();
-		final HttpStatus status = problem.getStatus();
-		return ResponseEntity.status(status).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
-	}
+        final ProblemDetail problem = exception.getProblem();
+        final HttpStatus status = problem.getStatus();
+        return ResponseEntity.status(status).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
+    }
 }

@@ -83,6 +83,9 @@ public class PipelineView implements Serializable {
 
     private AuditView[] auditViewArr;
 
+    private String[] networkAcceptArr;
+    private String[] networkRejectArr;
+
     private CsrUsage csrUsage = CsrUsage.TLS_SERVER;
     private long[] requestProxyConfigIds = new long[0];
 
@@ -393,6 +396,22 @@ public class PipelineView implements Serializable {
 
     public void setSelectedCaaIdentitiyList(String[] selectedCaaIdentitiyList) {
         this.selectedCaaIdentitiyList = selectedCaaIdentitiyList;
+    }
+
+    public String[] getNetworkAcceptArr() {
+        return networkAcceptArr;
+    }
+
+    public void setNetworkAcceptArr(String[] networkAcceptArr) {
+        this.networkAcceptArr = networkAcceptArr;
+    }
+
+    public String[] getNetworkRejectArr() {
+        return networkRejectArr;
+    }
+
+    public void setNetworkRejectArr(String[] networkRejectArr) {
+        this.networkRejectArr = networkRejectArr;
     }
 
     public String getEabMode() {

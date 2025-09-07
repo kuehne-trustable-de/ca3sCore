@@ -54,8 +54,10 @@ public class CaConnectorConfigUtil {
     private final CAConnectorConfigAttributeRepository caConnectorConfigAttributeRepository;
     final private AuditService auditService;
     final private AuditTraceRepository auditTraceRepository;
+    private final RandomUtil randomUtil;
 
-    public CaConnectorConfigUtil(CAConnectorConfigRepository cAConnectorConfigRepository, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil, CertificateRepository certificateRepository, CAConnectorConfigAttributeRepository caConnectorConfigAttributeRepository, AuditService auditService, AuditTraceRepository auditTraceRepository) {
+
+    public CaConnectorConfigUtil(CAConnectorConfigRepository cAConnectorConfigRepository, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil, CertificateRepository certificateRepository, CAConnectorConfigAttributeRepository caConnectorConfigAttributeRepository, AuditService auditService, AuditTraceRepository auditTraceRepository, RandomUtil randomUtil) {
         this.cAConnectorConfigRepository = cAConnectorConfigRepository;
         this.protectedContentRepository = protectedContentRepository;
         this.protectedContentUtil = protectedContentUtil;
@@ -63,6 +65,7 @@ public class CaConnectorConfigUtil {
         this.caConnectorConfigAttributeRepository = caConnectorConfigAttributeRepository;
         this.auditService = auditService;
         this.auditTraceRepository = auditTraceRepository;
+        this.randomUtil = randomUtil;
     }
 
     public CaConnectorConfigView from(CAConnectorConfig cfg) {
@@ -107,10 +110,12 @@ public class CaConnectorConfigUtil {
         AuthenticationParameter authenticationParameter = new  AuthenticationParameter();
         authenticationParameter.setKdfType(KDFType.PBKDF2);
         authenticationParameter.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
-        authenticationParameter.setSalt(RandomUtil.generateActivationKey());
+        authenticationParameter.setSalt(randomUtil.generateActivationKey());
         authenticationParameter.setCycles(100000);
-        authenticationParameter.setApiKeySalt(RandomUtil.generateActivationKey());
+        authenticationParameter.setApiKeySalt(randomUtil.generateActivationKey());
         authenticationParameter.setApiKeyCycles(100000);
+
+        cv.setRole("tls_server");
 
         for( CAConnectorConfigAttribute cfgAtt: cfg.getCaConnectorAttributes()) {
 
@@ -145,9 +150,7 @@ public class CaConnectorConfigUtil {
             }else if (ATT_ATTRIBUTE_ROLE.equals(cfgAtt.getName())) {
                 cv.setRole(cfgAtt.getValue());
             }
-
         }
-
 
         cv.setaTaVArr(aTaVList.toArray(new NamedValue[0]));
         cv.setAuthenticationParameter(authenticationParameter);

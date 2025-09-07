@@ -13,6 +13,7 @@ import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
+import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
@@ -28,7 +29,6 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
@@ -106,8 +106,7 @@ public class PipelineUtil {
     public static final String TOS_AGREEMENT_LINK = "TOS_AGREEMENT_LINK";
     public static final String WEBSITE_LINK = "WEBSITE_LINK";
     public static final String CAA_IDENTITIES = "CAA_IDENTITIES";
-    public static final String EAB_MODE = "EAB_MODE";
-    public static final String EAB_MODE_NONE = "EAB_MODE_NONE";
+    public static final String ACME_EAB_REQUIRED = "EAB_REQUIRED";
 
     public static final String ALLOW_IP_AS_SUBJECT = "ALLOW_IP_AS_SUBJECT";
     public static final String ALLOW_IP_AS_SAN = "ALLOW_IP_AS_SAN";
@@ -115,8 +114,13 @@ public class PipelineUtil {
 
     public static final String DOMAIN_RA_OFFICER = "DOMAIN_RA_OFFICER";
     public static final String NOTIFY_RA_OFFICER_ON_PENDING = "NOTIFY_RA_OFFICER_ON_PENDING";
+    public static final String NOTIFY_DOMAIN_RA_OFFICER_ON_PENDING = "NOTIFY_DOMAIN_RA_OFFICER_ON_PENDING";
+
     public static final String ADDITIONAL_EMAIL_RECIPIENTS = "ADDITIONAL_EMAIL_RECIPIENTS";
     public static final String CAN_ISSUE_2_FACTOR_CLIENT_CERTS = "CAN_ISSUE_2_FACTOR_CLIENT_CERTS";
+
+    public static final String  NETWORK_ACCEPT = "NETWORK_ACCEPT";
+    public static final String  NETWORK_REJECT = "NETWORK_REJECT";
 
     public static final String ACME_ALLOW_CHALLENGE_HTTP01 = "ACME_ALLOW_CHALLENGE_HTTP01";
     public static final String ACME_ALLOW_CHALLENGE_ALPN = "ACME_ALLOW_CHALLENGE_ALPN";
@@ -156,38 +160,26 @@ public class PipelineUtil {
     Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
 
     final private CertificateRepository certRepository;
-
     final private CSRRepository csrRepository;
-
     final private CAConnectorConfigRepository caConnRepository;
-
     final private PipelineRepository pipelineRepository;
-
     final private PipelineAttributeRepository pipelineAttRepository;
-
     final private BPMNProcessInfoRepository bpmnPIRepository;
-
     final private ProtectedContentRepository protectedContentRepository;
-
     final private ProtectedContentUtil protectedContentUtil;
-
-    final private PreferenceUtil preferenceUtil;
-
     final private CertificateUtil certUtil;
     final private AlgorithmRestrictionUtil algorithmRestrictionUtil;
-
     final private ConfigUtil configUtil;
-
+    final private RequestUtil requestUtil;
     final private AuditService auditService;
 
     final private AuditTraceRepository auditTraceRepository;
     final private NotificationService notificationService;
-
     final private TenantRepository tenantRepository;
-
     final private RequestProxyConfigRepository requestProxyConfigRepository;
-
     final private String defaultKeySpec;
+
+    private final RandomUtil randomUtil;
 
     public PipelineUtil(CertificateRepository certRepository,
                         CSRRepository csrRepository,
@@ -197,16 +189,17 @@ public class PipelineUtil {
                         BPMNProcessInfoRepository bpmnPIRepository,
                         ProtectedContentRepository protectedContentRepository,
                         ProtectedContentUtil protectedContentUtil,
-                        PreferenceUtil preferenceUtil,
                         CertificateUtil certUtil,
                         AlgorithmRestrictionUtil algorithmRestrictionUtil,
                         ConfigUtil configUtil,
+                        RequestUtil requestUtil,
                         AuditService auditService,
                         AuditTraceRepository auditTraceRepository,
                         @Lazy NotificationService notificationService,
                         TenantRepository tenantRepository,
                         RequestProxyConfigRepository requestProxyConfigRepository,
-                        @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec) {
+                        @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec,
+                        RandomUtil randomUtil) {
 
         this.certRepository = certRepository;
         this.csrRepository = csrRepository;
@@ -216,10 +209,10 @@ public class PipelineUtil {
         this.bpmnPIRepository = bpmnPIRepository;
         this.protectedContentRepository = protectedContentRepository;
         this.protectedContentUtil = protectedContentUtil;
-        this.preferenceUtil = preferenceUtil;
         this.certUtil = certUtil;
         this.algorithmRestrictionUtil = algorithmRestrictionUtil;
         this.configUtil = configUtil;
+        this.requestUtil = requestUtil;
         this.auditService = auditService;
         this.auditTraceRepository = auditTraceRepository;
         this.notificationService = notificationService;
@@ -227,6 +220,7 @@ public class PipelineUtil {
         this.requestProxyConfigRepository = requestProxyConfigRepository;
         // @ToDo check back with the list of valid algos
         this.defaultKeySpec = defaultKeySpec;
+        this.randomUtil = randomUtil;
     }
 
 
@@ -278,8 +272,6 @@ public class PipelineUtil {
             pv.setRequestProxyConfigIds(pipeline.getRequestProxies().stream().mapToLong(r -> r.getId()).toArray());
         }
 
-//    	acmeConfigItems.setProcessInfoNameAccountValidation(processInfoNameAccountValidation);
-
         for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
 
             if (ACME_ALLOW_CHALLENGE_HTTP01.equals(plAtt.getName())) {
@@ -298,14 +290,22 @@ public class PipelineUtil {
                 acmeConfigItems.setContactEMailRegEx(plAtt.getValue());
             } else if (ACME_CONTACT_EMAIL_REGEX_REJECT.equals(plAtt.getName())) {
                 acmeConfigItems.setContactEMailRejectRegEx(plAtt.getValue());
+            } else if (ACME_EAB_REQUIRED.equals(plAtt.getName())) {
+                acmeConfigItems.setExternalAccountRequired(Boolean.parseBoolean(plAtt.getValue()));
             } else if (ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR.equals(plAtt.getName())) {
                 acmeConfigItems.setNotifyContactsOnError(Boolean.parseBoolean(plAtt.getValue()));
             } else if (DOMAIN_RA_OFFICER.equals(plAtt.getName())) {
                 domainRaOfficerList.add(plAtt.getValue());
             } else if (NOTIFY_RA_OFFICER_ON_PENDING.equals(plAtt.getName())) {
                 webConfigItems.setNotifyRAOfficerOnPendingRequest(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (NOTIFY_DOMAIN_RA_OFFICER_ON_PENDING.equals(plAtt.getName())) {
+                webConfigItems.setNotifyDomainRAOfficerOnPendingRequest(Boolean.parseBoolean(plAtt.getValue()));
             } else if (ADDITIONAL_EMAIL_RECIPIENTS.equals(plAtt.getName())) {
                 webConfigItems.setAdditionalEMailRecipients(plAtt.getValue());
+            } else if (NETWORK_ACCEPT.equals(plAtt.getName())) {
+                pv.setNetworkAcceptArr(splitNetworks(plAtt.getValue()));
+            } else if (NETWORK_REJECT.equals(plAtt.getName())) {
+                pv.setNetworkRejectArr(splitNetworks(plAtt.getValue()));
             } else if (CAN_ISSUE_2_FACTOR_CLIENT_CERTS.equals(plAtt.getName())) {
                 webConfigItems.setIssuesSecondFactorClientCert(Boolean.parseBoolean(plAtt.getValue()));
             } else if (SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
@@ -348,22 +348,6 @@ public class PipelineUtil {
             }
 
         }
-/*
-        if( PipelineType.SCEP.equals(pipeline.getType())){
-            try {
-                Certificate currentRecipientCert = getSCEPRecipientCertificate(pipeline);
-                if( currentRecipientCert != null) {
-                    LOG.debug("pipeline id {} identifies recipient certificate with id {} ",
-                        pipeline.getId(), currentRecipientCert.getId());
-                    scepConfigItems.setRecepientCertId(currentRecipientCert.getId());
-                    scepConfigItems.setRecepientCertSerial(currentRecipientCert.getSerial());
-                    scepConfigItems.setRecepientCertSubject(currentRecipientCert.getSubject());
-                }
-            } catch (IOException | GeneralSecurityException e) {
-                LOG.warn("problem retrieving recipient certificate", e);
-            }
-        }
-*/
 
         if (pipeline.getProcessInfoRequestAuthorization() != null) {
             webConfigItems.setProcessInfoNameRequestAuthorization(pipeline.getProcessInfoRequestAuthorization().getName());
@@ -935,7 +919,7 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX, pv.getAcmeConfigItems().getContactEMailRegEx());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX_REJECT, pv.getAcmeConfigItems().getContactEMailRejectRegEx());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR, pv.getAcmeConfigItems().isNotifyContactsOnError());
-
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_EAB_REQUIRED, pv.getAcmeConfigItems().isExternalAccountRequired());
         }
 
         if( pv.getKeyUniqueness() == null){
@@ -947,6 +931,9 @@ public class PipelineUtil {
         addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_REQUIRED, pv.isTosAgreementRequired());
         addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_LINK, pv.getTosAgreementLink());
         addPipelineAttribute(pipelineAttributes, p, auditList, WEBSITE_LINK, pv.getWebsite());
+
+        addPipelineAttribute(pipelineAttributes, p, auditList, NETWORK_ACCEPT, concatNetworks(pv.getNetworkAcceptArr()));
+        addPipelineAttribute(pipelineAttributes, p, auditList, NETWORK_REJECT, concatNetworks(pv.getNetworkRejectArr()));
 
         addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE, pv.getCsrUsage().toString());
         if (PipelineType.WEB.equals(pv.getType())) {
@@ -972,6 +959,7 @@ public class PipelineUtil {
 
         if (pv.getWebConfigItems() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, NOTIFY_RA_OFFICER_ON_PENDING, pv.getWebConfigItems().isNotifyRAOfficerOnPendingRequest());
+            addPipelineAttribute(pipelineAttributes, p, auditList, NOTIFY_DOMAIN_RA_OFFICER_ON_PENDING, pv.getWebConfigItems().isNotifyDomainRAOfficerOnPendingRequest());
             addPipelineAttribute(pipelineAttributes, p, auditList, ADDITIONAL_EMAIL_RECIPIENTS, pv.getWebConfigItems().getAdditionalEMailRecipients());
             addPipelineAttribute(pipelineAttributes, p, auditList, CAN_ISSUE_2_FACTOR_CLIENT_CERTS, pv.getWebConfigItems().getIssuesSecondFactorClientCert());
         }
@@ -1119,6 +1107,30 @@ public class PipelineUtil {
             }
         }
         return pc;
+    }
+
+    String[] splitNetworks(final String networks ){
+        if( networks == null || networks.isEmpty()){
+            return new String[0];
+        }
+        return networks.split(";");
+    }
+
+    String concatNetworks(final String[] networkArr ){
+
+        String result = "";
+        if( networkArr != null) {
+            for (String network : networkArr) {
+                if (!network.isEmpty()) {
+                    if (!result.isEmpty()) {
+                        result += (";" + network);
+                    } else {
+                        result = network;
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     private void auditTraceForAttributes(Pipeline p, List<AuditTrace> auditList, Set<PipelineAttribute> pipelineOldAttributes) {
@@ -1762,7 +1774,7 @@ public class PipelineUtil {
         String scepRecipientKeyLength = getPipelineAttribute(pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, defaultKeySpec);
         KeyAlgoLengthOrSpec kal = KeyAlgoLengthOrSpec.from(scepRecipientKeyLength);
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
-        keyPairGenerator.initialize(kal.getKeyLength(), RandomUtil.getSecureRandom());
+        keyPairGenerator.initialize(kal.getKeyLength(), randomUtil.getSecureRandom());
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
         String p10ReqPem = CryptoUtil.getCsrAsPEM(subject,
@@ -1964,5 +1976,47 @@ public class PipelineUtil {
     }
 
 
+    public boolean checkAcceptNetwork(Pipeline pipeline) {
+
+        String[] acceptedNetworks = splitNetworks(getPipelineAttribute(pipeline, PipelineUtil.NETWORK_ACCEPT,""));
+        String[] rejectNetworks = splitNetworks(getPipelineAttribute(pipeline, PipelineUtil.NETWORK_REJECT,""));
+
+        Collection<SubnetUtils.SubnetInfo> acceptedSubnets = new ArrayList<>();
+        for (String subnetMask : acceptedNetworks) {
+            acceptedSubnets.add(new SubnetUtils(subnetMask).getInfo());
+        }
+
+        Collection<SubnetUtils.SubnetInfo> rejectSubnets = new ArrayList<>();
+        for (String subnetMask : rejectNetworks) {
+            rejectSubnets.add(new SubnetUtils(subnetMask).getInfo());
+        }
+
+        String ipAddress = requestUtil.getClientIP();
+        for (SubnetUtils.SubnetInfo subnet : rejectSubnets) {
+            if (subnet.isInRange(ipAddress)) {
+                LOG.warn("IP Address {} is in rejection range {}", ipAddress,subnet.getCidrSignature());
+                return false;
+            }else{
+                LOG.debug("IP Address {} is NOT in rejection range {}", ipAddress,subnet.getCidrSignature());
+            }
+        }
+
+        for (SubnetUtils.SubnetInfo subnet : acceptedSubnets) {
+            if (subnet.isInRange(ipAddress)) {
+                LOG.warn("IP Address {} is in acceptance range {}", ipAddress, subnet.getCidrSignature());
+                return true;
+            }else{
+                LOG.debug("IP Address {} is NOT in acceptance range {}", ipAddress,subnet.getCidrSignature());
+            }
+        }
+
+        if( acceptedSubnets.isEmpty()) {
+            LOG.info("IP Address {} acceptance because there is no acceptance range defined", ipAddress);
+            return true;
+        }
+
+        LOG.info("IP Address {} matches no range", ipAddress);
+        return false;
+    }
 }
 

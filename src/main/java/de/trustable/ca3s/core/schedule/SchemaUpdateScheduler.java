@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.schedule;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentStatus;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.util.CSRUtil;
@@ -55,9 +56,10 @@ public class SchemaUpdateScheduler {
 
     final private AuditService auditService;
     final private AuditTraceRepository auditServiceRepository;
+    final private ProtectedContentRepository protectedContentRepository;
 
     public SchemaUpdateScheduler(@Value("${ca3s.batch.maxRecordsPerTransaction:1000}") int maxRecordsPerTransaction,
-                                 CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService, AuditTraceRepository auditServiceRepository) {
+                                 CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService, AuditTraceRepository auditServiceRepository, ProtectedContentRepository protectedContentRepository) {
         this.maxRecordsPerTransaction = maxRecordsPerTransaction;
         this.certificateRepo = certificateRepo;
         this.certUtil = certUtil;
@@ -69,6 +71,7 @@ public class SchemaUpdateScheduler {
         this.pipelineRepository = pipelineRepository;
         this.auditService = auditService;
         this.auditServiceRepository = auditServiceRepository;
+        this.protectedContentRepository = protectedContentRepository;
     }
 
 
@@ -92,6 +95,9 @@ public class SchemaUpdateScheduler {
         updateACMEAccount();
         LOG.info("updateACMEAccount took {} ms", Duration.between(now, Instant.now()));
 
+        now = Instant.now();
+        updateProtectedContent();
+        LOG.info("updateProtectedContent took {} ms", Duration.between(now, Instant.now()));
     }
 
     public void updateCertificateAttributes() {
@@ -282,6 +288,31 @@ public class SchemaUpdateScheduler {
         if (count > 0) {
             auditService.saveAuditTrace(auditService.createAuditTraceAcmeAcountCreatedOnUpdated(count));
             LOG.info("AcmeAccount createdOn update of {} accounts", count);
+        }
+
+    }
+    public void updateProtectedContent() {
+
+        Instant now = Instant.now();
+        Page<ProtectedContent> protectedContentList = protectedContentRepository.findByProtectedContentStatusIsNull(PageRequest.of(0, maxRecordsPerTransaction));
+
+        LOG.info("{} ProtectedContents with empty status selected for schema update", protectedContentList.getNumberOfElements());
+
+        int count = 0;
+        for (ProtectedContent protectedContent : protectedContentList) {
+
+            protectedContent.setStatus(ProtectedContentStatus.ACTIVE);
+            protectedContentRepository.save(protectedContent);
+            LOG.info("Status updated for ProtectedContent {} ", protectedContent.getId());
+
+            if (count++ > maxRecordsPerTransaction) {
+                LOG.info("limited ProtectedContent processing to {} per call", maxRecordsPerTransaction);
+                break;
+            }
+        }
+        if (count > 0) {
+            auditService.saveAuditTrace(auditService.createAuditTraceAcmeAcountCreatedOnUpdated(count));
+            LOG.info("ProtectedContent status updated of {} items", count);
         }
 
     }

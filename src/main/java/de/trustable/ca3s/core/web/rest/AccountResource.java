@@ -51,6 +51,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static de.trustable.ca3s.core.domain.ProtectedContent.USER_CONTENT_RELATION_TYPES;
+import static de.trustable.ca3s.core.domain.ProtectedContent.USER_TOKEN_RELATION_TYPES;
+import static de.trustable.ca3s.core.service.dto.AccountCredentialsType.*;
 
 
 /**
@@ -74,13 +76,15 @@ public class AccountResource {
     private final CertificateUtil certificateUtil;
     private final TotpService totpService;
     private final MailService mailService;
+    private final de.trustable.ca3s.core.service.util.RandomUtil randomUtil;
+
 
     public AccountResource(UserRepository userRepository, UserService userService, TenantRepository tenantRepository,
                            ProtectedContentRepository protectedContentRepository,
                            MailService mailService,
                            CertificateRepository certificateRepository,
                            CertificateUtil certificateUtil,
-                           TotpService totpService) {
+                           TotpService totpService, de.trustable.ca3s.core.service.util.RandomUtil randomUtil) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.tenantRepository = tenantRepository;
@@ -89,6 +93,7 @@ public class AccountResource {
         this.certificateRepository = certificateRepository;
         this.certificateUtil = certificateUtil;
         this.totpService = totpService;
+        this.randomUtil = randomUtil;
     }
 
     /**
@@ -202,6 +207,52 @@ public class AccountResource {
             throw new AccountResourceException("User could not be found");
         }
         return userOpt.get();
+    }
+
+
+
+    /**
+     * {@code GET  /account/tokens} : retrieve current user's credentials.
+     *
+     */
+    @GetMapping(path = "/account/tokens")
+    public List<AccountCredentialView> tokenList() {
+
+        User currentUser = findCurrentUser();
+        List<ProtectedContent> protectedContentList =
+            protectedContentRepository.findByTypeRelationId(
+                Arrays.asList(USER_TOKEN_RELATION_TYPES), currentUser.getId());
+
+        List<AccountCredentialView> tokenViewList = new ArrayList<>();
+        for(ProtectedContent protectedContent: protectedContentList){
+            AccountCredentialView tokenView = new AccountCredentialView();
+            tokenView.setId(protectedContent.getId());
+            tokenView.setLeftUsages(protectedContent.getLeftUsages());
+            tokenView.setCreatedOn(protectedContent.getCreatedOn());
+            tokenView.setValidTo(protectedContent.getValidTo());
+            switch( protectedContent.getRelationType()){
+                case API_TOKEN:
+                    tokenView.setRelationType(AccountCredentialsType.API_TOKEN);
+                    break;
+                case SCEP_TOKEN:
+                    tokenView.setRelationType(SCEP_TOKEN);
+                    tokenView.setPipelineName(protectedContent.getPipeline().getName());
+                    break;
+                case EST_TOKEN:
+                    tokenView.setRelationType(EST_TOKEN);
+                    tokenView.setPipelineName(protectedContent.getPipeline().getName());
+                    break;
+                case EAB_PASSWORD:
+                    tokenView.setRelationType(EAB_PASSWORD);
+                    tokenView.setPipelineName(protectedContent.getPipeline().getName());
+                    break;
+                default:
+                    log.warn("Unexpected relation type '{}' occurred.", protectedContent.getRelationType());
+                    break;
+            }
+            tokenViewList.add(tokenView);
+        }
+        return tokenViewList;
     }
 
     /**
@@ -319,7 +370,7 @@ public class AccountResource {
         }
     }
 
-    private void  checkPasswordLength(String password) {
+    private void checkPasswordLength(String password) {
         try {
             userService.checkPassword(password);
         }catch(PasswordRestrictionMismatchException passwordRestrictionMismatchException){
@@ -338,7 +389,7 @@ public class AccountResource {
         String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccountResourceException("Current user login not found"));
 
         byte[] seed = new byte[20];
-        de.trustable.ca3s.core.service.util.RandomUtil.getSecureRandom().nextBytes(seed);
+        randomUtil.getSecureRandom().nextBytes(seed);
 
         OTPDetailsResponse otpDetailsResponse = new OTPDetailsResponse();
 

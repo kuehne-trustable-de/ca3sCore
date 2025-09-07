@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.security.jwt;
 
+import de.trustable.ca3s.core.service.dto.AccountCredentialsType;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -24,8 +25,8 @@ public class TokenProvider {
     private final Logger log = LoggerFactory.getLogger(TokenProvider.class);
 
     private static final String AUTHORITIES_KEY = "auth";
-
     public static final String SKI_KEY = "ski";
+    private static final String TOKEN_TYPE_KEY = "tokentype";
 
     private final long tokenValiditySKIInMilliseconds = 60L * 1000L;
 
@@ -91,6 +92,19 @@ public class TokenProvider {
             .compact();
     }
 
+    public String createToken(Authentication authentication, AccountCredentialsType credentialType, long validitySeconds) {
+        long now = (new Date()).getTime();
+        Date validity = new Date(now + (1000L *  validitySeconds));
+
+        return Jwts
+            .builder()
+            .setSubject(credentialType.name())
+            .claim(TOKEN_TYPE_KEY, credentialType.toString())
+            .signWith(key, SignatureAlgorithm.HS512)
+            .setExpiration(validity)
+            .compact();
+    }
+
     public String getSKIClaim(String jwt) {
         Claims claims = jwtParser.parseClaimsJws(jwt).getBody();
         return claims.get(SKI_KEY,String.class);
@@ -120,4 +134,5 @@ public class TokenProvider {
         }
         return false;
     }
+
 }
