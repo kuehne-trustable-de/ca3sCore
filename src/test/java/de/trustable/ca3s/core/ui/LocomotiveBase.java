@@ -205,13 +205,15 @@ public class LocomotiveBase {
                         Files.setPosixFilePermissions(tmpFile.toPath(), perms);
                     }
 
-                    System.setProperty("webdriver.chrome.driver", tmpFile.getAbsolutePath());
-                    System.err.println("starting local Chrome using driver at : " + System.getProperty("webdriver.chrome.driver"));
+//                    System.setProperty("webdriver.chrome.driver", tmpFile.getAbsolutePath());
+//                    System.err.println("starting local Chrome using driver at : " + System.getProperty("webdriver.chrome.driver"));
 
                     if (isLocal) {
                         try {
 
                             WebDriverManager.chromedriver().setup();
+
+                            LOGGER.info("chrome driver at {}", System.getProperty("webdriver.chrome.driver"));
 
                             ChromeOptions options = new ChromeOptions();
                             options.addArguments("--remote-debugging-pipe");
