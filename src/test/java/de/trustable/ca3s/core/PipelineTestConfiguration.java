@@ -94,6 +94,13 @@ public class PipelineTestConfiguration {
 
     private BPMNProcessInfo simpleBPMNProcessInfo;
 
+    private Authority userAuthority = new Authority("ROLE_USER");
+    private Set<Authority> authoritySet = new HashSet<>();
+
+    public PipelineTestConfiguration() {
+        authoritySet.add(userAuthority);
+    }
+
     static final String SIMPLE_CERTIFICATE_PROCESS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         "<bpmn2:definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:bpmn2=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" id=\"_DdZocL47EeOQo_IRkjDF6w\" targetNamespace=\"http://camunda.org/schema/1.0/bpmn\" exporter=\"Camunda Modeler\" exporterVersion=\"5.29.0\" xsi:schemaLocation=\"http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd\">\n" +
         "  <bpmn2:process id=\"SimpleBPMNProcess\" name=\"Forward CA request to appropriate backend\" isExecutable=\"true\">\n" +
@@ -617,6 +624,8 @@ public class PipelineTestConfiguration {
         pipelineWeb.setType(PipelineType.WEB);
         pipelineWeb.setUrlPart("test");
 
+        pipelineWeb.setAuthorities(authoritySet);
+
         addPipelineAttribute(pipelineWeb, PipelineUtil.ALLOW_IP_AS_SAN, "false");
         addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_REQUIRED, "true");
         addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_LINK, "http://trustable.eu/tos.html");
@@ -654,6 +663,8 @@ public class PipelineTestConfiguration {
         pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE_KEY_REUSE);
         pipelineWeb.setType(PipelineType.WEB);
         pipelineWeb.setUrlPart("test");
+
+        pipelineWeb.setAuthorities(authoritySet);
 
         addPipelineAttribute(pipelineWeb, PipelineUtil.KEY_UNIQUENESS, KeyUniqueness.KEY_REUSE.toString());
 
@@ -709,6 +720,8 @@ public class PipelineTestConfiguration {
         pipelineWeb.setType(PipelineType.WEB);
         pipelineWeb.setUrlPart("test");
 
+        pipelineWeb.setAuthorities(authoritySet);
+
         Set<PipelineAttribute> attrs = pipelineWeb.getPipelineAttributes();
 
         PipelineAttribute attName = new PipelineAttribute();
@@ -754,6 +767,9 @@ public class PipelineTestConfiguration {
         pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
         pipelineWeb.setType(PipelineType.WEB);
         pipelineWeb.setUrlPart("test");
+
+        pipelineWeb.setAuthorities(authoritySet);
+
         pipelineRepo.save(pipelineWeb);
         return pipelineWeb;
     }

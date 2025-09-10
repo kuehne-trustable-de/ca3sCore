@@ -50,6 +50,7 @@ public class OIDCRestService {
     final private String[] rolesDomainRAArr;
     final private String[] rolesRAArr;
     final private String[] rolesAdminArr;
+    final private String[] rolesOtherArr;
 
     final private UserPreferenceRepository userPreferenceRepository;
     final private UserRepository userRepository;
@@ -63,6 +64,7 @@ public class OIDCRestService {
                            @Value("${ca3s.oidc.roles.domainra:DOMAIN_RA}") String[] rolesDomainRAArr,
                            @Value("${ca3s.oidc.roles.ra:RA}") String[] rolesRAArr,
                            @Value("${ca3s.oidc.roles.admin:ADMIN}") String[] rolesAdminArr,
+                           @Value("${ca3s.oidc.roles.other}") String[] rolesOtherArr,
                            @Value("${ca3s.oidc.client-id:#{null}}") String clientId,
                            @Value("${ca3s.oidc.client-secret:clientSecret}") String clientSecret,
                            @Value("${ca3s.ui.languages:en,de,pl}") String availableLanguages,
@@ -75,6 +77,7 @@ public class OIDCRestService {
         this.rolesDomainRAArr = rolesDomainRAArr;
         this.rolesRAArr = rolesRAArr;
         this.rolesAdminArr = rolesAdminArr;
+        this.rolesOtherArr = rolesOtherArr;
 
         this.clientId = clientId;
         this.clientSecret = clientSecret;
@@ -85,6 +88,14 @@ public class OIDCRestService {
 
         this.languages = new Languages(availableLanguages);
 
+        List<Authority> authorityList = authorityRepository.findAll();
+        for(String role: rolesOtherArr){
+            Authority newAuthority = new Authority();
+            newAuthority.setName(role);
+            if( !authorityList.contains(newAuthority)){
+                authorityRepository.save(newAuthority);
+            }
+        }
     }
 
 
@@ -224,7 +235,7 @@ public class OIDCRestService {
             update = true;
         }
 
-        Set<Authority> authoritySet = getAuthoritiesFromKeycloak(keycloakUserDetails.getRoles());
+        Set<Authority> authoritySet = getAuthoritiesFromOIDC(keycloakUserDetails.getRoles());
 
         if( authoritySet.containsAll(user.getAuthorities()) && user.getAuthorities().containsAll(authoritySet)){
             LOG.debug("Roles local / oidc are identical");
@@ -267,14 +278,14 @@ public class OIDCRestService {
 
     public Set<GrantedAuthority> getAuthorities(final KeycloakUserDetails keycloakUserDetails){
         Set<GrantedAuthority> grantedAuthoritySet = new HashSet<>();
-        for( Authority authority:  getAuthoritiesFromKeycloak(keycloakUserDetails.getRoles())){
+        for( Authority authority:  getAuthoritiesFromOIDC(keycloakUserDetails.getRoles())){
             LOG.debug("oidc role '{}' added to granted roles", authority.getName());
             grantedAuthoritySet.add(new SimpleGrantedAuthority(authority.getName()));
         }
         return grantedAuthoritySet;
     }
 
-    private Set<Authority> getAuthoritiesFromKeycloak(String[] roles) {
+    private Set<Authority> getAuthoritiesFromOIDC(String[] roles) {
         Set<Authority> authoritySet = new HashSet<>();
 
         for( Authority authority: authorityRepository.findAll()){
@@ -288,6 +299,8 @@ public class OIDCRestService {
             }else if( authority.getName().equalsIgnoreCase("ROLE_ADMIN")){
                 addMatchedRole(authoritySet, roles, authority, rolesAdminArr);
             }else{
+
+                addMatchedRole(authoritySet, roles, authority, rolesOtherArr);
                 LOG.warn("Unexpected authority '{}' !", authority.getName());
             }
        }

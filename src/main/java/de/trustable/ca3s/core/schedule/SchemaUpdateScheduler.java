@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
+import de.trustable.ca3s.core.service.util.PreferenceUtil;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
@@ -27,7 +28,9 @@ import java.security.GeneralSecurityException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -58,8 +61,10 @@ public class SchemaUpdateScheduler {
     final private AuditTraceRepository auditServiceRepository;
     final private ProtectedContentRepository protectedContentRepository;
 
+    final private PreferenceUtil preferenceUtil;
+
     public SchemaUpdateScheduler(@Value("${ca3s.batch.maxRecordsPerTransaction:1000}") int maxRecordsPerTransaction,
-                                 CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService, AuditTraceRepository auditServiceRepository, ProtectedContentRepository protectedContentRepository) {
+                                 CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService, AuditTraceRepository auditServiceRepository, ProtectedContentRepository protectedContentRepository, PreferenceUtil preferenceUtil) {
         this.maxRecordsPerTransaction = maxRecordsPerTransaction;
         this.certificateRepo = certificateRepo;
         this.certUtil = certUtil;
@@ -72,6 +77,7 @@ public class SchemaUpdateScheduler {
         this.auditService = auditService;
         this.auditServiceRepository = auditServiceRepository;
         this.protectedContentRepository = protectedContentRepository;
+        this.preferenceUtil = preferenceUtil;
     }
 
 
@@ -98,6 +104,11 @@ public class SchemaUpdateScheduler {
         now = Instant.now();
         updateProtectedContent();
         LOG.info("updateProtectedContent took {} ms", Duration.between(now, Instant.now()));
+
+        now = Instant.now();
+        updatePipeline();
+        LOG.info("updatePipeline took {} ms", Duration.between(now, Instant.now()));
+
     }
 
     public void updateCertificateAttributes() {
@@ -293,7 +304,6 @@ public class SchemaUpdateScheduler {
     }
     public void updateProtectedContent() {
 
-        Instant now = Instant.now();
         Page<ProtectedContent> protectedContentList = protectedContentRepository.findByProtectedContentStatusIsNull(PageRequest.of(0, maxRecordsPerTransaction));
 
         LOG.info("{} ProtectedContents with empty status selected for schema update", protectedContentList.getNumberOfElements());
@@ -314,6 +324,31 @@ public class SchemaUpdateScheduler {
             auditService.saveAuditTrace(auditService.createAuditTraceAcmeAcountCreatedOnUpdated(count));
             LOG.info("ProtectedContent status updated of {} items", count);
         }
+    }
+    public void updatePipeline() {
 
+        int version = preferenceUtil.getPipelineSchemaVersion();
+        LOG.info("Current Pipeline schema {}", version);
+
+        Set<Authority> authoritySet = new HashSet<>();
+        authoritySet.add(new Authority("ROLE_USER"));
+
+        int count = 0;
+        if( version == 0) {
+            for (Pipeline pipeline : pipelineRepository.findAll()) {
+
+                if( pipeline.getType() == PipelineType.WEB ) {
+                    pipeline.setAuthorities(authoritySet);
+                    pipelineRepository.save(pipeline);
+                    count++;
+                }
+            }
+            preferenceUtil.setPipelineSchemaVersion(1);
+        }
+
+        if (count > 0) {
+            auditService.saveAuditTrace(auditService.createAuditTraceAcmeAcountCreatedOnUpdated(count));
+            LOG.info("ProtectedContent status updated of {} items", count);
+        }
     }
 }

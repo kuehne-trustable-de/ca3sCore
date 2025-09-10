@@ -195,7 +195,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       //      ' -> ' + (validTo > dateNow) + ' - ' + (validTo < dateWarn));
       return 'color:red;font-weight: bold;';
     } else if (!activated) {
-      return 'color:green; font-weight: bold;';
+      return 'color:yellow; font-weight: bold;';
     }
     return '';
   }

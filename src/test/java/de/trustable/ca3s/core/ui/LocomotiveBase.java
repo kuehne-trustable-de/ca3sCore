@@ -85,9 +85,13 @@ public class LocomotiveBase {
         }
         try {
             File userDownloadDir = new File(FileUtils.getUserDirectory(), "Downloads");
-            downloadDir = new File(userDownloadDir, "ca3s_test");
-            downloadDir.delete();
-            downloadDir.mkdirs();
+            downloadDir = userDownloadDir;
+
+//            File userDownloadDir = Files.createTempDirectory("tmpDirCa3s").toFile();
+//            downloadDir = new File(userDownloadDir, "ca3s_test");
+//            downloadDir = new File(userDownloadDir, "ca3s_test");
+//            downloadDir.delete();
+//            downloadDir.mkdirs();
             logInfo("downloadDir : " + downloadDir.getAbsolutePath());
 //            downloadDir = Files.createTempDirectory("tmpDirPrefix").toFile();
         } catch (Exception e) {
@@ -247,7 +251,7 @@ public class LocomotiveBase {
 
 //                            driver = WebDriverManager.chromedriver().capabilities(options).create();
 
-                            HashMap chromePrefs = new HashMap();
+                            HashMap<String, Object>  chromePrefs = new HashMap<>();
                             chromePrefs.put("profile.default_content_settings.popups", 0);
                             chromePrefs.put("download.default_directory", downloadDir.getAbsolutePath());
                             options.setExperimentalOption("prefs", chromePrefs);

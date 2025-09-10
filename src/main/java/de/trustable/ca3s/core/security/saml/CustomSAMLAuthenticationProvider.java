@@ -60,9 +60,18 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
         this.sPeLUtil = sPeLUtil;
         this.languages = new Languages(availableLanguages);
         this.samlMappingConfig = samlMappingConfig;
+
+        List<Authority> authorityList = authorityRepository.findAll();
+        for(String role: samlMappingConfig.getRolesOtherArr()){
+            Authority newAuthority = new Authority();
+            newAuthority.setName(role);
+            if( !authorityList.contains(newAuthority)){
+                authorityRepository.save(newAuthority);
+            }
+        }
     }
 
-        @Override
+    @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         Authentication authenticationAuthed = super.authenticate(authentication);
         LOG.debug("authenticate(authentication) succeeded");
@@ -135,13 +144,13 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
         String languageOld = user.getLangKey();
 
         if(!StringUtils.equals(user.getLogin(), effLoginName)){
-            LOG.info("oidc data updates user name from '{}' to '{}'", user.getLogin(), effLoginName);
+            LOG.info("saml data updates user name from '{}' to '{}'", user.getLogin(), effLoginName);
             user.setLogin(effLoginName);
             update = true;
         }
 
         for( Attribute saml2Att: credential.getAttributes()){
-            LOG.info("SAML attribute '{}' to '{}'", saml2Att.getName(), saml2Att.getAttributeValues());
+            LOG.info("SAML attribute '{}' to '{}'", saml2Att.getName(), saml2Att.getAttributeValues().get(0));
 
         }
 
@@ -244,16 +253,23 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
         Set<Authority> authoritySet = new HashSet<>();
 
         for( Authority authority: authorityRepository.findAll()){
-
             if( authority.getName().equalsIgnoreCase("ROLE_USER")) {
-                authoritySet.add( authority);
+                authoritySet.add(authority);
+            }else if(Arrays.stream(samlMappingConfig.getRolesOtherArr()).anyMatch(
+                role -> role.equalsIgnoreCase(authority.getName()))){
+                LOG.debug("authority.getName() {} included in roles {}", authority.getName(), StringUtils.join(samlMappingConfig.getRolesOtherArr(), ","));
+
+                if( credential.getAttributes().stream().anyMatch(
+                    saml2Att-> saml2Att.getName().equals("Role") && ((XSString)saml2Att.getAttributeValues().get(0)).getValue().equals(authority.getName()))) {
+                    authoritySet.add(authority);
+                }
             }
         }
 
         if( authoritySet.containsAll(user.getAuthorities()) && user.getAuthorities().containsAll(authoritySet)){
-            LOG.debug("Roles local / oidc are identical");
+            LOG.debug("Roles local / saml are identical");
         }else{
-            LOG.info("oidc roles '{}' != current roles '{}'", authoritySet, user.getAuthorities());
+            LOG.info("saml roles '{}' != current roles '{}'", authoritySet, user.getAuthorities());
             user.setAuthorities(authoritySet);
             update = true;
         }
@@ -267,14 +283,14 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
     private Tenant findTenantByName(String tenantName) {
         Optional<Tenant> tenantOptional = tenantRepository.findByName(tenantName);
         if (tenantOptional.isEmpty()) {
-            LOG.info("Unknown tenant: " + tenantName);
+            LOG.info("Unknown tenant: '{}'", tenantName);
 //            throw new TenantNotFoundException("Unknown tenant: " + tenantName);
             return null;
         } else {
             Tenant tenant = tenantOptional.get();
 
             if( !tenant.getActive() ){
-                LOG.info("tenant: " + tenantName + " deactivated");
+                LOG.info("tenant: '{}' deactivated", tenantName);
 //                throw new TenantNotFoundException("Unknown tenant: " + tenantName);
                 return null;
             }

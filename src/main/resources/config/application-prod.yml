@@ -527,6 +527,8 @@ ca3s:
       domainra:
       ra:
       admin:
+      other: ROLE_1, ROLE_2
+
 
     # extract relevant information from the saml token by attribute name
     attributes:
@@ -578,6 +580,7 @@ ca3s:
       domainra:
       ra: ROLE_RA
       admin:
+      other: ROLE_1, ROLE_2
 
     client-id: oidc_client
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90

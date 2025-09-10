@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.service.dto;
 import java.io.Serializable;
 import java.time.Instant;
 
+import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.Tenant;
 import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
 import de.trustable.ca3s.core.domain.enumeration.KeyUniqueness;
@@ -67,8 +68,10 @@ public class PipelineView implements Serializable {
     private String[] domainRaOfficerList;
 
     private Tenant[] allTenantList;
-
     private Tenant[] selectedTenantList;
+
+    private Authority[] allRolesList;
+    private Authority[] selectedRolesList;
 
     private boolean toPendingOnFailedRestrictions = false;
 
@@ -468,6 +471,22 @@ public class PipelineView implements Serializable {
 
     public void setSelectedTenantList(Tenant[] selectedTenantList) {
         this.selectedTenantList = selectedTenantList;
+    }
+
+    public Authority[] getAllRolesList() {
+        return allRolesList;
+    }
+
+    public void setAllRolesList(Authority[] allRolesList) {
+        this.allRolesList = allRolesList;
+    }
+
+    public Authority[] getSelectedRolesList() {
+        return selectedRolesList;
+    }
+
+    public void setSelectedRolesList(Authority[] selectedRolesList) {
+        this.selectedRolesList = selectedRolesList;
     }
 
     public Instant getExpiryDate() {

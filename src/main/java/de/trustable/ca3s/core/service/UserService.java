@@ -666,10 +666,18 @@ public class UserService {
 
     /**
      * Gets a list of all the authorities.
-     * @return a list of all the authorities.
+     * @return a list of all authority names.
      */
     public List<String> getAuthorities() {
         return authorityRepository.findAll().stream().map(Authority::getName).collect(Collectors.toList());
+    }
+
+    /**
+     * Gets a list of all the authorities.
+     * @return a list of all the authorities.
+     */
+    public List<Authority> getAuthorityList() {
+        return authorityRepository.findAll();
     }
 
     @Transactional(readOnly = true)

@@ -176,6 +176,7 @@ public class PipelineUtil {
     final private AuditTraceRepository auditTraceRepository;
     final private NotificationService notificationService;
     final private TenantRepository tenantRepository;
+    final private AuthorityRepository authorityRepository;
     final private RequestProxyConfigRepository requestProxyConfigRepository;
     final private String defaultKeySpec;
 
@@ -197,6 +198,7 @@ public class PipelineUtil {
                         AuditTraceRepository auditTraceRepository,
                         @Lazy NotificationService notificationService,
                         TenantRepository tenantRepository,
+                        AuthorityRepository authorityRepository,
                         RequestProxyConfigRepository requestProxyConfigRepository,
                         @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec,
                         RandomUtil randomUtil) {
@@ -217,6 +219,7 @@ public class PipelineUtil {
         this.auditTraceRepository = auditTraceRepository;
         this.notificationService = notificationService;
         this.tenantRepository = tenantRepository;
+        this.authorityRepository = authorityRepository;
         this.requestProxyConfigRepository = requestProxyConfigRepository;
         // @ToDo check back with the list of valid algos
         this.defaultKeySpec = defaultKeySpec;
@@ -371,6 +374,12 @@ public class PipelineUtil {
 
         Tenant[] selectedTenants = pipeline.getTenants().toArray(new Tenant[0]);
         pv.setSelectedTenantList(selectedTenants);
+
+        Authority[] allAuthorities = authorityRepository.findAll().toArray(new Authority[0]);
+        pv.setAllRolesList(allAuthorities);
+
+        Authority[] selectedAuthorities = pipeline.getAuthorities().toArray(new Authority[0]);
+        pv.setSelectedRolesList(selectedAuthorities);
 
         return pv;
     }
@@ -1026,6 +1035,30 @@ public class PipelineUtil {
                 p.setTenants(new HashSet<>(tenantList));
             }
         }
+
+        if( pv.getSelectedRolesList() != null){
+
+            List<Authority> authorityList = Arrays.asList(pv.getSelectedRolesList());
+
+            List<Authority> listOfAdditionalItems = authorityList.stream()
+                .filter(item -> !p.getAuthorities().contains(item)).collect(Collectors.toList());
+
+            for(Authority authority: listOfAdditionalItems) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("AUTHORITY", "", authority.getName(), p));
+            }
+
+            List<Authority> listOfRemovedItems = p.getAuthorities().stream()
+                .filter(item -> !authorityList.contains(item)).collect(Collectors.toList());
+
+            for(Authority authority: listOfRemovedItems) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("AUTHORITY", authority.getName(),"", p));
+            }
+
+            if( !listOfAdditionalItems.isEmpty() || !listOfRemovedItems.isEmpty()) {
+                p.setAuthorities(new HashSet<>(authorityList));
+            }
+        }
+
 
         auditTraceForAttributes(p, auditList, pipelineOldAttributes);
 

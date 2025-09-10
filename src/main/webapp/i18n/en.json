@@ -691,7 +691,8 @@
   "ca3SApp.pipeline.useAcmeProxy": "Use Proxy",
   "ca3SApp.pipeline.eabRequired": "External Account Binding Required",
   "ca3SApp.pipeline.requestProxies": "Request Proxies",
-  "ca3SApp.pipeline.tenants": "Tenants",
+  "ca3SApp.pipeline.tenants": "Visible for tenants",
+  "ca3SApp.pipeline.roles": "Visible for roles",
   "ca3SApp.pipeline.expiresOn": "Expires on",
 
   "ca3SApp.pipeline.key.reuse.unique": "Key must be unique",

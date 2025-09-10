@@ -1,4 +1,4 @@
-<template>
+((XSString)saml2Att.getAttributeValues().get(0)).getValue()<template>
     <div class="row justify-content-center">
         <div class="col-8">
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
@@ -592,10 +592,17 @@
                         <input type="checkbox" class="form-check-inline" name="checkCAA" id="pipeline-isNotifyContactsOnError" v-model="pipeline.acmeConfigItems.notifyContactsOnError" />
                     </div>
 
-                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB' && pipeline.selectedTenantList">
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB' && tenants && (tenants.length > 0)">
                         <label v-text="$t('ca3SApp.pipeline.tenants')"></label> <help-tag role="Admin" target="pipeline.tenants"/>
-                        <select class="form-control" multiple name="selectedTenants" v-model="pipeline.selectedTenantList">
+                        <select class="form-control" multiple name="selectedTenants" id="pipeline-selectedTenants" v-model="pipeline.selectedTenantList">
                             <option v-for="tenant of tenants" :value="tenant" :key="tenant.id">{{ tenant.longname }}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB' && pipeline.selectedRolesList">
+                        <label v-text="$t('ca3SApp.pipeline.roles')"></label> <help-tag role="Admin" target="pipeline.roles"/>
+                        <select class="form-control" multiple name="selectedRoles" id="pipeline-selectedRoles" v-model="pipeline.selectedRolesList">
+                            <option v-for="role of authorities" :value="role" :key="role.name">{{role.name}}</option>
                         </select>
                     </div>
                 </div>

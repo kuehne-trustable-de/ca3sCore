@@ -50,6 +50,7 @@ public class PipelineAdministrationIT extends WebTestBase{
     public static final By LOC_SEL_PIPELINE_CA_CONNECTOR = By.xpath("//div//select [@id = 'pipeline-caConnector']");
     public static final By LOC_SEL_PIPELINE_USAGE = By.xpath("//div//select [@id = 'pipeline-csrUsage']");
 
+    public static final By LOC_SEL_PIPELINE_ROLES = By.xpath("//div//select [@id = 'pipeline-selectedRoles']");
 
     public static final By LOC_INP_PIPELINE_URL_PART = By.xpath("//div/input [@type = 'text'][@id = 'pipeline-urlPart']");
     public static final By LOC_INP_CA_CONFIG_TLS_AUTH = By.xpath("//div/input [@type = 'number'][@id = 'ca-connector-config-tlsAuthentication']");
@@ -223,6 +224,10 @@ public class PipelineAdministrationIT extends WebTestBase{
         click(LOC_SEL_PIPELINE_USAGE);
         selectOptionByText(LOC_SEL_PIPELINE_USAGE, "TLS Server" );
 
+        validatePresent(LOC_SEL_PIPELINE_ROLES);
+        click(LOC_SEL_PIPELINE_ROLES);
+        selectOptionByText(LOC_SEL_PIPELINE_ROLES, "ROLE_USER" );
+
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
 
@@ -309,6 +314,7 @@ public class PipelineAdministrationIT extends WebTestBase{
         validateNotPresent(LOC_INP_PIPELINE_CHECK_CAA);
 
         validateNotPresent(LOC_SEL_PIPELINE_USAGE);
+        validateNotPresent(LOC_SEL_PIPELINE_ROLES);
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
@@ -405,6 +411,8 @@ public class PipelineAdministrationIT extends WebTestBase{
         check(LOC_INP_PIPELINE_CHECK_CAA);
 
         validateNotPresent(LOC_SEL_PIPELINE_USAGE);
+
+        validateNotPresent(LOC_SEL_PIPELINE_ROLES);
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);

@@ -24,6 +24,7 @@ import javax.validation.Valid;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for processing PKCS10 requests and Certificates.
@@ -181,7 +182,13 @@ public class UIDatasetSupport {
     @GetMapping("/pipeline/activeWeb")
     @Transactional
     public List<PipelineView> activeWeb() {
-        return  activeByPipelineType(PipelineType.WEB);
+
+        User currentUser = userUtil.getCurrentUser();
+
+        return activeByPipelineType(PipelineType.WEB).stream()
+            .filter(pv -> Arrays.stream(pv.getSelectedRolesList())
+                .anyMatch( authority -> currentUser.getAuthorities().contains(authority)))
+            .collect(Collectors.toList());
     }
 
     /**

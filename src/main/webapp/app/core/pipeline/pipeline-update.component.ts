@@ -39,6 +39,7 @@ import AuditTag from '@/core/audit/audit-tag.vue';
 import { mixins } from 'vue-class-component';
 import UserManagementService from '@/admin/user-management/user-management.service';
 import TenantService from '../../admin/tenant/tenant.service';
+import {IAuthority} from "../../../../../../target/generated-sources/typescript/transfer-object.model";
 
 const subnetRegEx = helpers.regex(
   'subnet',
@@ -135,6 +136,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
 
   public pipeline: IPipelineView = new PipelineView();
   public tenants: ITenant[] = [];
+  public authorities: IAuthority[] = [];
 
   @Inject('requestProxyConfigService') private requestProxyConfigService: () => RequestProxyConfigService;
   @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
@@ -179,6 +181,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   public alignNetworkRejectArraySize(index: number): void {
     this.alignNetworkArraySize(this.pipeline.networkRejectArr, index);
   }
+
   alignNetworkArraySize(subnetArr: String[], index: number): void {
     window.console.info('in alignNetworkArraySize(' + index + ')');
     const currentSize = subnetArr.length;
@@ -202,6 +205,8 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     next(vm => {
       if (to.params.pipelineId) {
         vm.retrievePipeline(to.params.pipelineId, to.params.mode);
+      }else{
+        vm.pipeline.selectedRolesList = [{ name: "ROLE_USER" }];
       }
       vm.initRelationships();
     });
@@ -261,30 +266,6 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
 
     this.fillData();
 
-    /*
-    this.pipelineViewService()
-      .find(pipelineId)
-      .then(res => {
-        this.pipeline = res;
-
-        if (mode === 'copy') {
-          this.pipeline.name = 'Copy of ' + this.pipeline.name;
-          this.pipeline.id = null;
-        }
-
-        if (!this.pipeline.acmeConfigItems.allowChallengeDNS) {
-          this.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
-          this.pipeline.acmeConfigItems.allowWildcards = false;
-        }
-        if (this.pipeline.araRestrictions && this.pipeline.araRestrictions.length > 0) {
-          window.console.info('pipeline.araRestrictions.length' + this.pipeline.araRestrictions.length);
-        } else {
-          window.console.info('pipeline.araRestrictions undefined');
-          this.pipeline.araRestrictions = [];
-          this.pipeline.araRestrictions.push({});
-        }
-      });
- */
   }
 
   public previousState(): void {
@@ -373,6 +354,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     });
 
     this.retrieveAllTenants();
+    this.retrieveAllAuthorities();
   }
 
   public retrieveAllTenants(): void {
@@ -386,6 +368,19 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
           this.alertService().showAlert(err.response, 'warn');
         }
       );
+  }
+
+  public retrieveAllAuthorities(): void {
+    window.console.info('calling retrieveAllAuthorities ');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: '/api/users/authorityList'
+    }).then(function (response) {
+      window.console.info('retrieveAllAuthorities returns ' + response.data);
+      self.authorities = response.data;
+    });
   }
 
   public getBPNMProcessInfosByType(type: IBPMNProcessType): IBPMNProcessInfo[] {

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet id="20250909184500-1" author="ak">
+
+        <createTable tableName="rel_pipeline__authorities">
+            <column name="name" type="varchar(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pipeline_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="pipeline_id, name" tableName="rel_pipeline__authorities"/>
+    </changeSet>
+
+    <changeSet id="20250909184500-2" author="ak">
+        <addForeignKeyConstraint baseColumnNames="pipeline_id"
+                                 baseTableName="rel_pipeline__authorities"
+                                 constraintName="fk_rel_pipeline__authorities__pipeline_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="pipeline"/>
+    </changeSet>
+
+
+</databaseChangeLog>
