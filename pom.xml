@@ -923,7 +923,7 @@
         <dependency>
             <groupId>com.password4j</groupId>
             <artifactId>password4j</artifactId>
-            <version>1.8.3</version>
+            <version>1.8.4</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
