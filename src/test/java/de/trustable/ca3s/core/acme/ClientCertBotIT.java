@@ -225,10 +225,33 @@ public class ClientCertBotIT {
             workFolder.toFile().mkdirs();
             logFolder.toFile().mkdirs();
 
+            ProcessBuilder builderCreateInvalidEAB = new ProcessBuilder();
+            builderCreateInvalidEAB.command("certbot",
+                "certonly", "-n", "-v", "--debug", "--agree-tos",
+                "--server", dirUrlEAB,
+                "--key-type", "rsa",
+                "--rsa-key-size", "4096",
+                "--standalone",
+                "--email", "foo@foo.de",
+                "--eab-kid", "unknown-kid.99",
+                "--eab-hmac-key", tokenResponse.getTokenValue(),
+                "--preferred-challenges", "http",
+                "--http-01-port", Integer.toString(prefTC.getHttpChallengePort()),
+                "-d", hostname,
+                "--webroot-path", webrootFolder.toFile().getAbsolutePath(),
+                "--config-dir", configFolder.toFile().getAbsolutePath(),
+                "--work-dir", workFolder.toFile().getAbsolutePath(),
+                "--logs-dir", logFolder.toFile().getAbsolutePath()
+            );
+
+            int exitCodeCreateInvalidEAB = executeExternalProcess(builderCreateInvalidEAB);
+            assertEquals("expects an exit code == 1", 1, exitCodeCreateInvalidEAB);
+
+
             ProcessBuilder builderCreate = new ProcessBuilder();
             builderCreate.command("certbot",
                 "certonly", "-n", "-v", "--debug", "--agree-tos",
-                "--server", dirUrl,
+                "--server", dirUrlEAB,
                 "--key-type", "rsa",
                 "--rsa-key-size", "4096",
                 "--standalone",
@@ -261,7 +284,7 @@ public class ClientCertBotIT {
             builderRevoke.command("certbot",
                 "revoke", "-n", "-v", "--debug",
                 "--reason", "superseded",
-                "--server", dirUrl,
+                "--server", dirUrlEAB,
                 "--cert-name", hostname,
                 "--webroot-path", webrootFolder.toFile().getAbsolutePath(),
                 "--config-dir", configFolder.toFile().getAbsolutePath(),

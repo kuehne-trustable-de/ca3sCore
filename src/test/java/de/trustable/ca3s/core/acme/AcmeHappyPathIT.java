@@ -380,6 +380,19 @@ public class AcmeHappyPathIT {
         }
 
         try {
+            // use unknown prefix, but given user account
+            new AccountBuilder()
+                .addContact("mailto:acmeTest@ca3s.org")
+                .useKeyPair(accountKeyPair)
+                .withKeyIdentifier("wonder:user", tokenResponse.getTokenValue())
+                .create(session);
+            Assertions.fail("Account creation expected to fail using an unrecognized kid");
+        }catch(AcmeException e) {
+            Assertions.assertEquals("External account data did not validate successfully",
+                e.getMessage());
+        }
+
+        try {
             // use tweaked key
             char[] charArray = tokenResponse.getTokenValue().toCharArray();
             charArray[8] = (char)(charArray[8] ^ 3);

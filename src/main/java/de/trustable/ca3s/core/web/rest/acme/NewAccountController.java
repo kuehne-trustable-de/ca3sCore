@@ -172,6 +172,7 @@ public class NewAccountController extends AcmeController {
                 if (accListExisting.isEmpty()) {
 
                     boolean eabPresent = false;
+                    boolean eabvalidated = true;
                     boolean eabJwsNeedsValidation = false;
                     JWSObject jwsObject = null;
 
@@ -202,6 +203,7 @@ public class NewAccountController extends AcmeController {
                     try {
                         if(partMap != null) {
                             eabPresent = true;
+                            eabvalidated = false;
                             jwsObject = jwsService.getJWSObject(partMap);
                             String kid = jwsObject.getHeader().getKeyID();
                             String ca3sPrefix = eabKidPrefix + ":";
@@ -210,8 +212,9 @@ public class NewAccountController extends AcmeController {
                                 newAcctDao.setEabUser(eabUser);
                                 AcmeContact contact = buildAcmeContact(newAcctDao, "mailto:" + eabUser.getEmail()) ;
                                 newAcctDao.getContacts().add(contact);
+                                eabvalidated = true;
                             }else{
-                                eabJwsNeedsValidation = true;
+                                eabJwsNeedsValidation =true;
                             }
                             newAcctDao.setEabKid( kid);
                         }else {
@@ -263,7 +266,14 @@ public class NewAccountController extends AcmeController {
 
                     if (pipeline.getProcessInfoAccountAuthorization() != null) {
                         AcmeAccountValidationInput acmeAccountValidationInput = new AcmeAccountValidationInput(newAcct,jwsObject, eabPresent, eabJwsNeedsValidation);
-                        bpmnUtil.startACMEAccountAuthorizationProcess(pipeline,acmeAccountValidationInput );
+                        bpmnUtil.startACMEAccountAuthorizationProcess(pipeline,acmeAccountValidationInput);
+                    }
+
+                    if(!eabvalidated){
+                        final ProblemDetail problem = new ProblemDetail(AcmeUtil.EXTERNAL_ACCOUNT_REQUIRED,
+                            "External account data did not validate successfully",
+                            BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
+                        throw new AcmeProblemException(problem);
                     }
 
                     updateAccountFromRequest(newAcctDao, newAcct, pipeline);
