@@ -133,7 +133,7 @@
         <json.version>2.9.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <!--archunit-junit5.version>0.23.1</archunit-junit5.version-->
-        <archunit-junit5.version>1.4.0</archunit-junit5.version>
+        <archunit-junit5.version>1.4.1</archunit-junit5.version>
 
         <mapstruct.version>1.6.3</mapstruct.version>
         <!-- Plugin versions -->
@@ -316,7 +316,7 @@
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>2.2.32</version>
+                <version>2.2.36</version>
             </dependency>
 
             <!-- check whether required after jhispter update ( > 7.5.1 ) -->
@@ -832,7 +832,7 @@
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>2.2.32</version>
+            <version>2.2.36</version>
         </dependency>
 
         <!--dependency>
@@ -923,7 +923,7 @@
         <dependency>
             <groupId>com.password4j</groupId>
             <artifactId>password4j</artifactId>
-            <version>1.8.3</version>
+            <version>1.8.4</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/org.jsoup/jsoup -->
