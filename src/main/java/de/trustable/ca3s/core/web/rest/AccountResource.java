@@ -345,10 +345,13 @@ public class AccountResource {
      */
     @PostMapping(path = "/account/reset-password/init")
     public void requestPasswordReset(@RequestBody String username) throws  MessagingException {
-       mailService.sendPasswordResetMail(
-           userService.requestPasswordReset(username)
-               .orElseThrow(UserNotFoundException::new)
-       );
+
+        String resetKey = RandomUtil.generateActivationKey();
+
+        mailService.sendPasswordResetMail(
+           userService.requestPasswordReset(username, resetKey)
+               .orElseThrow(UserNotFoundException::new),
+            resetKey );
     }
 
     /**

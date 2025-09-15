@@ -95,12 +95,15 @@ public class UserService {
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
 
-        List<ProtectedContent> protectedContents = findActivationKeys(key);
+        List<ProtectedContent> protectedContents = findActivationKeys(ContentRelationType.ACTIVATION_KEY, key);
         if( protectedContents.isEmpty()){
             log.info("No User found for activation key: {}", key);
         }else{
 
             for( ProtectedContent protectedContent: protectedContents){
+                // no further use of this key
+                protectedContent.setLeftUsages(0);
+
                 Optional<User> optUser = userRepository.findById(protectedContent.getRelatedId());
                 if(optUser.isPresent()) {
                     User user = optUser.get();
@@ -116,23 +119,39 @@ public class UserService {
 
     public Optional<User> completePasswordReset(String newPassword, String key) {
         log.debug("Reset user password for reset key {}", key);
-        return userRepository.findOneByResetKey(key)
-            .filter(user -> user.getResetDate().isAfter(Instant.now().minusSeconds(86400)))
-            .map(user -> {
-                user.setPassword(passwordEncoder.encode(newPassword));
-                user.setResetKey(null);
-                user.setResetDate(null);
-                this.clearUserCaches(user);
-                return user;
-            });
+        List<ProtectedContent> protectedContents = findActivationKeys(ContentRelationType.RESET_KEY, key);
+
+        if( protectedContents.isEmpty()){
+            log.info("No User found for reset key: {}", key);
+        }else{
+
+            for( ProtectedContent protectedContent: protectedContents){
+                // no further use of this key
+                protectedContent.setLeftUsages(0);
+                Optional<User> optUser = userRepository.findById(protectedContent.getRelatedId());
+                if(optUser.isPresent()) {
+                    User user = optUser.get();
+                    user.setPassword(passwordEncoder.encode(newPassword));
+                    this.clearUserCaches(user);
+                    log.debug("Passwort reset for user: {}", user);
+                    return Optional.of(user);
+                }
+            }
+        }
+        return Optional.empty();
     }
 
-    public Optional<User> requestPasswordReset(String username) {
+    public Optional<User> requestPasswordReset(String username,
+                                               String resetKey ) {
         return userRepository.findOneByLogin(username)
             .filter(User::getActivated)
             .map(user -> {
-                user.setResetKey(RandomUtil.generateResetKey());
-                user.setResetDate(Instant.now());
+                protectedContentUtil.createDerivedProtectedContent(resetKey,
+                    ProtectedContentType.DERIVED_SECRET,
+                    ContentRelationType.RESET_KEY,
+                    user.getId(),
+                    -1,
+                    Instant.now().plus(activationKeyValidity, ChronoUnit.DAYS));
                 this.clearUserCaches(user);
                 return user;
             });
@@ -192,11 +211,11 @@ public class UserService {
         return newUser;
     }
 
-    private List<ProtectedContent> findActivationKeys(final String plainText) {
+    private List<ProtectedContent> findActivationKeys(final ContentRelationType type, final String plainText) {
 
         return protectedContentUtil.findProtectedContentBySecret(plainText,
             ProtectedContentType.DERIVED_SECRET,
-            ContentRelationType.ACTIVATION_KEY);
+            type);
     }
 
     private boolean removeNonActivatedUser(User existingUser){
