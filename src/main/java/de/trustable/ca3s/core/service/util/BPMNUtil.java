@@ -37,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -82,8 +83,6 @@ public class BPMNUtil{
 
     final private AcmeAccountRepository acmeAccountRepository;
 
-    final private boolean useDefaultProcess;
-
     @Autowired
     public BPMNUtil(ConfigUtil configUtil,
                     CaConnectorAdapter caConnAdapter,
@@ -101,7 +100,7 @@ public class BPMNUtil{
                     AuditService auditService,
                     BPMNAsyncUtil bpmnAsyncUtil,
                     BPMNExecutor bpmnExecutor,
-                    AcmeAccountRepository acmeAccountRepository, @Value("${ca3s.bpmn.use-default-process:false}") boolean useDefaultProcess) {
+                    AcmeAccountRepository acmeAccountRepository ) {
 
         this.configUtil = configUtil;
         this.caConnAdapter = caConnAdapter;
@@ -120,7 +119,6 @@ public class BPMNUtil{
         this.bpmnAsyncUtil = bpmnAsyncUtil;
         this.bpmnExecutor = bpmnExecutor;
         this.acmeAccountRepository = acmeAccountRepository;
-        this.useDefaultProcess = useDefaultProcess;
     }
 
     public String addModel(final String bpmnString, final String name){
@@ -369,6 +367,10 @@ public class BPMNUtil{
 
         Map<String, Object> variables = new HashMap<>();
         variables.put("certificateId", certificate.getId());
+
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        variables.put("currentAuth", securityContext.getAuthentication());
+
         return bpmnExecutor.executeBPMNProcessByName(processName, variables);
     }
 
@@ -477,7 +479,7 @@ public class BPMNUtil{
         String status = "Failed";
         String failureReason = "";
         String processInstanceId = "";
-        Pipeline pipeline = null;
+        Pipeline pipeline;
         BPMNProcessInfo bpmnProcessInfo = null;
         BPMNProcessInfo bpmnProcessInfoNotify = null;
 
@@ -592,7 +594,7 @@ public class BPMNUtil{
             throw new GeneralSecurityException("pipeline for ACME account authorization MUST be provided" );
         }
 
-        BpmnOutput bpmnOutput = new BpmnOutput();
+        BpmnOutput bpmnOutput;
 
         BPMNProcessInfo bpmnProcessInfoAccountAuthorization = pipeline.getProcessInfoAccountAuthorization();
         if( bpmnProcessInfoAccountAuthorization == null){
@@ -874,8 +876,7 @@ public class BPMNUtil{
                 ContentRelationType.BPMN_ATTRIBUTE,
                 attributeOld.getId());
 
-            if( oldProtectedContents.size() < 1 ){
-
+            if(oldProtectedContents.isEmpty()){
                 protectedContentUtil.createProtectedContent(
                     attributeNew.getValue(),
                     ProtectedContentType.SECRET,
