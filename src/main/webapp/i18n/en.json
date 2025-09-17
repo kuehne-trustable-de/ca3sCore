@@ -112,6 +112,8 @@
   "ca3SApp.PipelineType.INTERNAL": "INTERNAL",
   "ca3SApp.PipelineType.SCEP": "SCEP",
   "ca3SApp.PipelineType.WEB": "WEB",
+  "ca3SApp.PipelineType.MANUAL_UPLOAD": "Certificate upload",
+
   "ca3SApp.ProtectedContentType.KEY": "KEY",
   "ca3SApp.ProtectedContentType.PASSWORD": "PASSWORD",
   "ca3SApp.ProtectedContentType.SECRET": "SECRET",
@@ -643,8 +645,8 @@
   "ca3SApp.pipeline.deleted": "A Pipeline is deleted with identifier {{ param }}",
   "ca3SApp.pipeline.description": "Description",
   "ca3SApp.pipeline.detail.title": "Pipeline",
-  "ca3SApp.pipeline.home.createLabel": "Create a new Pipeline",
   "ca3SApp.pipeline.home.createOrEditLabel": "Create or edit a Pipeline",
+  "ca3SApp.pipeline.home.createLabel": "Create a new Pipeline",
   "ca3SApp.pipeline.home.editLabel": "Edit Pipeline #{{ id }}",
   "ca3SApp.pipeline.home.notFound": "No Pipelines found",
   "ca3SApp.pipeline.home.title": "Pipelines",

@@ -116,7 +116,7 @@ public class WebTestBase extends LocomotiveBase {
         ClassPathResource explainationsResource =  new ClassPathResource("tutorial/explanations.xml");
 
         DocumentBuilderFactory builderFactory = newSecureDocumentBuilderFactory();
-        DocumentBuilder builder = null;
+        DocumentBuilder builder;
         try {
             builder = builderFactory.newDocumentBuilder();
             tutorialDocument = builder.parse(explainationsResource.getInputStream());
@@ -139,7 +139,7 @@ public class WebTestBase extends LocomotiveBase {
         soundOutput = new SoundOutput(speechifyApiTokenArr);
     }
 
-    protected static void startEmailMock() throws IOException, MessagingException {
+    protected static void startEmailMock() throws IOException {
         ServerSocket ssSMTP = new ServerSocket(0);
         ServerSocket ssIMAP = new ServerSocket(0);
         int randomPortSMTP = ssSMTP.getLocalPort();
@@ -585,6 +585,7 @@ public class WebTestBase extends LocomotiveBase {
         click(LOC_BTN_SIGNIN_SUBMIT);
 
         if( expectFailure ) {
+            wait(1000);
             validatePresent(LOC_LOGIN_FAILED_TEXT);
             driver.findElement(LOC_LNK_SIGNIN_PASSWORD).sendKeys(Keys.ESCAPE);
         } else {

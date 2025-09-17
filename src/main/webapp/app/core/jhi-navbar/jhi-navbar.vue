@@ -206,11 +206,11 @@
                     </b-dropdown-item>
 
 
-                    <b-dropdown-item to="/account/settings" tag="b-dropdown-item" v-if="authenticated">
+                    <b-dropdown-item v-if="authenticated" to="/account/settings" tag="b-dropdown-item" >
                         <font-awesome-icon icon="wrench" />
                         <span v-text="$t('global.menu.account.settings')"></span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/account/password" tag="b-dropdown-item" v-if="authenticated">
+                    <b-dropdown-item v-if="authenticated" to="/account/password" tag="b-dropdown-item" id="password">
                         <font-awesome-icon icon="lock" />
                         <span id="menu-account-password" v-text="$t('global.menu.account.password')"></span>
                     </b-dropdown-item>

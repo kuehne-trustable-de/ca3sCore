@@ -111,6 +111,8 @@
   "ca3SApp.PipelineType.INTERNAL": "INTERN",
   "ca3SApp.PipelineType.SCEP": "SCEP",
   "ca3SApp.PipelineType.WEB": "WEB",
+  "ca3SApp.PipelineType.MANUAL_UPLOAD": "Zertifikat hochladen",
+
   "ca3SApp.ProtectedContentType.KEY": "SCHLÜSSEL",
   "ca3SApp.ProtectedContentType.PASSWORD": "PASSWORT",
   "ca3SApp.ProtectedContentType.SECRET": "GEHEIMNIS",
