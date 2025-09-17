@@ -38,7 +38,7 @@
                         </div>
 
                         <!-- show the input section when a pipeline is selected -->
-                        <div class="form-group" v-if="isPipelineChoosen()">
+                        <div class="form-group" v-if="isWebPipelineChoosen()">
                             <label class="form-control-label" v-text="$t('pkcsxx.upload.creationMode.selection')" for="pkcsxx-key-creation"></label> <help-tag target="pkcsxx.upload.creationMode.selection"/>
                             <select class="form-control" id="pkcsxx-key-creation" name="pkcsxx-key-creation" v-model="creationMode" v-on:change="updateCurrentPipelineRestrictions()">
 
@@ -48,7 +48,7 @@
                             </select>
                         </div>
 
-                        <div class="form-group" v-if="isPipelineChoosen() && creationMode === 'COMMANDLINE_TOOL'">
+                        <div class="form-group" v-if="isWebPipelineChoosen() && creationMode === 'COMMANDLINE_TOOL'">
                             <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.selection')" for="pkcsxx-key-tool"></label>  <help-tag target="pkcsxx.upload.creationTool.selection"/>
                             <select class="form-control" id="pkcsxx-key-tool" name="pkcsxx-key-tool" v-model="creationTool" v-on:change="updateCmdLine()">
                                 <option value="keytool" v-text="$t('pkcsxx.upload.creationTool.keytool')" selected="selected"></option>
@@ -62,12 +62,12 @@
                             <label class="form-control-label" v-text="$t('pkcsxx.upload.cn.as.san')" for="pkcsxx-cn-as-san">CN as SAN</label> <help-tag target="pkcsxx.upload.creationTool.cn.as.san"/>
                             <input type="checkbox" class="form-check-inline" name="pkcsxx-cn-as-san" id="pkcsxx-cn-as-san" v-model="cnAsSAN" v-on:change="updateCmdLine()"/>
                         </div-->
-                        <div class="form-group" v-if="isPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL') && (creationTool === 'certreq') ">
+                        <div class="form-group" v-if="isWebPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL') && (creationTool === 'certreq') ">
                             <label class="form-control-label" v-text="$t('pkcsxx.upload.machine.key.set')" for="pkcsxx-machine-key-set"></label> <help-tag target="pkcsxx.upload.machine.key.set"/>
                             <input type="checkbox" class="form-check-inline" name="pkcsxx-machine-key-set" id="pkcsxx-machine-key-set" v-model="machineKeySet" v-on:change="updateCmdLine()"/>
                         </div>
 
-                        <div class="form-group" v-if="isPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')" >
+                        <div class="form-group" v-if="isWebPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')" >
                             <label class="form-control-label" v-text="$t('pkcsxx.upload.certificateParams')" ></label>
 
                             <div class="row">
@@ -139,7 +139,7 @@
                         </div>
 
                         <!-- Additional Request Attributes -->
-                        <div class="form-group" v-if="isPipelineChoosen() && (araRestrictions.length > 0 ) && ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
+                        <div class="form-group" v-if="isWebPipelineChoosen() && (araRestrictions.length > 0 ) && ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
                             <label class="form-control-label" v-text="$t('pkcsxx.upload.requestParams')" ></label>
 
                             <div class="row" v-for="(item, index) in araRestrictions" :key="index" >
@@ -165,7 +165,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group" v-if="isPipelineChoosen() && creationMode === 'SERVERSIDE_KEY_CREATION' && selectPipelineView && selectPipelineView.csrUsage">
+                        <div class="form-group" v-if="isWebPipelineChoosen() && creationMode === 'SERVERSIDE_KEY_CREATION' && selectPipelineView && selectPipelineView.csrUsage">
                             <div class="row">
                                 <div class="col">
                                     <label class="form-control-label" v-text="$t('pkcsxx.upload.csr.usage')" ></label>
@@ -212,7 +212,7 @@
                             </div>
                         </div>
 
-                        <div class="row wrap" v-if="isPipelineChoosen() && creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
+                        <div class="row wrap" v-if="isWebPipelineChoosen() && creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
                             <div class="col ">
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline0')" for="pkcsxx-reqConf"></label> <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
                             </div>
@@ -222,11 +222,11 @@
                                 <CopyClipboardButton contentElementId="pkcsxx-cmdline0"/>
                             </div>
                         </div>
-                        <div v-if="isPipelineChoosen() && creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
+                        <div v-if="isWebPipelineChoosen() && creationMode === 'COMMANDLINE_TOOL' && cmdline0Required">
                             <label></label>
                         </div>
 
-                        <div class="row wrap" v-if="isPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL') && reqConfRequired">
+                        <div class="row wrap" v-if="isWebPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL') && reqConfRequired">
                             <div class="col ">
                                 <label v-if="creationTool === 'certreq'" class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.inf')" for="pkcsxx-reqConf"></label> <help-tag v-if="creationTool === 'certreq'" target="pkcsxx.upload.creationTool.req.inf"/>
                                 <label v-if="creationTool !== 'certreq'" class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.req.conf')" for="pkcsxx-reqConf"></label> <help-tag v-if="creationTool !== 'certreq'" target="pkcsxx.upload.creationTool.req.conf"/>
@@ -237,11 +237,11 @@
                                 <CopyClipboardButton contentElementId="pkcsxx-reqConf"/>
                             </div>
                         </div>
-                        <div v-if="isPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL') && reqConfRequired">
+                        <div v-if="isWebPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL') && reqConfRequired">
                             <label></label>
                         </div>
 
-                        <div class="row wrap" v-if="isPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL')">
+                        <div class="row wrap" v-if="isWebPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL')">
                             <div class="col ">
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline')" for="pkcsxx-cmdline"></label>   <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
                             </div>
@@ -251,11 +251,11 @@
                                 <CopyClipboardButton contentElementId="pkcsxx-cmdline"/>
                             </div>
                         </div>
-                        <div v-if="isPipelineChoosen()&& (creationMode === 'COMMANDLINE_TOOL') && cmdline1Required">
+                        <div v-if="isWebPipelineChoosen()&& (creationMode === 'COMMANDLINE_TOOL') && cmdline1Required">
                             <label></label>
                         </div>
 
-                        <div class="row wrap" v-if="isPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL') && cmdline1Required">
+                        <div class="row wrap" v-if="isWebPipelineChoosen() && (creationMode === 'COMMANDLINE_TOOL') && cmdline1Required">
                             <div class="col ">
                                 <label class="form-control-label" v-text="$t('pkcsxx.upload.creationTool.cmdline1')" for="pkcsxx-cmdline"></label>   <help-tag target="pkcsxx.upload.creationTool.cmdline"/>
                             </div>
@@ -266,7 +266,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group" v-if="isPipelineChoosen() && (creationMode === 'CSR_AVAILABLE')" >
+                        <div class="form-group" v-if="isWebPipelineChoosen() && (creationMode === 'CSR_AVAILABLE')" >
                             <!--label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label-->
                             <div>
                                 <label v-if="(creationMode === 'CSR_AVAILABLE') "
@@ -291,7 +291,7 @@
 
                         </div>
 
-                        <div class="form-group" v-if="isPipelineChoosen() && (precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE')">
+                        <div class="form-group" v-if="isWebPipelineChoosen() && (precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE')">
                             <label class="form-control-label" v-text="$t('pkcsxx.upload.passphrase')" for="upload-passphrase"></label>
                             <input type="text" class="form-control" name="passphrase" id="upload-passphrase"
                                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
@@ -515,7 +515,7 @@
 
         <div v-if="authenticated">
 
-            <div class="form-group" v-if="isPipelineChoosen() &&
+            <div class="form-group" v-if="isWebPipelineChoosen() &&
               selectPipelineView.tosAgreementRequired &&
               ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
                 <input type="checkbox" class="form-check-inline" name="tosAgreed" id="tosAgreed" v-model="upload.tosAgreed" />

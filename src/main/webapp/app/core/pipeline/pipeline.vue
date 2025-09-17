@@ -1,12 +1,10 @@
 <template>
     <div>
         <h2 id="page-heading">
-            <span v-text="$t('ca3SApp.pipeline.home.title')" id="pipeline-heading">Pipelines</span>
+            <span v-text="$t('ca3SApp.pipeline.home.title')" id="pipeline-heading"></span>
             <router-link :to="{name: 'ConfPipelineCreate'}" tag="button" id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-pipeline">
                 <font-awesome-icon icon="plus"></font-awesome-icon>
-                <span  v-text="$t('ca3SApp.pipeline.home.createLabel')">
-                    Create a new Pipeline
-                </span>
+                <span  v-text="$t('ca3SApp.pipeline.home.createLabel')"></span>
             </router-link>
         </h2>
         <b-alert :show="dismissCountDown"
@@ -19,10 +17,10 @@
         <br/>
 
         <div class="alert alert-warning" v-if="!isFetching && pipelines && pipelines.length === 0">
-            <span v-text="$t('ca3SApp.pipeline.home.notFound')">No pipelines found</span>
+            <span v-text="$t('ca3SApp.pipeline.home.notFound')"></span>
         </div>
         <div v-if="pipelines && pipelines.length > 0">
-            <span v-text="$t('ca3SApp.pipeline.filter.type')">Type: </span>
+            <span v-text="$t('ca3SApp.pipeline.filter.type')"></span>
             <select float="left" class="smallSelector fa-1x" v-model="typeFilter"
                     name="typeFilter"
                     v-on:change="filterPipelines">

@@ -39,7 +39,7 @@ import AuditTag from '@/core/audit/audit-tag.vue';
 import { mixins } from 'vue-class-component';
 import UserManagementService from '@/admin/user-management/user-management.service';
 import TenantService from '../../admin/tenant/tenant.service';
-import {IAuthority} from "../../../../../../target/generated-sources/typescript/transfer-object.model";
+import { IAuthority } from '../../../../../../target/generated-sources/typescript/transfer-object.model';
 
 const subnetRegEx = helpers.regex(
   'subnet',
@@ -205,8 +205,8 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     next(vm => {
       if (to.params.pipelineId) {
         vm.retrievePipeline(to.params.pipelineId, to.params.mode);
-      }else{
-        vm.pipeline.selectedRolesList = [{ name: "ROLE_USER" }];
+      } else {
+        vm.pipeline.selectedRolesList = [{ name: 'ROLE_USER' }];
       }
       vm.initRelationships();
     });
@@ -265,7 +265,17 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     this.mode = mode;
 
     this.fillData();
+  }
 
+  public alignSettingForType(event): void {
+    this.pipeline.caConnectorName = 'internal';
+    this.pipeline.selectedRolesList = [{ name: 'ROLE_ADMIN' }];
+    this.pipeline.selectedTenantList = [];
+    this.requestProxyConfigs = [];
+  }
+
+  public isWebPipelineType(): boolean {
+    return this.pipeline.type === 'WEB' || this.pipeline.type === 'MANUAL_UPLOAD';
   }
 
   public previousState(): void {
@@ -315,46 +325,53 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       window.console.info('allCertGenerators returns ' + response.data);
       self.allCertGenerators = response.data;
 
-      self
-        .pipelineViewService()
-        .find(self.pipelineId)
-        .then(res => {
-          self.pipeline = res;
-
-          if (self.mode === 'copy') {
-            self.pipeline.name = 'Copy of ' + self.pipeline.name;
-            self.pipeline.id = null;
-          }
-
-          if (!self.pipeline.acmeConfigItems.allowChallengeDNS) {
-            self.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
-            self.pipeline.acmeConfigItems.allowWildcards = false;
-          }
-          if (self.pipeline.araRestrictions && self.pipeline.araRestrictions.length > 0) {
-            window.console.info('pipeline.araRestrictions.length' + self.pipeline.araRestrictions.length);
-          } else {
-            window.console.info('pipeline.araRestrictions undefined');
-            self.pipeline.araRestrictions = [];
-            self.pipeline.araRestrictions.push({});
-          }
-
-          if (!self.pipeline.networkAcceptArr) {
-            self.pipeline.networkAcceptArr = [];
-          }
-          if (self.pipeline.networkAcceptArr.length === 0) {
-            self.pipeline.networkAcceptArr.push('');
-          }
-          if (!self.pipeline.networkRejectArr) {
-            self.pipeline.networkRejectArr = [];
-          }
-          if (self.pipeline.networkRejectArr.length === 0) {
-            self.pipeline.networkRejectArr.push('');
-          }
-        });
+      if (self.pipelineId) {
+        self
+          .pipelineViewService()
+          .find(self.pipelineId)
+          .then(res => {
+            self.pipeline = res;
+            self.initializePipeline(self.pipeline);
+          });
+      } else {
+        self.initializePipeline(self.pipeline);
+      }
     });
 
     this.retrieveAllTenants();
     this.retrieveAllAuthorities();
+  }
+
+  initializePipeline(pipeline: PipelineView) {
+    if (this.mode === 'copy') {
+      pipeline.name = 'Copy of ' + pipeline.name;
+      pipeline.id = null;
+    }
+
+    if (!pipeline.acmeConfigItems.allowChallengeDNS) {
+      pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
+      pipeline.acmeConfigItems.allowWildcards = false;
+    }
+    if (pipeline.araRestrictions && pipeline.araRestrictions.length > 0) {
+      window.console.info('pipeline.araRestrictions.length' + pipeline.araRestrictions.length);
+    } else {
+      window.console.info('pipeline.araRestrictions undefined');
+      pipeline.araRestrictions = [];
+      pipeline.araRestrictions.push({});
+    }
+
+    if (!pipeline.networkAcceptArr) {
+      pipeline.networkAcceptArr = [];
+    }
+    if (pipeline.networkAcceptArr.length === 0) {
+      pipeline.networkAcceptArr.push('');
+    }
+    if (!pipeline.networkRejectArr) {
+      pipeline.networkRejectArr = [];
+    }
+    if (pipeline.networkRejectArr.length === 0) {
+      pipeline.networkRejectArr.push('');
+    }
   }
 
   public retrieveAllTenants(): void {
@@ -376,7 +393,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
 
     axios({
       method: 'get',
-      url: '/api/users/authorityList'
+      url: '/api/users/authorityList',
     }).then(function (response) {
       window.console.info('retrieveAllAuthorities returns ' + response.data);
       self.authorities = response.data;

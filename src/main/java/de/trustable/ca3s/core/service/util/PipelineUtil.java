@@ -137,17 +137,11 @@ public class PipelineUtil {
 
     public static final String LIST_ORDER = "LIST_ORDER";
 
-    public static final String ACME_PROCESS_ACCOUNT_VALIDATION = "ACME_PROCESS_ACCOUNT_VALIDATION";
-    public static final String ACME_PROCESS_ORDER_VALIDATION = "ACME_PROCESS_ORDER_VALIDATION";
-    public static final String ACME_PROCESS_CHALLENGE_VALIDATION = "ACME_PROCESS_CHALLENGE_VALIDATION";
-
     public static final String ACME_ORDER_VALIDITY_SECONDS = "ACME_ORDER_VALIDITY_SECONDS";
     public static final String ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR = "ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR";
 
     public static final String SCEP_CAPABILITY_RENEWAL = "SCEP_CAPABILITY_RENEWAL";
     public static final String SCEP_CAPABILITY_POST = "SCEP_CAPABILITY_POST";
-    public static final String SCEP_SECRET = "SCEP_SECRET";
-    public static final String SCEP_SECRET_VALID_TO = "SCEP_SECRET_VALID_TO";
     public static final String SCEP_SECRET_PC_ID = "SCEP_SECRET_PC_ID";
 
     public static final String SCEP_RECIPIENT_DN = "SCEP_RECIPIENT_DN";
@@ -309,6 +303,27 @@ public class PipelineUtil {
                 pv.setNetworkAcceptArr(splitNetworks(plAtt.getValue()));
             } else if (NETWORK_REJECT.equals(plAtt.getName())) {
                 pv.setNetworkRejectArr(splitNetworks(plAtt.getValue()));
+            } else if (KEY_UNIQUENESS.equals(plAtt.getName())) {
+                if(plAtt.getValue() == null || plAtt.getValue().isEmpty()){
+                    pv.setKeyUniqueness(KeyUniqueness.KEY_UNIQUE);
+                }else {
+                    pv.setKeyUniqueness(KeyUniqueness.valueOf(plAtt.getValue()));
+                }
+
+            } else if (TOS_AGREEMENT_REQUIRED.equals(plAtt.getName())) {
+                pv.setTosAgreementRequired(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (TOS_AGREEMENT_LINK.equals(plAtt.getName())) {
+                pv.setTosAgreementLink(plAtt.getValue());
+
+            } else if (WEBSITE_LINK.equals(plAtt.getName())) {
+                pv.setWebsite(plAtt.getValue());
+
+            } else if (CSR_USAGE.equals(plAtt.getName())) {
+                pv.setCsrUsage(CsrUsage.valueOf(plAtt.getValue()));
+
+            } else if (LIST_ORDER.equals(plAtt.getName())) {
+                pv.setListOrder(Integer.parseInt(plAtt.getValue()));
+
             } else if (CAN_ISSUE_2_FACTOR_CLIENT_CERTS.equals(plAtt.getName())) {
                 webConfigItems.setIssuesSecondFactorClientCert(Boolean.parseBoolean(plAtt.getValue()));
             } else if (SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
@@ -520,27 +535,6 @@ public class PipelineUtil {
             } else if (RESTR_SAN_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setRegEx(plAtt.getValue());
 
-            } else if (KEY_UNIQUENESS.equals(plAtt.getName())) {
-                if(plAtt.getValue() == null || plAtt.getValue().isEmpty()){
-                    pv.setKeyUniqueness(KeyUniqueness.KEY_UNIQUE);
-                }else {
-                    pv.setKeyUniqueness(KeyUniqueness.valueOf(plAtt.getValue()));
-                }
-
-            } else if (TOS_AGREEMENT_REQUIRED.equals(plAtt.getName())) {
-                pv.setTosAgreementRequired(Boolean.parseBoolean(plAtt.getValue()));
-            } else if (TOS_AGREEMENT_LINK.equals(plAtt.getName())) {
-                pv.setTosAgreementLink(plAtt.getValue());
-
-            } else if (WEBSITE_LINK.equals(plAtt.getName())) {
-                pv.setWebsite(plAtt.getValue());
-
-            } else if (CSR_USAGE.equals(plAtt.getName())) {
-                pv.setCsrUsage(CsrUsage.valueOf(plAtt.getValue()));
-
-            } else if (LIST_ORDER.equals(plAtt.getName())) {
-                pv.setListOrder(Integer.parseInt(plAtt.getValue()));
-
             } else if (TO_PENDIND_ON_FAILED_RESTRICTIONS.equals(plAtt.getName())) {
                 pv.setToPendingOnFailedRestrictions(Boolean.parseBoolean(plAtt.getValue()));
 
@@ -674,8 +668,8 @@ public class PipelineUtil {
             p.setType(pv.getType());
         }
 
-        if(pv.getType() == PipelineType.WEB){
-            pv.setUrlPart(""); // not url part for web pipelines
+        if(pv.getType() == PipelineType.WEB || pv.getType() == PipelineType.MANUAL_UPLOAD){
+            pv.setUrlPart(""); // no url part for web pipelines
         }
         if (!Objects.equals(pv.getUrlPart(), p.getUrlPart())) {
             auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_URLPART_CHANGED, p.getUrlPart(), pv.getUrlPart(), p));
@@ -945,7 +939,7 @@ public class PipelineUtil {
         addPipelineAttribute(pipelineAttributes, p, auditList, NETWORK_REJECT, concatNetworks(pv.getNetworkRejectArr()));
 
         addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE, pv.getCsrUsage().toString());
-        if (PipelineType.WEB.equals(pv.getType())) {
+        if (PipelineType.WEB.equals(pv.getType()) || PipelineType.MANUAL_UPLOAD.equals(pv.getType())) {
             addPipelineAttribute(pipelineAttributes, p, auditList, LIST_ORDER, "" + pv.getListOrder());
         }
 

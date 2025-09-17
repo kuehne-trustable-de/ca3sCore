@@ -228,7 +228,7 @@ entity ImportedURL{
 }
 
 enum PipelineType {
-    ACME, SCEP, WEB, INTERNAL, MANUAL_REQUEST
+    ACME, SCEP, WEB, INTERNAL, MANUAL_REQUEST, MANUAL_UPLOAD
 }
 
 entity Pipeline{
@@ -256,7 +256,8 @@ enum BPMNProcessType {
     REQUEST_AUTHORIZATION,
     ACME_ACCOUNT_AUTHORIZATION,
     SEND_SMS,
-    TIMED}
+    TIMED
+}
 
 @skipClient
 entity BPMNProcessInfo{

@@ -1044,7 +1044,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     window.console.info('in disableCertificateRequest()');
 
     // check tos agreement, if required
-    if( this.selectPipelineView.tosAgreementRequired && !this.upload.tosAgreed ){
+    if (this.selectPipelineView.tosAgreementRequired && !this.upload.tosAgreed) {
       return true;
     }
 
@@ -1115,10 +1115,18 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return this.authenticated && this.allWebPipelines && this.allWebPipelines.length > 0;
   }
 
-  public isPipelineChoosen() {
-    return this.upload.pipelineId >= 0;
+  public isWebPipelineType() {
+    const pipelineId = this.upload.pipelineId;
+    if (pipelineId < 0) {
+      return false;
+    }
+    for (const pipeline of this.allWebPipelines) {
+      if (pipeline.id === pipelineId && (pipeline.type === 'WEB' || pipeline.type === 'MANUAL_UPLOAD')) {
+        return true;
+      }
+    }
+    return false;
   }
-
   public isRAOfficer() {
     return this.hasRole('ROLE_RA') || this.hasRole('ROLE_RA_DOMAIN');
   }

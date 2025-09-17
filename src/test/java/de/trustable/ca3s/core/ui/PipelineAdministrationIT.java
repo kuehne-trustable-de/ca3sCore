@@ -41,7 +41,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
     public static final By LOC_LNK_CONFIG_MENUE = By.xpath("//nav//a [.//span [text() = 'Config']]");
     public static final By LOC_LNK_PIPELINE_MENUE = By.xpath("//nav//a [.//span [text() = 'Pipeline']]");
-    public static final By LOC_BTN_PIPELINE_NEW = By.xpath("//div//button [.//span [text() = 'Create a new Pipeline']]");
+    public static final By LOC_BTN_PIPELINE_NEW = By.xpath("//div//button [@id = 'jh-create-entity']");
     public static final By LOC_INP_PIPELINE_NAME = By.xpath("//div/input [@type = 'text'][@id = 'pipeline-name']");
     public static final By LOC_SEL_PIPELINE_TYPE = By.xpath("//div//select [@id = 'pipeline-type']");
     public static final By LOC_SEL_PIPELINE_DESCRIPTION = By.xpath("//div/Textarea [@type = 'text'][@id = 'pipeline-description']");
@@ -53,11 +53,6 @@ public class PipelineAdministrationIT extends WebTestBase{
     public static final By LOC_SEL_PIPELINE_ROLES = By.xpath("//div//select [@id = 'pipeline-selectedRoles']");
 
     public static final By LOC_INP_PIPELINE_URL_PART = By.xpath("//div/input [@type = 'text'][@id = 'pipeline-urlPart']");
-    public static final By LOC_INP_CA_CONFIG_TLS_AUTH = By.xpath("//div/input [@type = 'number'][@id = 'ca-connector-config-tlsAuthentication']");
-    public static final By LOC_INP_CA_CONFIG_MESSAGE_PROTECTION = By.xpath("//div/input [@type = 'number'][@id = 'ca-connector-config-messageProtection']");
-
-    public static final By LOC_INP_CA_CONFIG_TRUST_SELFSIGNED = By.xpath("//div/input [@type = 'checkbox'][@id = 'ca-connector-config-trustSelfsignedCertificates']");
-    public static final By LOC_INP_CA_CONFIG_DEFAULT_CA = By.xpath("//div/input [@type = 'checkbox'][@id = 'ca-connector-config-defaultCA']");
     public static final By LOC_INP_PIPELINE_ACTIVE = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-active']");
     public static final By LOC_INP_PIPELINE_APPROVAL_REQUIRED = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-approvalRequired']");
     public static final By LOC_INP_PIPELINE_PENDING_ON_FAILURE = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-toPendingOnFailedRestrictions']");
@@ -70,9 +65,6 @@ public class PipelineAdministrationIT extends WebTestBase{
     public static final By LOC_INP_PIPELINE_CHECK_CAA = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-checkCAA']");
 
 
-    public static final By LOC_INP_CA_CONFIG_PASSPHRASE = By.xpath("//div/input [@type = 'password'][@id = 'ca-connector-config-plainSecret']");
-    public static final By LOC_INP_CA_ISSUER_NAME = By.xpath("//div/input [@type = 'text'][@id = 'ca-connector-config-issuerName']");
-    public static final By LOC_INP_CA_MESSAGE_CONTENT_TYPE = By.xpath("//div/input [@type = 'text'][@id = 'ca-connector-config-msgContentType']");
     public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='submit'][span [text() = 'Save']]");
     public static final By LOC_TEXT_PIPELINES_LIST = By.xpath("//div/h2/span [text() = 'Pipelines']");
     private static final Logger LOG = LoggerFactory.getLogger(PipelineAdministrationIT.class);
@@ -88,9 +80,6 @@ public class PipelineAdministrationIT extends WebTestBase{
 
 
     private static Random rand = new Random();
-
-	@LocalServerPort
-	int serverPort; // random port chosen by spring test
 
 	@Autowired
 	PipelineTestConfiguration ptc;
@@ -157,15 +146,15 @@ public class PipelineAdministrationIT extends WebTestBase{
 		}
 	}
 
-	@Test
-	public void testPipelineCreateWeb() {
+    @Test
+    public void testPipelineCreateWeb() {
 
         String newPipelineName = "Pipeline_" + Math.random();
 //        String newPipelineUrl = "http://acme.server/Url_" + Math.random();
         String newPipelineDesription = "Description_" + Math.random() + " text, lengthy ... lengthy ... very lengthy ";
         String newPipelineListOrder = "" + (int)(10 * Math.random());
 
-		signIn(USER_NAME_ADMIN, USER_PASSWORD_ADMIN);
+        signIn(USER_NAME_ADMIN, USER_PASSWORD_ADMIN);
 
         validatePresent(LOC_LNK_CONFIG_MENUE);
         click(LOC_LNK_CONFIG_MENUE);
@@ -222,7 +211,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_PIPELINE_USAGE);
         click(LOC_SEL_PIPELINE_USAGE);
-        selectOptionByText(LOC_SEL_PIPELINE_USAGE, "TLS Server" );
+        selectOptionByText(LOC_SEL_PIPELINE_USAGE, "TLS Client" );
 
         validatePresent(LOC_SEL_PIPELINE_ROLES);
         click(LOC_SEL_PIPELINE_ROLES);
@@ -254,8 +243,90 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         Assertions.assertEquals( "WEB", getText(LOC_SEL_PIPELINE_TYPE));
         Assertions.assertEquals( "InternalTestCA", getText(LOC_SEL_PIPELINE_CA_CONNECTOR));
-        Assertions.assertEquals( "TLS_SERVER", getText(LOC_SEL_PIPELINE_USAGE ));
+        Assertions.assertEquals( "TLS_CLIENT", getText(LOC_SEL_PIPELINE_USAGE ));
 
+    }
+    @Test
+    public void testPipelineCreateManualUpload() {
+
+        String newPipelineName = "Pipeline_Manual_Upload_" + Math.random();
+        String newPipelineDesription = "Description_" + Math.random() + " text, lengthy ... lengthy ... very lengthy ";
+        String newPipelineListOrder = "" + (int)(10 * Math.random());
+
+        signIn(USER_NAME_ADMIN, USER_PASSWORD_ADMIN);
+
+        validatePresent(LOC_LNK_CONFIG_MENUE);
+        click(LOC_LNK_CONFIG_MENUE);
+
+        validatePresent(LOC_LNK_PIPELINE_MENUE);
+        click(LOC_LNK_PIPELINE_MENUE);
+
+        validatePresent(LOC_BTN_PIPELINE_NEW);
+        click(LOC_BTN_PIPELINE_NEW);
+
+        // create new pipeline
+        validatePresent(LOC_INP_PIPELINE_NAME);
+        setText(LOC_INP_PIPELINE_NAME, newPipelineName);
+
+        check(LOC_INP_PIPELINE_ACTIVE);
+
+        validatePresent(LOC_SEL_PIPELINE_TYPE);
+        click(LOC_SEL_PIPELINE_TYPE);
+        selectOptionByValue(LOC_SEL_PIPELINE_TYPE, "MANUAL_UPLOAD");
+
+        validateNotPresent(LOC_INP_PIPELINE_APPROVAL_REQUIRED);
+
+        validatePresent(LOC_SEL_PIPELINE_DESCRIPTION);
+        click(LOC_SEL_PIPELINE_DESCRIPTION);
+        setText(LOC_SEL_PIPELINE_DESCRIPTION, newPipelineDesription);
+
+        validatePresent(LOC_INP_PIPELINE_LIST_ORDER);
+        click(LOC_INP_PIPELINE_LIST_ORDER);
+        setText(LOC_INP_PIPELINE_LIST_ORDER, newPipelineListOrder);
+
+        validateNotPresent(LOC_INP_PIPELINE_URL_PART);
+        validateNotPresent(LOC_SEL_PIPELINE_CA_CONNECTOR);
+        validateNotPresent(LOC_INP_PIPELINE_PENDING_ON_FAILURE);
+        check(LOC_INP_PIPELINE_IP_AS_SUBJECT);
+        check(LOC_INP_PIPELINE_IP_AS_SAN);
+
+        validateNotPresent(LOC_INP_PIPELINE_HTTP01);
+        validateNotPresent(LOC_INP_PIPELINE_ALPN);
+        validateNotPresent(LOC_INP_PIPELINE_DNS);
+        validateNotPresent(LOC_INP_PIPELINE_WILDCARDS);
+        validateNotPresent(LOC_INP_PIPELINE_CHECK_CAA);
+
+        validateNotPresent(LOC_SEL_PIPELINE_USAGE);
+
+        validatePresent(LOC_SEL_PIPELINE_ROLES);
+        click(LOC_SEL_PIPELINE_ROLES);
+        selectOptionByText(LOC_SEL_PIPELINE_ROLES, "ROLE_ADMIN" );
+
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
+
+        validatePresent(LOC_TEXT_PIPELINES_LIST);
+
+        By byPipelineName = By.xpath("//table//td [contains(text(), '" + newPipelineName + "')]");
+        validatePresent(byPipelineName);
+
+        click(byPipelineName);
+        By byEditPipelineName = By.xpath("//table//tr [td [contains(text(), '" + newPipelineName + "')]]/td/div/button[span[contains(text(), 'Edit')]]");
+
+        validatePresent(byEditPipelineName);
+        click(byEditPipelineName);
+
+        // back in the created connector
+        validatePresent(LOC_INP_PIPELINE_NAME);
+        Assertions.assertEquals(newPipelineName, getText(LOC_INP_PIPELINE_NAME), "Expect the name of the connector");
+
+        Assertions.assertEquals(newPipelineName, getText(LOC_INP_PIPELINE_NAME));
+
+        Assertions.assertEquals( newPipelineDesription, getText(LOC_SEL_PIPELINE_DESCRIPTION) );
+
+        Assertions.assertTrue(isChecked(LOC_INP_PIPELINE_ACTIVE));
+
+        Assertions.assertEquals( "MANUAL_UPLOAD", getText(LOC_SEL_PIPELINE_TYPE));
     }
 
     @Test
@@ -285,7 +356,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_PIPELINE_TYPE);
         click(LOC_SEL_PIPELINE_TYPE);
-        selectOptionByText(LOC_SEL_PIPELINE_TYPE, "SCEP");
+        selectOptionByValue(LOC_SEL_PIPELINE_TYPE, "SCEP");
 
         validatePresent(LOC_INP_PIPELINE_APPROVAL_REQUIRED);
 
@@ -373,7 +444,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_PIPELINE_TYPE);
         click(LOC_SEL_PIPELINE_TYPE);
-        selectOptionByText(LOC_SEL_PIPELINE_TYPE, "ACME");
+        selectOptionByValue(LOC_SEL_PIPELINE_TYPE, "ACME");
 
         validatePresent(LOC_INP_PIPELINE_APPROVAL_REQUIRED);
 
