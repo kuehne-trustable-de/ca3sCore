@@ -152,7 +152,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div  v-if="pipeline.type !== 'MANUAL_UPLOAD'" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.key.unique')" for="pipeline-key-unique"></label>  <help-tag role="Admin" target="pipeline.key.unique"/>
                         <select class="form-control" id="pipeline-key-unique" name="pipeline-key-unique" v-model="pipeline.keyUniqueness">
                             <option v-text="$t('ca3SApp.pipeline.key.reuse.unique')" value="KEY_UNIQUE"></option>
@@ -163,7 +163,7 @@
                         </select>
                     </div>
 
-                    <table class="table">
+                    <table v-if="pipeline.type !== 'MANUAL_UPLOAD'" class="table">
                         <thead class="thead-light">
                         <tr>
                             <th></th>
@@ -368,7 +368,7 @@
                         <input type="text" class="form-check-inline" name="pipeline-contact-email-reject-regex" id="pipeline-contact-email-reject-regex" v-model="pipeline.acmeConfigItems.contactEMailRejectRegEx" />
                     </div>
 
-                    <div class="form-group">
+                    <div  v-if="pipeline.type !== 'MANUAL_UPLOAD'" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSubjectAllowed')" for="pipeline-ipAsSubjectAllowed"></label>  <help-tag role="Admin" target="pipeline.ip-as-subject"/>
                         <input type="checkbox" class="form-check-inline" name="ipAsSubjectAllowed" id="pipeline-ipAsSubjectAllowed"
                                :class="{'valid': !$v.pipeline.ipAsSubjectAllowed.$invalid, 'invalid': $v.pipeline.ipAsSubjectAllowed.$invalid }" v-model="$v.pipeline.ipAsSubjectAllowed.$model" />
@@ -537,7 +537,7 @@
                     </div>
                   </div>
 
-                  <div class="container" v-if="pipeline.domainRaOfficerList && domainRAs && domainRAs.length > 0">
+                  <div class="container" v-if="pipeline.domainRaOfficerList && domainRAs && domainRAs.length > 0 && $v.pipeline.type.$model === 'WEB'">
                     <div class="row">
                       <div class="col">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.domainRAs')"

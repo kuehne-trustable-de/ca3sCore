@@ -14,6 +14,7 @@
                 <form name="editForm" role="form" autocomplete="off" novalidate >
 					<h2 class="jh-entity-heading">
                         <span v-if="(authenticated === false) && (creationMode === 'CSR_AVAILABLE')" v-text="$t('pkcsxx.subtitle.check.csr')"></span>
+                        <span v-else-if="isUploadPipelineChoosen() && creationMode === 'CSR_AVAILABLE'" v-text="$t('pkcsxx.subtitle.upload.certificate')"></span>
                         <span v-else-if="creationMode === 'CSR_AVAILABLE'" v-text="$t('pkcsxx.subtitle.csr')"></span>
                         <span v-else-if="creationMode === 'COMMANDLINE_TOOL'" v-text="$t('pkcsxx.subtitle.tooling')"></span>
                         <span v-else-if="creationMode === 'SERVERSIDE_KEY_CREATION'" v-text="$t('pkcsxx.subtitle.serverside')"></span>
@@ -23,13 +24,13 @@
 
 					<div>
                         <!-- if there is a preselected pipeline, show the name and the description -->
-                        <div class="form-group" v-if="isSelectPipeline() && (preselectedPipelineId > -1)">
+                        <div class="form-group" v-if="isPipelineSelected() && (preselectedPipelineId > -1)">
                             <h3>{{selectPipelineName}}</h3>
                             <div class="readonly_comment">{{selectPipelineInfo}}</div>
                         </div>
 
                         <!-- if there is no preselected pipeline, show the pipeline selection box and the related description -->
-                        <div class="form-group" v-if="isSelectPipeline() && (preselectedPipelineId === -1)">
+                        <div class="form-group" v-if="isPipelineSelected() && (preselectedPipelineId === -1)">
                             <select class="form-control" id="pkcsxx-pipeline" name="pkcsxx-pipeline" v-model="upload.pipelineId" required v-on:change="updateCurrentPipelineRestrictions()">
                                 <option value="-1" disabled selected hidden v-text="$t('pkcsxx.upload.select.pipeline')"></option>
                                 <option v-bind:value="upload && webPipeline.id === upload.pipelineId ? upload.pipelineId : webPipeline.id" v-for="webPipeline in allWebPipelines" :key="webPipeline.id">{{webPipeline.name}}</option>
@@ -139,7 +140,7 @@
                         </div>
 
                         <!-- Additional Request Attributes -->
-                        <div class="form-group" v-if="isWebPipelineChoosen() && (araRestrictions.length > 0 ) && ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
+                        <div class="form-group" v-if="isPipelineSelected() && (araRestrictions.length > 0 ) && ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
                             <label class="form-control-label" v-text="$t('pkcsxx.upload.requestParams')" ></label>
 
                             <div class="row" v-for="(item, index) in araRestrictions" :key="index" >
@@ -266,12 +267,12 @@
                             </div>
                         </div>
 
-                        <div class="form-group" v-if="isWebPipelineChoosen() && (creationMode === 'CSR_AVAILABLE')" >
+                        <div class="form-group" v-if="isPipelineSelected() && (creationMode === 'CSR_AVAILABLE')" >
                             <!--label class="form-control-label" v-text="$t('pkcsxx.upload.content')" for="upload-content">Content</label-->
                             <div>
-                                <label v-if="(creationMode === 'CSR_AVAILABLE') "
+                                <label v-if="isWebPipelineChoosen() && (creationMode === 'CSR_AVAILABLE') "
                                     class="form-control-label" v-text="$t('pkcsxx.upload.fileSelectorCSR')" for="fileSelector"></label>
-                                <label v-if="(creationMode === 'COMMANDLINE_TOOL') || (creationMode === 'SERVERSIDE_KEY_CREATION')"
+                                <label v-else
                                     class="form-control-label" v-text="$t('pkcsxx.upload.fileSelectorCertificate')" for="fileSelector"></label>
                                 <input type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
                             </div>

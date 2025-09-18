@@ -182,10 +182,13 @@ public class UIDatasetSupport {
     @GetMapping("/pipeline/activeWeb")
     @Transactional
     public List<PipelineView> activeWeb() {
-
         User currentUser = userUtil.getCurrentUser();
 
-        return activeByPipelineType(PipelineType.WEB).stream()
+        List<PipelineType> pipelineTypes = new ArrayList<>();
+        pipelineTypes.add(PipelineType.WEB);
+        pipelineTypes.add(PipelineType.MANUAL_UPLOAD);
+
+        return activeByPipelineType(pipelineTypes).stream()
             .filter(pv -> Arrays.stream(pv.getSelectedRolesList())
                 .anyMatch( authority -> currentUser.getAuthorities().contains(authority)))
             .collect(Collectors.toList());
@@ -200,11 +203,19 @@ public class UIDatasetSupport {
     @Transactional
     public List<PipelineView> activeByPipelineType(@PathVariable PipelineType pipelineType) {
 
+        List<PipelineType> pipelineTypes = Collections.singletonList(pipelineType);
+        return activeByPipelineType(pipelineTypes);
+    }
+    public List<PipelineView> activeByPipelineType(List<PipelineType> pipelineTypes) {
+
         User currentUser = userUtil.getCurrentUser();
 
         List<PipelineView> pvList = new ArrayList<>();
         if(SecurityUtils.isAuthenticated()){
-            List<Pipeline> pipelineList = pipelineRepo.findActiveByType(pipelineType);
+            List<Pipeline> pipelineList = new ArrayList<>();
+            for( PipelineType pt : pipelineTypes) {
+                pipelineList.addAll(pipelineRepo.findActiveByType(pt));
+            }
 
             if( UserUtil.isAdministrativeUser(currentUser) ||
                 "none".equalsIgnoreCase(certificateStoreIsolation)){

@@ -1111,22 +1111,36 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return false;
   }
 
-  public isSelectPipeline() {
+  public isPipelineSelected() {
     return this.authenticated && this.allWebPipelines && this.allWebPipelines.length > 0;
   }
 
-  public isWebPipelineType() {
+  public isWebPipelineChoosen() {
     const pipelineId = this.upload.pipelineId;
     if (pipelineId < 0) {
       return false;
     }
     for (const pipeline of this.allWebPipelines) {
-      if (pipeline.id === pipelineId && (pipeline.type === 'WEB' || pipeline.type === 'MANUAL_UPLOAD')) {
+      if (pipeline.id === pipelineId && pipeline.type === 'WEB') {
         return true;
       }
     }
     return false;
   }
+
+  public isUploadPipelineChoosen() {
+    const pipelineId = this.upload.pipelineId;
+    if (pipelineId < 0) {
+      return false;
+    }
+    for (const pipeline of this.allWebPipelines) {
+      if (pipeline.id === pipelineId && pipeline.type === 'MANUAL_UPLOAD') {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public isRAOfficer() {
     return this.hasRole('ROLE_RA') || this.hasRole('ROLE_RA_DOMAIN');
   }
