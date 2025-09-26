@@ -230,7 +230,7 @@
         <embedded-ldap.version>0.9.0</embedded-ldap.version>
         <greenmail.version>1.6.15</greenmail.version>
 
-        <xml.maven.saxon.version>12.8</xml.maven.saxon.version>
+        <xml.maven.saxon.version>12.9</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.1.0</xml.maven.plugin.version>
 
         <dependencyCheck.version>12.1.3</dependencyCheck.version>
