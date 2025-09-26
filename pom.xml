@@ -224,7 +224,7 @@
         <pdfbox.version>2.0.34</pdfbox.version>
         <jsoup.version>1.21.2</jsoup.version>
 
-        <selenium.version>4.34.0</selenium.version>
+        <selenium.version>4.35.0</selenium.version>
 
         <kerby.version>2.0.3</kerby.version>
         <embedded-ldap.version>0.9.0</embedded-ldap.version>
