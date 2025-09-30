@@ -6,6 +6,7 @@ import com.sun.mail.imap.protocol.FLAGS;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.test.speech.SoundOutput;
 import org.jboss.aerogear.security.otp.Totp;
+import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
@@ -30,7 +31,9 @@ import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.net.*;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Random;
 
 import static org.junit.Assert.fail;
@@ -59,6 +62,8 @@ public class WebTestBase extends LocomotiveBase {
     public static final By LOC_TXT_SPOKEN_TEXT = By.xpath("//div[@name='spokenTextBox']");
 
     public static final By LOC_LOGIN_FAILED_TEXT = By.xpath("//div/strong [text() = 'Failed to sign in!']");
+
+    public static final By LOC_HELP_TARGET_LIST = By.xpath("//a [starts-with(@href,'/helpTargetAdmin')]");
 
     public static final String USER_NAME_USER = "user";
     public static final String USER_PASSWORD_USER = "S3cr3t!S_user";
@@ -607,4 +612,38 @@ public class WebTestBase extends LocomotiveBase {
         }
     }
 
+    void checkHelpTargets() {
+
+        List<String> missingHelpRefs = new ArrayList<>();
+        List<WebElement> webElementList = driver.findElements(LOC_HELP_TARGET_LIST);
+        Assertions.assertFalse(webElementList.isEmpty(), "Expect some help targets on the page");
+        for( WebElement we: webElementList){
+            we.click();
+            waitForWindow("ca3s Admin Help");
+            switchToWindow("ca3s Admin Help");
+
+            try {
+                URL url = new URL(driver.getCurrentUrl());
+//                System.out.println("CurrentUrl: " + url);
+//                System.out.println("ref = " + url.getRef());
+
+                By helpItem = By.xpath("//a [@id = '" + url.getRef() + "']");
+                if (driver.findElements(helpItem).isEmpty()){
+                    missingHelpRefs.add(url.getRef());
+                }
+
+            } catch (MalformedURLException e) {
+                System.out.println( "MalformedURLException : " + e.getMessage());
+            }
+
+            switchToWindow("ca3s");
+        }
+        if( !missingHelpRefs.isEmpty()){
+            System.out.println("\n######### Missing help targets found !");
+            for( String missíngRef: missingHelpRefs){
+                System.out.println("Missing help target: " + missíngRef);
+            }
+        }
+        Assertions.assertEquals(0, missingHelpRefs.size(), "No missing help targets expected");
+    }
 }

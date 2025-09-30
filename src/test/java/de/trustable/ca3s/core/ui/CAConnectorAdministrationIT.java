@@ -86,10 +86,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
     private static final String USER_PASSWORD_ADMIN = "admin";
 
 
-    private static Random rand = new Random();
-
-	@LocalServerPort
-	int serverPort; // random port chosen by spring test
+    private static final Random rand = new Random();
 
 	@Autowired
 	PipelineTestConfiguration ptc;
@@ -147,7 +144,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
              responseEntity.getBody().getCertsHolder().length > 0 ) {
             createdCertificateId = responseEntity.getBody().getCertsHolder()[0].getCertificateId();
         }else{
-            Assert.fail("creation of certificate failed: " + responseEntity);
+            Assertions.fail("creation of certificate failed: " + responseEntity);
         }
 
         if( driver == null) {
@@ -258,6 +255,8 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
         uncheck(LOC_INP_CA_CONFIG_ACTIVE);
         isEnabled(LOC_BTN_SAVE);
+
+        checkHelpTargets();
     }
 
     @Test
@@ -376,6 +375,9 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
         uncheck(LOC_INP_CA_CONFIG_ACTIVE);
         isEnabled(LOC_BTN_SAVE);
+
+        checkHelpTargets();
+
     }
 
     @Test
@@ -451,7 +453,6 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         click(LOC_INP_CA_CONFIG_PASSPHRASE);
         setText(LOC_INP_CA_CONFIG_PASSPHRASE, protectionPassphrase);
 
-
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
 
@@ -485,6 +486,8 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
         uncheck(LOC_INP_CA_CONFIG_ACTIVE);
         isEnabled(LOC_BTN_SAVE);
+
+        checkHelpTargets();
     }
 
     @Test
@@ -563,6 +566,8 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
         uncheck(LOC_INP_CA_CONFIG_ACTIVE);
         isEnabled(LOC_BTN_SAVE);
+
+        checkHelpTargets();
     }
 
     @Test
@@ -633,6 +638,8 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
         uncheck(LOC_INP_CA_CONFIG_ACTIVE);
         isEnabled(LOC_BTN_SAVE);
+
+        checkHelpTargets();
     }
 
 

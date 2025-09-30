@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -67,6 +66,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
     public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='submit'][span [text() = 'Save']]");
     public static final By LOC_TEXT_PIPELINES_LIST = By.xpath("//div/h2/span [text() = 'Pipelines']");
+
     private static final Logger LOG = LoggerFactory.getLogger(PipelineAdministrationIT.class);
 
     private static final String USER_NAME_USER = "user";
@@ -77,7 +77,6 @@ public class PipelineAdministrationIT extends WebTestBase{
 
     private static final String USER_NAME_ADMIN = "admin";
     private static final String USER_PASSWORD_ADMIN = "admin";
-
 
     private static Random rand = new Random();
 
@@ -189,14 +188,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_PIPELINE_CA_CONNECTOR);
         click(LOC_SEL_PIPELINE_CA_CONNECTOR);
-/*
-        try {
-            System.out.println("... waiting ...");
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
- */
+
         selectOptionByText(LOC_SEL_PIPELINE_CA_CONNECTOR, "InternalTestCA" );
 
         validateNotPresent(LOC_INP_PIPELINE_PENDING_ON_FAILURE);
@@ -245,7 +237,9 @@ public class PipelineAdministrationIT extends WebTestBase{
         Assertions.assertEquals( "InternalTestCA", getText(LOC_SEL_PIPELINE_CA_CONNECTOR));
         Assertions.assertEquals( "TLS_CLIENT", getText(LOC_SEL_PIPELINE_USAGE ));
 
+        checkHelpTargets();
     }
+
     @Test
     public void testPipelineCreateManualUpload() {
 
@@ -327,6 +321,8 @@ public class PipelineAdministrationIT extends WebTestBase{
         Assertions.assertTrue(isChecked(LOC_INP_PIPELINE_ACTIVE));
 
         Assertions.assertEquals( "MANUAL_UPLOAD", getText(LOC_SEL_PIPELINE_TYPE));
+
+        checkHelpTargets();
     }
 
     @Test
@@ -414,6 +410,8 @@ public class PipelineAdministrationIT extends WebTestBase{
         Assertions.assertEquals( "SCEP", getText(LOC_SEL_PIPELINE_TYPE));
         Assertions.assertEquals( "InternalTestCA", getText(LOC_SEL_PIPELINE_CA_CONNECTOR));
         Assertions.assertEquals( newPipelineUrlPart, getText(LOC_INP_PIPELINE_URL_PART));
+
+        checkHelpTargets();
 
     }
 
@@ -513,5 +511,8 @@ public class PipelineAdministrationIT extends WebTestBase{
         Assertions.assertEquals( "InternalTestCA", getText(LOC_SEL_PIPELINE_CA_CONNECTOR));
         Assertions.assertEquals( newPipelineUrlPart, getText(LOC_INP_PIPELINE_URL_PART));
 
+        checkHelpTargets();
+
     }
+
 }
