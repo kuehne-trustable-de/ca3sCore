@@ -175,8 +175,9 @@
                         <tbody>
                         <tr v-for="token in tokenArr" :key="token.id">
 
-                            <td v-if="tokenArr.relationType === 'CLIENT_CERTIFICATE'" @click="$router.push({name: 'CertInfo', params: {certificateId: token.id}})">{{token.relationType}} {{token.id}}</td>
-                            <td v-if="tokenArr.relationType !== 'CLIENT_CERTIFICATE'">{{token.relationType}} </td>
+                            <td v-if="token.relationType === 'CLIENT_CERTIFICATE'" @click="$router.push({name: 'CertInfo', params: {certificateId: token.id}})">{{token.relationType}} {{token.id}}</td>
+                            <td v-else-if="token.relationType === 'EAB_PASSWORD'"><span v-text="$t('ca3SApp.form.client.token.eab')"></span></td>
+                            <td v-else>{{token.relationType}} </td>
                             <td>{{toLocalDate(token.createdOn)}}</td>
                             <td>{{toLocalDate(token.validTo)}}</td>
                             <td>{{token.pipelineName}}</td>

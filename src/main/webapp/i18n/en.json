@@ -525,6 +525,8 @@
   "ca3SApp.form.client.api.token.validity": "Validity period of the API Token",
   "ca3SApp.form.client.api.token.value": "API token value",
   "ca3SApp.form.client.token.status": "Status",
+  "ca3SApp.form.client.api.kid.value": "Key Id (KID)",
+  "ca3SApp.form.client.api.hmac.key": "HMAC key",
 
   "ca3SApp.form.client.cert.download": "User Client certificate",
   "ca3SApp.form.client.cert.install": "Download and install the client certificate store in your browser",
@@ -539,6 +541,8 @@
   "ca3SApp.form.client.token.scep.create": "SCEP Secret",
   "ca3SApp.form.client.token.est.create": "EST Secret",
   "ca3SApp.form.client.password.eab.create": "ACME EAB",
+
+  "ca3SApp.form.client.token.eab": "ACME EAB",
 
   "ca3SApp.form.client.scep.token.value": "SCEP Secret",
   "ca3SApp.form.client.pipeline": "Processing Pipeline",
@@ -905,7 +909,7 @@
   "entity.validation.requiredOrSAN": "This field or a SAN entry is required.",
   "entity.validation.secretRepeat": "Repeated secret must match!",
   "entity.validation.subnetRequired": "Provide a subnet in the form 'n.n.n.n/mm'",
-
+  "entity.validation.subnet.notApplicableForProxies": "Network restrictions do NOT apply for request proxies",
   "error.NotNull": "Field {{ fieldName }} cannot be empty!",
   "error.Size": "Field {{ fieldName }} does not meet min/max size requirements!",
   "error.concurrencyFailure": "Another user modified this data at the same time as you. Your changes were rejected.",
@@ -954,7 +958,7 @@
   "global.menu.account.SSOLogin": "SSO Login",
   "global.menu.account.logout": "Sign out",
   "global.menu.account.main": "Account",
-  "global.menu.account.password": "Password",
+  "global.menu.account.password": "Password and Token",
   "global.menu.account.register": "Register",
   "global.menu.account.sessions": "Sessions",
   "global.menu.account.settings": "Settings",

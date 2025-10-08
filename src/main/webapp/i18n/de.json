@@ -521,6 +521,8 @@
   "ca3SApp.form.client.api.token.validity": "Gültigkeitsdauer des Token",
   "ca3SApp.form.client.api.token.value": "API Token",
   "ca3SApp.form.client.token.status": "Status",
+  "ca3SApp.form.client.api.kid.value": "Key Id (KID)",
+  "ca3SApp.form.client.api.hmac.key": "HMAC key",
 
   "ca3SApp.form.client.token.api.create": "API Token",
   "ca3SApp.form.client.token.scep.create": "SCEP Secret",
@@ -869,7 +871,8 @@
   "entity.validation.required": "Dieses Feld wird benötigt.",
   "entity.validation.requiredOrSAN": "Dieses Feld oder ein SAN-Eintrag wird benötigt.",
   "entity.validation.secretRepeat": "Passwort-Wiederholung muss übereinstimmen!",
-  "entity.validation.subnetRequired": "Dieses Feld  muss ein Subnetz in der Form 'n.n.n.n/mm' enthalten",
+  "entity.validation.subnetRequired": "Dieses Feld muss ein Subnetz in der Form 'n.n.n.n/mm' enthalten",
+  "entity.validation.subnet.notApplicableForProxies": "Die Netzwerk-Regeln gelten NICHT für Request Proxies",
 
   "error.NotNull": "Feld {{fieldName}} kann nicht leer sein!",
   "error.Size": "Feld {{fieldName}} erfüllt nicht die minimalen/maximalen Voraussetzungen!",
@@ -920,7 +923,7 @@
   "global.menu.account.SSOLogin": "Anmelden mit SSO",
   "global.menu.account.logout": "Abmelden",
   "global.menu.account.main": "Zugang",
-  "global.menu.account.password": "Passwort",
+  "global.menu.account.password": "Passwort und Token",
   "global.menu.account.register": "Registrierung",
   "global.menu.account.sessions": "Sitzungen",
   "global.menu.account.settings": "Einstellungen",

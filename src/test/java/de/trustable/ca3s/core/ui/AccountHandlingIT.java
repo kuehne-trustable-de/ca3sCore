@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.ui;
 
 import com.sun.mail.imap.IMAPStore;
 import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
@@ -29,7 +30,8 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = Ca3SApp.class,
-    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = { "mailservice.mock.enabled=false" })
 @Config(
     browser = Browser.CHROME,
     url     = "http://localhost:${local.server.port}/"
@@ -63,11 +65,22 @@ public class AccountHandlingIT extends WebTestBase{
     public static final By LOC_BTN_SAVE = By.xpath("//form//button [@type='submit'][text() = 'Save']");
 
     public static final By LOC_BTN_ADD_OTP = By.xpath("//div/button [span[text() = 'OTP']]");
+    public static final By LOC_BTN_ADD_EAB = By.xpath("//div/button [span[text() = 'ACME EAB']]");
+
     public static final By LOC_INP_OTP_SEED_VALUE = By.xpath("//div/input [@name = 'otp-seed']");
     public static final By LOC_INP_OTP_TEST_VALUE = By.xpath("//div/input [@name = 'otp-test-value']");
 
+    public static final By LOC_INP_API_KID_VALUE = By.xpath("//div/input [@id = 'api-kid-value']");
+    public static final By LOC_INP_API_TOKEN_VALUE = By.xpath("//div/input [@id = 'api-token-value']");
+
+    public static final By LOC_SEL_PIPELINE = By.xpath("//div/select [@id = 'pipeline']");
+    public static final By LOC_TD_EAB = By.xpath("//div//tr/td/span [text() = 'ACME EAB']");
+
     public static final By LOC_CREDENTIAL_TABLE_ROWS = By.xpath("//*[@id='credential-list']/tbody/tr");
     public static final By LOC_HEADER_CREDENTIAL_TABLE = By.xpath("//div/h3[@id='second-factor-title']");
+
+    @Autowired
+    PipelineTestConfiguration ptc;
 
     @Autowired
     PreferenceTestConfiguration prefTC;
@@ -87,6 +100,8 @@ public class AccountHandlingIT extends WebTestBase{
         waitForUrl();
 
         prefTC.getTestUserPreference();
+
+        ptc.getInternalACMETestPipelineLaxRestrictions();
 
         if( driver == null) {
             super.startWebDriver();
@@ -288,7 +303,6 @@ public class AccountHandlingIT extends WebTestBase{
         Totp totp = new Totp(seed);
         setText(LOC_INP_OTP_TEST_VALUE, totp.now());
 
-
         Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
@@ -313,6 +327,31 @@ public class AccountHandlingIT extends WebTestBase{
         signIn("admin", wrongPassword, totp, null, 0,true);
 
         signIn("admin", newPassword, totp );
+
+        click(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
+        validatePresent(LOC_BTN_ADD_EAB);
+        click(LOC_BTN_ADD_EAB);
+
+        validatePresent(LOC_INP_CURRENT_PASSWORD_VALUE);
+        setText(LOC_INP_CURRENT_PASSWORD_VALUE, newPassword);
+
+        validatePresent(LOC_SEL_PIPELINE);
+        selectOptionById(LOC_SEL_PIPELINE, 0);
+
+        validatePresent(LOC_INP_API_KID_VALUE);
+        String kid = getAttribute(LOC_INP_API_KID_VALUE, "value");
+        Assertions.assertFalse(kid.isEmpty(), "kid should be present");
+
+        validatePresent(LOC_INP_API_TOKEN_VALUE);
+        String hmacKey = getAttribute(LOC_INP_API_TOKEN_VALUE, "value");
+        Assertions.assertFalse(hmacKey.isEmpty(), "hmacKey should be present");
+
+        Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
+
+        waitForElement(LOC_TD_EAB);
+        validatePresent(LOC_TD_EAB);
 
         inbox.close();
         imapStore.close();

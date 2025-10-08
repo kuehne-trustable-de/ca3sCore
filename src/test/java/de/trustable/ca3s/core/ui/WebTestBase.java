@@ -4,6 +4,8 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.sun.mail.imap.protocol.FLAGS;
 import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.test.speech.SoundOutput;
 import org.jboss.aerogear.security.otp.Totp;
 import org.junit.jupiter.api.Assertions;
@@ -13,6 +15,7 @@ import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -83,6 +86,10 @@ public class WebTestBase extends LocomotiveBase {
 
     protected SoundOutput soundOutput = null;
 
+    @Autowired
+    UserRepository userRepository;
+
+
     public String getLocale() {
         return locale;
     }
@@ -93,6 +100,15 @@ public class WebTestBase extends LocomotiveBase {
         }else{
             this.locale = "en";
         }
+    }
+
+    void setAllUserLocale(String locale){
+
+        List<User> userList = userRepository.findAll();
+        for(User user: userList){
+            user.setLangKey(locale);
+        }
+        userRepository.saveAll(userList);
     }
 
     private String locale = "en";
@@ -509,6 +525,7 @@ public class WebTestBase extends LocomotiveBase {
 		WebElement we = waitForElement(loc);
 		return we.isEnabled();
 	}
+
     public void wait(int ms)
     {
         try

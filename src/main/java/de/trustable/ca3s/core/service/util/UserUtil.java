@@ -49,6 +49,8 @@ public class UserUtil {
 
     private final RateLimiterService rateLimiterService;
 
+    private String eabKidPrefix;
+
     private final PasswordEncoder passwordEncoder;
 
     private final RequestUtil requestUtil;
@@ -61,6 +63,7 @@ public class UserUtil {
                     @Value("${ca3s.ui.login.ratelimit.second:0}") int rateSec,
                     @Value("${ca3s.ui.login.ratelimit.minute:20}") int rateMin,
                     @Value("${ca3s.ui.login.ratelimit.hour:0}") int rateHour,
+                    @Value("${ca3s.acme.account.eabKidPrefix:ca3s}") String eabKidPrefix,
                     @Lazy PasswordEncoder passwordEncoder,
                     RequestUtil requestUtil) {
         this.tokenProvider = tokenProvider;
@@ -68,6 +71,7 @@ public class UserUtil {
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.loginByEmailAddress = loginByEmailAddress;
+        this.eabKidPrefix = eabKidPrefix;
         this.passwordEncoder = passwordEncoder;
         this.requestUtil = requestUtil;
 
@@ -139,6 +143,9 @@ public class UserUtil {
         }
     }
     public User getUserByLogin( final String login){
+        if( login == null){
+            throw new UserNotFoundException();
+        }
         Optional<User> optionalUser;
         String currentLogin = login;
         if ( loginByEmailAddress && new EmailValidator().isValid(currentLogin, null)) {
@@ -243,4 +250,25 @@ public class UserUtil {
         }
     }
 
+    public String getLoginFromCa3sKeyId( final String kid){
+
+        String[] kidParts = kid.split(":");
+        if(kidParts.length != 3){
+            auditService.saveAuditTrace( auditService.createAuditTraceAcmeEABInvalid(kid));
+            return null;
+        }
+        if( !kidParts[0].equals(eabKidPrefix)){
+            auditService.saveAuditTrace( auditService.createAuditTraceAcmeEABUnexpectedPrefix(kidParts[0]));
+            LOG.warn("EAB KID prefix '{}' invalid", kidParts[0]);
+            return null;
+        }
+        try{
+            Long.parseLong( kidParts[2]);
+        } catch( NumberFormatException nfe){
+            auditService.saveAuditTrace( auditService.createAuditTraceAcmeEABUnexpectedKidId(kidParts[2]));
+            LOG.warn("Unexpected kid id : '{}' ", kidParts[2]);
+            return null;
+        }
+        return kidParts[1];
+    }
 }

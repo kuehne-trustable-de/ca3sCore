@@ -169,7 +169,16 @@ public class ContentUploadProcessor {
 
     }
 
-	public ResponseEntity<PkcsXXData> buildCertificateFromCSR(UploadPrecheckData uploaded, String requestorName){
+    @PostMapping("/checkContent")
+    public ResponseEntity<BadKeysResult> checkContent(@Valid @RequestBody UploadPrecheckData uploaded) {
+
+        String content = uploaded.getContent();
+        BadKeysResult badKeysResult = badKeysService.checkContent(content);
+        return new ResponseEntity<>(badKeysResult, HttpStatus.OK);
+
+    }
+
+    public ResponseEntity<PkcsXXData> buildCertificateFromCSR(UploadPrecheckData uploaded, String requestorName){
 
         String content = uploaded.getContent();
         LOG.debug("Request to upload a PEM clob : {} by user {}", content, requestorName);

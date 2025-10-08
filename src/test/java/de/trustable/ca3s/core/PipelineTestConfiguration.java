@@ -736,6 +736,12 @@ public class PipelineTestConfiguration {
         attType.setValue(EMAIL_ADDRESS.toString());
         attrs.add(attType);
 
+        PipelineAttribute attNotifyRA = new PipelineAttribute();
+        attNotifyRA.setPipeline(pipelineWeb);
+        attNotifyRA.setName(PipelineUtil.NOTIFY_RA_OFFICER_ON_PENDING);
+        attNotifyRA.setValue(Boolean.TRUE.toString());
+        attrs.add(attNotifyRA);
+
         pipelineAttributeRepository.saveAll(attrs);
         pipelineWeb.setPipelineAttributes(attrs);
 

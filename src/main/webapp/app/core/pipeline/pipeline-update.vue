@@ -714,6 +714,7 @@
                       <font-awesome-icon icon="minus"></font-awesome-icon>
                     </button>
                     <b v-text="$t('ca3SApp.pipeline.network')"></b>
+                    <small v-if="requestProxyConfigs.length > 0" class="form-text" v-text="$t('entity.validation.subnet.notApplicableForProxies')"></small>
                   </div>
 
                   <div v-if="!networkCollapsed">

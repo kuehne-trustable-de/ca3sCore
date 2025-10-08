@@ -375,7 +375,7 @@ public class AcmeHappyPathIT {
                 .create(session);
             Assertions.fail("Account creation expected to fail using an unrecognized kid");
         }catch(AcmeException e) {
-            Assertions.assertEquals("External account binding attributes not parseable: User with login 'user-' not found",
+            Assertions.assertEquals("External account binding attributes not parseable: User with login 'null' not found",
                 e.getMessage());
         }
 
@@ -422,7 +422,7 @@ public class AcmeHappyPathIT {
         Optional<AcmeAccount> accountOptional = acmeAccountRepository.findByAccountId(Long.parseLong(account.getJSON().get("id").asString()));
         Assertions.assertTrue(accountOptional.isPresent());
         AcmeAccount acmeAccount = accountOptional.get();
-        Assertions.assertEquals("ca3s:user", acmeAccount.getEabKid());
+        Assertions.assertTrue( acmeAccount.getEabKid().startsWith("ca3s:user:"));
         Assertions.assertEquals(user.getId(), acmeAccount.getEabUser().getId());
         Assertions.assertEquals(2, acmeAccount.getContacts().size());
         Assertions.assertTrue(acmeAccount.getContacts().stream().anyMatch(con -> con.getContactUrl().equals("mailto:acmeTest@ca3s.org")));

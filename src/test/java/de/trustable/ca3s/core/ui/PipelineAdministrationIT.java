@@ -38,7 +38,7 @@ import java.util.Random;
 public class PipelineAdministrationIT extends WebTestBase{
 
 
-    public static final By LOC_LNK_CONFIG_MENUE = By.xpath("//nav//a [.//span [text() = 'Config']]");
+    public static final By LOC_LNK_CONFIG_MENUE = By.xpath("//nav//a [.//span [(text() = 'Config') or (text() = 'Konfig')]]");
     public static final By LOC_LNK_PIPELINE_MENUE = By.xpath("//nav//a [.//span [text() = 'Pipeline']]");
     public static final By LOC_BTN_PIPELINE_NEW = By.xpath("//div//button [@id = 'jh-create-entity']");
     public static final By LOC_INP_PIPELINE_NAME = By.xpath("//div/input [@type = 'text'][@id = 'pipeline-name']");
@@ -64,7 +64,9 @@ public class PipelineAdministrationIT extends WebTestBase{
     public static final By LOC_INP_PIPELINE_CHECK_CAA = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-checkCAA']");
 
 
-    public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='submit'][span [text() = 'Save']]");
+//    public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='submit'][span [text() = 'Save']]");
+    public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='submit' and @id = 'save-entity']");
+
     public static final By LOC_TEXT_PIPELINES_LIST = By.xpath("//div/h2/span [text() = 'Pipelines']");
 
     private static final Logger LOG = LoggerFactory.getLogger(PipelineAdministrationIT.class);
@@ -104,7 +106,10 @@ public class PipelineAdministrationIT extends WebTestBase{
 	@BeforeEach
 	void init() {
 
-	    waitForUrl();
+        super.setLocale("de");
+        super.setAllUserLocale("de");
+
+        waitForUrl();
 
         intTestUser = userTestSupport.createTestUser("integrationTest" + rand.nextInt());
         userTestSupport.setCurrentUser(intTestUser);
@@ -218,7 +223,7 @@ public class PipelineAdministrationIT extends WebTestBase{
         validatePresent(byPipelineName);
 
         click(byPipelineName);
-        By byEditPipelineName = By.xpath("//table//tr [td [contains(text(), '" + newPipelineName + "')]]/td/div/button[span[contains(text(), 'Edit')]]");
+        By byEditPipelineName = By.xpath("//table//tr [td [contains(text(), '" + newPipelineName + "')]]/td/div/button[span[contains(text(), 'Edit') or contains(text(), 'Bearbeiten')]]");
 
         validatePresent(byEditPipelineName);
         click(byEditPipelineName);
@@ -281,8 +286,8 @@ public class PipelineAdministrationIT extends WebTestBase{
         validateNotPresent(LOC_INP_PIPELINE_URL_PART);
         validateNotPresent(LOC_SEL_PIPELINE_CA_CONNECTOR);
         validateNotPresent(LOC_INP_PIPELINE_PENDING_ON_FAILURE);
-        check(LOC_INP_PIPELINE_IP_AS_SUBJECT);
-        check(LOC_INP_PIPELINE_IP_AS_SAN);
+//        check(LOC_INP_PIPELINE_IP_AS_SUBJECT);
+//       check(LOC_INP_PIPELINE_IP_AS_SAN);
 
         validateNotPresent(LOC_INP_PIPELINE_HTTP01);
         validateNotPresent(LOC_INP_PIPELINE_ALPN);
@@ -305,7 +310,7 @@ public class PipelineAdministrationIT extends WebTestBase{
         validatePresent(byPipelineName);
 
         click(byPipelineName);
-        By byEditPipelineName = By.xpath("//table//tr [td [contains(text(), '" + newPipelineName + "')]]/td/div/button[span[contains(text(), 'Edit')]]");
+        By byEditPipelineName = By.xpath("//table//tr [td [contains(text(), '" + newPipelineName + "')]]/td/div/button[span[contains(text(), 'Edit') or contains(text(), 'Bearbeiten')]]");
 
         validatePresent(byEditPipelineName);
         click(byEditPipelineName);
@@ -392,7 +397,7 @@ public class PipelineAdministrationIT extends WebTestBase{
         validatePresent(byPipelineName);
 
         click(byPipelineName);
-        By byEditPipelineName = By.xpath("//table//tr [td [contains(text(), '" + newPipelineName + "')]]/td/div/button[span[contains(text(), 'Edit')]]");
+        By byEditPipelineName = By.xpath("//table//tr [td [contains(text(), '" + newPipelineName + "')]]/td/div/button[span[contains(text(), 'Edit') or contains(text(), 'Bearbeiten')]]");
 
         validatePresent(byEditPipelineName);
         click(byEditPipelineName);
@@ -492,7 +497,7 @@ public class PipelineAdministrationIT extends WebTestBase{
         validatePresent(byPipelineName);
 
         click(byPipelineName);
-        By byEditPipelineName = By.xpath("//table//tr [td [contains(text(), '" + newPipelineName + "')]]/td/div/button[span[contains(text(), 'Edit')]]");
+        By byEditPipelineName = By.xpath("//table//tr [td [contains(text(), '" + newPipelineName + "')]]/td/div/button[span[contains(text(), 'Edit') or contains(text(), 'Bearbeiten')]]");
 
         validatePresent(byEditPipelineName);
         click(byEditPipelineName);

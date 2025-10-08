@@ -78,6 +78,7 @@ public class NewAccountController extends AcmeController {
 
     final private AcmeAccountRepository acctRepository;
     final private BPMNUtil bpmnUtil;
+    final private UserUtil userUtil;
     final private PipelineUtil pipelineUtil;
     final private AlgorithmRestrictionUtil algorithmRestrictionUtil;
     final private JWSService jwsService;
@@ -86,6 +87,7 @@ public class NewAccountController extends AcmeController {
 
     public NewAccountController(AcmeAccountRepository acctRepository,
                                 BPMNUtil bpmnUtil,
+                                UserUtil userUtil,
                                 PipelineUtil pipelineUtil,
                                 AlgorithmRestrictionUtil algorithmRestrictionUtil,
                                 JWSService jwsService,
@@ -93,6 +95,7 @@ public class NewAccountController extends AcmeController {
                                 @Value("${ca3s.acme.account.eabKidPrefix:ca3s}") String eabKidPrefix) {
         this.acctRepository = acctRepository;
         this.bpmnUtil = bpmnUtil;
+        this.userUtil = userUtil;
         this.pipelineUtil = pipelineUtil;
         this.algorithmRestrictionUtil = algorithmRestrictionUtil;
         this.jwsService = jwsService;
@@ -208,7 +211,7 @@ public class NewAccountController extends AcmeController {
                             String kid = jwsObject.getHeader().getKeyID();
                             String ca3sPrefix = eabKidPrefix + ":";
                             if( ca3sPrefix.equals(kid.substring(0, ca3sPrefix.length())) ){
-                                User eabUser = jwsService.verifyEABGetUser(jwsObject, kid.substring(ca3sPrefix.length()));
+                                User eabUser = jwsService.verifyEABGetUser(jwsObject,userUtil.getLoginFromCa3sKeyId(kid));
                                 newAcctDao.setEabUser(eabUser);
                                 AcmeContact contact = buildAcmeContact(newAcctDao, "mailto:" + eabUser.getEmail()) ;
                                 newAcctDao.getContacts().add(contact);

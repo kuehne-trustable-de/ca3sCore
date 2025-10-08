@@ -102,6 +102,11 @@ public class AuditService {
     public static final String AUDIT_ACME_ORDER_PIPELINE_UPDATED = "AUDIT_ACME_ORDER_PIPELINE_UPDATED";
     public static final String AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED = "AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED";
 
+    public static final String AUDIT_ACME_ACCOUNT_EAB_INVALID = "AUDIT_ACME_ACCOUNT_EAB_INVALID";
+    public static final String AUDIT_ACME_ACCOUNT_EAB_PREFIX_INVALID = "AUDIT_ACME_ACCOUNT_EAB_PREFIX_INVALID";
+    public static final String AUDIT_ACME_ACCOUNT_EAB_KID_ID_INVALID = "AUDIT_ACME_ACCOUNT_EAB_KID_ID_INVALID";
+
+
     public static final String AUDIT_SCEP_ORDER_REJECTED = "AUDIT_SCEP_ORDER_REJECTED";
 
     public static final String AUDIT_CA_CONNECTOR_NAME_CHANGED = "AUDIT_ACME_ACCOUNT_CREATED_OR_UPDATED";
@@ -907,6 +912,60 @@ public class AuditService {
             null,
             null);
     }
+
+    public AuditTrace createAuditTraceAcmeEABInvalid(String kid) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_ACME_ACCOUNT_EAB_INVALID,
+            kid,
+            null, "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+    public AuditTrace createAuditTraceAcmeEABUnexpectedPrefix(String prefix) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_ACME_ACCOUNT_EAB_PREFIX_INVALID,
+            prefix,
+            null, "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+
+    public AuditTrace createAuditTraceAcmeEABUnexpectedKidId(String kidid) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_ACME_ACCOUNT_EAB_KID_ID_INVALID,
+            kidid,
+            null, "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+
 
     public AuditTrace createAuditTraceProtectedContentEmptyStatusUpdated(final int nUpdated){
 
