@@ -2,7 +2,7 @@
 
 ## Mission
 
-ca3s is a CA support system with a flexible RA part using BPM aiming to automate as much as possible.
+ca3s is a CA support system with a flexible RA part using BPM aiming to automate as much as possible to offer a full certificate management system.
 Therefore providing ACME and SCEP interfaces in addition to the usual web form. Aggregating certificate sets
 from different sources and using CMP-connected CAs or ADCS instances for certificate creation.
 
@@ -17,6 +17,7 @@ from different sources and using CMP-connected CAs or ADCS instances for certifi
 - Offer a convenient web interface for the requestors and the RA officers
 
 - Use of the <a href="https://badkeys.info/">badkeys</a> project (if installed locally) to check keys for known weaknesses
+ 
 
 And most important for a reliable PKI infrastructure:
 
@@ -115,7 +116,18 @@ To package your application as a war in order to deploy it to an application ser
 ## Testing
 
 To launch your application's tests, run:
+```
 ./mvnw verify
+```
+
+### Tested and supported Certification Authorites
+ca3s was tested and supports the following Certification Authorities:
+* EJBCA (via CMP)
+* ADCS - Windows CA (via [ADCSproxy](https://github.com/kuehne-trustable-de/adcsCert/tree/master/adcsProxy))
+* xipki (via CMP)
+
+In general all Certification Authorities are supported that proviedes a CMP endpoint.
+
 
 ### Client tests
 
