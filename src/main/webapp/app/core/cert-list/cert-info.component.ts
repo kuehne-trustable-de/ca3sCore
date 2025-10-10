@@ -75,7 +75,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
 
   public downloadItem() {
     const filename = encodeURIComponent(this.getDownloadFilename());
-    const ski = encodeURIComponent(this.certificateView.ski.replace('+', '-').replace('/', '_'));
+    const ski = encodeURIComponent(this.certificateView.skiUrlSafe);
 
     const urlPreFix = '/publicapi/cert';
     const urlPostFix = '/' + this.certificateView.id + '/ski/' + ski + '/' + filename;
