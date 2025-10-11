@@ -10,6 +10,7 @@ public class SAMLMappingConfig {
     private final String[] rolesDomainRAArr;
     private final String[] rolesRAArr;
     private final String[] rolesAdminArr;
+    final private String[] rolesOtherArr;
     private final String[] attributesFirstName;
     private final String[] attributesLastName;
     private final String[] attributesEmail;
@@ -27,6 +28,7 @@ public class SAMLMappingConfig {
         @Value("${ca3s.saml.roles.domainra:}") String[] rolesDomainRAArr,
         @Value("${ca3s.saml.roles.ra:}") String[] rolesRAArr,
         @Value("${ca3s.saml.roles.admin:}") String[] rolesAdminArr,
+        @Value("${ca3s.saml.roles.other}") String[] rolesOtherArr,
         @Value("${ca3s.saml.attributes.firstName:firstName}") String[] attributesFirstName,
         @Value("${ca3s.saml.attributes.lastName:lastName}") String[] attributesLastName,
         @Value("${ca3s.saml.attributes.email:email}") String[] attributesEmail,
@@ -42,6 +44,7 @@ public class SAMLMappingConfig {
         this.rolesDomainRAArr = rolesDomainRAArr;
         this.rolesRAArr = rolesRAArr;
         this.rolesAdminArr = rolesAdminArr;
+        this.rolesOtherArr = rolesOtherArr;
         this.attributesFirstName = attributesFirstName;
         this.attributesLastName = attributesLastName;
         this.attributesEmail = attributesEmail;
@@ -68,6 +71,10 @@ public class SAMLMappingConfig {
 
     public String[] getRolesAdminArr() {
         return rolesAdminArr;
+    }
+
+    public String[] getRolesOtherArr() {
+        return rolesOtherArr;
     }
 
     public String[] getAttributesFirstName() {

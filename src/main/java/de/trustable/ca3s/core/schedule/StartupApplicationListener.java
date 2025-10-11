@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.schedule;
 
-import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,20 +8,18 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
-import de.trustable.ca3s.core.service.util.BPMNUtil;
-
 @Component
 public class StartupApplicationListener implements
   ApplicationListener<ContextRefreshedEvent> {
 
 	Logger LOG = LoggerFactory.getLogger(StartupApplicationListener.class);
 
-    private final BPMNUtil bpmnUtil;
+    private final SchemaUpdateScheduler schemaUpdateScheduler;
     private final AuditService auditService;
 
     @Autowired
-    public StartupApplicationListener(BPMNUtil bpmnUtil, AuditService auditService) {
-        this.bpmnUtil = bpmnUtil;
+    public StartupApplicationListener(SchemaUpdateScheduler schemaUpdateScheduler, AuditService auditService) {
+        this.schemaUpdateScheduler = schemaUpdateScheduler;
         this.auditService = auditService;
     }
 
@@ -34,6 +31,6 @@ public class StartupApplicationListener implements
 
         auditService.saveAuditTrace(auditService.createAuditTraceStarted());
 
-//        bpmnUtil.updateProcessDefinitions();
+        schemaUpdateScheduler.updatePipeline();
     }
 }

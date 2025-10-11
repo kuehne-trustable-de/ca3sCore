@@ -50,6 +50,7 @@ public class PipelineAdministrationIT extends WebTestBase{
     public static final By LOC_SEL_PIPELINE_CA_CONNECTOR = By.xpath("//div//select [@id = 'pipeline-caConnector']");
     public static final By LOC_SEL_PIPELINE_USAGE = By.xpath("//div//select [@id = 'pipeline-csrUsage']");
 
+    public static final By LOC_SEL_PIPELINE_ROLES = By.xpath("//div//select [@id = 'pipeline-selectedRoles']");
 
     public static final By LOC_INP_PIPELINE_URL_PART = By.xpath("//div/input [@type = 'text'][@id = 'pipeline-urlPart']");
     public static final By LOC_INP_CA_CONFIG_TLS_AUTH = By.xpath("//div/input [@type = 'number'][@id = 'ca-connector-config-tlsAuthentication']");
@@ -157,7 +158,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 	}
 
 	@Test
-	public void testCAConnectorCreateWeb() {
+	public void testPipelineCreateWeb() {
 
         String newPipelineName = "Pipeline_" + Math.random();
 //        String newPipelineUrl = "http://acme.server/Url_" + Math.random();
@@ -183,7 +184,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_PIPELINE_TYPE);
         click(LOC_SEL_PIPELINE_TYPE);
-        selectOptionByText(LOC_SEL_PIPELINE_TYPE, "WEB");
+        selectOptionByValue(LOC_SEL_PIPELINE_TYPE, "WEB");
 
         validatePresent(LOC_INP_PIPELINE_APPROVAL_REQUIRED);
 
@@ -199,6 +200,14 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_PIPELINE_CA_CONNECTOR);
         click(LOC_SEL_PIPELINE_CA_CONNECTOR);
+/*
+        try {
+            System.out.println("... waiting ...");
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+ */
         selectOptionByText(LOC_SEL_PIPELINE_CA_CONNECTOR, "InternalTestCA" );
 
         validateNotPresent(LOC_INP_PIPELINE_PENDING_ON_FAILURE);
@@ -214,6 +223,10 @@ public class PipelineAdministrationIT extends WebTestBase{
         validatePresent(LOC_SEL_PIPELINE_USAGE);
         click(LOC_SEL_PIPELINE_USAGE);
         selectOptionByText(LOC_SEL_PIPELINE_USAGE, "TLS Server" );
+
+        validatePresent(LOC_SEL_PIPELINE_ROLES);
+        click(LOC_SEL_PIPELINE_ROLES);
+        selectOptionByText(LOC_SEL_PIPELINE_ROLES, "ROLE_USER" );
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
@@ -246,7 +259,7 @@ public class PipelineAdministrationIT extends WebTestBase{
     }
 
     @Test
-    public void testCAConnectorCreateSCEP() {
+    public void testPipelineCreateSCEP() {
 
         String newPipelineName = "Pipeline_" + Math.random();
         String newPipelineUrlPart = "scep_" + Math.random();
@@ -301,6 +314,7 @@ public class PipelineAdministrationIT extends WebTestBase{
         validateNotPresent(LOC_INP_PIPELINE_CHECK_CAA);
 
         validateNotPresent(LOC_SEL_PIPELINE_USAGE);
+        validateNotPresent(LOC_SEL_PIPELINE_ROLES);
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
@@ -333,7 +347,7 @@ public class PipelineAdministrationIT extends WebTestBase{
     }
 
     @Test
-    public void testCAConnectorCreateACME() {
+    public void testPipelineCreateACME() {
 
         String newPipelineName = "Pipeline_" + Math.random();
         String newPipelineUrlPart = "acme_" + Math.random();
@@ -398,6 +412,8 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         validateNotPresent(LOC_SEL_PIPELINE_USAGE);
 
+        validateNotPresent(LOC_SEL_PIPELINE_ROLES);
+
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
 
@@ -427,5 +443,4 @@ public class PipelineAdministrationIT extends WebTestBase{
         Assertions.assertEquals( newPipelineUrlPart, getText(LOC_INP_PIPELINE_URL_PART));
 
     }
-
 }

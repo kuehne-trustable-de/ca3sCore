@@ -39,7 +39,6 @@ public class SMSController {
         this.smsService = smsService;
     }
 
-
     @RequestMapping(value = "/api/smsDelivery", method = POST)
     public ResponseEntity<String> sendSMS() {
 

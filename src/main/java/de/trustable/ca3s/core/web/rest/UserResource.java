@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.repository.TenantRepository;
@@ -238,6 +239,21 @@ public class UserResource {
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return new ResponseEntity<>(page.getContent(), headers, HttpStatus.OK);
+
+    }
+
+    /**
+     * {@code GET  /authorities} : get all the certificates.
+     *
+
+     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificates in body.
+     */
+    @GetMapping("/users/authorityList")
+    @Transactional
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public ResponseEntity<List<Authority>> getAuthorityList() {
+        log.debug("REST request to get all authorities");
+        return new ResponseEntity<>(userService.getAuthorityList(), HttpStatus.OK);
 
     }
 }

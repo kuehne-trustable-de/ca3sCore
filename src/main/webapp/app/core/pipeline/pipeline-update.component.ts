@@ -2,7 +2,7 @@ import { Component, Inject } from 'vue-property-decorator';
 
 import axios from 'axios';
 
-import { required } from 'vuelidate/lib/validators';
+import { minValue, maxValue, required, integer, helpers } from 'vuelidate/lib/validators';
 
 import RequestProxyConfigService from '../request-proxy-config/request-proxy-config.service';
 import {
@@ -13,6 +13,7 @@ import {
   IBPMNProcessType,
   ICsrUsage,
   IKeyAlgoLengthOrSpec,
+  IKeyUniqueness,
   IPipelineType,
   IPipelineView,
   IRDNCardinalityRestriction,
@@ -38,6 +39,12 @@ import AuditTag from '@/core/audit/audit-tag.vue';
 import { mixins } from 'vue-class-component';
 import UserManagementService from '@/admin/user-management/user-management.service';
 import TenantService from '../../admin/tenant/tenant.service';
+import {IAuthority} from "../../../../../../target/generated-sources/typescript/transfer-object.model";
+
+const subnetRegEx = helpers.regex(
+  'subnet',
+  new RegExp('(^$|(^|\\.)((25[0-5])|(2[0-4]\\d)|(1\\d\\d)|([1-9]?\\d))){4}/(?:\\d|[12]\\d|3[01])$')
+);
 
 const validations: any = {
   pipeline: {
@@ -58,15 +65,39 @@ const validations: any = {
     ipAsSubjectAllowed: {},
     ipAsSANAllowed: {},
 
+    networkAcceptArr: {
+      $each: {
+        subnetRegEx,
+      },
+    },
+    networkRejectArr: {
+      $each: {
+        subnetRegEx,
+      },
+    },
+
     keyUniqueness: { required },
     tosAgreementLink: {},
 
     webConfigItems: {
       notifyRAOfficerOnPendingRequest: {},
+      notifyDomainRAOfficerOnPendingRequest: {},
       additionalEMailRecipients: {},
       issuesSecondFactorClientCert: {},
     },
     scepConfigItems: {
+      capabilityRenewal: {},
+      periodDaysRenewal: {
+        required,
+        minValue: minValue(0),
+        maxValue: maxValue(3650),
+      },
+      percentageOfValidtyBeforeRenewal: {
+        required,
+        minValue: minValue(0),
+        maxValue: maxValue(99),
+      },
+
       scepSecretPCId: {},
       scepSecret: {},
       scepSecretValidTo: {},
@@ -105,6 +136,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
 
   public pipeline: IPipelineView = new PipelineView();
   public tenants: ITenant[] = [];
+  public authorities: IAuthority[] = [];
 
   @Inject('requestProxyConfigService') private requestProxyConfigService: () => RequestProxyConfigService;
   @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
@@ -118,6 +150,11 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   public domainRAs: IUser[] = [];
 
   public isSaving = false;
+
+  public networkCollapsed = true;
+  public setNetworkCollapsed(networkCollapsed: boolean) {
+    this.networkCollapsed = networkCollapsed;
+  }
 
   public alignARAArraySize(index: number): void {
     window.console.info('in alignARAArraySize(' + index + ')');
@@ -138,11 +175,39 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     }
   }
 
+  public alignNetworkAcceptArraySize(index: number): void {
+    this.alignNetworkArraySize(this.pipeline.networkAcceptArr, index);
+  }
+  public alignNetworkRejectArraySize(index: number): void {
+    this.alignNetworkArraySize(this.pipeline.networkRejectArr, index);
+  }
+
+  alignNetworkArraySize(subnetArr: String[], index: number): void {
+    window.console.info('in alignNetworkArraySize(' + index + ')');
+    const currentSize = subnetArr.length;
+    const subnetValue = subnetArr[index] || '';
+
+    if (subnetValue.trim().length === 0) {
+      if (currentSize > 1) {
+        // preserve last element
+        subnetArr.splice(index, 1);
+        window.console.info('in alignNetworkArraySize(' + index + '): dropped empty element');
+      }
+    } else {
+      if (index + 1 === currentSize) {
+        subnetArr.push('');
+        window.console.info('in alignNetworkArraySize(' + index + '): appended one element');
+      }
+    }
+  }
+
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (to.params.pipelineId) {
         window.console.info('++++++++++++++++++ in beforeRouteEnter for ' + to.params.pipelineId);
         vm.retrievePipeline(to.params.pipelineId, to.params.mode);
+      }else{
+        vm.pipeline.selectedRolesList = [{ name: "ROLE_USER" }];
       }
     });
   }
@@ -250,6 +315,9 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     this.fillData();
   }
 
+    this.fillData();
+  }
+
   public fillData(): void {
     window.console.info('calling fillData ');
     const self = this;
@@ -287,9 +355,35 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
             }
           });
       }
+          if (!self.pipeline.acmeConfigItems.allowChallengeDNS) {
+            self.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
+            self.pipeline.acmeConfigItems.allowWildcards = false;
+          }
+          if (self.pipeline.araRestrictions && self.pipeline.araRestrictions.length > 0) {
+            window.console.info('pipeline.araRestrictions.length' + self.pipeline.araRestrictions.length);
+          } else {
+            window.console.info('pipeline.araRestrictions undefined');
+            self.pipeline.araRestrictions = [];
+            self.pipeline.araRestrictions.push({});
+          }
+
+          if (!self.pipeline.networkAcceptArr) {
+            self.pipeline.networkAcceptArr = [];
+          }
+          if (self.pipeline.networkAcceptArr.length === 0) {
+            self.pipeline.networkAcceptArr.push('');
+          }
+          if (!self.pipeline.networkRejectArr) {
+            self.pipeline.networkRejectArr = [];
+          }
+          if (self.pipeline.networkRejectArr.length === 0) {
+            self.pipeline.networkRejectArr.push('');
+          }
+        });
     });
 
     this.retrieveAllTenants();
+    this.retrieveAllAuthorities();
   }
 
   public retrieveAllTenants(): void {
@@ -303,6 +397,19 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
           this.alertService().showAlert(err.response, 'warn');
         }
       );
+  }
+
+  public retrieveAllAuthorities(): void {
+    window.console.info('calling retrieveAllAuthorities ');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: '/api/users/authorityList'
+    }).then(function (response) {
+      window.console.info('retrieveAllAuthorities returns ' + response.data);
+      self.authorities = response.data;
+    });
   }
 
   public getBPNMProcessInfosByType(type: IBPMNProcessType): IBPMNProcessInfo[] {
@@ -345,7 +452,10 @@ export class PipelineView implements IPipelineView {
     public webConfigItems?: IWebConfigItems,
     public auditViewArr?: IAuditView[],
     public csrUsage?: ICsrUsage,
-    public requestProxyConfigIds?: number[]
+    public requestProxyConfigIds?: number[],
+    public keyUniqueness?: IKeyUniqueness,
+    public networkAcceptArr?: string[],
+    public networkRejectArr?: string[]
   ) {
     this.toPendingOnFailedRestrictions = this.toPendingOnFailedRestrictions || false;
     this.approvalRequired = this.approvalRequired || false;
@@ -353,6 +463,7 @@ export class PipelineView implements IPipelineView {
     this.ipAsSubjectAllowed = this.ipAsSubjectAllowed || false;
     this.active = this.active || false;
 
+    this.keyUniqueness = this.keyUniqueness || 'KEY_UNIQUE';
     this.acmeConfigItems = new AcmeConfigItems();
     this.scepConfigItems = new SCEPConfigItems();
     this.webConfigItems = new WebConfigItems();
@@ -365,6 +476,9 @@ export class PipelineView implements IPipelineView {
     this.restriction_S = new RDNRestriction();
     this.restriction_E = new RDNRestriction();
     this.restriction_SAN = new RDNRestriction();
+
+    this.networkAcceptArr = [''];
+    this.networkRejectArr = [''];
   }
 }
 
@@ -392,6 +506,8 @@ export class SCEPConfigItems implements ISCEPConfigItems {
   constructor(
     public capabilityRenewal?: boolean,
     public capabilityPostPKIOperation?: boolean,
+    public periodDaysRenewal?: number,
+    public percentageOfValidtyBeforeRenewal?: number,
     public recepientCertSubject?: string,
     public recepientCertSerial?: string,
     public recepientCertId?: number,
@@ -404,6 +520,8 @@ export class SCEPConfigItems implements ISCEPConfigItems {
   ) {
     this.capabilityRenewal = this.capabilityRenewal || false;
     this.capabilityPostPKIOperation = this.capabilityPostPKIOperation || false;
+    this.periodDaysRenewal = this.periodDaysRenewal || 3650;
+    this.percentageOfValidtyBeforeRenewal = this.percentageOfValidtyBeforeRenewal || 70;
   }
 }
 

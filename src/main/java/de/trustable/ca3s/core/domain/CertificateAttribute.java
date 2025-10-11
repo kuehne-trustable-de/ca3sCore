@@ -2,7 +2,6 @@ package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
-import java.security.cert.X509Certificate;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -127,7 +126,8 @@ public class CertificateAttribute implements Serializable {
     public static final String ATTRIBUTE_ACME_ACCOUNT_ID = "ACME:ACCOUNT_ID";
 	public static final String ATTRIBUTE_ACME_ORDER_ID = "ACME:ORDER_ID";
 	public static final String ATTRIBUTE_SCEP_RECIPIENT = "CA3S:SCEP_RECIPIENT";
-	public static final String ATTRIBUTE_SCEP_TRANS_ID = "CA3S:SCEP_TRANS_ID";
+    public static final String ATTRIBUTE_SCEP_TRANS_ID = "CA3S:SCEP_TRANS_ID";
+    public static final String ATTRIBUTE_SCEP_LAST_AUTHORIZATION_INSTANT_SEC = "CA3S:SCEP_LAST_AUTHORIZATION_INSTANT_SEC";
 	public static final String ATTRIBUTE_SELFSIGNED = "CA3S:SELFSIGNED";
 	public static final String ATTRIBUTE_CA = "CA3S:CA";
 	public static final String ATTRIBUTE_CA3S_ROOT = "CA3S:ROOT";
@@ -203,5 +203,10 @@ public class CertificateAttribute implements Serializable {
     public static final String ATTRIBUTE_TLS_KEY = "TLS_KEY";
 
     public static final String ATTRIBUTE_USER_CLIENT_CERT = "USER_CLIENT_CERT";
+
+    public static final String ATTRIBUTE_CERTIFICATE_NOTIFICATION = "CERTIFICATE_NOTIFICATION_PROCESS";
+    public static final String ATTRIBUTE_CERTIFICATE_NOTIFICATION_COUNTER = "CERTIFICATE_NOTIFICATION_COUNTER";
+
+    public static final String ATTRIBUTE_VAULT_KEY = "ATTRIBUTE_VAULT_KEY";
 
 }

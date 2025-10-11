@@ -38,7 +38,7 @@ public class ClientAuthController {
 
     @CrossOrigin(methods = {POST, GET})
     @RequestMapping(value = "/clientAuth",   method = {POST, GET})
-    public ResponseEntity checkUserCertificate(HttpServletRequest request,
+    public ResponseEntity<?> checkUserCertificate(HttpServletRequest request,
                                                HttpSession httpSession) {
 
         for (Iterator<String> it = httpSession.getAttributeNames().asIterator(); it.hasNext(); ) {
@@ -60,7 +60,7 @@ public class ClientAuthController {
         }
 
         try {
-            LOG.info("user authenticated by client cert with subject '{}' / swrial {}",
+            LOG.info("user authenticated by client cert with subject '{}' / serial {}",
                 certs[0].getSubjectX500Principal().getName(),
                 certs[0].getSerialNumber() );
             JcaX509ExtensionUtils util = new JcaX509ExtensionUtils();

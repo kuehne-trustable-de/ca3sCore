@@ -12,12 +12,10 @@
 		<div class="row">
 
 			<div class="col-xs-12 table-responsive">
-                <h2 class="jh-entity-heading">
-                    <span v-text="$t('ca3SApp.certificate.subtitle.cert.list')">Certificate List</span>
-                </h2>
-
-
-                <div>
+          <h2 class="jh-entity-heading">
+              <span id='certificate-list-header' v-text="$t('ca3SApp.certificate.subtitle.cert.list')"></span>
+          </h2>
+         <div>
 					<div v-for="(filter, index) in filters.filterList" :key="index">
 						<select float="left" class="smallSelector fa-1x" v-model="filter.attributeName" name="certSelectionAttribute">
 							<option v-for="certSelectionItem in certSelectionItems" :key="certSelectionItem.itemName" :value="certSelectionItem.itemName">{{$t(certSelectionItem.itemName)}}</option>
@@ -31,10 +29,10 @@
 							<option v-for="item in getValueChoices(filter.attributeName)" :key="item" :value="item">{{$t(item)}}</option>
 						</select>
 
-                        <input v-else-if="(getInputType(filter.attributeName) === 'date') && (filter.selector === 'ON')" type="date" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
-                        <input v-else-if=" getInputType(filter.attributeName) === 'date'" type="datetime-local" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
+            <input v-else-if="(getInputType(filter.attributeName) === 'date') && (filter.selector === 'ON')" type="date" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
+            <input v-else-if=" getInputType(filter.attributeName) === 'date'" type="datetime-local" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueDate" v-on:keydown.enter="updateTable"/>
 
-                        <input v-else-if="getInputType(filter.attributeName) === 'serial'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueSerial" v-on:keydown.enter="updateTable"/>
+            <input v-else-if="getInputType(filter.attributeName) === 'serial'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueSerial" v-on:keydown.enter="updateTable"/>
 
 						<input type="hidden" v-else-if="getInputType(filter.attributeName) === 'boolean'" float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValueBoolean" v-on:keydown.enter="updateTable"/>
 						<input v-else float="left" class="largeSelector fa-1x" v-model="filter.attributeValue" name="certSelectionValue" v-on:keydown.enter="updateTable"/>
@@ -42,11 +40,11 @@
 						<button class="addRemoveSelector" float="right" v-if="index === 0" v-on:click="addSelector()">
 							<font-awesome-icon icon="plus"></font-awesome-icon>
 						</button>
-                        <button class="addRemoveSelector" float="right" v-if="index > 0" v-on:click="removeSelector(index)">
-                            <font-awesome-icon icon="minus"></font-awesome-icon>
-                        </button>
-                        <a v-if="index === 0" href="downloadCSV" @click.prevent="downloadCSV()" float="right"><font-awesome-icon icon="file-csv"></font-awesome-icon></a>
-                    </div>
+            <button class="addRemoveSelector" float="right" v-if="index > 0" v-on:click="removeSelector(index)">
+                <font-awesome-icon icon="minus"></font-awesome-icon>
+            </button>
+            <a v-if="index === 0" href="downloadCSV" @click.prevent="downloadCSV()" float="right"><font-awesome-icon icon="file-csv"></font-awesome-icon></a>
+          </div>
 				</div>
 
 				<certificates-table :columns="columns" :data="certApiUrl" :per-page="pageSize" name="certificates">

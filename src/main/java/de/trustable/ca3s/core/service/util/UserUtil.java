@@ -26,7 +26,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -52,8 +51,7 @@ public class UserUtil {
 
     private final PasswordEncoder passwordEncoder;
 
-
-    private final HttpServletRequest request;
+    private final RequestUtil requestUtil;
 
     public UserUtil(TokenProvider tokenProvider,
                     AuthenticationManagerBuilder authenticationManagerBuilder,
@@ -64,17 +62,16 @@ public class UserUtil {
                     @Value("${ca3s.ui.login.ratelimit.minute:20}") int rateMin,
                     @Value("${ca3s.ui.login.ratelimit.hour:0}") int rateHour,
                     @Lazy PasswordEncoder passwordEncoder,
-                    HttpServletRequest request) {
+                    RequestUtil requestUtil) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userRepository = userRepository;
         this.auditService = auditService;
         this.loginByEmailAddress = loginByEmailAddress;
         this.passwordEncoder = passwordEncoder;
+        this.requestUtil = requestUtil;
 
         this.rateLimiterService = new RateLimiterService("Login", rateSec, rateMin, rateHour);
-
-        this.request = request;
     }
 
     public User getCurrentUser() {
@@ -158,12 +155,13 @@ public class UserUtil {
         }
     }
 
-    public void updateUserByLogin( final String login, final String password) {
+    public void updateUserByLogin( final String login, final String password, final String email) {
         Optional<User> optionalUser = userRepository.findOneByLogin(login);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             String encryptedPassword = passwordEncoder.encode(password);
             user.setPassword(encryptedPassword);
+            user.setEmail(email);
             userRepository.save(user);
         }
     }
@@ -182,7 +180,7 @@ public class UserUtil {
     }
 
     public void checkIPBlocked(String username) {
-        String clientIP = getClientIP();
+        String clientIP = requestUtil.getClientIP();
         try {
             rateLimiterService.checkSprayingRateLimit(getClientIPAsLong(clientIP), clientIP);
         }catch(IPBlockedException ipBlockedException){
@@ -196,7 +194,7 @@ public class UserUtil {
     }
 
     public void handleSuccesfulAuthentication(final User user, final AuthSecondFactor authSecondFactor) {
-        String clientIP = getClientIP();
+        String clientIP = requestUtil.getClientIP();
 
         user.setFailedLogins(0L);
         user.setLastloginDate(Instant.now());
@@ -209,7 +207,7 @@ public class UserUtil {
 
     }
     public void handleBadCredentials(String username, final AuthSecondFactor authSecondFactor) {
-        String clientIP = getClientIP();
+        String clientIP = requestUtil.getClientIP();
 
         try {
             rateLimiterService.consumeSprayingRateLimit(getClientIPAsLong(clientIP), clientIP);
@@ -236,17 +234,7 @@ public class UserUtil {
         userRepository.save(user);
     }
 
-    private String getClientIP() {
-        String addressString;
-        String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null || xfHeader.isEmpty() || !xfHeader.contains(request.getRemoteAddr())) {
-            addressString = request.getRemoteAddr();
-        }else {
-            addressString = xfHeader.split(",")[0];
-        }
 
-        return addressString;
-    }
     private Long getClientIPAsLong(final String addressString) {
         try {
             return new BigInteger(InetAddress.getByName(addressString).getAddress()).longValue();

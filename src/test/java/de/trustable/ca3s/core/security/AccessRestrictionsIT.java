@@ -99,6 +99,7 @@ public class AccessRestrictionsIT {
 
         knownUserResources.add("put /api/users");
         knownUserResources.add("post /api/users");
+        knownUserResources.add("post /api/token/apiToken");
         knownUserResources.add("put /api/user-preferences");
         knownUserResources.add("post /api/user-preferences");
         knownUserResources.add("put /api/preference/{userId}");

@@ -21,6 +21,7 @@ public class AcmeConfigItems implements Serializable {
     private String processInfoNameAccountAuthorization;
     private String processInfoNameOrderValidation;
     private String processInfoNameChallengeValidation;
+    private boolean externalAccountRequired;
 
 
     public AcmeConfigItems() {}
@@ -120,5 +121,13 @@ public class AcmeConfigItems implements Serializable {
 
     public void setContactEMailRejectRegEx(String contactEMailRejectRegEx) {
         this.contactEMailRejectRegEx = contactEMailRejectRegEx;
+    }
+
+    public boolean isExternalAccountRequired() {
+        return externalAccountRequired;
+    }
+
+    public void setExternalAccountRequired(boolean externalAccountRequired) {
+        this.externalAccountRequired = externalAccountRequired;
     }
 }

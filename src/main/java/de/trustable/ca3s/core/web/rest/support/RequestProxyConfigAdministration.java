@@ -2,7 +2,6 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
-import de.trustable.ca3s.core.domain.enumeration.Interval;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
@@ -21,11 +20,11 @@ import org.springframework.web.bind.annotation.*;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 
-import javax.persistence.Column;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.net.URISyntaxException;
 import java.util.*;
+
+import static de.trustable.ca3s.core.service.util.ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER;
 
 /**
  * REST controller for processing PKCS10 requests and Certificates.
@@ -35,8 +34,6 @@ import java.util.*;
 public class RequestProxyConfigAdministration {
 
     private final Logger LOG = LoggerFactory.getLogger(RequestProxyConfigAdministration.class);
-
-    public static final String PLAIN_SECRET_PLACEHOLDER = "******";
 
     private static final String ENTITY_NAME = "requestProxyConfig";
 

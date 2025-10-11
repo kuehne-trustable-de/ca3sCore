@@ -26,7 +26,6 @@
 
 package de.trustable.ca3s.core.web.rest.advice;
 
-import de.trustable.ca3s.core.exception.IntegrityException;
 import de.trustable.ca3s.core.exception.UserNotFoundException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
@@ -38,7 +37,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 /**

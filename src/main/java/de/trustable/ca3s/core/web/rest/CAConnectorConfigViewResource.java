@@ -169,17 +169,20 @@ public class CAConnectorConfigViewResource {
         if( caConnectorConfigView.getCaUrl() == null || caConnectorConfigView.getCaUrl().isEmpty()){
             return ResponseEntity.badRequest().build();
         }
-        if( caConnectorConfigView.getPlainSecret() == null || caConnectorConfigView.getPlainSecret().isEmpty()){
+        if( caConnectorConfigView.getAuthenticationParameter().getPlainSecret() == null || caConnectorConfigView.getAuthenticationParameter().getPlainSecret().isEmpty()){
             return ResponseEntity.badRequest().build();
         }
-        ADCSInstanceDetails adcsInstanceDetails =  adcsConnector.getInstanceDetails(
+        ADCSInstanceDetails adcsInstanceDetails = adcsConnector.getInstanceDetails(
             caConnectorConfigView.getCaUrl(),
-            caConnectorConfigView.getPlainSecret());
+            caConnectorConfigView.getAuthenticationParameter().getPlainSecret(),
+            caConnectorConfigView.getAuthenticationParameter().getSalt(),
+            (int)caConnectorConfigView.getAuthenticationParameter().getCycles(),
+            caConnectorConfigView.getAuthenticationParameter().getApiKeySalt(),
+            (int)caConnectorConfigView.getAuthenticationParameter().getApiKeyCycles());
+
         if( adcsInstanceDetails == null){
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(new ADCSInstanceDetailsView(adcsInstanceDetails));
     }
-
-
 }

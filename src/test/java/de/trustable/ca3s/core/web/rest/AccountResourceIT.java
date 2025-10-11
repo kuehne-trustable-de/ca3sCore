@@ -413,8 +413,8 @@ class AccountResourceIT {
             ProtectedContentType.DERIVED_SECRET,
             ContentRelationType.ACTIVATION_KEY);
 
-        assertThat( protectedContentList.size() == 1 );
-        assertThat( protectedContentList.get(0).getId() == user.getId() );
+        // assert that no second activation may succeed
+        assertThat( protectedContentList.size() == 0 );
 
     }
 
@@ -715,13 +715,22 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testFinishPasswordReset() throws Exception {
+        String resetKey = RandomStringUtils.random(15);
+
         User user = new User();
         user.setPassword(RandomStringUtils.random(60));
         user.setLogin("finish-password-reset");
         user.setEmail("finish-password-reset@example.com");
         user.setResetDate(Instant.now().plusSeconds(60));
-        user.setResetKey("reset key");
+        user.setResetKey(resetKey);
         userRepository.saveAndFlush(user);
+
+        protectedContentUtil.createDerivedProtectedContent(resetKey,
+            ProtectedContentType.DERIVED_SECRET,
+            ContentRelationType.RESET_KEY,
+            user.getId(),
+            -1,
+            Instant.now().plus(1, ChronoUnit.DAYS));
 
         KeyAndPasswordVM keyAndPassword = new KeyAndPasswordVM();
         keyAndPassword.setKey(user.getResetKey());
@@ -737,6 +746,23 @@ class AccountResourceIT {
 
         User updatedUser = userRepository.findOneByLogin(user.getLogin()).orElse(null);
         assertThat(passwordEncoder.matches(keyAndPassword.getNewPassword(), updatedUser.getPassword())).isTrue();
+
+        restAccountMockMvc
+            .perform(
+                post("/api/account/reset-password/finish")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(TestUtil.convertObjectToJsonBytes(keyAndPassword))
+            )
+            .andExpect(status().isInternalServerError());
+
+        List<ProtectedContent> protectedContentList = protectedContentUtil.findProtectedContentBySecret(resetKey,
+            ProtectedContentType.DERIVED_SECRET,
+            ContentRelationType.RESET_KEY);
+
+        // assert that no second activation may succeed
+        assertThat( protectedContentList.size() == 0 );
+
+
     }
 
     @Test

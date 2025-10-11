@@ -46,7 +46,7 @@
                     <td th:text="${cert.subject}">foo.com</td>
                     <td th:text="${cert.sans}">foo.com, 8.8.8.8</td>
                     <td><a
-                        th:with="url=(@{|${baseUrl}/cert-info?certificateId=${certId}|})"
+                        th:with="url=(@{|${baseUrl}/cert-info?certificateId=${cert.id}|})"
                         th:text="#{email.expiring.certificate.administer}"
                         th:href="${url}">Administer this certificate</a></td>
                 </tr>

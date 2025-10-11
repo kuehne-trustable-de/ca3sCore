@@ -124,7 +124,11 @@ public class CertificateUtil {
     final private CryptoService cryptoUtil;
 
     final private AuditService auditService;
+
     final private ReplacementCandidateUtil replacementCandidateUtil;
+
+    private final RandomUtil randomUtil;
+
 
     static {
         CertificateUtil.nameGeneralNameMap.put("DNS-NAME", GeneralName.dNSName);
@@ -149,7 +153,7 @@ public class CertificateUtil {
                            PreferenceUtil preferenceUtil,
                            CryptoService cryptoUtil,
                            AuditService auditService,
-                           ReplacementCandidateUtil replacementCandidateUtil) {
+                           ReplacementCandidateUtil replacementCandidateUtil, RandomUtil randomUtil) {
 
 
         this.certificateRepository = certificateRepository;
@@ -161,6 +165,7 @@ public class CertificateUtil {
         this.cryptoUtil = cryptoUtil;
         this.auditService = auditService;
         this.replacementCandidateUtil = replacementCandidateUtil;
+        this.randomUtil = randomUtil;
     }
 
     private static Map<ASN1ObjectIdentifier, Integer> createDnOrderMap() {
@@ -1285,6 +1290,14 @@ public class CertificateUtil {
         return value;
     }
 
+    public long getCertAttribute(Certificate certDao, String name, long defaultValue) {
+        String value = getCertAttribute(certDao, name);
+        if (value == null) {
+            return defaultValue;
+        }
+        return Long.parseLong(value);
+    }
+
     public String getCertAttribute(Certificate certDao, String name) {
         for (CertificateAttribute certAttr : certDao.getCertificateAttributes()) {
             if (certAttr.getName().equals(name)) {
@@ -1296,12 +1309,40 @@ public class CertificateUtil {
 
     @Transactional
     public void deleteCertAttribute(Certificate certDao, String name) {
+        /*
+        certDao.getCertificateAttributes().removeIf(certAttr -> {
+            if( certAttr.getName().equals(name)) {
+                certificateAttributeRepository.delete(certAttr);
+                return true;
+            }
+            return false;
+        });
+
+         */
+
+        Set<CertificateAttribute> newSet = new HashSet<>();
+
         for (CertificateAttribute certAttr : certDao.getCertificateAttributes()) {
             if (certAttr.getName().equals(name)) {
                 LOG.info("deleting certificateAttribute {}", certAttr);
                 certificateAttributeRepository.delete(certAttr);
+            }else{
+                newSet.add(certAttr);
+            }
+
+        }
+        certDao.setCertificateAttributes(newSet);
+        certificateRepository.save(certDao);
+        /*
+        for (CertificateAttribute certAttr : certDao.getCertificateAttributes()) {
+            if (certAttr.getName().equals(name)) {
+                LOG.info("deleting certificateAttribute {}", certAttr);
+                certDao.getCertificateAttributes().remove(certAttr);
+                certificateAttributeRepository.delete(certAttr);
             }
         }
+
+         */
     }
 
     public List<String> getCertAttributes(Certificate certDao, String name) {
@@ -2449,7 +2490,7 @@ public class CertificateUtil {
     public KeyStoreAndPassphrase getContainer(Certificate certDao, String entryAlias, char[] passphraseChars, PrivateKey key, String passwordProtectionAlgo) throws IOException, GeneralSecurityException {
 
         byte[] salt = new byte[20];
-        RandomUtil.getSecureRandom().nextBytes(salt);
+        randomUtil.getSecureRandom().nextBytes(salt);
 
         KeyStore p12 = KeyStore.getInstance("pkcs12");
         p12.load(null, passphraseChars);

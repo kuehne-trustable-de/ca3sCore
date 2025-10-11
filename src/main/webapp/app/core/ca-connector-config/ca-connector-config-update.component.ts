@@ -4,8 +4,8 @@ import axios from 'axios';
 
 import { numeric, required, minLength, maxLength, minValue, maxValue } from 'vuelidate/lib/validators';
 
+import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import AlertService from '@/shared/alert/alert.service';
-import { CAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 import CAConnectorConfigViewService from '@/entities/ca-connector-config/ca-connector-config-view.service';
 
 import {
@@ -15,6 +15,8 @@ import {
   IInterval,
   INamedValue,
   IADCSInstanceDetailsView,
+  IAuthenticationParameter,
+  IKDFType,
 } from '@/shared/model/transfer-object.model';
 
 import { mixins } from 'vue-class-component';
@@ -38,9 +40,11 @@ const validations: any = {
     trustSelfsignedCertificates: {},
     active: {},
     selector: {},
+    role: {
+      required,
+    },
     messageProtectionPassphrase: {},
     interval: {},
-    plainSecret: {},
     tlsAuthenticationId: {},
     messageProtectionId: {},
     issuerName: {},
@@ -50,6 +54,29 @@ const validations: any = {
     sni: {},
     ignoreResponseMessageVerification: {},
     fillEmptySubjectWithSAN: {},
+    authenticationParameter: {
+      kdfType: {
+        required,
+      },
+      plainSecret: {
+        required,
+        minLength: minLength(6),
+      },
+      salt: {
+        required,
+        minLength: minLength(6),
+      },
+      cycles: {
+        required,
+        minValue: minValue(100000),
+      },
+      apiKeySalt: {
+        minLength: minLength(6),
+      },
+      apiKeyCycles: {
+        minValue: minValue(100000),
+      },
+    },
   },
 };
 
@@ -57,6 +84,7 @@ const validations: any = {
   validations,
   components: {
     HelpTag,
+    CopyClipboardButton,
     AuditTag,
   },
 })
@@ -70,14 +98,30 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
 
   public isSaving = false;
 
+  public adcsConfigSnippet = '';
+
+  public authenticationParameter: IAuthenticationParameter = {
+    kdfType: 'PBKDF2',
+    plainSecret: 's3cr3t',
+    cycles: 88888,
+    salt: 'pepper',
+    apiKeyCycles: 99999,
+    apiKeySalt: 'apiPepper',
+  };
+
   beforeRouteEnter(to, from, next) {
-    const self = this;
     next(vm => {
       if (to.params.cAConnectorConfigId) {
         vm.retrieveCAConnectorConfig(to.params.cAConnectorConfigId, to.params.mode);
       }
       vm.initRelationships();
     });
+  }
+
+  public isSaveable(): boolean {
+    window.console.info('isSaveable ' + !this.$v.cAConnectorConfig.$invalid);
+
+    return !this.$v.cAConnectorConfig.$invalid;
   }
 
   public save(): void {
@@ -112,13 +156,17 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
         if (mode === 'copy') {
           this.cAConnectorConfig.name = 'Copy of ' + this.cAConnectorConfig.name;
           this.cAConnectorConfig.id = null;
-          this.cAConnectorConfig.plainSecret = null;
+          this.cAConnectorConfig.authenticationParameter.plainSecret = null;
         }
 
         if (this.cAConnectorConfig.caConnectorType === 'ADCS') {
           this.initADCSTemplates();
         }
       });
+  }
+
+  public isADCSConnectorConfig(): boolean {
+    return this.cAConnectorConfig.caConnectorType === 'ADCS' || this.cAConnectorConfig.caConnectorType === 'ADCS_CERTIFICATE_INVENTORY';
   }
 
   public initADCSTemplates(): void {
@@ -163,6 +211,48 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
       self.caStatus = response.data;
     });
   }
+
+  public buildAdcsConfigSnippet() {
+    this.adcsConfigSnippet =
+      'adcs-proxy:\n' +
+      '  connection:\n' +
+      '    secret: ' +
+      this.cAConnectorConfig.authenticationParameter.plainSecret +
+      '\n' +
+      '    salt: ' +
+      this.cAConnectorConfig.authenticationParameter.salt +
+      '\n' +
+      '    iterations: ' +
+      this.cAConnectorConfig.authenticationParameter.cycles +
+      '\n' +
+      '    api-key-salt: ' +
+      this.cAConnectorConfig.authenticationParameter.apiKeySalt +
+      '\n' +
+      '    api-key-iterations: ' +
+      this.cAConnectorConfig.authenticationParameter.apiKeyCycles +
+      '\n' +
+      '    pbeAlgo: PBKDF2WithHmacSHA256';
+  }
+}
+
+export class AuthenticationParameter implements IAuthenticationParameter {
+  constructor(
+    public kdfType?: IKDFType,
+    public plainSecret?: string,
+    public secretValidTo?: Date,
+    public salt?: string,
+    public cycles?: number,
+    public apiKeySalt?: string,
+    public apiKeyCycles?: number
+  ) {
+    this.kdfType = this.kdfType || 'PBKDF2';
+    this.plainSecret = this.plainSecret || 's3cr3t';
+    this.secretValidTo = this.secretValidTo || new Date();
+    this.salt = this.salt || 'pepper';
+    this.cycles = this.cycles || 100000;
+    this.apiKeySalt = this.apiKeySalt || 'apiPepper';
+    this.apiKeyCycles = this.apiKeyCycles || 100000;
+  }
 }
 
 export class CAConnectorConfigView implements ICaConnectorConfigView {
@@ -179,6 +269,7 @@ export class CAConnectorConfigView implements ICaConnectorConfigView {
     public trustSelfsignedCertificates?: boolean,
     public active?: boolean,
     public selector?: string,
+    public role?: string,
     public interval?: IInterval,
     public messageProtectionPassphrase?: boolean,
     public plainSecret?: string,
@@ -188,12 +279,15 @@ export class CAConnectorConfigView implements ICaConnectorConfigView {
     public issuerName?: string,
     public aTaVArr?: INamedValue[],
     public multipleMessages?: boolean,
-    public implicitConfirm?: boolean
+    public implicitConfirm?: boolean,
+    public authenticationParameter?: IAuthenticationParameter
   ) {
     this.defaultCA = this.defaultCA || false;
     this.trustSelfsignedCertificates = this.trustSelfsignedCertificates || false;
     this.messageProtectionPassphrase = this.messageProtectionPassphrase || false;
     this.active = this.active || false;
     this.interval = this.interval || 'DAY';
+    this.authenticationParameter = this.authenticationParameter || new AuthenticationParameter();
+    this.role = this.role || 'tls_server';
   }
 }

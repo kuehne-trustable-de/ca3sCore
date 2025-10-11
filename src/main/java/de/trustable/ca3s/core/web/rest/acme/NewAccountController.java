@@ -27,18 +27,20 @@
 package de.trustable.ca3s.core.web.rest.acme;
 
 
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSObject;
 import de.trustable.ca3s.core.domain.AcmeAccount;
+import de.trustable.ca3s.core.domain.AcmeContact;
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.repository.AcmeAccountRepository;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 import de.trustable.ca3s.core.service.dto.acme.AccountResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.util.AcmeUtil;
-import de.trustable.ca3s.core.service.util.AlgorithmRestrictionUtil;
-import de.trustable.ca3s.core.service.util.BPMNUtil;
-import de.trustable.ca3s.core.service.util.PipelineUtil;
+import de.trustable.ca3s.core.service.dto.bpmn.AcmeAccountValidationInput;
+import de.trustable.ca3s.core.service.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.jose4j.jwx.JsonWebStructure;
@@ -56,9 +58,12 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.GeneralSecurityException;
 import java.security.PublicKey;
+import java.text.ParseException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.ResponseEntity.ok;
@@ -75,18 +80,24 @@ public class NewAccountController extends AcmeController {
     final private BPMNUtil bpmnUtil;
     final private PipelineUtil pipelineUtil;
     final private AlgorithmRestrictionUtil algorithmRestrictionUtil;
+    final private JWSService jwsService;
     final boolean checkKeyRestrictions;
+    final String eabKidPrefix;
 
     public NewAccountController(AcmeAccountRepository acctRepository,
                                 BPMNUtil bpmnUtil,
                                 PipelineUtil pipelineUtil,
                                 AlgorithmRestrictionUtil algorithmRestrictionUtil,
-                                @Value("${ca3s.acme.account.checkKeyRestrictions:false}") boolean checkKeyRestrictions ) {
+                                JWSService jwsService,
+                                @Value("${ca3s.acme.account.checkKeyRestrictions:false}") boolean checkKeyRestrictions,
+                                @Value("${ca3s.acme.account.eabKidPrefix:ca3s}") String eabKidPrefix) {
         this.acctRepository = acctRepository;
         this.bpmnUtil = bpmnUtil;
         this.pipelineUtil = pipelineUtil;
         this.algorithmRestrictionUtil = algorithmRestrictionUtil;
+        this.jwsService = jwsService;
         this.checkKeyRestrictions = checkKeyRestrictions;
+        this.eabKidPrefix = eabKidPrefix;
     }
 
     @Transactional
@@ -160,21 +171,69 @@ public class NewAccountController extends AcmeController {
 
                 if (accListExisting.isEmpty()) {
 
-                    Pipeline pipeline = getPipelineForRealm(realm);
-                    bpmnUtil.startACMEAccountAuthorizationProcess(newAcct, pipeline);
+                    boolean eabPresent = false;
+                    boolean eabvalidated = true;
+                    boolean eabJwsNeedsValidation = false;
+                    JWSObject jwsObject = null;
 
-				/*
-			    JwtClaims claims = context.getJwtClaims();
-			    Map<String, Object> claimsMap = claims.getClaimsMap();
-			    for( String claimName: claimsMap.keySet()) {
-				    LOG.info("Claim '{}' of type {}", claimName, claimsMap.get(claimName).getClass().getName());
-			    }
-			    */
+                    Pipeline pipeline = getPipelineForRealm(realm);
+
+                    if( !pipelineUtil.checkAcceptNetwork(pipeline) ){
+                        final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED,
+                            "Request not from expected IP range",
+                            BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
+                        throw new AcmeProblemException(problem);
+                    }
+
+                    /*
+                    JwtClaims claims = context.getJwtClaims();
+                    Map<String, Object> claimsMap = claims.getClaimsMap();
+                    for( String claimName: claimsMap.keySet()) {
+                        LOG.info("Claim '{}' of type {}", claimName, claimsMap.get(claimName).getClass().getName());
+                    }
+                    */
+
+                    AcmeAccount newAcctDao = new AcmeAccount();
+
                     //	    LOG.info("New ACCOUNT key: " + webStruct.getKey());
                     //	    LOG.info("New ACCOUNT jwk: " + webStruct.getHeader("jwk"));
                     //	    LOG.info("New ACCOUNT kid: " + webStruct.getKeyIdHeaderValue());
+                    LOG.debug( "eab: {}", newAcct.getExternalAccountBinding());
+                    Map<String, String> partMap = (Map<String, String>) newAcct.getExternalAccountBinding();
+                    try {
+                        if(partMap != null) {
+                            eabPresent = true;
+                            eabvalidated = false;
+                            jwsObject = jwsService.getJWSObject(partMap);
+                            String kid = jwsObject.getHeader().getKeyID();
+                            String ca3sPrefix = eabKidPrefix + ":";
+                            if( ca3sPrefix.equals(kid.substring(0, ca3sPrefix.length())) ){
+                                User eabUser = jwsService.verifyEABGetUser(jwsObject, kid.substring(ca3sPrefix.length()));
+                                newAcctDao.setEabUser(eabUser);
+                                AcmeContact contact = buildAcmeContact(newAcctDao, "mailto:" + eabUser.getEmail()) ;
+                                newAcctDao.getContacts().add(contact);
+                                eabvalidated = true;
+                            }else{
+                                eabJwsNeedsValidation =true;
+                            }
+                            newAcctDao.setEabKid( kid);
+                        }else {
+                            if( pipelineUtil.getPipelineAttribute(pipeline,
+                                PipelineUtil.ACME_EAB_REQUIRED,
+                                false)){
+                                final ProblemDetail problem = new ProblemDetail(AcmeUtil.EXTERNAL_ACCOUNT_REQUIRED,
+                                    "External account binding attributes missing.",
+                                    BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
+                                throw new AcmeProblemException(problem);
+                            }
+                        }
+                    } catch (ParseException | JOSEException e) {
+                        final ProblemDetail problem = new ProblemDetail(AcmeUtil.EXTERNAL_ACCOUNT_REQUIRED,
+                            "External account binding attributes not parseable: " + e.getMessage(),
+                            BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
+                        throw new AcmeProblemException(problem);
+                    }
 
-                    AcmeAccount newAcctDao = new AcmeAccount();
                     newAcctDao.setAccountId(generateId());
                     newAcctDao.setRealm(realm);
                     newAcctDao.setCreatedOn(Instant.now());
@@ -203,6 +262,18 @@ public class NewAccountController extends AcmeController {
                                 tosUri);
                             throw new AcmeProblemException(problem);
                         }
+                    }
+
+                    if (pipeline.getProcessInfoAccountAuthorization() != null) {
+                        AcmeAccountValidationInput acmeAccountValidationInput = new AcmeAccountValidationInput(newAcct,jwsObject, eabPresent, eabJwsNeedsValidation);
+                        bpmnUtil.startACMEAccountAuthorizationProcess(pipeline,acmeAccountValidationInput);
+                    }
+
+                    if(!eabvalidated){
+                        final ProblemDetail problem = new ProblemDetail(AcmeUtil.EXTERNAL_ACCOUNT_REQUIRED,
+                            "External account data did not validate successfully",
+                            BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
+                        throw new AcmeProblemException(problem);
                     }
 
                     updateAccountFromRequest(newAcctDao, newAcct, pipeline);

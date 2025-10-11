@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.service.adcs;
 
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -17,10 +16,8 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CAStatus;
-import de.trustable.ca3s.core.service.util.CSRUtil;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.CryptoService;
-import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
+import de.trustable.ca3s.core.service.dto.KDFType;
+import de.trustable.ca3s.core.service.util.*;
 
 import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.asn1.x509.CRLReason;
@@ -45,10 +42,10 @@ import java.net.SocketTimeoutException;
 import java.security.GeneralSecurityException;
 import java.util.*;
 
+import static de.trustable.ca3s.core.service.util.CaConnectorConfigUtil.*;
 
 @Service
 public class ADCSConnector {
-
 
     Logger LOGGER = LoggerFactory.getLogger(ADCSConnector.class);
 
@@ -59,13 +56,13 @@ public class ADCSConnector {
     private final CSRUtil csrUtil;
     private final CertificateRepository certificateRepository;
     private final ProtectedContentUtil protUtil;
+    private final CaConnectorConfigUtil caConnectorConfigUtil;
     private final AuditService auditService;
     private final String ca3sSalt;
     private final int iterations;
     private final String apiKeySalt;
     private final int apiKeyIterations;
     private final String pbeAlgo;
-
 
     /**
      * Adapter class to connect to an ADCS server using the parameter given in a CaConnectorConfig
@@ -76,7 +73,7 @@ public class ADCSConnector {
                          CSRRepository csrRepository,
                          CSRUtil csrUtil,
                          CertificateRepository certificateRepository,
-                         ProtectedContentUtil protUtil,
+                         ProtectedContentUtil protUtil, CaConnectorConfigUtil caConnectorConfigUtil,
                          AuditService auditService,
                          @Value("${ca3s.connection.protection.salt:ca3sSalt}") String ca3sSalt,
                          @Value("${ca3s.connection.protection.iterations:4567}") int iterations,
@@ -90,6 +87,7 @@ public class ADCSConnector {
         this.csrUtil = csrUtil;
         this.certificateRepository = certificateRepository;
         this.protUtil = protUtil;
+        this.caConnectorConfigUtil = caConnectorConfigUtil;
         this.auditService = auditService;
         this.ca3sSalt = ca3sSalt;
         this.iterations = iterations;
@@ -119,15 +117,24 @@ public class ADCSConnector {
 
             String plainSecret = protUtil.unprotectString(config.getSecret().getContentBase64());
 
+            KDFType kdfType = KDFType.valueOf(
+                caConnectorConfigUtil.getCAConnectorConfigAttribute(config, ATT_ATTRIBUTE_KDF_TYPE, KDFType.PBKDF2.toString()));
+
+            String salt = caConnectorConfigUtil.getCAConnectorConfigAttribute(config, ATT_ATTRIBUTE_KDF_SALT, ca3sSalt);
+            int cycles = caConnectorConfigUtil.getCAConnectorConfigAttribute(config, ATT_ATTRIBUTE_KDF_CYCLES, iterations);
+            String apiSalt = caConnectorConfigUtil.getCAConnectorConfigAttribute(config, ATT_ATTRIBUTE_KDF_API_KEY_SALT, apiKeySalt);
+            int apiCycles = caConnectorConfigUtil.getCAConnectorConfigAttribute(config, ATT_ATTRIBUTE_KDF_API_KEY_CYCLES, apiKeyIterations);
+
             try {
                 ADCSWinNativeConnector adcsConnector = new ADCSWinNativeConnectorAdapter(
                     config.getCaUrl(),
                     plainSecret,
                     ca3sTrustManager,
-                    ca3sSalt,
-                    iterations,
-                    apiKeySalt,
-                    apiKeyIterations );
+                    salt,
+                    cycles,
+                    apiSalt,
+                    apiCycles);
+
                 LOGGER.debug("ADCSConnector trying to connect to remote ADCS proxy ...");
                 String info = adcsConnector.getInfo();
                 LOGGER.debug("info call returns '{}'", info);
@@ -144,7 +151,12 @@ public class ADCSConnector {
         return new EmptyADCSWinNativeConnectorAdapter();
     }
 
-    ADCSWinNativeConnector getConnector(final String caUrl, final String secret ) throws ADCSProxyUnavailableException {
+    ADCSWinNativeConnector getConnector(final String caUrl,
+                                        final String secret,
+                                        final String salt,
+                                        final int cycles,
+                                        final String apiSalt,
+                                        final int apiKeyCycles) throws ADCSProxyUnavailableException {
 
         LOGGER.debug("connector direct call to '" + caUrl + "'");
         if ("inProcess".equalsIgnoreCase(caUrl)) {
@@ -167,10 +179,10 @@ public class ADCSConnector {
                     caUrl,
                     secret,
                     ca3sTrustManager,
-                    ca3sSalt,
-                    iterations,
-                    apiKeySalt,
-                    apiKeyIterations );
+                    salt,
+                    cycles,
+                    apiSalt,
+                    apiKeyCycles);
                 LOGGER.debug("ADCSConnector trying to connect to remote ADCS proxy ...");
                 String info = adcsConnector.getInfo();
                 LOGGER.debug("info call returns '{}'", info);
@@ -192,13 +204,27 @@ public class ADCSConnector {
      * Retrieve the instance details of the related ADCSProxy
      *
      * @param caUrl
-     * @param secret
+     * @param plainSecret
+     * @param salt
+     * @param cycles
+     * @param apiSalt
+     * @param apiKeyCycles
      * @return
      */
-    public ADCSInstanceDetails getInstanceDetails(final String caUrl, final String secret) {
+    public ADCSInstanceDetails getInstanceDetails(final String caUrl,
+                                                  String plainSecret,
+                                                  String salt,
+                                                  int cycles,
+                                                  String apiSalt,
+                                                  int apiKeyCycles) {
 
         try {
-            return getConnector(caUrl, secret).getCAInstanceDetails();
+            return getConnector(caUrl,
+                plainSecret,
+                salt,
+                cycles,
+                apiSalt,
+                apiKeyCycles).getCAInstanceDetails();
         } catch (ADCSException adcsEx) {
             LOGGER.debug("CAConnectorType ADCS at " + caUrl + " throws Exception: {} ", adcsEx.getLocalizedMessage());
         }
@@ -743,8 +769,6 @@ public class ADCSConnector {
             throw new ADCSException(e.getLocalizedMessage());
         }
     }
-
-
 }
 
 /**

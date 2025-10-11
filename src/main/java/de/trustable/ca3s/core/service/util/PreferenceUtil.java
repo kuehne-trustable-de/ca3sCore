@@ -38,6 +38,7 @@ public class PreferenceUtil {
     public static final String AUTH_EMAIL = "AuthEmail";
     public static final String AUTH_SMS = "AuthSms";
     public static final String INFO_MSG = "INFO_MSG";
+    private static final String PIPELINE_SCHEMA_VERSION = "PIPELINE_SCHEMA_VERSION";
 
     private final UserPreferenceService userPreferenceService;
 
@@ -113,7 +114,27 @@ public class PreferenceUtil {
         Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(AUTH_SMS, SYSTEM_PREFERENCE_ID);
         return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
     }
+    public int getPipelineSchemaVersion() {
+        Optional<UserPreference> optPref = userPreferenceService.findPreferenceForUserId(PIPELINE_SCHEMA_VERSION, SYSTEM_PREFERENCE_ID);
+        return optPref.map(userPreference -> Integer.parseInt(userPreference.getContent())).orElse(0);
+    }
+    public void setPipelineSchemaVersion(int version) {
+        setPreference(PIPELINE_SCHEMA_VERSION, SYSTEM_PREFERENCE_ID, "" + version);
+    }
 
+    public void setPreference(final String name, final long userId, final String content) {
+        Optional<UserPreference> optPref = userPreferenceService.findPreferenceForUserId(name, userId);
+        if(optPref.isPresent()){
+            optPref.get().setContent(content);
+            userPreferenceService.save(optPref.get());
+        }else{
+            UserPreference userPreference = new UserPreference();
+            userPreference.setUserId(userId);
+            userPreference.setName(name);
+            userPreference.setContent(content);
+            userPreferenceService.save(userPreference);
+        }
+    }
 
     public Preferences getSystemPrefs() {
         return getPrefs(SYSTEM_PREFERENCE_ID);

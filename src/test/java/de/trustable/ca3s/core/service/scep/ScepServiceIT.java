@@ -66,6 +66,7 @@ public class ScepServiceIT {
 
     Client client;
     Client client1CN;
+    Client clientSR;
 
 
     @BeforeAll
@@ -86,27 +87,31 @@ public class ScepServiceIT {
         try {
             ptc.getInternalSCEPTestPipelineLaxRestrictions();
             ptc.getInternalSCEPTestPipelineCN1Restrictions();
+            ptc.getInternalSCEPTestPipelineLaxRestrictionsShortRenewalPeriod();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
 
         URL serverUrl = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP_REALM);
-        LOG.debug("scep serverUrl : " + serverUrl.toString());
+        LOG.debug("scep serverUrl : " + serverUrl);
 
         client = new Client(serverUrl, acceptAllVerifier);
 
 
         URL serverUrl1CN = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP1CN_REALM);
-        LOG.debug("scep serverUrl1CN : " + serverUrl1CN.toString());
+        LOG.debug("scep serverUrl1CN : " + serverUrl1CN);
 
         client1CN = new Client(serverUrl1CN, acceptAllVerifier);
 
-        System.out.println("########## url: " + serverUrl1CN);
+        URL serverUrlSR = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP_REALM_SHORT_RENEWAL);
+        LOG.debug("scep serverUrlSR : " + serverUrlSR);
+
+        clientSR = new Client(serverUrlSR, acceptAllVerifier);
+
     }
 
     @Test
     public void testScepEnrolAndRenew() throws GeneralSecurityException, IOException, ClientException, TransactionException {
-
 
         LOG.info("ephemeralCert : " + ephemeralCert);
 
@@ -155,6 +160,50 @@ public class ScepServiceIT {
 
             } else {
                 Assertions.fail("Renewal failed");
+            }
+        }
+
+
+    }
+
+    @Test
+    public void testScepEnrolAndFailingRenewPeriod() throws GeneralSecurityException, IOException, ClientException, TransactionException {
+
+        PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
+            keyPair.getPublic(),
+            keyPair.getPrivate(),
+            password);
+
+        EnrollmentResponse resp = clientSR.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
+        Assertions.assertNotNull(resp);
+        Assertions.assertFalse(resp.isFailure());
+        if (resp.isSuccess()) {
+
+            CertStore certStore = resp.getCertStore();
+            Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
+
+            for (Certificate cert : collCerts) {
+                LOG.debug("returned certificate : " + cert.toString());
+            }
+
+            X509CertSelector eeSelector = new X509CertSelector();
+            eeSelector.setBasicConstraints(-2);
+            Collection<? extends Certificate> collEECerts = certStore.getCertificates(eeSelector);
+            X509Certificate issuedCert = (X509Certificate) collEECerts.iterator().next();
+
+            KeyPair keyPairRenew = keyUtil.createKeyPair();
+            PKCS10CertificationRequest csrRenew = CryptoUtil.getCsr(enrollingPrincipal,
+                keyPairRenew.getPublic(),
+                keyPairRenew.getPrivate(),
+                null); // No password, we want to renew !
+
+            LOG.debug("trying to renew certificate : " + issuedCert.toString());
+
+            //renewal, sign with the old key
+            EnrollmentResponse respRenew = clientSR.enrol(issuedCert, keyPair.getPrivate(), csrRenew);
+            Assertions.assertNotNull(respRenew);
+            if (respRenew.isSuccess()) {
+                Assertions.fail("Renewal expected to fail due to shortreauthentication period");
             }
         }
 

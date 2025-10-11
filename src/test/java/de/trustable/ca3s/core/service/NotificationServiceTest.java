@@ -43,8 +43,6 @@ class NotificationServiceTest {
         assertEquals(6, testList.size());
 
 
-
-
         testList = new ArrayList<>();
         NotificationService.addSplittedEMailAddress(testList, "kuehne@trustable.de, kuehne@klup.de");
         assertEquals(2, testList.size());

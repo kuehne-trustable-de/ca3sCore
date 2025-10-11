@@ -10,7 +10,11 @@ public class PasswordChangeDTO {
     private String newPassword;
     private String seed;
     private String otpTestValue;
+    private String apiTokenValue;
+    private long apiTokenValiditySeconds;
     private Long clientAuthCertId;
+    private Long pipelineId;
+    private String eabKid;
 
     private boolean secondFactorRequired;
 
@@ -63,6 +67,22 @@ public class PasswordChangeDTO {
         this.otpTestValue = otpTestValue;
     }
 
+    public String getApiTokenValue() {
+        return apiTokenValue;
+    }
+
+    public long getApiTokenValiditySeconds() {
+        return apiTokenValiditySeconds;
+    }
+
+    public void setApiTokenValiditySeconds(long apiTokenValiditySeconds) {
+        this.apiTokenValiditySeconds = apiTokenValiditySeconds;
+    }
+
+    public void setApiTokenValue(String apiTokenValue) {
+        this.apiTokenValue = apiTokenValue;
+    }
+
     public CredentialUpdateType getCredentialUpdateType() {
         return credentialUpdateType;
     }
@@ -77,5 +97,21 @@ public class PasswordChangeDTO {
 
     public void setSecondFactorRequired(boolean secondFactorRequired) {
         this.secondFactorRequired = secondFactorRequired;
+    }
+
+    public Long getPipelineId() {
+        return pipelineId;
+    }
+
+    public void setPipelineId(Long pipelineId) {
+        this.pipelineId = pipelineId;
+    }
+
+    public String getEabKid() {
+        return eabKid;
+    }
+
+    public void setEabKid(String eabKid) {
+        this.eabKid = eabKid;
     }
 }

@@ -11,12 +11,15 @@ import java.util.*;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.*;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
-import de.trustable.ca3s.core.exception.SMSSendingFaiedException;
+import de.trustable.ca3s.core.exception.SMSSendingFailedException;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.BPMNProcessInfoView;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
+import de.trustable.ca3s.core.service.dto.bpmn.AcmeAccountValidationInput;
+import de.trustable.ca3s.core.service.dto.bpmn.BpmnInput;
+import de.trustable.ca3s.core.service.dto.bpmn.BpmnOutput;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.camunda.bpm.engine.BadUserRequestException;
@@ -393,9 +396,9 @@ public class BPMNUtil{
 
         List<BPMNProcessInfo> bpmnProcessInfoList = bpnmInfoRepo.findByType(BPMNProcessType.SEND_SMS);
         if( bpmnProcessInfoList.isEmpty()){
-            throw new SMSSendingFaiedException("No BPMN Process Info with type BPMNProcessType.SEND_SMS not present!");
+            throw new SMSSendingFailedException("No BPMN Process Info with type BPMNProcessType.SEND_SMS not present!");
         }else if( bpmnProcessInfoList.size() > 1) {
-            throw new SMSSendingFaiedException("Too many BPMN Process Info with type BPMNProcessType.SEND_SMS present!");
+            throw new SMSSendingFailedException("Too many BPMN Process Info with type BPMNProcessType.SEND_SMS present!");
         }else {
 
             BPMNProcessInfo smsProcessInfo = bpmnProcessInfoList.get(0);
@@ -404,7 +407,7 @@ public class BPMNUtil{
 
             Object reason = processInstanceWithVariables.getVariables().get("failureReason");
             if( reason != null && !reason.toString().isEmpty()) {
-                throw new SMSSendingFaiedException(reason.toString());
+                throw new SMSSendingFailedException(reason.toString());
             }
         }
     }
@@ -572,59 +575,51 @@ public class BPMNUtil{
 
     /**
      *
-     * @param accountRequest
-     *
+     * @param pipeline
+     * @param acmeAccountValidationInput
      * @throws GeneralSecurityException
      */
-    public void startACMEAccountAuthorizationProcess(final AccountRequest accountRequest, final Pipeline pipeline) throws GeneralSecurityException  {
+    public void startACMEAccountAuthorizationProcess(final Pipeline pipeline, final AcmeAccountValidationInput acmeAccountValidationInput) throws GeneralSecurityException  {
 
-        if( accountRequest == null) {
-            throw new GeneralSecurityException("accountRequest for ACME account creation MUST be provided");
+        if( acmeAccountValidationInput == null) {
+            throw new GeneralSecurityException("acmeAccountValidationInput for ACME account authorization MUST be provided");
+        }
+        if( acmeAccountValidationInput.getAccountRequest() == null) {
+            throw new GeneralSecurityException("accountRequest for ACME account authorization MUST be provided");
         }
 
         if( pipeline == null) {
-            throw new GeneralSecurityException("pipeline for ACME account creation MUST be provided" );
+            throw new GeneralSecurityException("pipeline for ACME account authorization MUST be provided" );
         }
 
-        String status = "Failed";
-        String failureReason = "";
-        String processInstanceId = "";
+        BpmnOutput bpmnOutput = new BpmnOutput();
 
         BPMNProcessInfo bpmnProcessInfoAccountAuthorization = pipeline.getProcessInfoAccountAuthorization();
-
         if( bpmnProcessInfoAccountAuthorization == null){
             return;
         }
 
         // BPMN call
         try {
-            Map<String, Object> variables = new HashMap<>();
-            variables.put("action", "ACMEAccountAuthorization");
-            variables.put("accountRequest", accountRequest);
-            variables.put("status", status);
-            variables.put("failureReason", failureReason);
+            ProcessInstanceWithVariables processInstance = bpmnExecutor.executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoAccountAuthorization,
+                acmeAccountValidationInput.getVariables());
 
-            ProcessInstanceWithVariables processInstance = bpmnExecutor.executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoAccountAuthorization, variables);
-            processInstanceId = processInstance.getId();
-            LOG.info("startACMEAccountAuthorizationProcess ProcessInstance: {}", processInstanceId);
-
-            status = processInstance.getVariables().get("status").toString();
-
-            if( processInstance.getVariables().get("failureReason") != null) {
-                failureReason = processInstance.getVariables().get("failureReason").toString();
-            }
+            bpmnOutput = new BpmnOutput(processInstance);
+            LOG.info("startACMEAccountAuthorizationProcess ProcessInstance: {} exited with status {}",
+                bpmnOutput.getProcessInstanceId(),
+                bpmnOutput.getStatus());
 
             // catch all (runtime) Exception
         } catch (Exception e) {
-            failureReason = e.getLocalizedMessage();
+            bpmnOutput = new BpmnOutput(e);
             LOG.warn("execution of '" + bpmnProcessInfoAccountAuthorization.getName() + "' failed ", e);
         }
 
-        if ("Success".equals(status)) {
-            LOG.debug("ACME account creation confirmed by BPMN process {}", processInstanceId);
+        if (BpmnInput.SUCCESS.equals(bpmnOutput.getStatus())) {
+            LOG.debug("ACME account creation confirmed by BPMN process {}", bpmnOutput.getProcessInstanceId());
         } else {
-            LOG.warn("ACME account creation check by BPMN process {} failed with reason '{}' ", processInstanceId, failureReason);
-            throw new GeneralSecurityException(failureReason);
+            LOG.warn("ACME account creation check by BPMN process {} failed with reason '{}' ", bpmnOutput.getProcessInstanceId(), bpmnOutput.getFailureReason());
+            throw new GeneralSecurityException(bpmnOutput.getFailureReason());
         }
     }
 
@@ -654,7 +649,6 @@ public class BPMNUtil{
             }
         });
     }
-
     public BPMNProcessInfoView toBPMNProcessInfoView( BPMNProcessInfo bpmnProcessInfo) {
         BPMNProcessInfoView bpmnProcessInfoView = new BPMNProcessInfoView();
         bpmnProcessInfoView.setId(bpmnProcessInfo.getId());

@@ -43,10 +43,10 @@ public class WebTestBase extends LocomotiveBase {
 	public static final String SESSION_COOKIE_DEFAULT_VALUE = "DummyCookieValue";
 
     public static final By LOC_TXT_WEBPACK_ERROR = By.xpath("//div//h1 [text() = 'An error has occurred :-(']");
-    public static final By LOC_LNK_ACCOUNT_MENUE = By.xpath("//nav//a [.//span [(text() = 'Account') or (text() = 'Zugang')]]");
-    public static final By LOC_LNK_ACCOUNT_SIGN_IN_MENUE =  By.xpath("//nav//a [span [(text() = 'Sign in')or(text() = 'Anmelden')]]");
+    public static final By LOC_LNK_ACCOUNT_MENUE = By.xpath("//nav//a [span/@id='account-menu-span']");
+    public static final By LOC_LNK_ACCOUNT_SIGN_IN_MENUE =  By.xpath("//nav//a [@id='login']");
     public static final String STRING_LNK_ACCOUNT_LANGUAGE_MENUE =  "//nav//a [contains(text(), '%s')]";
-    public static final By LOC_LNK_ACCOUNT_SIGN_OUT_MENUE = By.xpath("//nav//a [span [(text() = 'Sign out') or (text() = 'Abmelden')]]");
+    public static final By LOC_LNK_ACCOUNT_SIGN_OUT_MENUE = By.xpath("//nav//a [@id='logout']");
     public static final By LOC_LNK_USER_SIGNED_IN = By.xpath("//nav//a [@logged_in = 'true']");
 
     public static final By LOC_LNK_SIGNIN_USERNAME = By.xpath("//form//input [@name = 'username']");
@@ -124,6 +124,8 @@ public class WebTestBase extends LocomotiveBase {
         } catch (ParserConfigurationException | IOException | SAXException e) {
             throw new RuntimeException(e);
         }
+
+
     }
 
 /*
@@ -193,13 +195,22 @@ public class WebTestBase extends LocomotiveBase {
     }
 
     protected static void waitForNewMessage(Folder inbox, int nMsgCurrent) throws MessagingException {
+
+        waitForNewMessage(inbox, nMsgCurrent, 60);
+    }
+    protected static void waitForNewMessage(Folder inbox, int nMsgCurrent, int maxWaitSec) throws MessagingException {
+
+        int waitCounter = 0;
         while( inbox.getMessageCount() == nMsgCurrent) {
-            System.out.println( "waiting for message ...");
+            System.out.println( "#" + inbox.getMessageCount() + " messages present, waiting for new message ...");
             try {
                 Thread.sleep(1000); // sleep for 1 second.
             } catch (Exception x) {
                 fail("Failed due to an exception during Thread.sleep!");
                 x.printStackTrace();
+            }
+            if( waitCounter ++ > maxWaitSec){
+                throw new MessagingException("no message received");
             }
         }
     }
@@ -300,9 +311,6 @@ public class WebTestBase extends LocomotiveBase {
 					System.err.println("error - not a http request!");
 				}
 
-			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -582,6 +590,7 @@ public class WebTestBase extends LocomotiveBase {
         } else {
             validateNotPresent(LOC_LOGIN_FAILED_TEXT);
         }
+        wait(500);
 
     }
 

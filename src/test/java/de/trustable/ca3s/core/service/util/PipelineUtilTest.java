@@ -12,13 +12,10 @@ import de.trustable.ca3s.core.service.dto.RDNRestriction;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 import de.trustable.util.Pkcs10RequestHolder;
-import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSet;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
-import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
-import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -90,7 +87,14 @@ class PipelineUtilTest {
     @Mock
     ConfigUtil configUtil= mock(ConfigUtil.class);
 
+    @Mock
+    RequestUtil requestUtil = mock(RequestUtil.class);
+
+    @Mock
     TenantRepository tenantRepository = mock(TenantRepository.class);
+
+    @Mock
+    AuthorityRepository authorityRepository = mock(AuthorityRepository.class);
 
     @Mock
     AuditService auditService= mock(AuditService.class);
@@ -103,6 +107,9 @@ class PipelineUtilTest {
 
     @Mock
     AuditTraceRepository auditTraceRepository= mock(AuditTraceRepository.class);
+
+    @Mock
+    RandomUtil randomUtil = mock(RandomUtil.class);
 
     PipelineUtil pu;
 
@@ -122,7 +129,9 @@ class PipelineUtilTest {
         when(preferenceUtil.getPrefs(anyLong())).thenReturn(prefs);
 
         when(algorithmRestrictionUtil.isAlgorithmRestrictionsResolved((Pkcs10RequestHolder) any(), anyList())).thenReturn(true);
-        pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+        pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, certUtil, algorithmRestrictionUtil, configUtil,
+            requestUtil, auditService, auditTraceRepository,
+            notificationService, tenantRepository, authorityRepository,requestProxyConfigRepository, defaultKeySpec, randomUtil);
     }
 
 	@Test
@@ -262,7 +271,8 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsCardinality() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, certUtil, algorithmRestrictionUtil, configUtil,
+            requestUtil, auditService, auditTraceRepository, notificationService, tenantRepository, authorityRepository, requestProxyConfigRepository, defaultKeySpec, randomUtil);
 
 		List<String> messageList = new ArrayList<>();
 
@@ -445,7 +455,8 @@ class PipelineUtilTest {
     @Test
     void testCheckPipelineRestrictionsOneCnOrSAN() throws GeneralSecurityException, IOException {
 
-        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, certUtil, algorithmRestrictionUtil, configUtil,
+            requestUtil, auditService, auditTraceRepository, notificationService, tenantRepository, authorityRepository, requestProxyConfigRepository, defaultKeySpec, randomUtil);
 
         List<String> messageList = new ArrayList<>();
 
@@ -559,7 +570,9 @@ class PipelineUtilTest {
     @Test
 	void testCheckPipelineRestrictionsConstantValue() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, certUtil, algorithmRestrictionUtil, configUtil,
+            requestUtil, auditService, auditTraceRepository, notificationService, tenantRepository, authorityRepository, requestProxyConfigRepository, defaultKeySpec, randomUtil);
+
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -683,7 +696,8 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsRegExp() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, certUtil, algorithmRestrictionUtil, configUtil,
+            requestUtil, auditService, auditTraceRepository, notificationService, tenantRepository, authorityRepository, requestProxyConfigRepository, defaultKeySpec, randomUtil);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu, OU=ca3s, OU=foo, OU=bar, O=trustable solutions, C=DE");
@@ -840,7 +854,8 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsIPHasSubject() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, certUtil, algorithmRestrictionUtil, configUtil,
+            requestUtil, auditService, auditTraceRepository, notificationService, tenantRepository, authorityRepository, requestProxyConfigRepository, defaultKeySpec, randomUtil);
 
         List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu");
@@ -923,7 +938,8 @@ class PipelineUtilTest {
 	@Test
 	void testCheckPipelineRestrictionsIPHasSAN() throws GeneralSecurityException, IOException {
 
-		PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, certUtil, algorithmRestrictionUtil, configUtil,
+            requestUtil, auditService, auditTraceRepository, notificationService, tenantRepository, authorityRepository, requestProxyConfigRepository, defaultKeySpec, randomUtil);
 
 		List<String> messageList = new ArrayList<>();
 		X500Principal subject = new X500Principal("CN=trustable.eu");
@@ -983,7 +999,9 @@ class PipelineUtilTest {
 
     @Test
     void testUsedInDomainOnly() throws IOException {
-        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, preferenceUtil, certUtil, algorithmRestrictionUtil, configUtil, auditService, auditTraceRepository, notificationService, tenantRepository, requestProxyConfigRepository, defaultKeySpec);
+
+        PipelineUtil pu = new PipelineUtil(certRepository, csrRepository, caConnRepository, pipelineRepository, pipelineAttRepository, bpmnPIRepository, protectedContentRepository, protectedContentUtil, certUtil, algorithmRestrictionUtil, configUtil,
+            requestUtil, auditService, auditTraceRepository, notificationService, tenantRepository, authorityRepository, requestProxyConfigRepository, defaultKeySpec, randomUtil);
 
         Assertions.assertTrue(pu.usedInDomainOnly(buildCSRPage(new String[]{"DNS:localhost"}),
                 buildPkcs10RequestHolder("localhost", new String[0]),

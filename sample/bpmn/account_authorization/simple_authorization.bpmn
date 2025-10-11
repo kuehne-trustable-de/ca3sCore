@@ -1,50 +1,63 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL"
-                  xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
-                  xmlns:camunda="http://camunda.org/schema/1.0/bpmn"
-                  xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
-                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                  xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
-                  xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0b80dgk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="4.8.1" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
-
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_0b80dgk" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.31.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.15.0">
   <bpmn:process id="Process_1xi6s4u" name="GroovyTest" isExecutable="true">
     <bpmn:startEvent id="StartEvent_1">
       <bpmn:outgoing>Flow_12ab1ol</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_12ab1ol" sourceRef="StartEvent_1" targetRef="Activity_12ghldc" />
-    <bpmn:scriptTask id="Activity_12ghldc" name="TestActivity" scriptFormat="groovy">
-        <bpmn:extensionElements>
-            <camunda:inputOutput>
-                <camunda:inputParameter name="accountRequest">${accountRequest}</camunda:inputParameter>
-            </camunda:inputOutput>
-        </bpmn:extensionElements>
+    <bpmn:scriptTask id="Activity_12ghldc" name="TestActivity" camunda:asyncBefore="true" scriptFormat="groovy">
+      <bpmn:extensionElements>
+        <camunda:inputOutput>
+            <camunda:inputParameter name="accountRequest">${accountRequest}</camunda:inputParameter>
+            <camunda:inputParameter name="jws">${jws}</camunda:inputParameter>
+            <camunda:inputParameter name="eabPresent">${eabPresent}</camunda:inputParameter>
+            <camunda:inputParameter name="eabJwsNeedsValidation">${eabJwsNeedsValidation}</camunda:inputParameter>
+        </camunda:inputOutput>
+        <camunda:failedJobRetryTimeCycle>R5/PT1M</camunda:failedJobRetryTimeCycle>
+      </bpmn:extensionElements>
       <bpmn:incoming>Flow_12ab1ol</bpmn:incoming>
       <bpmn:outgoing>Flow_1ilpuz8</bpmn:outgoing>
       <bpmn:multiInstanceLoopCharacteristics>
         <bpmn:loopCardinality xsi:type="bpmn:tFormalExpression">1</bpmn:loopCardinality>
       </bpmn:multiInstanceLoopCharacteristics>
       <bpmn:script>
-<![CDATA[
-        println "accountRequest " + accountRequest
+          import org.slf4j.*
+          Logger logger = LoggerFactory.getLogger("SimpleAuthorizationLogger")
+          logger.warn("++++++++  accountRequest " + accountRequest )
+
+      if( eabPresent ){
+        logger.warn( "++++++++  jws " + jws)
+        if(eabJwsNeedsValidation){
+          execution.setVariable("failureReason", "validation of JWS not implemented")
+          execution.setVariable("status", "Failure")
+          logger.warn( "++++++++  jws implementation missing")
+          return
+        }
+      } else {
+
+        logger.warn( "++++++++  no eab present, checking the given values")
 
         if(accountRequest.getContacts().isEmpty()){
-            execution.setVariable("failureReason", "no contacts available")
-            execution.setVariable("status", "Failure")
-            return
+          execution.setVariable("failureReason", "no contacts available")
+          execution.setVariable("status", "Failure")
+          logger.warn( "++++++++  contacts missing")
+          return
         }
 
+        logger.warn( "++++++++  iterating all contacts")
         for( String contact: accountRequest.getContacts()){
-            println "contact: " + contact
-            if(!contact.contains("trustable")){
-                execution.setVariable("failureReason", "unexpected contact '" + contact + "'")
-                execution.setVariable("status", "Failure")
-                return
-            }
+          logger.warn( "++++++++  contact: " + contact)
+          if(!contact.contains("trustable")){
+            execution.setVariable("failureReason", "unexpected contact '" + contact + "'")
+            execution.setVariable("status", "Failure")
+            logger.warn( "++++++++  unexpected contact: " + contact)
+            return
+          }
         }
+      }
 
-        execution.setVariable("failureReason", "");
-        execution.setVariable("status", "Success");
-]]>
+      execution.setVariable("failureReason", "");
+      execution.setVariable("status", "Success");
       </bpmn:script>
     </bpmn:scriptTask>
     <bpmn:endEvent id="Event_0p0maiz">
@@ -54,14 +67,6 @@
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1xi6s4u">
-      <bpmndi:BPMNEdge id="Flow_12ab1ol_di" bpmnElement="Flow_12ab1ol">
-        <di:waypoint x="215" y="117" />
-        <di:waypoint x="350" y="117" />
-      </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Flow_1ilpuz8_di" bpmnElement="Flow_1ilpuz8">
-        <di:waypoint x="450" y="117" />
-        <di:waypoint x="632" y="117" />
-      </bpmndi:BPMNEdge>
       <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
         <dc:Bounds x="179" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
@@ -71,6 +76,14 @@
       <bpmndi:BPMNShape id="Event_0p0maiz_di" bpmnElement="Event_0p0maiz">
         <dc:Bounds x="632" y="99" width="36" height="36" />
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_12ab1ol_di" bpmnElement="Flow_12ab1ol">
+        <di:waypoint x="215" y="117" />
+        <di:waypoint x="350" y="117" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1ilpuz8_di" bpmnElement="Flow_1ilpuz8">
+        <di:waypoint x="450" y="117" />
+        <di:waypoint x="632" y="117" />
+      </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>
 </bpmn:definitions>

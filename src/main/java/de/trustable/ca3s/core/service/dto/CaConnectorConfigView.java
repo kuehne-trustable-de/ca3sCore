@@ -32,13 +32,11 @@ public class CaConnectorConfigView implements Serializable {
 
     private String selector;
 
+    private String role;
+
     private Interval interval;
 
     private boolean messageProtectionPassphrase;
-
-    private String plainSecret;
-
-    private Instant secretValidTo;
 
     private Long tlsAuthenticationId;
 
@@ -52,6 +50,8 @@ public class CaConnectorConfigView implements Serializable {
     private boolean implicitConfirm = true;
     private boolean fillEmptySubjectWithSAN = true;
     private Instant expiryDate;
+
+    private AuthenticationParameter authenticationParameter;
 
     public Long getId() {
         return id;
@@ -126,28 +126,20 @@ public class CaConnectorConfigView implements Serializable {
         this.selector = selector;
     }
 
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
     public Interval getInterval() {
         return interval;
     }
 
     public void setInterval(Interval interval) {
         this.interval = interval;
-    }
-
-    public String getPlainSecret() {
-        return plainSecret;
-    }
-
-    public void setPlainSecret(String plainSecret) {
-        this.plainSecret = plainSecret;
-    }
-
-    public Instant getSecretValidTo() {
-        return secretValidTo;
-    }
-
-    public void setSecretValidTo(Instant secretValidTo) {
-        this.secretValidTo = secretValidTo;
     }
 
     public String getIssuerName() {
@@ -260,5 +252,13 @@ public class CaConnectorConfigView implements Serializable {
     }
     public void setExpiryDate(Instant expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public AuthenticationParameter getAuthenticationParameter() {
+        return authenticationParameter;
+    }
+
+    public void setAuthenticationParameter(AuthenticationParameter authenticationParameter) {
+        this.authenticationParameter = authenticationParameter;
     }
 }

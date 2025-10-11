@@ -3,8 +3,10 @@ import axios, { AxiosError } from 'axios';
 import { mapGetters } from 'vuex';
 import Component, { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
-import { IAccountCredentialView, IPasswordChangeDTO } from '@/shared/model/transfer-object.model';
+import { IAccountCredentialView, IPasswordChangeDTO, IPipelineType, ITokenRequest } from '@/shared/model/transfer-object.model';
 import { Vue } from 'vue-property-decorator';
+import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
+import { PipelineView } from '@/core/pipeline/pipeline-update.component';
 
 const validations = {
   resetPassword: {
@@ -34,6 +36,9 @@ const validations = {
   computed: {
     ...mapGetters(['account']),
   },
+  components: {
+    CopyClipboardButton,
+  },
 })
 export default class EditCredential extends mixins(AlertMixin, Vue) {
   base32RegEx: string = '^(?:[A-Z2-7]{8})*(?:[A-Z2-7]{2}={6}|[A-Z2-7]{4}={4}|[A-Z2-7]{5}={3}|[A-Z2-7]{7}=)?$';
@@ -44,10 +49,11 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
   doNotMatch: string = null;
   oldPasswordMismatch = false;
   updateCounter: number = 1;
-
   public smsSent: string = '';
 
-  credentialChange: IPasswordChangeDTO = { credentialUpdateType: 'TOTP' };
+  credentialChange: IPasswordChangeDTO = { credentialUpdateType: 'TOTP', apiTokenValiditySeconds: 86400 };
+
+  tokenRequest: ITokenRequest = { credentialType: 'API_TOKEN', validitySeconds: 24 * 3600 };
 
   resetPassword: any = {
     currentPassword: null,
@@ -58,7 +64,10 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
 
   qrCodeImgUrl: string = null;
 
+  public pipelineViewArr: PipelineView[] = [];
+
   public accountCredentialArr: IAccountCredentialView[] = [];
+  public tokenArr: IAccountCredentialView[] = [];
 
   public currentAccountCredentialId: number = -1;
   public useGivenSeed: boolean = false;
@@ -79,7 +88,31 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
     if (this.credentialChange.credentialUpdateType === 'TOTP') {
       this.initOtp();
     }
+    this.tokenRequest.validitySeconds = 24 * 3600;
+
+    if (this.credentialChange.credentialUpdateType === 'API_TOKEN') {
+      this.tokenRequest.credentialType = 'API_TOKEN';
+      this.getApiToken();
+    }
+    if (this.credentialChange.credentialUpdateType === 'SCEP_TOKEN') {
+      this.tokenRequest.credentialType = 'SCEP_TOKEN';
+      this.getApiToken();
+      this.fillPipelineData('SCEP');
+    } else if (this.credentialChange.credentialUpdateType === 'EST_TOKEN') {
+      this.tokenRequest.credentialType = 'EST_TOKEN';
+      this.getApiToken();
+      this.fillPipelineData('EST');
+    } else if (this.credentialChange.credentialUpdateType === 'EAB_PASSWORD') {
+      this.tokenRequest.credentialType = 'EAB_PASSWORD';
+      this.getApiToken();
+      this.fillPipelineData('ACME');
+    }
+
     this.credentialChange.clientAuthCertId = 0;
+  }
+
+  public get settingsAccount(): any {
+    return this.$store.getters.account;
   }
 
   public saveCredentials(): void {
@@ -88,7 +121,7 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
     this.oldPasswordMismatch = false;
 
     axios
-      .post('api/account/change-password', this.credentialChange)
+      .post('/api/account/change-password', this.credentialChange)
       .then(() => {
         self.success = 'OK';
         self.credentialChange.clientAuthCertId = 0;
@@ -128,8 +161,7 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
 
     axios({
       method: 'get',
-      url: 'api/account/credentials',
-      responseType: 'stream',
+      url: '/api/account/credentials',
     })
       .then(function (response) {
         window.console.info('getCredentials returns ' + response.data);
@@ -155,6 +187,25 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
       });
   }
 
+  public fillPipelineData(pipelineType: IPipelineType): void {
+    window.console.info('calling fillPipelineData ');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: '/api/pipeline/activeByType/' + pipelineType,
+    })
+      .then(res => {
+        self.pipelineViewArr = res.data;
+        if (self.pipelineViewArr.length > 0) {
+          self.credentialChange.pipelineId = self.pipelineViewArr[0].id;
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+  }
+
   public get username(): string {
     return this.$store.getters.account?.login ?? '';
   }
@@ -162,6 +213,7 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
   public keystoreFilename(): string {
     return 'personalClientCertificate.p12';
   }
+
   public downloadPersonalCertificate(secret: string) {
     const mimetype = 'application/x-pkcs12';
     const pbeAlgo: string = this.$store.state.uiConfigStore.config.cryptoConfigView.defaultPBEAlgo;
@@ -326,6 +378,37 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
       });
   }
 
+  public getApiToken(): void {
+    const self = this;
+
+    axios
+      .post('/api/token/apiToken', this.tokenRequest)
+      .then(response => {
+        const tokenResponse: TokenResponse = response.data;
+        self.credentialChange.apiTokenValue = tokenResponse.tokenValue;
+        self.credentialChange.eabKid = tokenResponse.eabKid;
+        self.updateCounter++;
+      })
+      .catch(function (error) {
+        console.log(error);
+        const message = self.$t('problem processing request: ' + error);
+
+        const err = error as AxiosError;
+        if (err.response) {
+          console.log(err.response.status);
+          console.log(err.response.data);
+          if (err.response.status === 401) {
+            self.alertService().showAlert('Action not allowed', 'warn');
+          } else {
+            self.alertService().showAlert(message, 'info');
+          }
+        } else {
+          self.alertService().showAlert(message, 'info');
+        }
+        self.getAlertFromStore();
+      });
+  }
+
   public showRequiredWarning(isRequired: boolean, value: string): boolean {
     console.log('showRequiredWarning( ' + isRequired + ', "' + value + '")');
     if (isRequired) {
@@ -402,6 +485,29 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
       }
 
       console.log('canSubmit SMS: values OK');
+    } else if (this.credentialChange.credentialUpdateType === 'API_TOKEN') {
+      if (!this.credentialChange.apiTokenValue) {
+        return false;
+      }
+      if (this.credentialChange.apiTokenValue.trim().length === 0) {
+        return false;
+      }
+      console.log('canSubmit API-Token: values OK');
+    } else if (
+      this.credentialChange.credentialUpdateType === 'SCEP_TOKEN' ||
+      this.credentialChange.credentialUpdateType === 'EST_TOKEN' ||
+      this.credentialChange.credentialUpdateType === 'EAB_PASSWORD'
+    ) {
+      if (!this.credentialChange.apiTokenValue) {
+        return false;
+      }
+      if (!this.credentialChange.pipelineId) {
+        return false;
+      }
+      if (this.credentialChange.apiTokenValue.trim().length === 0) {
+        return false;
+      }
+      console.log('canSubmit ' + this.credentialChange.credentialUpdateType + ': values OK');
     }
 
     console.log('canSubmit: currentPassword.$invalid: ' + this.$v.resetPassword.currentPassword.$invalid);

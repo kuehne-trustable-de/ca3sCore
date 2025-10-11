@@ -24,6 +24,10 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import static de.trustable.ca3s.core.service.dto.ARAContentType.EMAIL_ADDRESS;
+import static de.trustable.ca3s.core.service.util.PipelineUtil.*;
 
 
 @Service
@@ -43,8 +47,13 @@ public class PipelineTestConfiguration {
     private static final String PIPELINE_NAME_ACME_DOMAIN_REUSE_WARN= "acmeDomainReuseWarn";
     private static final String PIPELINE_NAME_ACME_KEY_UNIQUE_WARN= "acmeKeyUniqueWarn";
     private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
+    private static final String PIPELINE_NAME_ACME_EAB = "acmeEab";
+    private static final String PIPELINE_NAME_ACME_REJECT_127_0_0_X = "acmeReject127_0_0_x";
+    private static final String PIPELINE_NAME_ACME_ACCEPT_10_10_X_X = "acmeAccept10_10_x_x";
+
     private static final String PIPELINE_NAME_ACME1CNNOIP = "acme1CNNoIP";
     private static final String PIPELINE_NAME_SCEP = "scep";
+    private static final String PIPELINE_NAME_SCEP_SHORT_RENEWAL = "scep_short_renewal";
     private static final String PIPELINE_NAME_SCEP1CN = "scep1CN";
     public static final String ACME_REALM = "acmeTest";
     public static final String ACME_REALM_DOMAIN_REUSE  = "acmeTestDomainReuse";
@@ -52,8 +61,12 @@ public class PipelineTestConfiguration {
     public static final String ACME_REALM_KEY_UNIQUE_WARN  = "acmeTestKeyUniqueWarn";
 
     public static final String ACME1CN_REALM = "acmeTest1CN";
+    public static final String ACME_EAB_REALM = "acmeTestEab";
+    public static final String ACME_REJECT_127_0_0_X_REALM = "acmeTestReject_127_0_0_X";
+    public static final String ACME_ACCEPT_10_10_X_X_REALM = "acmeTestAccept_10_10_X_X";
     public static final String ACME1CNNOIP_REALM = "acmeTest1CNNoIP";
     public static final String SCEP_REALM = "scepTest";
+    public static final String SCEP_REALM_SHORT_RENEWAL = "scepTestShortRenewal";
     public static final String SCEP1CN_REALM = "scepTest1CN";
 
     public static final String SCEP_PASSWORD = "abc123#*/";
@@ -85,6 +98,13 @@ public class PipelineTestConfiguration {
     private BPMNUtil bpmnUtil;
 
     private BPMNProcessInfo simpleBPMNProcessInfo;
+
+    private Authority userAuthority = new Authority("ROLE_USER");
+    private Set<Authority> authoritySet = new HashSet<>();
+
+    public PipelineTestConfiguration() {
+        authoritySet.add(userAuthority);
+    }
 
     static final String SIMPLE_CERTIFICATE_PROCESS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
         "<bpmn2:definitions xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:bpmn2=\"http://www.omg.org/spec/BPMN/20100524/MODEL\" xmlns:bpmndi=\"http://www.omg.org/spec/BPMN/20100524/DI\" xmlns:camunda=\"http://camunda.org/schema/1.0/bpmn\" xmlns:dc=\"http://www.omg.org/spec/DD/20100524/DC\" xmlns:di=\"http://www.omg.org/spec/DD/20100524/DI\" id=\"_DdZocL47EeOQo_IRkjDF6w\" targetNamespace=\"http://camunda.org/schema/1.0/bpmn\" exporter=\"Camunda Modeler\" exporterVersion=\"5.29.0\" xsi:schemaLocation=\"http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd\">\n" +
@@ -462,6 +482,87 @@ public class PipelineTestConfiguration {
     }
 
     @Transactional
+    public Pipeline getInternalACMETestPipelineEabRestrictions() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_EAB);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_KEY_UNIQUE_WARN);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_EAB);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_EAB_REALM);
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setExternalAccountRequired(true);
+
+        Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipelineLaxEab);
+        return pipelineLaxEab;
+    }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineNetwort127_0_0_xRejectRestrictions() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_REJECT_127_0_0_X);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_KEY_UNIQUE_WARN);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_REJECT_127_0_0_X);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_REJECT_127_0_0_X_REALM);
+        String[] rejectArr = {"127.0.0.0/24"};
+        pv_LaxDomainReuseWarn.setNetworkRejectArr(rejectArr);
+        Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipelineLaxEab);
+        return pipelineLaxEab;
+    }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineNetwort10_10_x_xAcceptRestrictions() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_ACCEPT_10_10_X_X);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_KEY_UNIQUE_WARN);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_ACCEPT_10_10_X_X);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_ACCEPT_10_10_X_X_REALM);
+        String[] acceptArr = {"10.10.0.0/16"};
+        pv_LaxDomainReuseWarn.setNetworkAcceptArr(acceptArr);
+        Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipelineLaxEab);
+        return pipelineLaxEab;
+    }
+
+
+
+
+    @Transactional
     public Pipeline getInternalACMETestPipeline_1_CN_ONLY_Restrictions() {
 
         Pipeline examplePipeline = new Pipeline();
@@ -603,6 +704,8 @@ public class PipelineTestConfiguration {
         pipelineWeb.setType(PipelineType.WEB);
         pipelineWeb.setUrlPart("test");
 
+        pipelineWeb.setAuthorities(authoritySet);
+
         addPipelineAttribute(pipelineWeb, PipelineUtil.ALLOW_IP_AS_SAN, "false");
         addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_REQUIRED, "true");
         addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_LINK, "http://trustable.eu/tos.html");
@@ -640,6 +743,8 @@ public class PipelineTestConfiguration {
         pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE_KEY_REUSE);
         pipelineWeb.setType(PipelineType.WEB);
         pipelineWeb.setUrlPart("test");
+
+        pipelineWeb.setAuthorities(authoritySet);
 
         addPipelineAttribute(pipelineWeb, PipelineUtil.KEY_UNIQUENESS, KeyUniqueness.KEY_REUSE.toString());
 
@@ -694,6 +799,26 @@ public class PipelineTestConfiguration {
         pipelineWeb.setName(PIPELINE_NAME_WEB_RA_ISSUANCE);
         pipelineWeb.setType(PipelineType.WEB);
         pipelineWeb.setUrlPart("test");
+
+        pipelineWeb.setAuthorities(authoritySet);
+
+        Set<PipelineAttribute> attrs = pipelineWeb.getPipelineAttributes();
+
+        PipelineAttribute attName = new PipelineAttribute();
+        attName.setPipeline(pipelineWeb);
+        attName.setName(RESTR_ARA_PREFIX + "0" + RESTR_ARA_NAME);
+        attName.setValue("additional_email");
+        attrs.add(attName);
+
+        PipelineAttribute attType = new PipelineAttribute();
+        attType.setPipeline(pipelineWeb);
+        attType.setName(RESTR_ARA_PREFIX + "0" + RESTR_ARA_CONTENT_TYPE);
+        attType.setValue(EMAIL_ADDRESS.toString());
+        attrs.add(attType);
+
+        pipelineAttributeRepository.saveAll(attrs);
+        pipelineWeb.setPipelineAttributes(attrs);
+
         pipelineRepo.save(pipelineWeb);
         return pipelineWeb;
     }
@@ -722,6 +847,9 @@ public class PipelineTestConfiguration {
         pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
         pipelineWeb.setType(PipelineType.WEB);
         pipelineWeb.setUrlPart("test");
+
+        pipelineWeb.setAuthorities(authoritySet);
+
         pipelineRepo.save(pipelineWeb);
         return pipelineWeb;
     }
@@ -785,6 +913,9 @@ public class PipelineTestConfiguration {
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();
         scepConfigItems.setScepSecret(SCEP_PASSWORD);
         scepConfigItems.setScepSecretPCId(String.valueOf(pc.getId()));
+
+        scepConfigItems.setPercentageOfValidtyBeforeRenewal(0);
+
         pv_LaxRestrictions.setScepConfigItems(scepConfigItems);
 
         Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_LaxRestrictions);
@@ -795,6 +926,78 @@ public class PipelineTestConfiguration {
 
         return pipelineLaxRestrictions;
 
+    }
+
+    @Transactional
+    public Pipeline getInternalSCEPTestPipelineLaxRestrictionsShortRenewalPeriod() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_SCEP_SHORT_RENEWAL);
+        examplePipeline.setActive(true);
+
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_SCEP_SHORT_RENEWAL);
+
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxRestrictions = new PipelineView();
+        pv_LaxRestrictions.setRestriction_C(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_CN(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_L(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_O(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_OU(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+        pv_LaxRestrictions.setRestriction_S(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+        pv_LaxRestrictions.setRestriction_E(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
+
+        pv_LaxRestrictions.setRestriction_SAN(new RDNRestriction());
+        pv_LaxRestrictions.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_MANY);
+
+        pv_LaxRestrictions.setApprovalRequired(false);
+
+        pv_LaxRestrictions.setCaConnectorId(internalTestCAC().getId());
+        pv_LaxRestrictions.setCaConnectorName(internalTestCAC().getName());
+        pv_LaxRestrictions.setName(PIPELINE_NAME_SCEP_SHORT_RENEWAL);
+        pv_LaxRestrictions.setType(PipelineType.SCEP);
+        pv_LaxRestrictions.setActive(true);
+        pv_LaxRestrictions.setUrlPart(SCEP_REALM_SHORT_RENEWAL);
+
+
+        ProtectedContent pc = new ProtectedContent();
+        pc.setType(ProtectedContentType.PASSWORD);
+        pc.setRelationType(ContentRelationType.SCEP_PW);
+        pc.setCreatedOn(Instant.now());
+        pc.setLeftUsages(-1);
+        pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
+        pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
+        pc.setContentBase64(protectedContentUtil.protectString(SCEP_PASSWORD));
+        protectedContentRepository.save(pc);
+
+        SCEPConfigItems scepConfigItems = new SCEPConfigItems();
+        scepConfigItems.setScepSecret(SCEP_PASSWORD);
+        scepConfigItems.setScepSecretPCId(String.valueOf(pc.getId()));
+
+        scepConfigItems.setCapabilityRenewal(true);
+        scepConfigItems.setPeriodDaysRenewal(0);
+
+        pv_LaxRestrictions.setScepConfigItems(scepConfigItems);
+
+        Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_LaxRestrictions);
+        pipelineRepo.save(pipelineLaxRestrictions);
+
+        pc.setRelatedId(pipelineLaxRestrictions.getId());
+        protectedContentRepository.save(pc);
+
+        return pipelineLaxRestrictions;
     }
 
     @Transactional

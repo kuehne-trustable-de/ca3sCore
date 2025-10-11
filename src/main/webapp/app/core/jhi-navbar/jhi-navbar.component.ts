@@ -47,7 +47,7 @@ export default class JhiNavbar extends Vue {
       window.console.info('$cookie ca3sJWT present : ' + jwt);
       localStorage.setItem('jhi-authenticationToken', '' + jwt);
       this.accountService().retrieveAccount();
-      //      this.$cookie.delete(this._ca3sJWT);
+      this.$cookie.delete(CA3S_JWT_COOKIE_NAME);
     }
 
     const self = this;

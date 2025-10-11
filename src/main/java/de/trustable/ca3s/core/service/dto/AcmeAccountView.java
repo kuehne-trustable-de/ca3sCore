@@ -1,7 +1,7 @@
 package de.trustable.ca3s.core.service.dto;
 
-import com.opencsv.bean.CsvBindByName;
-import com.opencsv.bean.CsvIgnore;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 
 import java.io.Serializable;
@@ -11,8 +11,14 @@ public class AcmeAccountView implements Serializable {
 
     private Long id;
     private Long accountId;
+    private String eabKid;
+    private User eabUser;
+
     private String realm;
+
+    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm:ss.SSS'Z'", timezone = "UTC")
     private Instant createdOn;
+
     private AccountStatus status;
     private Boolean termsOfServiceAgreed;
     private String publicKeyHash;
@@ -41,6 +47,22 @@ public class AcmeAccountView implements Serializable {
 
     public void setAccountId(Long accountId) {
         this.accountId = accountId;
+    }
+
+    public String getEabKid() {
+        return eabKid;
+    }
+
+    public void setEabKid(String eabKid) {
+        this.eabKid = eabKid;
+    }
+
+    public User getEabUser() {
+        return eabUser;
+    }
+
+    public void setEabUser(User eabUser) {
+        this.eabUser = eabUser;
     }
 
     public String getRealm() {

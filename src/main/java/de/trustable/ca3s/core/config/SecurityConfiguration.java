@@ -9,6 +9,7 @@ import de.trustable.ca3s.core.security.apikey.APIKeyAuthenticationManager;
 import de.trustable.ca3s.core.security.apikey.NullAuthFilter;
 import de.trustable.ca3s.core.security.jwt.JWTConfigurer;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
+import de.trustable.ca3s.core.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -127,6 +128,9 @@ public class SecurityConfiguration{
 
     @Autowired
     private KeyManager keyManager;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private AuthenticationConfiguration configuration;
@@ -372,6 +376,7 @@ public class SecurityConfiguration{
             .antMatchers("/api/administerCertificate").denyAll()
 
             // Check this block for usefulness of endpoints
+//            .antMatchers("/camunda/**").permitAll()
             .antMatchers("/api/cockpit/**").permitAll()
             .antMatchers("/api/tasklist/**").permitAll()
             .antMatchers("/api/engine/**").permitAll()
@@ -486,7 +491,7 @@ public class SecurityConfiguration{
 
         if (apiKeyEnabled) {
             APIKeyAuthFilter filter = new APIKeyAuthFilter(apiKeyRequestHeader);
-            filter.setAuthenticationManager(new APIKeyAuthenticationManager(apiKeyAdminValue));
+            filter.setAuthenticationManager(new APIKeyAuthenticationManager(userService, apiKeyAdminValue));
             LOG.info("registered authentication by APIKey");
             return filter;
         } else {

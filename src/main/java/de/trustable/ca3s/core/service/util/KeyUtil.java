@@ -15,12 +15,15 @@ import java.security.NoSuchAlgorithmException;
 public class KeyUtil {
 
     final private String defaultKeySpec;
+    private final RandomUtil randomUtil;
+
 
     private static final Logger LOG = LoggerFactory.getLogger(KeyUtil.class);
 
-    public KeyUtil(@Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec) {
+    public KeyUtil(@Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec, RandomUtil randomUtil) {
         // @ToDo check back with the list of valid algos
         this.defaultKeySpec = defaultKeySpec;
+        this.randomUtil = randomUtil;
     }
 
     public KeyPair createKeyPair(){
@@ -39,7 +42,7 @@ public class KeyUtil {
     public KeyPair createKeyPair(final String keySpec) throws NoSuchAlgorithmException {
         KeyAlgoLengthOrSpec kal = KeyAlgoLengthOrSpec.from(keySpec);
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
-        keyPairGenerator.initialize(kal.getKeyLength(), RandomUtil.getSecureRandom());
+        keyPairGenerator.initialize(kal.getKeyLength(), randomUtil.getSecureRandom());
         return keyPairGenerator.generateKeyPair();
     }
 }

@@ -12,6 +12,7 @@ import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.CertificateService;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.service.KeyGenerationService;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.TypedValue;
@@ -76,8 +77,9 @@ public class CertificateServiceImpl implements CertificateService {
     private final CertificateProcessingUtil cpUtil;
     private final AsyncNotificationService asyncNotificationService;
     final private AuditService auditService;
+    private final KeyGenerationService keyGenerationService;
 
-    public CertificateServiceImpl(CertificateRepository certificateRepository, CryptoService cryptoUtil, ProtectedContentUtil protUtil, PreferenceUtil preferenceUtil, CertificateUtil certificateUtil, CSRUtil csrUtil, CSRRepository csrRepository, CertificateProcessingUtil cpUtil, AsyncNotificationService asyncNotificationService, AuditService auditService) {
+    public CertificateServiceImpl(CertificateRepository certificateRepository, CryptoService cryptoUtil, ProtectedContentUtil protUtil, PreferenceUtil preferenceUtil, CertificateUtil certificateUtil, CSRUtil csrUtil, CSRRepository csrRepository, CertificateProcessingUtil cpUtil, AsyncNotificationService asyncNotificationService, AuditService auditService, KeyGenerationService keyGenerationService) {
         this.certificateRepository = certificateRepository;
         this.cryptoUtil = cryptoUtil;
         this.protUtil = protUtil;
@@ -89,6 +91,7 @@ public class CertificateServiceImpl implements CertificateService {
         this.cpUtil = cpUtil;
         this.asyncNotificationService = asyncNotificationService;
         this.auditService = auditService;
+        this.keyGenerationService = keyGenerationService;
     }
 
     /**
@@ -155,8 +158,7 @@ public class CertificateServiceImpl implements CertificateService {
                                                  boolean notifyRAOfficer)
         throws GeneralSecurityException, IOException, OperatorCreationException {
 
-        KeyPair keypair = keyAlgoLength.generateKeyPair();
-
+        KeyPair keypair = keyGenerationService.generateKeyPair(keyAlgoLength);
 
         X500NameBuilder namebuilder = new X500NameBuilder(X500Name.getDefaultStyle());
         List<GeneralName> gnList = new ArrayList<>();

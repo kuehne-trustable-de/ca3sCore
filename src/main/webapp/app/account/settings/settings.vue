@@ -8,8 +8,6 @@
 
                 <div class="alert alert-danger" role="alert" v-if="errorEmailExists" v-html="$t('register.messages.error.emailexists')"></div>
 
-                <!--<jhi-alert-error></jhi-alert-error>-->
-
                 <b v-if="settingsAccount.managedExternally" v-text="$t('settings.form.disabled.managed.externally')"></b>
 
                 <form name="form" id="settings-form" role="form" v-on:submit.prevent="save()" v-if="settingsAccount" novalidate>

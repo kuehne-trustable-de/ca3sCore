@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-05-15 18:46:33.
+// Generated using typescript-generator version 3.2.1263 on 2025-09-09 16:08:07.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -49,6 +49,8 @@ export interface IAuditTraceView extends ISerializable {
 export interface IAcmeAccountView extends ISerializable {
   id?: number;
   accountId?: number;
+  eabKid?: string;
+  eabUser?: IUser;
   realm?: string;
   createdOn?: Date;
   status?: IAccountStatus;
@@ -81,6 +83,16 @@ export interface IAcmeOrderView extends ISerializable {
   csrId?: number;
   certificateId?: number;
   accountId?: string;
+}
+
+export interface IAuthenticationParameter {
+  kdfType?: IKDFType;
+  plainSecret?: string;
+  secretValidTo?: Date;
+  salt?: string;
+  cycles?: number;
+  apiKeySalt?: string;
+  apiKeyCycles?: number;
 }
 
 export interface IScepOrderView extends ISerializable {
@@ -123,10 +135,9 @@ export interface ICaConnectorConfigView extends ISerializable {
   active?: boolean;
   trustSelfsignedCertificates?: boolean;
   selector?: string;
+  role?: string;
   interval?: IInterval;
   messageProtectionPassphrase?: boolean;
-  plainSecret?: string;
-  secretValidTo?: Date;
   tlsAuthenticationId?: number;
   messageProtectionId?: number;
   ignoreResponseMessageVerification?: boolean;
@@ -136,6 +147,7 @@ export interface ICaConnectorConfigView extends ISerializable {
   implicitConfirm?: boolean;
   fillEmptySubjectWithSAN?: boolean;
   expiryDate?: Date;
+  authenticationParameter?: IAuthenticationParameter;
 }
 
 export interface IPipelineView extends ISerializable {
@@ -173,6 +185,8 @@ export interface IPipelineView extends ISerializable {
   domainRaOfficerList?: string[];
   allTenantList?: ITenant[];
   selectedTenantList?: ITenant[];
+  allRolesList?: IAuthority[];
+  selectedRolesList?: IAuthority[];
   toPendingOnFailedRestrictions?: boolean;
   ipAsSubjectAllowed?: boolean;
   ipAsSANAllowed?: boolean;
@@ -180,6 +194,8 @@ export interface IPipelineView extends ISerializable {
   scepConfigItems?: ISCEPConfigItems;
   webConfigItems?: IWebConfigItems;
   auditViewArr?: IAuditView[];
+  networkAcceptArr?: string[];
+  networkRejectArr?: string[];
   csrUsage?: ICsrUsage;
   requestProxyConfigIds?: number[];
 }
@@ -262,10 +278,10 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  issuingActiveCertificates?: boolean;
-  fullChainAvailable?: boolean;
-  serversideKeyGeneration?: boolean;
   auditPresent?: boolean;
+  serversideKeyGeneration?: boolean;
+  fullChainAvailable?: boolean;
+  issuingActiveCertificates?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -343,8 +359,8 @@ export interface ICSRView extends ISerializable {
   isAdministrable?: boolean;
   tosAgreed?: boolean;
   tosAgreementLink?: string;
-  administrable?: boolean;
   csrvalid?: boolean;
+  administrable?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -416,6 +432,8 @@ export interface IAccountCredentialView extends ISerializable {
   validTo?: Date;
   leftUsages?: number;
   relationType?: IAccountCredentialsType;
+  pipelineName?: string;
+  status?: IProtectedContentStatus;
 }
 
 export interface IPasswordChangeDTO {
@@ -424,7 +442,11 @@ export interface IPasswordChangeDTO {
   newPassword?: string;
   seed?: string;
   otpTestValue?: string;
+  apiTokenValue?: string;
+  apiTokenValiditySeconds?: number;
   clientAuthCertId?: number;
+  pipelineId?: number;
+  eabKid?: string;
   secondFactorRequired?: boolean;
 }
 
@@ -526,9 +548,37 @@ export interface ILoginData {
   authSecondFactor?: IAuthSecondFactor;
 }
 
-export interface ISerializable {}
+export interface ITokenRequest {
+  credentialType?: IAccountCredentialsType;
+  validitySeconds?: number;
+}
 
-export interface IURI extends IComparable<IURI>, ISerializable {}
+export interface ISerializable {
+}
+
+export interface IURI extends IComparable<IURI>, ISerializable {
+}
+
+export interface IUser extends IAbstractAuditingEntity<any>, ISerializable {
+  id?: number;
+  login?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  secondFactorRequired?: boolean;
+  activated?: boolean;
+  langKey?: string;
+  imageUrl?: string;
+  resetDate?: Date;
+  failedLogins?: number;
+  lastloginDate?: Date;
+  blockedUntilDate?: Date;
+  credentialsValidToDate?: Date;
+  managedExternally?: boolean;
+  lastUserDetailsUpdate?: Date;
+  tenant?: ITenant;
+}
 
 export interface IAcmeChallengeView extends ISerializable {
   authorizationType?: string;
@@ -580,6 +630,10 @@ export interface ITenant extends ISerializable {
   pipelines?: IPipeline[];
 }
 
+export interface IAuthority extends ISerializable {
+  name?: string;
+}
+
 export interface IAcmeConfigItems extends ISerializable {
   allowChallengeHTTP01?: boolean;
   allowChallengeAlpn?: boolean;
@@ -593,11 +647,14 @@ export interface IAcmeConfigItems extends ISerializable {
   processInfoNameAccountAuthorization?: string;
   processInfoNameOrderValidation?: string;
   processInfoNameChallengeValidation?: string;
+  externalAccountRequired?: boolean;
 }
 
 export interface ISCEPConfigItems extends ISerializable {
   capabilityRenewal?: boolean;
   capabilityPostPKIOperation?: boolean;
+  periodDaysRenewal?: number;
+  percentageOfValidtyBeforeRenewal?: number;
   recepientCertSubject?: string;
   recepientCertSerial?: string;
   recepientCertId?: number;
@@ -612,6 +669,7 @@ export interface ISCEPConfigItems extends ISerializable {
 export interface IWebConfigItems extends ISerializable {
   additionalEMailRecipients?: string;
   notifyRAOfficerOnPendingRequest?: boolean;
+  notifyDomainRAOfficerOnPendingRequest?: boolean;
   processInfoNameRequestAuthorization?: string;
   issuesSecondFactorClientCert?: boolean;
 }
@@ -691,6 +749,10 @@ export interface ICertificate extends ISerializable {
   serialAsHex?: string;
 }
 
+export interface IAbstractAuditingEntity<T> extends ISerializable {
+  id?: T;
+}
+
 export interface IBPMNProcessInfo extends ISerializable {
   id?: number;
   name?: string;
@@ -722,10 +784,13 @@ export interface IPipeline extends ISerializable {
   algorithms?: IAlgorithmRestriction[];
   requestProxies?: IRequestProxyConfig[];
   tenants?: ITenant[];
+  authorities?: IAuthority[];
 }
 
 export interface IKeyAlgoLengthOrSpec {
   algoName?: string;
+  contentBuilderName?: string;
+  providerName?: string;
   algoGroup?: string;
   keyLength?: number;
   algorithmParameterSpec?: IAlgorithmParameterSpec;
@@ -814,7 +879,8 @@ export interface ICAConnectorConfig extends ISerializable {
   expiryDate?: Date;
 }
 
-export interface IComparable<T> {}
+export interface IComparable<T> {
+}
 
 export interface IPipelineAttribute extends ISerializable {
   id?: number;
@@ -841,7 +907,8 @@ export interface IRequestProxyConfig extends ISerializable {
   pipelines?: IPipeline[];
 }
 
-export interface IAlgorithmParameterSpec {}
+export interface IAlgorithmParameterSpec {
+}
 
 export interface IBadKeysResultDetails extends ISerializable {
   blocklist?: IBadKeysBlocklist;
@@ -918,88 +985,52 @@ export interface IRequestAttributeValue extends ISerializable {
   reqAttr?: IRequestAttribute;
 }
 
-export type ICAStatus = 'Active' | 'Deactivated' | 'Problem' | 'Unknown';
+export type ICAStatus = "Active" | "Deactivated" | "Problem" | "Unknown";
 
-export type ISelector =
-  | 'EQUAL'
-  | 'NOT_EQUAL'
-  | 'LIKE'
-  | 'NOTLIKE'
-  | 'LESSTHAN'
-  | 'GREATERTHAN'
-  | 'HEX'
-  | 'DECIMAL'
-  | 'ON'
-  | 'BEFORE'
-  | 'AFTER'
-  | 'ISTRUE'
-  | 'ISFALSE'
-  | 'IN'
-  | 'NOT_IN'
-  | 'PERIOD_BEFORE'
-  | 'PERIOD_AFTER';
+export type ISelector = "EQUAL" | "NOT_EQUAL" | "LIKE" | "NOTLIKE" | "LESSTHAN" | "GREATERTHAN" | "HEX" | "DECIMAL" | "ON" | "BEFORE" | "AFTER" | "ISTRUE" | "ISFALSE" | "IN" | "NOT_IN" | "PERIOD_BEFORE" | "PERIOD_AFTER";
 
-export type IAccountStatus = 'valid' | 'pending' | 'deactivated' | 'revoked';
+export type IAccountStatus = "valid" | "pending" | "deactivated" | "revoked";
 
-export type IAcmeOrderStatus = 'pending' | 'ready' | 'processing' | 'valid' | 'invalid';
+export type IAcmeOrderStatus = "pending" | "ready" | "processing" | "valid" | "invalid";
 
-export type IScepOrderStatus = 'PENDING' | 'READY' | 'INVALID';
+export type IKDFType = "PBKDF2";
 
-export type IBPMNProcessType =
-  | 'CA_INVOCATION'
-  | 'CERTIFICATE_CREATION'
-  | 'CERTIFICATE_REVOCATION'
-  | 'CERTIFICATE_NOTIFY'
-  | 'REQUEST_AUTHORIZATION'
-  | 'ACME_ACCOUNT_AUTHORIZATION'
-  | 'SEND_SMS'
-  | 'TIMED';
+export type IScepOrderStatus = "PENDING" | "READY" | "INVALID";
 
-export type ICAConnectorType =
-  | 'INTERNAL'
-  | 'CMP'
-  | 'ADCS'
-  | 'ADCS_CERTIFICATE_INVENTORY'
-  | 'DIRECTORY'
-  | 'VAULT'
-  | 'VAULT_INVENTORY'
-  | 'EJBCA_INVENTORY';
+export type IBPMNProcessType = "CA_INVOCATION" | "CERTIFICATE_CREATION" | "CERTIFICATE_REVOCATION" | "CERTIFICATE_NOTIFY" | "REQUEST_AUTHORIZATION" | "ACME_ACCOUNT_AUTHORIZATION" | "SEND_SMS" | "TIMED";
 
-export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
+export type ICAConnectorType = "INTERNAL" | "CMP" | "ADCS" | "ADCS_CERTIFICATE_INVENTORY" | "DIRECTORY" | "VAULT" | "VAULT_INVENTORY" | "EJBCA_INVENTORY";
 
-export type IPipelineType = 'ACME' | 'SCEP' | 'WEB' | 'INTERNAL' | 'MANUAL_REQUEST';
+export type IInterval = "MINUTE" | "HOUR" | "DAY" | "WEEK" | "MONTH";
 
-export type IKeyUniqueness = 'KEY_UNIQUE' | 'DOMAIN_REUSE' | 'KEY_REUSE' | 'KEY_UNIQUE_WARN_ONLY' | 'DOMAIN_REUSE_WARN_ONLY';
+export type IPipelineType = "ACME" | "SCEP" | "EST" | "WEB" | "INTERNAL" | "MANUAL_REQUEST";
 
-export type ICsrUsage = 'TLS_SERVER' | 'TLS_CLIENT' | 'DOC_SIGNING' | 'CODE_SIGNING';
+export type IKeyUniqueness = "KEY_UNIQUE" | "DOMAIN_REUSE" | "KEY_REUSE" | "KEY_UNIQUE_WARN_ONLY" | "DOMAIN_REUSE_WARN_ONLY";
 
-export type IAuthSecondFactor = 'NONE' | 'CLIENT_CERT' | 'TOTP' | 'EMAIL' | 'SMS';
+export type ICsrUsage = "TLS_SERVER" | "TLS_CLIENT" | "DOC_SIGNING" | "CODE_SIGNING";
 
-export type ICsrStatus = 'PROCESSING' | 'ISSUED' | 'REJECTED' | 'PENDING';
+export type IAuthSecondFactor = "NONE" | "CLIENT_CERT" | "TOTP" | "EMAIL" | "SMS";
 
-export type IPKCSDataType =
-  | 'CSR'
-  | 'X509_CERTIFICATE'
-  | 'X509_CERTIFICATE_CREATED'
-  | 'UNKNOWN'
-  | 'CONTAINER'
-  | 'CONTAINER_WITH_KEY'
-  | 'CONTAINER_REQUIRING_PASSPHRASE';
+export type ICsrStatus = "PROCESSING" | "ISSUED" | "REJECTED" | "PENDING";
 
-export type IAccountCredentialsType = 'ACCOUNT_TOKEN' | 'OTP_SECRET' | 'CLIENT_CERTIFICATE' | 'SMS_ENABLED';
+export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "X509_CERTIFICATE_CREATED" | "UNKNOWN" | "CONTAINER" | "CONTAINER_WITH_KEY" | "CONTAINER_REQUIRING_PASSPHRASE";
 
-export type ICredentialUpdateType = 'PASSWORD' | 'CLIENT_CERT' | 'TOTP' | 'TOKEN' | 'EMAIL' | 'SMS';
+export type IAccountCredentialsType = "ACCOUNT_TOKEN" | "OTP_SECRET" | "CLIENT_CERTIFICATE" | "API_TOKEN" | "SCEP_TOKEN" | "EST_TOKEN" | "EAB_PASSWORD" | "SMS_ENABLED";
 
-export type IAdministrationType = 'ACCEPT' | 'REJECT' | 'REVOKE' | 'UPDATE' | 'UPDATE_CRL';
+export type IProtectedContentStatus = "PENDING" | "ACTIVE" | "DEACTIVATED";
 
-export type ICreationMode = 'CSR_AVAILABLE' | 'COMMANDLINE_TOOL' | 'SERVERSIDE_KEY_CREATION';
+export type ICredentialUpdateType = "PASSWORD" | "CLIENT_CERT" | "TOTP" | "TOKEN" | "EMAIL" | "SMS" | "API_TOKEN" | "SCEP_TOKEN" | "EST_TOKEN" | "EAB_PASSWORD";
 
-export type IContainerType = 'PKCS_12' | 'JKS';
+export type IAdministrationType = "ACCEPT" | "REJECT" | "REVOKE" | "UPDATE" | "UPDATE_CRL";
 
-export type IChallengeStatus = 'pending' | 'valid' | 'invalid' | 'deactivated' | 'expired' | 'revoked';
+export type ICreationMode = "CSR_AVAILABLE" | "COMMANDLINE_TOOL" | "SERVERSIDE_KEY_CREATION";
 
-export type IRDNCardinalityRestriction = 'NOT_ALLOWED' | 'ZERO_OR_ONE' | 'ONE' | 'ONE_OR_SAN' | 'ZERO_OR_MANY' | 'ONE_OR_MANY';
+export type IContainerType = "PKCS_12" | "JKS";
 
-export type IARAContentType = 'NO_TYPE' | 'EMAIL_ADDRESS';
+export type IChallengeStatus = "pending" | "valid" | "invalid" | "deactivated" | "expired" | "revoked";
 
-export type IAlgorithmType = 'SIGNING' | 'PADDING' | 'HASH' | 'CURVE';
+export type IRDNCardinalityRestriction = "NOT_ALLOWED" | "ZERO_OR_ONE" | "ONE" | "ONE_OR_SAN" | "ZERO_OR_MANY" | "ONE_OR_MANY";
+
+export type IARAContentType = "NO_TYPE" | "EMAIL_ADDRESS";
+
+export type IAlgorithmType = "SIGNING" | "PADDING" | "HASH" | "CURVE";

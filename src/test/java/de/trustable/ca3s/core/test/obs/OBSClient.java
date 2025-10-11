@@ -2,10 +2,9 @@ package de.trustable.ca3s.core.test.obs;
 
 import com.google.gson.JsonObject;
 import io.obswebsocket.community.client.OBSRemoteController;
-import io.obswebsocket.community.client.message.request.inputs.CreateInputRequest;
 import io.obswebsocket.community.client.message.request.record.StartRecordRequest;
 import io.obswebsocket.community.client.message.request.record.StopRecordRequest;
-import io.obswebsocket.community.client.message.response.inputs.*;
+import io.obswebsocket.community.client.message.response.inputs.SetInputSettingsResponse;
 import io.obswebsocket.community.client.message.response.record.StartRecordResponse;
 import io.obswebsocket.community.client.message.response.record.StopRecordResponse;
 import io.obswebsocket.community.client.message.response.scenes.GetSceneListResponse;
@@ -21,6 +20,8 @@ public class OBSClient {
 
     public static final String SPOKEN_TEXT_INPUT = "spokenTextInput";
     public static final String TEXT_INPUT_KIND = "text_gdiplus_v3";
+    public static final String OBS_WEBSOCKET_SECRET = "S3cr3t!S";
+    public static final int OBS_WEBSOCKET_PORT = 4455;
 
     Logger LOG = LoggerFactory.getLogger(OBSClient.class);
 
@@ -32,9 +33,9 @@ public class OBSClient {
 
     Process process = null;
 
-    public static final void main(String[] args) throws InterruptedException, IOException {
+    public static void main(String[] args) throws InterruptedException, IOException {
 
-        OBSClient obsClient = new OBSClient("localhost", 4455, "S3cr3t!S");
+        OBSClient obsClient = new OBSClient("localhost", OBS_WEBSOCKET_PORT, OBS_WEBSOCKET_SECRET);
         Thread.sleep(5000);
         obsClient.connect();
         Thread.sleep(5000);
@@ -65,14 +66,17 @@ public class OBSClient {
         if( getSceneListResponse != null) {
             LOG.info("OBS instance available");
         }else{
-            File obsFile = new File("C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe");
+            boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
+
+            File obsFile = new File(
+                isWindows ? "C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe" : "/usr/bin/obs");
 
             if (!obsFile.exists()) {
-                System.err.println("OBS not present at path '" + obsFile.getPath() + "', download it from https://obsproject.com/de/download and install it");
-                System.err.println("Configure OBS:\nSet sources to 'audio output' and 'screen recording'");
+                System.err.println("OBS not present at path '" + obsFile.getPath() + "', download it from https://obsproject.com/de/download and install it or use your paket manager.");
+                System.err.println("Configure OBS:\nSet sources to 'audio output capture' (or 'audio output')  and 'screen capture' (or 'screen recording')");
                 System.err.println("Lower the mixer level of 'audio output' and 'desktop audio' to -15 dB to avoid distortions");
                 System.err.println("Lower the mixer level of 'microphone' to '-inf dB' (left boundary) to mute the microphone");
-                System.err.println("Open the menue Tools/WebSocket settings:\nActivate the websocket server checkbox\nset server port to 4455\nset a server passwort to 'S3cr3t!S'");
+                System.err.println("Open the menue Tools/WebSocket settings:\nActivate the websocket server checkbox\nset server port to " + OBS_WEBSOCKET_PORT + "\nset a server passwort to '" + OBS_WEBSOCKET_SECRET + "'");
 
                 throw new IOException("OBS not present at path '" + obsFile.getPath() + "' !");
             }
@@ -80,7 +84,7 @@ public class OBSClient {
                 throw new IOException("Program at path '" + obsFile.getPath() + "' is not executable. ");
             }
 
-            process = new ProcessBuilder("C:\\Program Files\\obs-studio\\bin\\64bit\\obs64.exe",
+            process = new ProcessBuilder(obsFile.getAbsolutePath(),
                 "--websocket_port", "" + port,
                 "--websocket_password", password,
                 "--websocket_debug", "false")
@@ -230,14 +234,14 @@ public class OBSClient {
         getController().sendRequest( StopRecordRequest.builder().build(), new Consumer<StopRecordResponse>(){
             @Override
             public void accept(StopRecordResponse stopRecordResponse) {
-                LOG.info("StopRecordResponse: " + String.valueOf(stopRecordResponse));
+                LOG.info("StopRecordResponse: " + stopRecordResponse);
                 LOG.info("created file: " + stopRecordResponse.getOutputPath());
             }
 
             @NotNull
             @Override
             public Consumer<StopRecordResponse> andThen(@NotNull Consumer<? super StopRecordResponse> after) {
-                LOG.info("StopRecordResponse: andThen " + String.valueOf(after));
+                LOG.info("StopRecordResponse: andThen " + after);
                 return Consumer.super.andThen(after);
             }
         });

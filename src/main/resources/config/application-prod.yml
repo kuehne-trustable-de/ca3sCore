@@ -30,6 +30,7 @@ logging:
     de.trustable.ca3s.core.PropertiesLogger: INFO
     de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
     de.trustable.ca3s.core.schedule.CertExpiryScheduler: DEBUG
+    de.trustable.ca3s.core.schedule.CertificateImportScheduler: DEBUG
     de.trustable.ca3s.core.service.NotificationService: DEBUG
     de.trustable.ca3s.core.service.MailService: DEBUG
     de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
@@ -39,12 +40,12 @@ logging:
     de.trustable.ca3s.core.service.est: DEBUG
     de.trustable.ca3s.core.service.vault: DEBUG
     de.trustable.ca3s.core.service.dir: WARN
-    de.trustable.ca3s.core.security.provider.Ca3sTrustManager: DEBUG
+    de.trustable.ca3s.core.security.provider: DEBUG
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
     de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
     de.trustable.ca3s.core.repository.UserSpecifications: DEBUG
     de.trustable.ca3s.core.web.rest.support.UIDatasetSupport: DEBUG
-    de.trustable.util.CryptoUtil: WARN
+    de.trustable.util.CryptoUtil: DEBUG
     de.trustable.cmp.client.cmpClient.CMPClientImpl: DEBUG
     org.keycloak.adapters: WARN
     org.springframework.security.web.authentication: DEBUG
@@ -433,7 +434,7 @@ ca3s:
       # per default use a secure cookie to transport auth token
       secureCookie: false
   acme:
-    # an apache plugin for ACME support requires a specific header not mention in RFC 8555
+    # an apache plugin for ACME support requires a specific header not mentioned in RFC 8555
     finalizelocationBackwardCompat: true
 
     alpn:
@@ -528,6 +529,8 @@ ca3s:
       domainra:
       ra:
       admin:
+      other: ROLE_1, ROLE_2
+
 
     # extract relevant information from the saml token by attribute name
     attributes:
@@ -579,6 +582,7 @@ ca3s:
       domainra:
       ra: ROLE_RA
       admin:
+      other: ROLE_1, ROLE_2
 
     client-id: oidc_client
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90

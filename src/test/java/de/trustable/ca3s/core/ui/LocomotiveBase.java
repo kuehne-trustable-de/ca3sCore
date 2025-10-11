@@ -84,7 +84,15 @@ public class LocomotiveBase {
             logFatal("Couldn't load default properties");
         }
         try {
-            downloadDir = new File(FileUtils.getUserDirectory(), "Downloads");
+            File userDownloadDir = new File(FileUtils.getUserDirectory(), "Downloads");
+            downloadDir = userDownloadDir;
+
+//            File userDownloadDir = Files.createTempDirectory("tmpDirCa3s").toFile();
+//            downloadDir = new File(userDownloadDir, "ca3s_test");
+//            downloadDir = new File(userDownloadDir, "ca3s_test");
+//            downloadDir.delete();
+//            downloadDir.mkdirs();
+            logInfo("downloadDir : " + downloadDir.getAbsolutePath());
 //            downloadDir = Files.createTempDirectory("tmpDirPrefix").toFile();
         } catch (Exception e) {
             logFatal("Couldn't create downloadDir");
@@ -201,13 +209,15 @@ public class LocomotiveBase {
                         Files.setPosixFilePermissions(tmpFile.toPath(), perms);
                     }
 
-                    System.setProperty("webdriver.chrome.driver", tmpFile.getAbsolutePath());
-                    System.err.println("starting local Chrome using driver at : " + System.getProperty("webdriver.chrome.driver"));
+//                    System.setProperty("webdriver.chrome.driver", tmpFile.getAbsolutePath());
+//                    System.err.println("starting local Chrome using driver at : " + System.getProperty("webdriver.chrome.driver"));
 
                     if (isLocal) {
                         try {
 
                             WebDriverManager.chromedriver().setup();
+
+                            LOGGER.info("chrome driver at {}", System.getProperty("webdriver.chrome.driver"));
 
                             ChromeOptions options = new ChromeOptions();
                             options.addArguments("--remote-debugging-pipe");
@@ -240,10 +250,15 @@ public class LocomotiveBase {
                             options.addArguments("--disable-dev-shm-usage");
 
 //                            driver = WebDriverManager.chromedriver().capabilities(options).create();
+
+                            HashMap<String, Object>  chromePrefs = new HashMap<>();
+                            chromePrefs.put("profile.default_content_settings.popups", 0);
+                            chromePrefs.put("download.default_directory", downloadDir.getAbsolutePath());
+                            options.setExperimentalOption("prefs", chromePrefs);
+
                             driver = new ChromeDriver(options);
 
                         } catch (Exception x) {
-                            x.printStackTrace();
                             LOGGER.error("starting chrome driver, exiting ...", x);
                             logFatal("chromedriver not found. See https://github.com/ddavison/conductor/wiki/WebDriver-Executables for more information.");
                             System.exit(1);

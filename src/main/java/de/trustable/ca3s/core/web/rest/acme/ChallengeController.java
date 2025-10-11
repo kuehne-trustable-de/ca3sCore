@@ -110,6 +110,8 @@ public class ChallengeController extends AcmeController {
 
     private final AcmeOrderUtil acmeOrderUtil;
     private final RateLimiterService rateLimiterService;
+    private final RandomUtil randomUtil;
+
 
 
     public ChallengeController(AcmeChallengeRepository challengeRepository,
@@ -120,17 +122,16 @@ public class ChallengeController extends AcmeController {
                                @Value("${ca3s.dns.port:53}") int resolverPort,
                                AcmeOrderUtil acmeOrderUtil, @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
                                @Value("${ca3s.acme.ratelimit.minute:20}") int rateMin,
-                               @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour)
+                               @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour, RandomUtil randomUtil)
         throws UnknownHostException {
 
         this.challengeRepository = challengeRepository;
         this.preferenceUtil = preferenceUtil;
         this.auditService = auditService;
         this.acmeOrderUtil = acmeOrderUtil;
-
         this.alpnPorts = alpnPorts;
-
         this.dnsResolver = new SimpleResolver(resolverHost);
+        this.randomUtil = randomUtil;
         this.dnsResolver.setPort(resolverPort);
         LOG.info("Applying default DNS resolver {}", this.dnsResolver.getAddress());
 
@@ -603,7 +604,7 @@ public class ChallengeController extends AcmeController {
 
             sslContext.init(null,
                 trustAllCerts,
-                RandomUtil.getSecureRandom());
+                randomUtil.getSecureRandom());
             SSLSocketFactory sslsf = sslContext.getSocketFactory();
 
             sslSocket = (SSLSocket) sslsf.createSocket(host, port);

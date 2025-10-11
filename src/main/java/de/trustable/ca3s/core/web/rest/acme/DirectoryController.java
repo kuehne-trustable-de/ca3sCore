@@ -167,8 +167,8 @@ public class DirectoryController extends AcmeController {
             metaInformation.setTermsOfService(pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.TOS_AGREEMENT_LINK, ""));
         }
 
-        String eabMode = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.EAB_MODE, PipelineUtil.EAB_MODE_NONE);
-        metaInformation.setExternalAccountRequired(!PipelineUtil.EAB_MODE_NONE.equals(eabMode));
+        boolean eabRequired = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.ACME_EAB_REQUIRED, false);
+        metaInformation.setExternalAccountRequired(eabRequired);
 
         resp.setMetaInformation(metaInformation);
 

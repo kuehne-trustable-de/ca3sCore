@@ -573,6 +573,7 @@ relationship ManyToMany {
 	Pipeline{algorithms} to AlgorithmRestriction{pipelines}
 	Pipeline{requestProxy} to RequestProxyConfig{pipelines}
     Pipeline{tenants} to Tenant{pipelines}
+    Pipeline{authorities} to Authority
 }
 
 relationship OneToOne{

@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.repository;
 
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
@@ -8,7 +7,6 @@ import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import java.time.Instant;
 import java.util.List;
 
-import de.trustable.ca3s.core.schedule.ProtectedContentCleanupScheduler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -17,8 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import javax.persistence.NamedQuery;
 
 
 /**
@@ -55,5 +51,6 @@ public interface ProtectedContentRepository extends JpaRepository<ProtectedConte
     Page<ProtectedContent> findByDeleteAfterPassed(Pageable pageable, @Param("deleteAfter") Instant deleteAfter);
 
 
-
+    @Query(name = "ProtectedContent.findByProtectedContentStatusIsNull")
+    Page<ProtectedContent> findByProtectedContentStatusIsNull(PageRequest of);
 }

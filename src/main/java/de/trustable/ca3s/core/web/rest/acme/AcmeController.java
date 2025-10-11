@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import de.trustable.ca3s.core.service.util.*;
 import io.github.bucket4j.Bucket;
+import org.jetbrains.annotations.NotNull;
 import org.jose4j.jwt.consumer.InvalidJwtException;
 import org.jose4j.jwt.consumer.JwtContext;
 import org.jose4j.jwx.JsonWebStructure;
@@ -131,6 +132,10 @@ public class AcmeController {
 
     @Autowired
     PipelineUtil pipelineUtil;
+
+    @Autowired
+    RandomUtil randomUtil;
+
 
     UriComponentsBuilder getEffectiveUriComponentsBuilder(final String realm, final String forwardedHost){
 
@@ -267,10 +272,6 @@ public class AcmeController {
             LOG.info("Unexpected transition of AccountStatus to '{}' requested", updatedAcct.getStatus());
         }
 
-        if (updatedAcct.getExternalAccountBinding() != null) {
-            LOG.info("Unsupported ExternalAccountBinding info present");
-        }
-
         updateAccountContactFromRequest(acctDao, updatedAcct, pipeline);
 
     }
@@ -286,8 +287,6 @@ public class AcmeController {
         if (contactSet == null) {
             contactSet = new HashSet<>();
         }
-
-        contactSet.clear();
 
         String regexContactEMail = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.ACME_CONTACT_EMAIL_REGEX, ".*").trim();
         Pattern pattern = Pattern.compile(regexContactEMail);
@@ -308,10 +307,7 @@ public class AcmeController {
                     continue;
                 }
 
-                AcmeContact contactDao = new AcmeContact();
-                contactDao.setContactId(generateId());
-                contactDao.setAccount(acctDao);
-                contactDao.setContactUrl(contactUrl);
+                AcmeContact contactDao = buildAcmeContact(acctDao, contactUrl);
                 contactSet.add(contactDao);
                 LOG.info("contact info {} stored for account {}", contactDao.getContactUrl(),
                     contactDao.getAccount().getAccountId());
@@ -320,6 +316,15 @@ public class AcmeController {
         }
         acctDao.setContacts(contactSet);
 
+    }
+
+    @NotNull
+    public AcmeContact buildAcmeContact(AcmeAccount acctDao, String contactUrl) {
+        AcmeContact contactDao = new AcmeContact();
+        contactDao.setContactId(generateId());
+        contactDao.setAccount(acctDao);
+        contactDao.setContactUrl(contactUrl);
+        return contactDao;
     }
 
     private static void checkEmailRegEx(String realm,
@@ -453,7 +458,12 @@ public class AcmeController {
 		return additionalHeaders;
 	}
 
-
+    /**
+     *
+     * @param rateLimiterService
+     * @param id
+     * @param realm
+     */
     public void checkACMERateLimit(RateLimiterService rateLimiterService, long id, String realm) {
         Bucket bucket = rateLimiterService.getBucket(id);
 
@@ -505,7 +515,7 @@ public class AcmeController {
 
 	public String getBase64UrlEncodedRandom(int len) {
 		final byte[] randomBytes = new byte[len];
-        RandomUtil.getSecureRandom().nextBytes(randomBytes);
+        randomUtil.getSecureRandom().nextBytes(randomBytes);
 		return Base64Utils.encodeToUrlSafeString(randomBytes);
 	}
 
@@ -516,7 +526,7 @@ public class AcmeController {
 	 */
 	public long generateId() {
 
-		long val = RandomUtil.getSecureRandom().nextLong();
+		long val = randomUtil.getSecureRandom().nextLong();
 		if (val < 0L) {
 			return val * -1L;
 		}

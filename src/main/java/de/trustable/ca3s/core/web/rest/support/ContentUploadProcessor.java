@@ -13,6 +13,7 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.KeyGenerationService;
 import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.*;
@@ -67,8 +68,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static de.trustable.ca3s.core.service.util.PipelineUtil.NOTIFY_RA_OFFICER_ON_PENDING;
-
 /**
  * REST controller for processing PKCS10 requests and Certificates.
  */
@@ -95,6 +94,7 @@ public class ContentUploadProcessor {
     private final AuditService auditService;
     private final String pkcs12SecretRegexp;
     private final Pattern pkcs12SecretPattern;
+    private final KeyGenerationService keyGenerationService;
 
 
     public static final String SIGNATURE_ALG = "SHA256withRSA";
@@ -114,7 +114,7 @@ public class ContentUploadProcessor {
                                   AsyncNotificationService asyncNotificationService,
                                   BadKeysService badKeysService,
                                   AuditService auditService,
-                                  @Value("${ca3s.pkcs12.secret.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String pkcs12SecretRegexp ) {
+                                  @Value("${ca3s.pkcs12.secret.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String pkcs12SecretRegexp, KeyGenerationService keyGenerationService) {
         this.cryptoUtil = cryptoUtil;
         this.protUtil = protUtil;
         this.certUtil = certUtil;
@@ -132,6 +132,7 @@ public class ContentUploadProcessor {
         this.auditService = auditService;
         this.pkcs12SecretRegexp = pkcs12SecretRegexp;
         this.pkcs12SecretPattern = Pattern.compile(pkcs12SecretRegexp);
+        this.keyGenerationService = keyGenerationService;
     }
 
     /**
@@ -571,23 +572,8 @@ public class ContentUploadProcessor {
 
     private KeyPair generateKeyPair(KeyAlgoLengthOrSpec keyAlgoLength) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException {
 
-        return keyAlgoLength.generateKeyPair();
-/*
-        KeyPairGenerator kpg;
-        if( keyAlgoLength.getAlgoName().toLowerCase().startsWith("falcon")) {
-            kpg = KeyPairGenerator.getInstance(keyAlgoLength.getAlgoName(), BouncyCastlePQCProvider.PROVIDER_NAME);
-        }else{
-            kpg = KeyPairGenerator.getInstance(keyAlgoLength.getAlgoName(), BouncyCastleProvider.PROVIDER_NAME);
-        }
+        return keyGenerationService.generateKeyPair(keyAlgoLength);
 
-        if( keyAlgoLength.getAlgorithmParameterSpec() != null){
-            kpg.initialize(keyAlgoLength.getAlgorithmParameterSpec());
-        }else {
-            kpg.initialize(keyAlgoLength.getKeyLength());
-        }
-		return kpg.generateKeyPair();
-
- */
 	}
 
 
@@ -675,11 +661,7 @@ public class ContentUploadProcessor {
                     if (pipeline.isApprovalRequired()) {
                         LOG.debug("deferring certificate creation for csr #{}", csr.getId());
                         p10ReqData.setCsrPending(true);
-
-                        if( "TRUE".equalsIgnoreCase(pipelineUtil.getPipelineAttribute(pipeline,NOTIFY_RA_OFFICER_ON_PENDING, String.valueOf(preferenceUtil.isNotifyRAOnRequest())))) {
-                            asyncNotificationService.notifyRAOfficerOnRequestAsync(csr);
-                        }
-
+                        asyncNotificationService.notifyRAOfficerOnRequestAsync(csr);
                     } else {
                         auditService.saveAuditTrace(auditService.createAuditTraceWebAutoAccepted(csr));
                         try {

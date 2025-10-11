@@ -7,7 +7,9 @@ import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.dto.AuthenticationParameter;
 import de.trustable.ca3s.core.service.dto.CaConnectorConfigView;
+import de.trustable.ca3s.core.service.dto.KDFType;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import static de.trustable.ca3s.core.service.util.ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER;
+
 @Service
 public class CaConnectorConfigUtil {
 
@@ -33,7 +37,13 @@ public class CaConnectorConfigUtil {
     public static final String ATT_SNI = "SNI";
     public static final String ATT_DISABLE_HOST_NAME_VERIFIER = "DISABLE_HOST_NAME_VERIFIER";
     public static final String ATT_FILL_EMPTY_SUBJECT_WITH_SAN = "FILL_EMPTY_SUBJECT_WITH_SAN";
-    public static final String PLAIN_SECRET_PLACEHOLDER = "*****";
+
+    public static final String ATT_ATTRIBUTE_KDF_TYPE = "KDF_TYPE";
+    public static final String ATT_ATTRIBUTE_KDF_SALT = "KDF_SALT";
+    public static final String ATT_ATTRIBUTE_KDF_CYCLES= "KDF_CYCLES";
+    public static final String ATT_ATTRIBUTE_KDF_API_KEY_SALT= "KDF_API_KEY_SALT";
+    public static final String ATT_ATTRIBUTE_KDF_API_KEY_CYCLES= "KDF_API_KEY_CYCLES";
+    public static final String ATT_ATTRIBUTE_ROLE = "ROLE";
 
     Logger LOG = LoggerFactory.getLogger(CaConnectorConfigUtil.class);
 
@@ -44,8 +54,10 @@ public class CaConnectorConfigUtil {
     private final CAConnectorConfigAttributeRepository caConnectorConfigAttributeRepository;
     final private AuditService auditService;
     final private AuditTraceRepository auditTraceRepository;
+    private final RandomUtil randomUtil;
 
-    public CaConnectorConfigUtil(CAConnectorConfigRepository cAConnectorConfigRepository, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil, CertificateRepository certificateRepository, CAConnectorConfigAttributeRepository caConnectorConfigAttributeRepository, AuditService auditService, AuditTraceRepository auditTraceRepository) {
+
+    public CaConnectorConfigUtil(CAConnectorConfigRepository cAConnectorConfigRepository, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil, CertificateRepository certificateRepository, CAConnectorConfigAttributeRepository caConnectorConfigAttributeRepository, AuditService auditService, AuditTraceRepository auditTraceRepository, RandomUtil randomUtil) {
         this.cAConnectorConfigRepository = cAConnectorConfigRepository;
         this.protectedContentRepository = protectedContentRepository;
         this.protectedContentUtil = protectedContentUtil;
@@ -53,6 +65,7 @@ public class CaConnectorConfigUtil {
         this.caConnectorConfigAttributeRepository = caConnectorConfigAttributeRepository;
         this.auditService = auditService;
         this.auditTraceRepository = auditTraceRepository;
+        this.randomUtil = randomUtil;
     }
 
     public CaConnectorConfigView from(CAConnectorConfig cfg) {
@@ -66,7 +79,6 @@ public class CaConnectorConfigUtil {
         cv.setCaUrl(cfg.getCaUrl());
         cv.setInterval(cfg.getInterval());
         cv.setDefaultCA(cfg.getDefaultCA());
-        cv.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
         cv.setActive(cfg.getActive());
         cv.setExpiryDate(cfg.getExpiryDate());
         cv.setPollingOffset(cfg.getPollingOffset());
@@ -95,6 +107,16 @@ public class CaConnectorConfigUtil {
         cv.setMultipleMessages(false);
         cv.setImplicitConfirm(true);
 
+        AuthenticationParameter authenticationParameter = new  AuthenticationParameter();
+        authenticationParameter.setKdfType(KDFType.PBKDF2);
+        authenticationParameter.setPlainSecret(PLAIN_SECRET_PLACEHOLDER);
+        authenticationParameter.setSalt(randomUtil.generateActivationKey());
+        authenticationParameter.setCycles(100000);
+        authenticationParameter.setApiKeySalt(randomUtil.generateActivationKey());
+        authenticationParameter.setApiKeyCycles(100000);
+
+        cv.setRole("tls_server");
+
         for( CAConnectorConfigAttribute cfgAtt: cfg.getCaConnectorAttributes()) {
 
             if (ATT_ISSUER_NAME.equals(cfgAtt.getName())) {
@@ -115,12 +137,23 @@ public class CaConnectorConfigUtil {
                 cv.setFillEmptySubjectWithSAN( Boolean.parseBoolean(cfgAtt.getValue()));
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(cfgAtt.getName())) {
                 aTaVList.add( new NamedValue(cfgAtt.getValue()));
+            }else if (ATT_ATTRIBUTE_KDF_TYPE.equals(cfgAtt.getName())) {
+                authenticationParameter.setKdfType( KDFType.valueOf(cfgAtt.getValue()));
+            }else if (ATT_ATTRIBUTE_KDF_SALT.equals(cfgAtt.getName())) {
+                authenticationParameter.setSalt( cfgAtt.getValue() );
+            }else if (ATT_ATTRIBUTE_KDF_CYCLES.equals(cfgAtt.getName())) {
+                authenticationParameter.setCycles( Integer.parseInt(cfgAtt.getValue()));
+            }else if (ATT_ATTRIBUTE_KDF_API_KEY_SALT.equals(cfgAtt.getName())) {
+                authenticationParameter.setApiKeySalt(cfgAtt.getValue() );
+            }else if (ATT_ATTRIBUTE_KDF_API_KEY_CYCLES.equals(cfgAtt.getName())) {
+                authenticationParameter.setApiKeyCycles(Integer.parseInt(cfgAtt.getValue()));
+            }else if (ATT_ATTRIBUTE_ROLE.equals(cfgAtt.getName())) {
+                cv.setRole(cfgAtt.getValue());
             }
-
         }
 
-
         cv.setaTaVArr(aTaVList.toArray(new NamedValue[0]));
+        cv.setAuthenticationParameter(authenticationParameter);
         return cv;
     }
 
@@ -279,10 +312,8 @@ public class CaConnectorConfigUtil {
             }
         }
 
-
-        if( !PLAIN_SECRET_PLACEHOLDER.equals(cv.getPlainSecret())){
-            if ((cv.getCaConnectorType().equals(CAConnectorType.CMP) && cv.isMessageProtectionPassphrase()) ||
-                !cv.getCaConnectorType().equals(CAConnectorType.CMP)) {
+        if( !PLAIN_SECRET_PLACEHOLDER.equals(cv.getAuthenticationParameter().getPlainSecret())){
+            if (!cv.getCaConnectorType().equals(CAConnectorType.CMP) || cv.isMessageProtectionPassphrase()) {
 
                 ProtectedContent pc;
                 List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.CA_CONNECTOR_PW, caConnectorConfig.getId());
@@ -305,11 +336,11 @@ public class CaConnectorConfigUtil {
 
                 String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
                 if (oldContent == null ||
-                    !oldContent.equals(cv.getPlainSecret()) ||
+                    !oldContent.equals(cv.getAuthenticationParameter().getPlainSecret()) ||
                     pc.getValidTo() == null ||
-                    !pc.getValidTo().equals(cv.getSecretValidTo())) {
+                    !pc.getValidTo().equals(cv.getAuthenticationParameter().getSecretValidTo())) {
 
-                    if (cv.getPlainSecret() == null) {
+                    if (cv.getAuthenticationParameter().getPlainSecret() == null) {
                         if (listPC.isEmpty()) {
                             LOG.debug("No CA Connector password defined");
                         } else {
@@ -320,8 +351,8 @@ public class CaConnectorConfigUtil {
                         }
                     } else {
 
-                        pc.setContentBase64(protectedContentUtil.protectString(cv.getPlainSecret()));
-                        Instant secretValidTo = cv.getSecretValidTo();
+                        pc.setContentBase64(protectedContentUtil.protectString(cv.getAuthenticationParameter().getPlainSecret()));
+                        Instant secretValidTo = cv.getAuthenticationParameter().getSecretValidTo();
                         if (secretValidTo == null) {
                             secretValidTo = Instant.now().plus(100 * 360, ChronoUnit.DAYS);
                         }
@@ -348,6 +379,14 @@ public class CaConnectorConfigUtil {
         boolean hasDisableHostNameVerifier = false;
         boolean hasIgnoreResponseMessageVerification = false;
         boolean hasFillEmptySubjectWithSAN = false;
+
+        boolean hasKDFType = false;
+        boolean hasSalt = false;
+        boolean hasCycles = false;
+        boolean hasApiKeySalt = false;
+        boolean hasApiKeyCycles = false;
+        boolean hasRole = false;
+
 
         for( CAConnectorConfigAttribute configAttribute : caConnectorConfig.getCaConnectorAttributes()){
 
@@ -390,18 +429,73 @@ public class CaConnectorConfigUtil {
                 hasSniType = true;
 
             }else if (ATT_IGNORE_RESPONSE_MESSAGE_VERIFICATION.equals(configAttribute.getName())) {
-                if(!Objects.equals( cv.isIgnoreResponseMessageVerification(), configAttribute.getValue())) {
+                if(!Objects.equals( cv.isIgnoreResponseMessageVerification(), Boolean.parseBoolean(configAttribute.getValue()))) {
                     auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED, configAttribute.getValue(), Boolean.toString(cv.isIgnoreResponseMessageVerification()), caConnectorConfig));
                     configAttribute.setValue(Boolean.toString(cv.isIgnoreResponseMessageVerification()));
                 }
                 hasIgnoreResponseMessageVerification = true;
 
             }else if (ATT_FILL_EMPTY_SUBJECT_WITH_SAN.equals(configAttribute.getName())) {
-                if(!Objects.equals( cv.isFillEmptySubjectWithSAN(), configAttribute.getValue())) {
+                if(!Objects.equals( cv.isFillEmptySubjectWithSAN(), Boolean.parseBoolean(configAttribute.getValue()))){
                     auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED, configAttribute.getValue(), Boolean.toString(cv.isFillEmptySubjectWithSAN()), caConnectorConfig));
                     configAttribute.setValue(Boolean.toString(cv.isFillEmptySubjectWithSAN()));
                 }
                 hasFillEmptySubjectWithSAN = true;
+
+            }else if (ATT_ATTRIBUTE_KDF_TYPE.equals(configAttribute.getName())) {
+                if( !hasDerivedSecret(cv)) {
+                    continue;
+                }
+                if(!Objects.equals( cv.getAuthenticationParameter().getKdfType(), KDFType.valueOf(configAttribute.getValue()))) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_KDF_TYPE_CHANGED, configAttribute.getValue(), cv.getAuthenticationParameter().getKdfType().toString(), caConnectorConfig));
+                    configAttribute.setValue(cv.getAuthenticationParameter().getKdfType().toString());
+                }
+                hasKDFType = true;
+
+            }else if (ATT_ATTRIBUTE_KDF_SALT.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.getAuthenticationParameter().getSalt(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_KDF_SALT_CHANGED, configAttribute.getValue(), cv.getAuthenticationParameter().getSalt(), caConnectorConfig));
+                    configAttribute.setValue(cv.getAuthenticationParameter().getSalt());
+                }
+                hasSalt = true;
+
+            }else if (ATT_ATTRIBUTE_KDF_CYCLES.equals(configAttribute.getName())) {
+                if( !hasDerivedSecret(cv)) {
+                    continue;
+                }
+                if(!Objects.equals( cv.getAuthenticationParameter().getCycles(), Long.parseLong(configAttribute.getValue()))) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_KDF_CYCLES_CHANGED, configAttribute.getValue(), Long.toString(cv.getAuthenticationParameter().getCycles()), caConnectorConfig));
+                    configAttribute.setValue(Long.toString(cv.getAuthenticationParameter().getCycles()));
+                }
+                hasCycles = true;
+
+            }else if (ATT_ATTRIBUTE_KDF_API_KEY_SALT.equals(configAttribute.getName())) {
+                if( !hasDerivedSecret(cv)) {
+                    continue;
+                }
+                if(!Objects.equals( cv.getAuthenticationParameter().getApiKeySalt(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_KDF_API_KEY_SALT_CHANGED, configAttribute.getValue(), cv.getAuthenticationParameter().getSalt(), caConnectorConfig));
+                    configAttribute.setValue(cv.getAuthenticationParameter().getSalt());
+                }
+                hasApiKeySalt = true;
+
+            }else if (ATT_ATTRIBUTE_KDF_API_KEY_CYCLES.equals(configAttribute.getName())) {
+                if( !hasDerivedSecret(cv)) {
+                    continue;
+                }
+                if(!Objects.equals( cv.getAuthenticationParameter().getApiKeyCycles(), Long.parseLong(configAttribute.getValue()))) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_KDF_API_KEY_CYCLES_CHANGED, configAttribute.getValue(), Long.toString(cv.getAuthenticationParameter().getApiKeyCycles()), caConnectorConfig));
+                    configAttribute.setValue(Long.toString(cv.getAuthenticationParameter().getApiKeyCycles()));
+                }
+                hasApiKeyCycles = true;
+
+            }else if (ATT_ATTRIBUTE_ROLE.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.getRole(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_ROLE_CHANGED, configAttribute.getValue(), cv.getRole(), caConnectorConfig));
+                    configAttribute.setValue(cv.getRole());
+                }
+                hasRole = true;
+
 
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(configAttribute.getName())) {
                 LOG.warn("CA Connector ATaV attribute detected!");
@@ -439,13 +533,44 @@ public class CaConnectorConfigUtil {
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED, null, Boolean.toString(cv.isFillEmptySubjectWithSAN()), caConnectorConfig));
             createAttribute(ATT_FILL_EMPTY_SUBJECT_WITH_SAN, Boolean.toString(cv.isIgnoreResponseMessageVerification()), caConnectorConfig);
         }
+        if (!hasRole) {
+            auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_ROLE_CHANGED, null, cv.getRole(), caConnectorConfig));
+            createAttribute(ATT_ATTRIBUTE_ROLE, cv.getRole(), caConnectorConfig);
+        }
 
+        if( hasDerivedSecret(cv)) {
+            if (!hasKDFType) {
+                auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_KDF_TYPE_CHANGED, null, cv.getAuthenticationParameter().getKdfType().toString(), caConnectorConfig));
+                createAttribute(ATT_ATTRIBUTE_KDF_TYPE, cv.getAuthenticationParameter().getKdfType().toString(), caConnectorConfig);
+            }
+            if (!hasSalt) {
+                auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_SALT_CHANGED, null, cv.getAuthenticationParameter().getSalt(), caConnectorConfig));
+                createAttribute(ATT_ATTRIBUTE_KDF_SALT, cv.getAuthenticationParameter().getSalt(), caConnectorConfig);
+            }
+            if (!hasCycles) {
+                auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_CYCLES_CHANGED, null, Long.toString(cv.getAuthenticationParameter().getCycles()), caConnectorConfig));
+                createAttribute(ATT_ATTRIBUTE_KDF_CYCLES, Long.toString(cv.getAuthenticationParameter().getCycles()), caConnectorConfig);
+            }
+            if (!hasApiKeySalt) {
+                auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_API_KEY_SALT_CHANGED, null, cv.getAuthenticationParameter().getApiKeySalt(), caConnectorConfig));
+                createAttribute(ATT_ATTRIBUTE_KDF_API_KEY_SALT, cv.getAuthenticationParameter().getApiKeySalt(), caConnectorConfig);
+            }
+            if (!hasApiKeyCycles) {
+                auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_API_KEY_CYCLES_CHANGED, null, Long.toString(cv.getAuthenticationParameter().getApiKeyCycles()), caConnectorConfig));
+                createAttribute(ATT_ATTRIBUTE_KDF_API_KEY_CYCLES, Long.toString(cv.getAuthenticationParameter().getApiKeyCycles()), caConnectorConfig);
+            }
+        }
         caConnectorConfigAttributeRepository.saveAll(caConnectorConfig.getCaConnectorAttributes());
         cAConnectorConfigRepository.save(caConnectorConfig);
 
         auditTraceRepository.saveAll(auditList);
 
         return caConnectorConfig;
+    }
+
+    private boolean hasDerivedSecret(CaConnectorConfigView cv){
+        return CAConnectorType.ADCS_CERTIFICATE_INVENTORY.equals(cv.getCaConnectorType()) ||
+            CAConnectorType.ADCS.equals(cv.getCaConnectorType());
     }
 
     private void createAttribute(String name, String value, CAConnectorConfig caConnectorConfig) {

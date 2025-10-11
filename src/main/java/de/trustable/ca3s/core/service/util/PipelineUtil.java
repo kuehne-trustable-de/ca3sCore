@@ -13,6 +13,7 @@ import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
+import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
@@ -98,15 +99,14 @@ public class PipelineUtil {
     public static final String RESTR_ARA_REGEXMATCH = "REGEXMATCH";
     public static final String RESTR_ARA_REQUIRED = "REQUIRED";
     public static final String RESTR_ARA_COMMENT = "COMMENT";
-    public static final String RESTR_ARA_CONTENT_TYPE = "CONTENTTYPE";
+    public static final String RESTR_ARA_CONTENT_TYPE = "ARAContentType";
 
     public static final String KEY_UNIQUENESS = "KEY_UNIQUENESS";
     public static final String TOS_AGREEMENT_REQUIRED = "TOS_AGREEMENT_REQUIRED";
     public static final String TOS_AGREEMENT_LINK = "TOS_AGREEMENT_LINK";
     public static final String WEBSITE_LINK = "WEBSITE_LINK";
     public static final String CAA_IDENTITIES = "CAA_IDENTITIES";
-    public static final String EAB_MODE = "EAB_MODE";
-    public static final String EAB_MODE_NONE = "EAB_MODE_NONE";
+    public static final String ACME_EAB_REQUIRED = "EAB_REQUIRED";
 
     public static final String ALLOW_IP_AS_SUBJECT = "ALLOW_IP_AS_SUBJECT";
     public static final String ALLOW_IP_AS_SAN = "ALLOW_IP_AS_SAN";
@@ -114,8 +114,13 @@ public class PipelineUtil {
 
     public static final String DOMAIN_RA_OFFICER = "DOMAIN_RA_OFFICER";
     public static final String NOTIFY_RA_OFFICER_ON_PENDING = "NOTIFY_RA_OFFICER_ON_PENDING";
+    public static final String NOTIFY_DOMAIN_RA_OFFICER_ON_PENDING = "NOTIFY_DOMAIN_RA_OFFICER_ON_PENDING";
+
     public static final String ADDITIONAL_EMAIL_RECIPIENTS = "ADDITIONAL_EMAIL_RECIPIENTS";
     public static final String CAN_ISSUE_2_FACTOR_CLIENT_CERTS = "CAN_ISSUE_2_FACTOR_CLIENT_CERTS";
+
+    public static final String  NETWORK_ACCEPT = "NETWORK_ACCEPT";
+    public static final String  NETWORK_REJECT = "NETWORK_REJECT";
 
     public static final String ACME_ALLOW_CHALLENGE_HTTP01 = "ACME_ALLOW_CHALLENGE_HTTP01";
     public static final String ACME_ALLOW_CHALLENGE_ALPN = "ACME_ALLOW_CHALLENGE_ALPN";
@@ -148,43 +153,34 @@ public class PipelineUtil {
     public static final String SCEP_RECIPIENT_DN = "SCEP_RECIPIENT_DN";
     public static final String SCEP_RECIPIENT_KEY_TYPE_LEN = "SCEP_RECIPIENT_KEY_TYPE_LEN";
     public static final String SCEP_CA_CONNECTOR_RECIPIENT_NAME = "SCEP_CA_CONNECTOR_RECIPIENT_NAME";
+    public static final String SCEP_PERIOD_DAYS_RENEWAL = "SCEP_PERIOD_DAYS_RENEWAL";
+    public static final String SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL = "SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL";
 
 
     Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
 
     final private CertificateRepository certRepository;
-
     final private CSRRepository csrRepository;
-
     final private CAConnectorConfigRepository caConnRepository;
-
     final private PipelineRepository pipelineRepository;
-
     final private PipelineAttributeRepository pipelineAttRepository;
-
     final private BPMNProcessInfoRepository bpmnPIRepository;
-
     final private ProtectedContentRepository protectedContentRepository;
-
     final private ProtectedContentUtil protectedContentUtil;
-
-    final private PreferenceUtil preferenceUtil;
-
     final private CertificateUtil certUtil;
     final private AlgorithmRestrictionUtil algorithmRestrictionUtil;
-
     final private ConfigUtil configUtil;
-
+    final private RequestUtil requestUtil;
     final private AuditService auditService;
 
     final private AuditTraceRepository auditTraceRepository;
     final private NotificationService notificationService;
-
     final private TenantRepository tenantRepository;
-
+    final private AuthorityRepository authorityRepository;
     final private RequestProxyConfigRepository requestProxyConfigRepository;
-
     final private String defaultKeySpec;
+
+    private final RandomUtil randomUtil;
 
     public PipelineUtil(CertificateRepository certRepository,
                         CSRRepository csrRepository,
@@ -194,16 +190,18 @@ public class PipelineUtil {
                         BPMNProcessInfoRepository bpmnPIRepository,
                         ProtectedContentRepository protectedContentRepository,
                         ProtectedContentUtil protectedContentUtil,
-                        PreferenceUtil preferenceUtil,
                         CertificateUtil certUtil,
                         AlgorithmRestrictionUtil algorithmRestrictionUtil,
                         ConfigUtil configUtil,
+                        RequestUtil requestUtil,
                         AuditService auditService,
                         AuditTraceRepository auditTraceRepository,
                         @Lazy NotificationService notificationService,
                         TenantRepository tenantRepository,
+                        AuthorityRepository authorityRepository,
                         RequestProxyConfigRepository requestProxyConfigRepository,
-                        @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec) {
+                        @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec,
+                        RandomUtil randomUtil) {
 
         this.certRepository = certRepository;
         this.csrRepository = csrRepository;
@@ -213,17 +211,19 @@ public class PipelineUtil {
         this.bpmnPIRepository = bpmnPIRepository;
         this.protectedContentRepository = protectedContentRepository;
         this.protectedContentUtil = protectedContentUtil;
-        this.preferenceUtil = preferenceUtil;
         this.certUtil = certUtil;
         this.algorithmRestrictionUtil = algorithmRestrictionUtil;
         this.configUtil = configUtil;
+        this.requestUtil = requestUtil;
         this.auditService = auditService;
         this.auditTraceRepository = auditTraceRepository;
         this.notificationService = notificationService;
         this.tenantRepository = tenantRepository;
+        this.authorityRepository = authorityRepository;
         this.requestProxyConfigRepository = requestProxyConfigRepository;
         // @ToDo check back with the list of valid algos
         this.defaultKeySpec = defaultKeySpec;
+        this.randomUtil = randomUtil;
     }
 
 
@@ -271,9 +271,9 @@ public class PipelineUtil {
 
         List<String> domainRaOfficerList = new ArrayList<>();
 
-        pv.setRequestProxyConfigIds(pipeline.getRequestProxies().stream().mapToLong(r -> r.getId()).toArray());
-
-//    	acmeConfigItems.setProcessInfoNameAccountValidation(processInfoNameAccountValidation);
+        if( pipeline.getRequestProxies() != null) {
+            pv.setRequestProxyConfigIds(pipeline.getRequestProxies().stream().mapToLong(r -> r.getId()).toArray());
+        }
 
         for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
 
@@ -293,14 +293,22 @@ public class PipelineUtil {
                 acmeConfigItems.setContactEMailRegEx(plAtt.getValue());
             } else if (ACME_CONTACT_EMAIL_REGEX_REJECT.equals(plAtt.getName())) {
                 acmeConfigItems.setContactEMailRejectRegEx(plAtt.getValue());
+            } else if (ACME_EAB_REQUIRED.equals(plAtt.getName())) {
+                acmeConfigItems.setExternalAccountRequired(Boolean.parseBoolean(plAtt.getValue()));
             } else if (ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR.equals(plAtt.getName())) {
                 acmeConfigItems.setNotifyContactsOnError(Boolean.parseBoolean(plAtt.getValue()));
             } else if (DOMAIN_RA_OFFICER.equals(plAtt.getName())) {
                 domainRaOfficerList.add(plAtt.getValue());
             } else if (NOTIFY_RA_OFFICER_ON_PENDING.equals(plAtt.getName())) {
                 webConfigItems.setNotifyRAOfficerOnPendingRequest(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (NOTIFY_DOMAIN_RA_OFFICER_ON_PENDING.equals(plAtt.getName())) {
+                webConfigItems.setNotifyDomainRAOfficerOnPendingRequest(Boolean.parseBoolean(plAtt.getValue()));
             } else if (ADDITIONAL_EMAIL_RECIPIENTS.equals(plAtt.getName())) {
                 webConfigItems.setAdditionalEMailRecipients(plAtt.getValue());
+            } else if (NETWORK_ACCEPT.equals(plAtt.getName())) {
+                pv.setNetworkAcceptArr(splitNetworks(plAtt.getValue()));
+            } else if (NETWORK_REJECT.equals(plAtt.getName())) {
+                pv.setNetworkRejectArr(splitNetworks(plAtt.getValue()));
             } else if (CAN_ISSUE_2_FACTOR_CLIENT_CERTS.equals(plAtt.getName())) {
                 webConfigItems.setIssuesSecondFactorClientCert(Boolean.parseBoolean(plAtt.getValue()));
             } else if (SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
@@ -310,6 +318,12 @@ public class PipelineUtil {
                 scepConfigItems.setKeyAlgoLength(keyAlgoLength);
             } else if (SCEP_CA_CONNECTOR_RECIPIENT_NAME.equals(plAtt.getName())) {
                 scepConfigItems.setCaConnectorRecipientName(plAtt.getValue());
+            } else if (SCEP_CAPABILITY_RENEWAL.equals(plAtt.getName())) {
+                scepConfigItems.setCapabilityRenewal(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (SCEP_PERIOD_DAYS_RENEWAL.equals(plAtt.getName())) {
+                scepConfigItems.setPeriodDaysRenewal(Integer.parseInt(plAtt.getValue()));
+            } else if (SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL.equals(plAtt.getName())) {
+                scepConfigItems.setPercentageOfValidtyBeforeRenewal(Integer.parseInt(plAtt.getValue()));
             } else if (SCEP_SECRET_PC_ID.equals(plAtt.getName())) {
 
                 Optional<ProtectedContent> optPC = protectedContentRepository.findById(Long.parseLong(plAtt.getValue()));
@@ -337,22 +351,6 @@ public class PipelineUtil {
             }
 
         }
-/*
-        if( PipelineType.SCEP.equals(pipeline.getType())){
-            try {
-                Certificate currentRecipientCert = getSCEPRecipientCertificate(pipeline);
-                if( currentRecipientCert != null) {
-                    LOG.debug("pipeline id {} identifies recipient certificate with id {} ",
-                        pipeline.getId(), currentRecipientCert.getId());
-                    scepConfigItems.setRecepientCertId(currentRecipientCert.getId());
-                    scepConfigItems.setRecepientCertSerial(currentRecipientCert.getSerial());
-                    scepConfigItems.setRecepientCertSubject(currentRecipientCert.getSubject());
-                }
-            } catch (IOException | GeneralSecurityException e) {
-                LOG.warn("problem retrieving recipient certificate", e);
-            }
-        }
-*/
 
         if (pipeline.getProcessInfoRequestAuthorization() != null) {
             webConfigItems.setProcessInfoNameRequestAuthorization(pipeline.getProcessInfoRequestAuthorization().getName());
@@ -376,6 +374,12 @@ public class PipelineUtil {
 
         Tenant[] selectedTenants = pipeline.getTenants().toArray(new Tenant[0]);
         pv.setSelectedTenantList(selectedTenants);
+
+        Authority[] allAuthorities = authorityRepository.findAll().toArray(new Authority[0]);
+        pv.setAllRolesList(allAuthorities);
+
+        Authority[] selectedAuthorities = pipeline.getAuthorities().toArray(new Authority[0]);
+        pv.setSelectedRolesList(selectedAuthorities);
 
         return pv;
     }
@@ -924,7 +928,7 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX, pv.getAcmeConfigItems().getContactEMailRegEx());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CONTACT_EMAIL_REGEX_REJECT, pv.getAcmeConfigItems().getContactEMailRejectRegEx());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR, pv.getAcmeConfigItems().isNotifyContactsOnError());
-
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_EAB_REQUIRED, pv.getAcmeConfigItems().isExternalAccountRequired());
         }
 
         if( pv.getKeyUniqueness() == null){
@@ -936,6 +940,9 @@ public class PipelineUtil {
         addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_REQUIRED, pv.isTosAgreementRequired());
         addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_LINK, pv.getTosAgreementLink());
         addPipelineAttribute(pipelineAttributes, p, auditList, WEBSITE_LINK, pv.getWebsite());
+
+        addPipelineAttribute(pipelineAttributes, p, auditList, NETWORK_ACCEPT, concatNetworks(pv.getNetworkAcceptArr()));
+        addPipelineAttribute(pipelineAttributes, p, auditList, NETWORK_REJECT, concatNetworks(pv.getNetworkRejectArr()));
 
         addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE, pv.getCsrUsage().toString());
         if (PipelineType.WEB.equals(pv.getType())) {
@@ -951,6 +958,9 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_RENEWAL, pv.getScepConfigItems().isCapabilityRenewal());
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CAPABILITY_POST, pv.getScepConfigItems().isCapabilityPostPKIOperation());
 
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_PERIOD_DAYS_RENEWAL, Integer.toString(pv.getScepConfigItems().getPeriodDaysRenewal()));
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL, Integer.toString(pv.getScepConfigItems().getPercentageOfValidtyBeforeRenewal()));
+
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_DN, pv.getScepConfigItems().getScepRecipientDN());
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_KEY_TYPE_LEN, pv.getScepConfigItems().getKeyAlgoLength().toString());
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CA_CONNECTOR_RECIPIENT_NAME, pv.getScepConfigItems().getCaConnectorRecipientName());
@@ -958,6 +968,7 @@ public class PipelineUtil {
 
         if (pv.getWebConfigItems() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, NOTIFY_RA_OFFICER_ON_PENDING, pv.getWebConfigItems().isNotifyRAOfficerOnPendingRequest());
+            addPipelineAttribute(pipelineAttributes, p, auditList, NOTIFY_DOMAIN_RA_OFFICER_ON_PENDING, pv.getWebConfigItems().isNotifyDomainRAOfficerOnPendingRequest());
             addPipelineAttribute(pipelineAttributes, p, auditList, ADDITIONAL_EMAIL_RECIPIENTS, pv.getWebConfigItems().getAdditionalEMailRecipients());
             addPipelineAttribute(pipelineAttributes, p, auditList, CAN_ISSUE_2_FACTOR_CLIENT_CERTS, pv.getWebConfigItems().getIssuesSecondFactorClientCert());
         }
@@ -968,49 +979,13 @@ public class PipelineUtil {
             }
         }
 
-        ProtectedContent pc;
-        List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW, p.getId());
-        if (listPC.isEmpty()) {
+        if (PipelineType.SCEP.equals(pv.getType())) {
+            ProtectedContent pc = getProtectedContent(pv, p,
+                ProtectedContentType.PASSWORD, ContentRelationType.SCEP_PW,
+                auditList);
 
-            pc = new ProtectedContent();
-            pc.setType(ProtectedContentType.PASSWORD);
-            pc.setRelationType(ContentRelationType.SCEP_PW);
-            pc.setRelatedId(p.getId());
-            pc.setCreatedOn(Instant.now());
-            pc.setLeftUsages(-1);
-            pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
-            pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
-
-            LOG.debug("Protected Content created for SCEP password");
-        } else {
-            pc = listPC.get(0);
-            LOG.debug("Protected Content found for SCEP password");
+            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_SECRET_PC_ID, pc.getId().toString());
         }
-
-        if( pv.getScepConfigItems() != null && pv.getScepConfigItems().getScepSecret() != null ) {
-
-            String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
-            Instant validTo = Instant.now().plus(365, ChronoUnit.DAYS);
-            if( pv.getScepConfigItems().getScepSecretValidTo() != null) {
-                validTo = pv.getScepConfigItems().getScepSecretValidTo();
-            }
-
-            if (oldContent == null ||
-                !oldContent.equals(pv.getScepConfigItems().getScepSecret()) ||
-                pc.getValidTo() == null ||
-                !pc.getValidTo().equals(validTo)) {
-
-
-                pc.setContentBase64(protectedContentUtil.protectString(pv.getScepConfigItems().getScepSecret()));
-                pc.setValidTo(validTo);
-                pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
-                protectedContentRepository.save(pc);
-//                LOG.debug("SCEP password updated {} -> {}, {} -> {}", oldContent, pv.getScepConfigItems().getScepSecret(), validTo, pc.getValidTo());
-                auditList.add(auditService.createAuditTracePipelineAttribute("SCEP_SECRET", "#######", "******", p));
-            }
-        }
-
-        addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_SECRET_PC_ID, pc.getId().toString());
 
         p.setPipelineAttributes(pipelineAttributes);
 
@@ -1061,6 +1036,30 @@ public class PipelineUtil {
             }
         }
 
+        if( pv.getSelectedRolesList() != null){
+
+            List<Authority> authorityList = Arrays.asList(pv.getSelectedRolesList());
+
+            List<Authority> listOfAdditionalItems = authorityList.stream()
+                .filter(item -> !p.getAuthorities().contains(item)).collect(Collectors.toList());
+
+            for(Authority authority: listOfAdditionalItems) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("AUTHORITY", "", authority.getName(), p));
+            }
+
+            List<Authority> listOfRemovedItems = p.getAuthorities().stream()
+                .filter(item -> !authorityList.contains(item)).collect(Collectors.toList());
+
+            for(Authority authority: listOfRemovedItems) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("AUTHORITY", authority.getName(),"", p));
+            }
+
+            if( !listOfAdditionalItems.isEmpty() || !listOfRemovedItems.isEmpty()) {
+                p.setAuthorities(new HashSet<>(authorityList));
+            }
+        }
+
+
         auditTraceForAttributes(p, auditList, pipelineOldAttributes);
 
         p.setPipelineAttributes(pipelineAttributes);
@@ -1093,6 +1092,78 @@ public class PipelineUtil {
         }
 
         return p;
+    }
+
+    private ProtectedContent getProtectedContent(PipelineView pv, Pipeline p,
+                                                 ProtectedContentType protectedContentType,
+                                                 ContentRelationType contentRelationType,
+                                                 List<AuditTrace> auditList) {
+        ProtectedContent pc;
+        List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(protectedContentType, contentRelationType, p.getId());
+        if (listPC.isEmpty()) {
+
+            pc = new ProtectedContent();
+            pc.setType(protectedContentType);
+            pc.setRelationType(contentRelationType);
+            pc.setRelatedId(p.getId());
+            pc.setCreatedOn(Instant.now());
+            pc.setLeftUsages(-1);
+            pc.setValidTo(ProtectedContentUtil.MAX_INSTANT);
+            pc.setDeleteAfter(ProtectedContentUtil.MAX_INSTANT);
+
+            LOG.debug("Protected Content created for {}", contentRelationType);
+        } else {
+            pc = listPC.get(0);
+            LOG.debug("Protected Content found for {}", contentRelationType);
+        }
+
+        if( pv.getScepConfigItems() != null && pv.getScepConfigItems().getScepSecret() != null ) {
+
+            String oldContent = protectedContentUtil.unprotectString(pc.getContentBase64());
+            Instant validTo = Instant.now().plus(365, ChronoUnit.DAYS);
+            if( pv.getScepConfigItems().getScepSecretValidTo() != null) {
+                validTo = pv.getScepConfigItems().getScepSecretValidTo();
+            }
+
+            if (oldContent == null ||
+                !oldContent.equals(pv.getScepConfigItems().getScepSecret()) ||
+                pc.getValidTo() == null ||
+                !pc.getValidTo().equals(validTo)) {
+
+
+                pc.setContentBase64(protectedContentUtil.protectString(pv.getScepConfigItems().getScepSecret()));
+                pc.setValidTo(validTo);
+                pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
+                protectedContentRepository.save(pc);
+//                LOG.debug("SCEP password updated {} -> {}, {} -> {}", oldContent, pv.getScepConfigItems().getScepSecret(), validTo, pc.getValidTo());
+                auditList.add(auditService.createAuditTracePipelineAttribute(contentRelationType.toString(), "#######", "******", p));
+            }
+        }
+        return pc;
+    }
+
+    String[] splitNetworks(final String networks ){
+        if( networks == null || networks.isEmpty()){
+            return new String[0];
+        }
+        return networks.split(";");
+    }
+
+    String concatNetworks(final String[] networkArr ){
+
+        String result = "";
+        if( networkArr != null) {
+            for (String network : networkArr) {
+                if (!network.isEmpty()) {
+                    if (!result.isEmpty()) {
+                        result += (";" + network);
+                    } else {
+                        result = network;
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     private void auditTraceForAttributes(Pipeline p, List<AuditTrace> auditList, Set<PipelineAttribute> pipelineOldAttributes) {
@@ -1736,7 +1807,7 @@ public class PipelineUtil {
         String scepRecipientKeyLength = getPipelineAttribute(pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, defaultKeySpec);
         KeyAlgoLengthOrSpec kal = KeyAlgoLengthOrSpec.from(scepRecipientKeyLength);
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
-        keyPairGenerator.initialize(kal.getKeyLength(), RandomUtil.getSecureRandom());
+        keyPairGenerator.initialize(kal.getKeyLength(), randomUtil.getSecureRandom());
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
         String p10ReqPem = CryptoUtil.getCsrAsPEM(subject,
@@ -1938,5 +2009,47 @@ public class PipelineUtil {
     }
 
 
+    public boolean checkAcceptNetwork(Pipeline pipeline) {
+
+        String[] acceptedNetworks = splitNetworks(getPipelineAttribute(pipeline, PipelineUtil.NETWORK_ACCEPT,""));
+        String[] rejectNetworks = splitNetworks(getPipelineAttribute(pipeline, PipelineUtil.NETWORK_REJECT,""));
+
+        Collection<SubnetUtils.SubnetInfo> acceptedSubnets = new ArrayList<>();
+        for (String subnetMask : acceptedNetworks) {
+            acceptedSubnets.add(new SubnetUtils(subnetMask).getInfo());
+        }
+
+        Collection<SubnetUtils.SubnetInfo> rejectSubnets = new ArrayList<>();
+        for (String subnetMask : rejectNetworks) {
+            rejectSubnets.add(new SubnetUtils(subnetMask).getInfo());
+        }
+
+        String ipAddress = requestUtil.getClientIP();
+        for (SubnetUtils.SubnetInfo subnet : rejectSubnets) {
+            if (subnet.isInRange(ipAddress)) {
+                LOG.warn("IP Address {} is in rejection range {}", ipAddress,subnet.getCidrSignature());
+                return false;
+            }else{
+                LOG.debug("IP Address {} is NOT in rejection range {}", ipAddress,subnet.getCidrSignature());
+            }
+        }
+
+        for (SubnetUtils.SubnetInfo subnet : acceptedSubnets) {
+            if (subnet.isInRange(ipAddress)) {
+                LOG.warn("IP Address {} is in acceptance range {}", ipAddress, subnet.getCidrSignature());
+                return true;
+            }else{
+                LOG.debug("IP Address {} is NOT in acceptance range {}", ipAddress,subnet.getCidrSignature());
+            }
+        }
+
+        if( acceptedSubnets.isEmpty()) {
+            LOG.info("IP Address {} acceptance because there is no acceptance range defined", ipAddress);
+            return true;
+        }
+
+        LOG.info("IP Address {} matches no range", ipAddress);
+        return false;
+    }
 }
 

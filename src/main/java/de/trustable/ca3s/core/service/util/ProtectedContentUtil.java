@@ -12,7 +12,9 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentStatus;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
@@ -96,7 +98,15 @@ public class ProtectedContentUtil {
 	}
 
 
-	public String protectString(String content) {
+    public boolean hasMinimumOrLessLeftUsages(ProtectedContent protectedContent, int minNumber){
+        if (protectedContent.getLeftUsages() < 0){
+            return false;
+        }
+        return (protectedContent.getLeftUsages() <= minNumber);
+
+    }
+
+    public String protectString(String content) {
 		return textEncryptor.encrypt(content);
 	}
 
@@ -122,7 +132,9 @@ public class ProtectedContentUtil {
             crt,
             connectionId,
             -1,
-            MAX_INSTANT);
+            MAX_INSTANT,
+            null,
+            ProtectedContentStatus.ACTIVE);
     }
 
     /**
@@ -144,7 +156,9 @@ public class ProtectedContentUtil {
             crt,
             connectionId,
             -1,
-            validTo);
+            validTo,
+            null,
+            ProtectedContentStatus.ACTIVE);
     }
 
     /**
@@ -164,14 +178,45 @@ public class ProtectedContentUtil {
                                                    long connectionId,
                                                    int leftUsages,
                                                    Instant validTo) {
-
+        return createProtectedContent(plainText,
+            pct,
+            crt,
+            connectionId,
+            leftUsages,
+            validTo,
+            null,
+            ProtectedContentStatus.ACTIVE);
+    }
+    /**
+     * create a new ProtectedContent object and save the given content
+     *
+     * @param plainText    the plain text to be protected
+     * @param pct          the content type of the plainText
+     * @param crt          the related entity
+     * @param connectionId the related entity
+     * @param leftUsages   number of left usages for this element
+     * @param validTo      element usable until 'validTo'
+     * @param pipeline     the related pipeline
+     * @return the freshly created object
+     */
+    public ProtectedContent createProtectedContent(final String plainText,
+                                                   ProtectedContentType pct,
+                                                   ContentRelationType crt,
+                                                   long connectionId,
+                                                   int leftUsages,
+                                                   Instant validTo,
+                                                   Pipeline pipeline,
+                                                   ProtectedContentStatus protectedContentStatus) {
         return createPlainProtectedContent(protectString(plainText),
             pct,
             crt,
             connectionId,
             leftUsages,
-            validTo);
+            validTo,
+            pipeline,
+            protectedContentStatus);
     }
+
 
     public ProtectedContent createDerivedProtectedContent(final String plainText,
                                                           ProtectedContentType pct,
@@ -189,12 +234,48 @@ public class ProtectedContentUtil {
 
     }
 
+    public ProtectedContent createDerivedProtectedContent(final String plainText,
+                                                          ProtectedContentType pct,
+                                                          ContentRelationType crt,
+                                                          long connectionId,
+                                                          int leftUsages,
+                                                          Instant validTo,
+                                                          Pipeline pipeline,
+                                                          ProtectedContentStatus protectedContentStatus) {
+
+        try {
+            return createPlainProtectedContent(Base64.getEncoder().encodeToString(deriveSecret(plainText)),
+                pct, crt, connectionId, leftUsages, validTo, pipeline, protectedContentStatus);
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
     private ProtectedContent createPlainProtectedContent(final String contentBase64,
                                                          ProtectedContentType pct,
                                                          ContentRelationType crt,
                                                          long connectionId,
                                                          int leftUsages,
                                                          Instant validTo) {
+        return createPlainProtectedContent(contentBase64,
+            pct,
+            crt,
+            connectionId,
+            leftUsages,
+            validTo,
+            null,
+            ProtectedContentStatus.ACTIVE);
+    }
+
+    private ProtectedContent createPlainProtectedContent(final String contentBase64,
+                                                         ProtectedContentType pct,
+                                                         ContentRelationType crt,
+                                                         long connectionId,
+                                                         int leftUsages,
+                                                         Instant validTo,
+                                                         Pipeline pipeline,
+                                                         ProtectedContentStatus protectedContentStatus) {
 
         ProtectedContent pc = new ProtectedContent();
 
@@ -206,6 +287,8 @@ public class ProtectedContentUtil {
         pc.setLeftUsages(leftUsages);
         pc.setValidTo(validTo);
         pc.setDeleteAfter(validTo.plus(1, ChronoUnit.DAYS));
+        pc.setPipeline(pipeline);
+        pc.setStatus(protectedContentStatus);
 
         protContentRepository.save(pc);
         return pc;
@@ -223,7 +306,29 @@ public class ProtectedContentUtil {
         }
         log.debug("searching for protectedString '{}'", protectedString );
 
-        return protContentRepository.findByTypeRelationContentB64(type, crt, protectedString);
+        List<ProtectedContent> pcList = protContentRepository.findByTypeRelationContentB64(type, crt, protectedString);
+
+        Instant now = Instant.now();
+        Predicate<ProtectedContent> usableItem = pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);
+        return pcList.stream().filter(usableItem).collect(Collectors.toList());
+    }
+
+    public List<ProtectedContent> findProtectedContentByRelatedIdAndSecret(final String plainText,
+                                                               final ProtectedContentType type,
+                                                               final ContentRelationType crt,
+                                                               Long id) {
+
+        log.debug("searching for protectedString '{}'", plainText );
+
+        List<ProtectedContent> pcList = protContentRepository.findByTypeRelationId(type, crt, id);
+
+        List<ProtectedContent> matchingItemList = pcList.stream().filter(
+            pc -> unprotectString(pc.getContentBase64()).equals(plainText))
+            .collect(Collectors.toList());
+
+        Instant now = Instant.now();
+        Predicate<ProtectedContent> usableItem = pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);
+        return matchingItemList.stream().filter(usableItem).collect(Collectors.toList());
     }
 
     /**

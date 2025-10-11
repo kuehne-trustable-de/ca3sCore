@@ -6,27 +6,27 @@
                     <h2 class="jh-entity-heading" id="certificateHeader"><span v-text="$t('ca3SApp.certificate.detail.title')"></span> {{certificateView.id}}</h2>
                     <dl class="row jh-entity-details">
                         <dt>
-                            <span v-text="$t('ca3SApp.certificate.subject')">Subject</span>
+                            <span v-text="$t('ca3SApp.certificate.subject')"></span>
                         </dt>
                         <dd :style="getRevocationStyle(certificateView.revoked)">
                             <span>{{certificateView.subject}}</span>
                         </dd>
 
                         <dt v-if="certificateView.revoked">
-                            <span v-text="$t('ca3SApp.certificate.revokedSince')">Revoked Since</span>
+                            <span v-text="$t('ca3SApp.certificate.revokedSince')"></span>
                         </dt>
                         <dd v-if="certificateView.revoked">
                             <span v-if="certificateView.revokedSince">{{$d(Date.parse(certificateView.revokedSince), 'long') }}</span>
                         </dd>
                         <dt v-if="certificateView.revoked">
-                            <span v-text="$t('ca3SApp.certificate.revocationReason')">Revocation Reason</span>
+                            <span v-text="$t('ca3SApp.certificate.revocationReason')"></span>
                         </dt>
                         <dd v-if="certificateView.revoked">
                             <span name="revocationReason">{{certificateView.revocationReason}}</span>
                         </dd>
 
                         <dt v-if="certificateView.sanArr && certificateView.sanArr.length > 0">
-                            <span v-text="$t('ca3SApp.certificate.sans')">Subject alternative names</span>
+                            <span v-text="$t('ca3SApp.certificate.sans')"></span>
                         </dt>
                         <dd v-if="certificateView.sanArr && certificateView.sanArr.length > 0">
                             <ul>
@@ -35,17 +35,17 @@
                         </dd>
 
                         <dt>
-                            <span v-text="$t('ca3SApp.certificate.issuer')">Issuer</span>
+                            <span v-text="$t('ca3SApp.certificate.issuer')"></span>
                         </dt>
                         <dd>
-                            <span v-if="certificateView.selfsigned" v-text="$t('ca3SApp.certificate.selfsigned')">Selfsigned</span>
+                            <span v-if="certificateView.selfsigned" v-text="$t('ca3SApp.certificate.selfsigned')"></span>
                             <a v-else-if="certificateView.issuerId" href="issuer" @click.prevent="retrieveCertificate(certificateView.issuerId)">{{certificateView.issuer}}</a>
                             <span v-else>{{certificateView.issuer}}</span>
 
                         </dd>
 
                         <dt v-if="!certificateView.selfsigned && certificateView.root">
-                            <span v-text="$t('ca3SApp.certificate.root')">Root</span>
+                            <span v-text="$t('ca3SApp.certificate.root')"></span>
                         </dt>
                         <dd v-if="!certificateView.selfsigned && certificateView.root">
                             <a v-if="certificateView.rootId" href="root" @click.prevent="retrieveCertificate(certificateView.rootId)">{{certificateView.root}}</a>
@@ -53,18 +53,18 @@
                         </dd>
 
                         <dt>
-                            <span v-text="$t('ca3SApp.certificate.type')">Type</span>
+                            <span v-text="$t('ca3SApp.certificate.type')"></span>
                         </dt>
                         <dd>
                             <span>{{certificateView.type}}</span>
                             <span v-if="certificateView.ca">, <b>CA</b></span>
                             <span v-if="certificateView.selfsigned">, <b>Selfsigned</b></span>
                             <span v-if="certificateView.trusted">, <b>Trusted</b></span>
-                            <span v-if="certificateView.issuingActiveCertificates" v-text="$t('ca3SApp.certificate.active.issued')">, <b>Has active certificate issued</b></span>
+                            <span v-if="certificateView.issuingActiveCertificates" v-text="$t('ca3SApp.certificate.active.issued')"></span>
                         </dd>
 
                         <dt>
-                            <span v-text="$t('ca3SApp.certificate.serial')">Serial</span>
+                            <span v-text="$t('ca3SApp.certificate.serial')"></span>
                         </dt>
                         <dd>
                             <ul>
@@ -73,20 +73,20 @@
                             </ul>
                         </dd>
                         <dt>
-                            <span v-text="$t('ca3SApp.certificate.validFrom')">Valid From</span>
+                            <span v-text="$t('ca3SApp.certificate.validFrom')"></span>
                         </dt>
                         <dd>
                             <span v-if="certificateView.validFrom">{{$d(Date.parse(certificateView.validFrom), 'long') }}</span>
                         </dd>
                         <dt>
-                            <span v-text="$t('ca3SApp.certificate.validTo')">Valid To</span>
+                            <span v-text="$t('ca3SApp.certificate.validTo')"></span>
                         </dt>
                         <dd>
                             <span v-if="certificateView.validTo">{{$d(Date.parse(certificateView.validTo), 'long') }}</span>
                         </dd>
 
                          <dt>
-                            <span v-text="$t('ca3SApp.certificate.keyDetails')">Key Details</span>
+                            <span v-text="$t('ca3SApp.certificate.keyDetails')"></span>
                         </dt>
                         <dd>
                             <span>{{certificateView.keyAlgorithm}}</span>
@@ -95,13 +95,13 @@
                         </dd>
 
                         <dt v-if="certificateView.curveName && certificateView.curveName.length > 0">
-                            <span v-text="$t('ca3SApp.certificate.curveName')">Curve Name</span>
+                            <span v-text="$t('ca3SApp.certificate.curveName')"></span>
                         </dt>
                         <dd v-if="certificateView.curveName && certificateView.curveName.length > 0">
                             <span>{{certificateView.curveName}}</span>
                         </dd>
                         <dt>
-                            <span v-text="$t('ca3SApp.certificate.signingAlgorithm')">Signing Algorithm</span>
+                            <span v-text="$t('ca3SApp.certificate.signingAlgorithm')"></span>
                         </dt>
                         <dd>
                             <span>{{certificateView.signingAlgorithm}}</span>
@@ -110,7 +110,7 @@
                         </dd>
 
                         <dt>
-                            <span v-text="$t('ca3SApp.certificate.usage')">Usage</span>
+                            <span v-text="$t('ca3SApp.certificate.usage')"></span>
                         </dt>
                         <dd>
                             <ul v-if="certificateView.usage && certificateView.usage.length > 0">
@@ -119,7 +119,7 @@
                         </dd>
 
                         <dt v-if="certificateView.extUsage && certificateView.extUsage.length > 0">
-                            <span v-text="$t('ca3SApp.certificate.extended.usage')">Usage</span>
+                            <span v-text="$t('ca3SApp.certificate.extended.usage')"></span>
                         </dt>
                         <dd v-if="certificateView.extUsage && certificateView.extUsage.length > 0">
                             <ul>
@@ -128,14 +128,14 @@
                         </dd>
 
                         <dt>
-                            <span v-text="$t('ca3SApp.certificate.contentAddedAt')">Content Added At</span>
+                            <span v-text="$t('ca3SApp.certificate.contentAddedAt')"></span>
                         </dt>
                         <dd>
                             <span v-if="certificateView.contentAddedAt">{{$d(Date.parse(certificateView.contentAddedAt), 'long') }}</span>
                         </dd>
 
                         <dt v-if="certificateView.crlUrl">
-                            <span v-text="$t('ca3SApp.certificate.crlUrl')">CRL Uri</span>
+                            <span v-text="$t('ca3SApp.certificate.crlUrl')"></span>
                         </dt>
                         <dd v-if="certificateView.crlUrl">
                             <span name="crlUrl">{{certificateView.crlUrl}}</span>
@@ -146,7 +146,7 @@
                         </dd>
 
                         <dt>
-                            <span v-text="$t('ca3SApp.certificate.fingerprint')">Fingerprint</span>
+                            <span v-text="$t('ca3SApp.certificate.fingerprint')"></span>
                         </dt>
                         <dd>
                             <ul>
@@ -160,7 +160,7 @@
                         </dd>
 
                         <dt v-if="certificateView.csrId">
-                            <span v-text="$t('ca3SApp.certificate.csr')">Csr</span>
+                            <span v-text="$t('ca3SApp.certificate.csr')"></span>
                         </dt>
                         <dd v-if="certificateView.csrId">
                             <div>
@@ -169,7 +169,7 @@
                         </dd>
 
                         <dt v-if="isRAOrAdmin() && (certificateView.acmeAccountId || certificateView.acmeOrderId)">
-                            <span v-text="$t('ca3SApp.certificate.acme')">ACME</span>
+                            <span v-text="$t('ca3SApp.certificate.acme')"></span>
                         </dt>
                         <dd v-if="isRAOrAdmin() && (certificateView.acmeAccountId || certificateView.acmeOrderId)">
                             <div>
@@ -181,7 +181,7 @@
                         </dd>
 
                         <dt v-if="certificateView.requestedBy">
-                            <span v-text="$t('ca3SApp.certificate.requestedBy')">Requested by</span>
+                            <span v-text="$t('ca3SApp.certificate.requestedBy')"></span>
                         </dt>
                         <dd v-if="certificateView.requestedBy">
 
@@ -194,7 +194,7 @@
                         </dd>
 
                         <dt v-if="certificateView.requestedOn">
-                            <span v-text="$t('ca3SApp.certificate.requestedOn')">Requested on</span>
+                            <span v-text="$t('ca3SApp.certificate.requestedOn')"></span>
                         </dt>
                         <dd v-if="certificateView.requestedOn">
                             <span>{{certificateView.requestedOn}}</span>
@@ -229,7 +229,7 @@
 
                             <div class="row">
                                 <div v-if="certificateView.serversideKeyValidTo && (certificateView.serversideKeyValidTo < 9999)" class="col">
-                                    <label class="form-control-label" v-text="$t('ca3SApp.certificate.key.availableUntil')" for="availableUntil">Key available until</label>
+                                    <label class="form-control-label" v-text="$t('ca3SApp.certificate.key.availableUntil')" for="availableUntil"></label>
                                     <span name="availableUntil">{{$d(Date.parse(certificateView.serversideKeyValidTo), 'short') }}</span>
                                 </div>
                                 <!--div class="col">
@@ -255,7 +255,7 @@
 
                                     <label
                                         v-if="!collapsed"
-                                        class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12pbe')" for="p12Pbe">PBE</label>
+                                        class="form-control-label" v-text="$t('ca3SApp.certificate.download.p12pbe')" for="p12Pbe"></label>
 
                                     <select
                                         v-if="!collapsed"
@@ -274,7 +274,7 @@
                         </dd>
 
                         <dt v-if="certificateView.downloadFilename">
-                            <span v-text="$t('ca3SApp.certificate.download.pkix')">Pkix</span> <help-tag target="ca3SApp.certificate.download.PKIX"/>
+                            <span v-text="$t('ca3SApp.certificate.download.pkix')"></span> <help-tag target="ca3SApp.certificate.download.PKIX"/>
                         </dt>
                         <dd v-if="certificateView.downloadFilename">
                             <div class="container">
@@ -282,10 +282,10 @@
                                     <div class="col">
                                         <select class="form-control" id="download-format" name="download-format"
                                                 v-model="downloadFormat">
-                                            <option value="pkix" v-text="$t('ca3SApp.certificate.download.PKIX')" selected="selected">PKIX</option>
-                                            <option value="pem" v-text="$t('ca3SApp.certificate.download.PEM')" >PEM</option>
-                                            <option v-if="certificateView.endEntity && (certificateView.issuerId !== undefined)" value="pemPart" v-text="$t('ca3SApp.certificate.download.pemPartChain')" >PEMPartChain</option>
-                                            <option v-if="certificateView.endEntity && (certificateView.issuerId !== undefined)" value="pemFull" v-text="$t('ca3SApp.certificate.download.pemFullChain')" >PEMFullChain</option>
+                                            <option value="pkix" v-text="$t('ca3SApp.certificate.download.PKIX')" selected="selected"></option>
+                                            <option value="pem" v-text="$t('ca3SApp.certificate.download.PEM')" ></option>
+                                            <option v-if="certificateView.endEntity && (certificateView.issuerId !== undefined)" value="pemPart" v-text="$t('ca3SApp.certificate.download.pemPartChain')" ></option>
+                                            <option v-if="certificateView.endEntity && (certificateView.issuerId !== undefined)" value="pemFull" v-text="$t('ca3SApp.certificate.download.pemFullChain')" ></option>
                                         </select>
                                     </div>
                                     <div class="col">
@@ -306,9 +306,8 @@
                 <form name="editForm" role="form" novalidate>
                     <div>
                         <div v-if="isTrustable()" class="form-group">
-                            <label class="form-control-label" v-text="$t('ca3SApp.pipeline.trusted')" for="certificate-trusted">Trusted</label>
-                            <input type="checkbox" class="form-check-inline" name="trusted" id="certificate-trusted"
-                                   v-model="trusted" />
+                            <label class="form-control-label" v-text="$t('ca3SApp.pipeline.trusted')" for="certificate-trusted"></label>
+                            <input type="checkbox" class="form-check-inline" name="trusted" id="certificate-trusted" v-model="trusted" />
                         </div>
 
                         <div v-if="isEditable()" v-for="attr in certificateAdminData.arAttributes" :key="attr.name" class="form-group">
@@ -317,7 +316,7 @@
                         </div>
 
                         <div v-if="isRevocable()" class="form-group">
-                            <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="cert-revocationReason">Revocation reason</label> <help-tag target="ca3SApp.certificate.download.revocationReason"/>
+                            <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="cert-revocationReason"></label> <help-tag target="ca3SApp.certificate.download.revocationReason"/>
                             <select class="form-control" id="cert-revocationReason" name="revocationReason"  v-model="certificateAdminData.revocationReason">
                                 <option v-bind:value="'certificateHold'">certificateHold</option>
                                 <option v-bind:value="'keyCompromise'">keyCompromise</option>
@@ -331,7 +330,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment">Comment</label> <help-tag target="ca3SApp.certificate.comment"/>
+                            <label class="form-control-label" v-text="$t('ca3SApp.certificate.comment')" for="comment"></label> <help-tag target="ca3SApp.certificate.comment"/>
 
                             <textarea v-if="isRAOrAdmin() || isOwnCertificate()" class="form-control" name="content" id="comment"
                                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
@@ -353,27 +352,27 @@
                         <button type="submit"
                                 v-on:click.prevent="previousState()"
                                 class="btn btn-info">
-                            <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"> Back</span>
+                            <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.back')"></span>
                         </button>
 
                         <button type="button" id="edit" v-if="isOwnCertificate() && (!isRAOrAdmin())"
                                 class="btn btn-secondary" v-on:click="selfAdministerCertificate()">
-                            <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
+                            <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')"></span>
                         </button>
 
                         <button type="button" id="update" v-if="isRAOrAdmin() && isValuesChanged()"
                                 class="btn btn-secondary" v-on:click="updateCertificate()">
-                            <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')">Update</span>
+                            <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.update')"></span>
                         </button>
 
                         <button type="button" id="updateCrl" v-if="isRAOfficer()"
                                 class="btn btn-secondary" v-on:click="updateCRL()">
-                            <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.updateCrl')">Update CRL</span>
+                            <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.updateCrl')"></span>
                         </button>
 
                         <button type="button" id="removeFromCRL" v-if="isRemovableFromCRL()"
                                 class="btn btn-secondary" v-on:click="removeCertificateFromCRL()">
-                            <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.removeCertificateFromCRL')">Remove from CRL</span>
+                            <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.removeCertificateFromCRL')"></span>
                         </button>
 
                         <!--button type="button" id="revoke" v-if="isRAOfficer() && !isOwnCertificate() && isRevocable()" class="btn btn-secondary" v-on:click="revokeCertificate()">
@@ -390,7 +389,7 @@
                                   id="revoke"
                                   v-b-modal.revokeCertificate>
                             <font-awesome-icon icon="times"></font-awesome-icon>
-                            <span class="d-none d-md-inline" v-text="$t('entity.action.revoke')">Revoke</span>
+                            <span class="d-none d-md-inline" v-text="$t('entity.action.revoke')"></span>
                         </b-button>
 
                     </div>
@@ -399,21 +398,21 @@
             </div>
         </div>
         <b-modal ref="revokeCertificate" id="revokeCertificate" >
-            <span slot="modal-title"><span id="ca3SApp.certificate.revoke.question" v-text="$t('entity.revoke.title')">Confirm revocation</span></span>
+            <span slot="modal-title"><span id="ca3SApp.certificate.revoke.question" v-text="$t('entity.revoke.title')"></span></span>
             <div class="modal-body">
 
                 <div v-if="certificateView.ca" class="alert alert-warning" role="alert">
-                    <p v-text="$t('ca3SApp.certificate.ca.hint')">This is a CA certificate!</p>
+                    <p v-text="$t('ca3SApp.certificate.ca.hint')"></p>
                 </div>
                 <div v-if="certificateView.issuingActiveCertificates" class="alert alert-danger" role="alert">
-                    <p v-text="$t('ca3SApp.certificate.no.revocation.active.issued')">Has active issued certificates</p>
+                    <p v-text="$t('ca3SApp.certificate.no.revocation.active.issued')"></p>
                 </div>
-                <p id="jhi-revoke-certificate-heading" v-text="$t('ca3SApp.certificate.revoke.question', {'id': certificateView.id})">Are you sure you want to revoke this certificate?</p>
+                <p id="jhi-revoke-certificate-heading" v-text="$t('ca3SApp.certificate.revoke.question', {'id': certificateView.id})"></p>
             </div>
             <div slot="modal-footer">
-                <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()">Cancel</button>
+                <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()"></button>
                 <button v-if="!certificateView.issuingActiveCertificates"
-                        type="button" class="btn btn-primary" id="confirm-revoke-certificate" v-text="$t('entity.action.revoke')" v-on:click="revokeCertificateAndClose()">Revoke</button>
+                        type="button" class="btn btn-primary" id="confirm-revoke-certificate" v-text="$t('entity.action.revoke')" v-on:click="revokeCertificateAndClose()"></button>
             </div>
         </b-modal>
 

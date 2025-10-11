@@ -33,12 +33,14 @@ public class EjbcaConnector {
 
     final int PAGE_SIZE = 10;
     private final X509TrustManager ca3sTrustManager;
-
     private final CertificateUtil certUtil;
+    private final RandomUtil randomUtil;
 
-    public EjbcaConnector(X509TrustManager ca3sTrustManager, CertificateUtil certUtil) {
+
+    public EjbcaConnector(X509TrustManager ca3sTrustManager, CertificateUtil certUtil, RandomUtil randomUtil) {
         this.ca3sTrustManager = ca3sTrustManager;
         this.certUtil = certUtil;
+        this.randomUtil = randomUtil;
     }
 
     @Transactional
@@ -148,7 +150,7 @@ public class EjbcaConnector {
                 SSLContext sc = SSLContext.getInstance("SSL");
                 sc.init(keyManagers,
                     new TrustManager[]{ca3sTrustManager},
-                    RandomUtil.getSecureRandom());
+                    randomUtil.getSecureRandom());
 
                 SSLSocketFactory socketFactory = sc.getSocketFactory();
                 if (sni != null && !sni.trim().isEmpty()) {

@@ -124,7 +124,7 @@ public class Pipeline implements Serializable {
     private Set<AlgorithmRestriction> algorithms = new HashSet<>();
 
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_pipeline__request_proxy",
         joinColumns = @JoinColumn(name = "pipeline_id"),
@@ -133,7 +133,7 @@ public class Pipeline implements Serializable {
     @JsonIgnoreProperties(value = { "secret", "pipelines" }, allowSetters = true)
     private Set<RequestProxyConfig> requestProxies = new HashSet<>();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
         name = "rel_pipeline__tenants",
         joinColumns = @JoinColumn(name = "pipeline_id"),
@@ -141,6 +141,14 @@ public class Pipeline implements Serializable {
     )
     @JsonIgnoreProperties(value = { "pipelines" }, allowSetters = true)
     private Set<Tenant> tenants = new HashSet<>();
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+        name = "rel_pipeline__authorities",
+        joinColumns = @JoinColumn(name = "pipeline_id"),
+        inverseJoinColumns = @JoinColumn(name = "name")
+    )
+    private Set<Authority> authorities = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
 
@@ -427,6 +435,14 @@ public class Pipeline implements Serializable {
         this.tenants.remove(tenant);
         tenant.getPipelines().remove(this);
         return this;
+    }
+
+    public Set<Authority> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(Set<Authority> authorities) {
+        this.authorities = authorities;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

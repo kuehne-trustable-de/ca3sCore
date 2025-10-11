@@ -16,6 +16,7 @@ import de.trustable.ca3s.core.service.exception.InvalidCredentialException;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
 import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import org.apache.commons.lang3.StringUtils;
+import org.camunda.bpm.engine.ProcessEngineException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
@@ -174,6 +175,12 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
 
     @ExceptionHandler
     public ResponseEntity<Problem> handleInvalidCredentialException(InvalidCredentialException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder().withStatus(Status.BAD_REQUEST).with(MESSAGE_KEY, ex.getMessage()).build();
+        return create(ex, problem, request);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleProcessEngineException(ProcessEngineException ex, NativeWebRequest request) {
         Problem problem = Problem.builder().withStatus(Status.BAD_REQUEST).with(MESSAGE_KEY, ex.getMessage()).build();
         return create(ex, problem, request);
     }

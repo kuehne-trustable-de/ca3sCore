@@ -224,7 +224,7 @@ public class AcmeRestrictionsIT {
 
 	void provideAuthEndpoint(final Http01Challenge challenge) throws IOException, InterruptedException {
 
-        int callbackPort = this.prefTC.getFreePort();
+        int callbackPort = this.prefTC.getHttpChallengePort();
 		final String fileNameRegEx = "/\\.well-known/acme-challenge/" + challenge.getToken();
 		String fileContent = challenge.getAuthorization();
 

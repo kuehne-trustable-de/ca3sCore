@@ -2,7 +2,7 @@ package de.trustable.ca3s.core.security.provider;
 
 import de.trustable.ca3s.cert.bundle.BundleFactory;
 import de.trustable.ca3s.cert.bundle.KeyCertBundle;
-import de.trustable.ca3s.core.service.util.KeyUtil;
+import de.trustable.ca3s.core.service.KeyGenerationService;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.PKILevel;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
@@ -31,16 +31,18 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 
 	private final String dnSuffix;
 
-    private final KeyUtil keyUtil;
-
 	private X500Name x500Issuer;
 
-	private CryptoUtil cryptoUtil = new CryptoUtil();
+	private final CryptoUtil cryptoUtil = new CryptoUtil();
+    private final KeyGenerationService keyGenerationService;
+
+    private final int fallbackCertValidity;
 
 
-	public Ca3sFallbackBundleFactory(String dnSuffix, KeyUtil keyUtil) {
+	public Ca3sFallbackBundleFactory(String dnSuffix, int fallbackCertValidity, KeyGenerationService keyGenerationService) {
 	    this.dnSuffix = dnSuffix;
-        this.keyUtil = keyUtil;
+        this.fallbackCertValidity = fallbackCertValidity;
+        this.keyGenerationService = keyGenerationService;
         try{
 			x500Issuer = new X500Name("CN=RootOn" + InetAddress.getLocalHost().getCanonicalHostName() + ", OU=temporary bootstrap root " + System.currentTimeMillis() + ", O=trustable solutions, C=DE");
 		} catch(UnknownHostException uhe) {
@@ -49,10 +51,10 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 		}
 	}
 
-	private synchronized KeyPair getRootKeyPair() throws GeneralSecurityException{
+	private synchronized KeyPair getRootKeyPair(){
 
 		if( rootKeyPair == null) {
-            rootKeyPair = keyUtil.createKeyPair();
+            rootKeyPair = keyGenerationService.createKeyPair();
 			LOG.debug("created new root keypair : {}", rootKeyPair.toString());
 		}
 	    return rootKeyPair;
@@ -80,8 +82,9 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
 
 
         KeyAlgoLengthOrSpec keyAlgoLengthOrSpec = new KeyAlgoLengthOrSpec("RSA", 4096);
-        KeyPair localKeyPair = keyAlgoLengthOrSpec.generateKeyPair();
-		try {
+        KeyPair localKeyPair = keyGenerationService.generateKeyPair(keyAlgoLengthOrSpec);
+
+        try {
 			InetAddress ip = InetAddress.getLocalHost();
 			String hostname = ip.getHostName();
 			LOG.debug("requesting certificate for host : " + hostname );
@@ -110,7 +113,7 @@ public class Ca3sFallbackBundleFactory implements BundleFactory {
                 getRootKeyPair(),
                 subject,
                 SubjectPublicKeyInfo.getInstance(localKeyPair.getPublic().getEncoded()),
-                Calendar.HOUR, 1,
+                Calendar.HOUR, fallbackCertValidity,
                 gns,
                 extensions,
                 PKILevel.END_ENTITY);

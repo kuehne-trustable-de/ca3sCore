@@ -13,7 +13,6 @@ import javax.net.ssl.X509TrustManager;
 import de.trustable.ca3s.core.service.AuditService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.Certificate;
@@ -23,13 +22,12 @@ import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.CryptoService;
 
 
-
 @Service
 public class Ca3sTrustManager implements X509TrustManager {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(Ca3sTrustManager.class);
 
-	private final CertificateRepository certificateRepository;
+	protected final CertificateRepository certificateRepository;
 
 	private final CryptoService cryptoUtil;
 
@@ -107,7 +105,7 @@ public class Ca3sTrustManager implements X509TrustManager {
 				}
 			}
 
-			/**
+			/*
 			 * @todo
 			 *
 			 * check chain with standard trust manager
@@ -173,11 +171,11 @@ public class Ca3sTrustManager implements X509TrustManager {
     }
 
     @Override
-    @Cacheable("AcceptedIssuer")
+//    @Cacheable("AcceptedIssuer")
 	public X509Certificate[] getAcceptedIssuers() {
 		LOGGER.debug("getAcceptedIssuers call !");
 
-		List<Certificate> acceptedIssuerList = certificateRepository.findBySearchTermNamed1(CertificateAttribute.ATTRIBUTE_CA, "true");
+		List<Certificate> acceptedIssuerList = getAcceptedIssuerList();
 		X509Certificate[] certArray = new X509Certificate[acceptedIssuerList.size()];
 		for( int i = 0; i < acceptedIssuerList.size(); i++) {
 			try {
@@ -190,5 +188,11 @@ public class Ca3sTrustManager implements X509TrustManager {
 		LOGGER.debug("getAcceptedIssuers returns {} elements", certArray.length);
 		return certArray;
 	}
+
+    List<Certificate> getAcceptedIssuerList() {
+        List<Certificate> list =  certificateRepository.findBySearchTermNamed1(CertificateAttribute.ATTRIBUTE_CA, "true");
+        LOGGER.debug("getAcceptedIssuerList returns {} elements", list.size());
+        return list;
+    }
 
 }

@@ -350,41 +350,41 @@
                                 <span v-if="precheckResponse.p10Holder.paddingAlgName === 'pss'">, {{precheckResponse.p10Holder.paddingAlgName}}, {{precheckResponse.p10Holder.mfgName}}</span>
 							</dd>
 
-                            <dt v-if="precheckResponse.p10Holder.sans.length > 0">
-                                <span v-text="$t('pkcsxx.upload.sans')"></span>
-                            </dt>
-                            <dd v-if="precheckResponse.p10Holder.sans.length > 0">
-                                <ul>
-                                    <li v-for="san in precheckResponse.p10Holder.sans" :key="san">{{san}}</li>
-                                </ul>
-                            </dd>
+                  <dt v-if="precheckResponse.p10Holder.sans.length > 0">
+                      <span v-text="$t('pkcsxx.upload.sans')"></span>
+                  </dt>
+                  <dd v-if="precheckResponse.p10Holder.sans.length > 0">
+                      <ul>
+                          <li v-for="san in precheckResponse.p10Holder.sans" :key="san">{{san}}</li>
+                      </ul>
+                  </dd>
 
-                            <dt v-if="getKeyUsage()">
-                                <span v-text="$t('pkcsxx.upload.usage')"></span>
-                            </dt>
-                            <dd v-if="getKeyUsage()">
-                                <span>{{getKeyUsage().value}}</span>
-                            </dd>
+                  <dt v-if="getKeyUsage()">
+                      <span v-text="$t('pkcsxx.upload.usage')"></span>
+                  </dt>
+                  <dd v-if="getKeyUsage()">
+                      <span>{{getKeyUsage().value}}</span>
+                  </dd>
 
-                            <dt v-if="getExtKeyUsage()">
-                                <span v-text="$t('pkcsxx.upload.eku')"></span>
-                            </dt>
-                            <dd v-if="getExtKeyUsage()">
-                                <span>{{getExtKeyUsage().value}}</span>
-                            </dd>
+                  <dt v-if="getExtKeyUsage()">
+                      <span v-text="$t('pkcsxx.upload.eku')"></span>
+                  </dt>
+                  <dd v-if="getExtKeyUsage()">
+                      <span>{{getExtKeyUsage().value}}</span>
+                  </dd>
 
-                            <dt v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
-                                <img width="16" height="16" src="../../../content/images/badkeys.svg" alt="bad keys"/>
-                                <span v-text="$t('pkcsxx.upload.badkeys')"></span>
-                            </dt>
-                            <dd v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
+                  <dt v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
+                      <img width="16" height="16" src="../../../content/images/badkeys.svg" alt="bad keys"/>
+                      <span v-text="$t('pkcsxx.upload.badkeys')"></span>
+                  </dt>
+                  <dd v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
 
-                                <span v-if="precheckResponse.badKeysResult.valid" v-text="$t('pkcsxx.upload.badkeys.valid')"></span>
-                                <ul v-else>
-                                    <li v-text="$t('pkcsxx.upload.badkeys.failed')"></li>
-                                    <li v-if="precheckResponse.badKeysResult.messsage">{{precheckResponse.badKeysResult.messsage}}</li>
-                                </ul>
-                            </dd>
+                      <span v-if="precheckResponse.badKeysResult.valid" v-text="$t('pkcsxx.upload.badkeys.valid')"></span>
+                      <ul v-else>
+                          <li v-text="$t('pkcsxx.upload.badkeys.failed')"></li>
+                          <li v-if="precheckResponse.badKeysResult.messsage">{{precheckResponse.badKeysResult.messsage}}</li>
+                      </ul>
+                  </dd>
 						</dl>
 
 						<dl class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE'">
@@ -440,18 +440,18 @@
 								</ul>
 							</dd>
 
-                            <dt v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
-                                <a href="https://badkeys.info/" target="_blank"><img width="16" height="16" src="../../../content/images/badkeys.svg" alt="bad	keys"/></a>
-                                <span v-text="$t('pkcsxx.upload.badkeys')"></span>
-                            </dt>
-                            <dd v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
+                <dt v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
+                    <a href="https://badkeys.info/" target="_blank"><img width="16" height="16" src="../../../content/images/badkeys.svg" alt="bad	keys"/></a>
+                    <span v-text="$t('pkcsxx.upload.badkeys')"></span>
+                </dt>
+                <dd v-if="precheckResponse.badKeysResult && precheckResponse.badKeysResult.installationValid">
 
-                                <span v-if="precheckResponse.badKeysResult.valid" v-text="$t('pkcsxx.upload.badkeys.valid')"></span>
-                                <ul v-else>
-                                    <li v-text="$t('pkcsxx.upload.badkeys.failed')"></li>
-                                    <li v-if="precheckResponse.badKeysResult.messsage">{{precheckResponse.badKeysResult.messsage}}</li>
-                                </ul>
-                            </dd>
+                    <span v-if="precheckResponse.badKeysResult.valid" v-text="$t('pkcsxx.upload.badkeys.valid')"></span>
+                    <ul v-else>
+                        <li v-text="$t('pkcsxx.upload.badkeys.failed')"></li>
+                        <li v-if="precheckResponse.badKeysResult.messsage">{{precheckResponse.badKeysResult.messsage}}</li>
+                    </ul>
+                </dd>
 						</dl>
 
 						<dl class="row jh-entity-details" v-if="precheckResponse.dataType === 'CONTAINER' || precheckResponse.dataType === 'CONTAINER_WITH_KEY'">
@@ -482,53 +482,54 @@
                   </li>
                 </ul>
               </dd>
-
             </dl>
 
-                        <div class="form-group" v-if="precheckResponse.dataType === 'CONTAINER_WITH_KEY'">
-                            <label class="form-control-label" v-text="$t('pkcsxx.upload.importKey')" for="upload-importKey"></label>
-                            <input type="checkbox" class="form-check" name="importKey" id="upload-importKey"
-                                   v-model="upload.importKey" />
-                        </div>
+
+            <div class="form-group" v-if="precheckResponse.dataType === 'CONTAINER_WITH_KEY'">
+                <label class="form-control-label" v-text="$t('pkcsxx.upload.importKey')" for="upload-importKey"></label>
+                <input type="checkbox" class="form-check" name="importKey" id="upload-importKey"
+                       v-model="upload.importKey" />
+            </div>
 
 
-                        <dl class="row jh-entity-details" v-if="precheckResponse && precheckResponse.warnings && precheckResponse.warnings.length > 0">
-                            <dt>
-                                <span v-text="$t('pkcsxx.upload.result.message')"></span>
-                            </dt>
-                            <dd>
-                                <div>
-                                    <ul>
-                                        <li v-for="warning in precheckResponse.warnings" v-text="$t(warning)"></li>
-                                    </ul>
-                                </div>
-                            </dd>
-                        </dl>
+            <dl class="row jh-entity-details" v-if="precheckResponse && precheckResponse.warnings && precheckResponse.warnings.length > 0">
+                <dt>
+                    <span v-text="$t('pkcsxx.upload.result.message')"></span>
+                </dt>
+                <dd>
+                    <div>
+                        <ul>
+                            <li v-for="warning in precheckResponse.warnings" v-text="$t(warning)"></li>
+                        </ul>
                     </div>
+                </dd>
+            </dl>
+        </div>
 
-                    <div class="form-group" v-if="(upload.pipelineId >= 0) && showCSRRelatedArea()">
-                        <label class="form-control-label" v-text="$t('pkcsxx.upload.requestorComment')" for="upload-requestor-comment"></label>
-                        <textarea type="text" class="form-control" name="requestor-comment" id="upload-requestor-comment"
-                                  autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                  v-model="upload.requestorcomment" v-on:input="notifyChange"/>
-                    </div>
+        <div class="form-group" v-if="(upload.pipelineId >= 0) && showCSRRelatedArea()">
+            <label class="form-control-label" v-text="$t('pkcsxx.upload.requestorComment')" for="upload-requestor-comment"></label>
+            <textarea type="text" class="form-control" name="requestor-comment" id="upload-requestor-comment"
+                      autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                      v-model="upload.requestorcomment" v-on:input="notifyChange"/>
+        </div>
 
-					<div v-if="authenticated">
+        <div v-if="authenticated">
 
-                        <div class="form-group" v-if="isPipelineChoosen() &&
-                          selectPipelineView.tosAgreementRequired &&
-                          ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
-                            <input type="checkbox" class="form-check-inline" name="tosAgreed" id="tosAgreed" v-model="upload.tosAgreed" />
-                            <label class="form-control-label" v-text="$t('pkcsxx.upload.tosAgreed', {'tosAgreementLink': selectPipelineView.tosAgreementLink})" ></label> <a v-bind:href="selectPipelineView.tosAgreementLink" target="_blank">{{selectPipelineView.tosAgreementLink}}</a>
-                            <small class="form-text text-danger" v-if="!upload.tosAgreed" v-text="$t('pkcsxx.upload.tosAgreement.required')"></small>
-                        </div>
+            <div class="form-group" v-if="isPipelineChoosen() &&
+              selectPipelineView.tosAgreementRequired &&
+              ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
+                <input type="checkbox" class="form-check-inline" name="tosAgreed" id="tosAgreed" v-model="upload.tosAgreed" />
+                <label class="form-control-label" v-text="$t('pkcsxx.upload.tosAgreed', {'tosAgreementLink': selectPipelineView.tosAgreementLink})" ></label> <a v-bind:href="selectPipelineView.tosAgreementLink" target="_blank">{{selectPipelineView.tosAgreementLink}}</a>
+                <small class="form-text text-danger" v-if="!upload.tosAgreed" v-text="$t('pkcsxx.upload.tosAgreement.required')"></small>
+            </div>
 
-                        <!--div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.csrPublicKeyPresentInDB === false">
-                            <span v-text="$t('pkcsxx.upload.result.certificate.present')">Certificate.already.present</span>
-                        </div-->
+            <!--div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.csrPublicKeyPresentInDB === false">
+                <span v-text="$t('pkcsxx.upload.result.certificate.present')">Certificate.already.present</span>
+            </div-->
 	<!--
 							:disabled="precheckResponse.csrPublicKeyPresentInDB || precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB"
 	-->
+
 						<button type="button" id="uploadContent"
 							v-if="precheckResponse.dataType === 'CSR' || precheckResponse.dataType === 'CONTAINER_WITH_KEY' || precheckResponse.dataType === 'CONTAINER' || (creationMode === 'SERVERSIDE_KEY_CREATION')"
 							:disabled="disableCertificateRequest()"
@@ -540,6 +541,7 @@
 							:disabled="precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB" class="btn btn-primary" v-on:click="uploadContent">
 							<font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.submit')"></span>
 						</button>
+
 					</div>
 				</form>
                 <div>

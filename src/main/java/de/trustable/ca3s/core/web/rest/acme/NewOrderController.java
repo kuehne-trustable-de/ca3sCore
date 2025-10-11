@@ -271,19 +271,12 @@ public class NewOrderController extends AcmeController {
     private static final Logger LOG = LoggerFactory.getLogger(NewOrderController.class);
 
     private final AcmeOrderRepository orderRepository;
-
     private final AcmeOrderAttributeRepository orderAttributeRepository;
-
     private final AcmeAuthorizationRepository authorizationRepository;
-
     private final AcmeChallengeRepository challengeRepository;
-
     private final AcmeIdentifierRepository identRepository;
-
     private final PipelineUtil pipelineUtil;
-
     private final String resolverHost;
-
     private final int orderValiditySec;
 
 
@@ -336,6 +329,13 @@ public class NewOrderController extends AcmeController {
 
         Pipeline pipeline = getPipelineForRealm(realm);
         LOG.debug("ACME pipeline '{}' found for request realm '{}'", pipeline.getName(), realm);
+
+        if( !pipelineUtil.checkAcceptNetwork(pipeline) ){
+            final ProblemDetail problem = new ProblemDetail(AcmeUtil.MALFORMED,
+                "Request not from expected IP range",
+                BAD_REQUEST, NO_DETAIL, NO_INSTANCE);
+            throw new AcmeProblemException(problem);
+        }
 
         AcmeAccount acctDao = checkJWTSignatureForAccount(context, realm);
 

@@ -141,7 +141,8 @@ public class MailService {
         sendEmailFromTemplate(user, templateName, titleKey, null);
     }
     @Transactional
-    public void sendEmailFromTemplate(User user, String templateName, String titleKey,
+    public void sendEmailFromTemplate(User user, String templateName,
+                                      String titleKey,
                                       String activationKey) throws MessagingException {
         if (user.getEmail() == null) {
             log.debug("Email doesn't exist for user '{}'", user.getLogin());
@@ -194,9 +195,9 @@ public class MailService {
         sendEmailFromTemplate(user, "mail/creationEmail", "email.activation.title", "");
     }
 
-    public void sendPasswordResetMail(User user) throws MessagingException {
+    public void sendPasswordResetMail(User user, String resetKey) throws MessagingException {
         log.debug("Sending password reset email to '{}'", user.getEmail());
-        sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title", "");
+        sendEmailFromTemplate(user, "mail/passwordResetEmail", "email.reset.title", resetKey);
     }
 
 }

@@ -5,14 +5,23 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.domain.AcmeAccount;
+import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
 import de.trustable.ca3s.core.repository.AcmeAccountRepository;
 import de.trustable.ca3s.core.security.provider.Ca3sFallbackBundleFactory;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyManagerProvider;
 import de.trustable.ca3s.core.security.provider.Ca3sKeyStoreProvider;
 import de.trustable.ca3s.core.security.provider.TimedRenewalCertMapHolder;
+import de.trustable.ca3s.core.service.KeyGenerationService;
+import de.trustable.ca3s.core.service.UserService;
+import de.trustable.ca3s.core.service.dto.AccountCredentialsType;
+import de.trustable.ca3s.core.service.dto.CredentialUpdateType;
+import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
 import de.trustable.ca3s.core.service.util.JwtUtil;
-import de.trustable.ca3s.core.service.util.KeyUtil;
+import de.trustable.ca3s.core.service.util.UserUtil;
+import de.trustable.ca3s.core.web.rest.ApiTokenController;
+import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
+import de.trustable.ca3s.core.web.rest.vm.TokenResponse;
 import de.trustable.util.JCAManager;
 import org.jose4j.lang.JoseException;
 import org.junit.jupiter.api.Assertions;
@@ -31,6 +40,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.IOException;
@@ -47,6 +58,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -66,11 +78,17 @@ public class AcmeHappyPathIT {
     final String ACME_DOMAIN_REUSE_WARN_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_DOMAIN_REUSE_WARN + "/directory";
     final String ACME_KEY_UNIQUE_WARN_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_KEY_UNIQUE_WARN + "/directory";
     final String ACME_PATH_PART_OTHER_REALM = "/acme/" + PipelineTestConfiguration.ACME1CN_REALM + "/directory";
+    final String ACME_EAB_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_EAB_REALM + "/directory";
+    final String ACME_REJECT_127_0_0_X_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REJECT_127_0_0_X_REALM + "/directory";
+    final String ACME_ACCEPT_10_10_X_X_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_ACCEPT_10_10_X_X_REALM + "/directory";
     String dirUrl;
     String dirUrlDomainReuse;
     String dirUrlDomainReuseWarn;
     String dirUrlKeyUniqueWarn;
     String dirUrlOtherRealm;
+    String dirUrlEAB;
+    String dirUrlnetworkReject127_0_0_X;
+    String dirUrlnetworkAccept10_10_X_X;
 
     HttpChallengeHelper httpChallengeHelper;
 
@@ -86,14 +104,35 @@ public class AcmeHappyPathIT {
     @Autowired
     JwtUtil jwtUtil;
 
-    static KeyUtil keyUtil = new KeyUtil("RSA-4096");
+    @Autowired
+    UserUtil userUtil;
 
-	@BeforeEach
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    KeyGenerationService keyGenerationService;
+
+    @Autowired
+    ApiTokenController apiTokenController;
+
+    @Autowired
+    AcmeAccountRepository acmeAccountRepository;
+
+    @BeforeEach
 	void init() {
-		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
+        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory("O=test trustable solutions, C=DE", 1, keyGenerationService));
+        Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
+        Security.addProvider(new Ca3sKeyManagerProvider(certMap));
+        new TimedRenewalCertMapHolder().setCertMap(certMap);
+
+        dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
         dirUrlDomainReuse  = "http://localhost:" + serverPort + ACME_DOMAIN_REUSE_PATH_PART;
         dirUrlDomainReuseWarn  = "http://localhost:" + serverPort + ACME_DOMAIN_REUSE_WARN_PATH_PART;
         dirUrlKeyUniqueWarn  = "http://localhost:" + serverPort + ACME_KEY_UNIQUE_WARN_PATH_PART;
+        dirUrlEAB  = "http://localhost:" + serverPort + ACME_EAB_PATH_PART;
+        dirUrlnetworkReject127_0_0_X = "http://localhost:" + serverPort + ACME_REJECT_127_0_0_X_PATH_PART;
+        dirUrlnetworkAccept10_10_X_X = "http://localhost:" + serverPort + ACME_ACCEPT_10_10_X_X_PATH_PART;
 
         dirUrlOtherRealm = "http://localhost:" + serverPort + ACME_PATH_PART_OTHER_REALM;
 		ptc.getInternalACMETestPipelineLaxRestrictions();
@@ -101,10 +140,13 @@ public class AcmeHappyPathIT {
         ptc.getInternalACMETestPipelineLaxDomainReuseRestrictions();
         ptc.getInternalACMETestPipelineLaxDomainReuseWarnRestrictions();
         ptc.getInternalACMETestPipelineLaxWarnRestrictions();
+        ptc.getInternalACMETestPipelineEabRestrictions();
+        ptc.getInternalACMETestPipelineNetwort127_0_0_xRejectRestrictions();
+        ptc.getInternalACMETestPipelineNetwort10_10_x_xAcceptRestrictions();
 
         prefTC.getTestUserPreference();
 
-        int port = prefTC.getFreePort();
+        int port = prefTC.getHttpChallengePort();
         LOG.info("http challenge on port {}", port);
         httpChallengeHelper = new HttpChallengeHelper(port);
 	}
@@ -114,11 +156,6 @@ public class AcmeHappyPathIT {
 	public static void setUpBeforeClass() {
 
 		JCAManager.getInstance();
-
-		TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory("O=test trustable solutions, C=DE", keyUtil));
-		Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
-    	Security.addProvider(new Ca3sKeyManagerProvider(certMap));
-    	new TimedRenewalCertMapHolder().setCertMap(certMap);
 	}
 
 
@@ -282,7 +319,193 @@ public class AcmeHappyPathIT {
 		Assertions.assertEquals(AccountStatus.DEACTIVATED.toString().toLowerCase(), account.getStatus().toString().toLowerCase(), "account status 'deactivated' expected");
 	}
 
-	@Test
+    @Test
+    @WithMockUser(username  = "user", authorities = { "USER" })
+    public void testAccountEABHandling() throws AcmeException {
+
+        User user = userUtil.getUserByLogin("user");
+
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setValiditySeconds(3600);
+        tokenRequest.setCredentialType(AccountCredentialsType.EAB_PASSWORD);
+        ResponseEntity<?> responseEntity = apiTokenController.getToken(tokenRequest);
+        TokenResponse tokenResponse = (TokenResponse) responseEntity.getBody();
+
+        PasswordChangeDTO passwordChangeDto = new PasswordChangeDTO();
+        passwordChangeDto.setCurrentPassword("user");
+        passwordChangeDto.setCredentialUpdateType(CredentialUpdateType.EAB_PASSWORD);
+        passwordChangeDto.setApiTokenValiditySeconds(3600);
+        passwordChangeDto.setApiTokenValue(tokenResponse.getTokenValue());
+        passwordChangeDto.setEabKid(tokenResponse.getEabKid());
+        userService.changePassword( passwordChangeDto);
+
+        LOG.info("eab kid {}, macKey {}", tokenResponse.getEabKid(), tokenResponse.getTokenValue());
+
+//        User user = userUtil.getUserByLogin("user");
+
+
+        System.out.println("connecting to " + dirUrlEAB );
+        Session session = new Session(dirUrlEAB);
+        Metadata meta = session.getMetadata();
+
+        URI tos = meta.getTermsOfService();
+        URL website = meta.getWebsite();
+        LOG.info("TermsOfService {}, website {}", tos, website);
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        try {
+            // provide no eab
+            new AccountBuilder()
+                .addContact("mailto:acmeTest@ca3s.org")
+                .useKeyPair(accountKeyPair)
+                .create(session);
+            Assertions.fail("Account creation expected to fail without eab");
+        }catch(AcmeException e) {
+            Assertions.assertEquals("External account binding attributes missing.",
+                e.getMessage());
+        }
+
+        try {
+            // use unrecognized kid
+            new AccountBuilder()
+                .addContact("mailto:acmeTest@ca3s.org")
+                .useKeyPair(accountKeyPair)
+                .withKeyIdentifier(tokenResponse.getEabKid() + "-", tokenResponse.getTokenValue())
+                .create(session);
+            Assertions.fail("Account creation expected to fail using an unrecognized kid");
+        }catch(AcmeException e) {
+            Assertions.assertEquals("External account binding attributes not parseable: User with login 'user-' not found",
+                e.getMessage());
+        }
+
+        try {
+            // use unknown prefix, but given user account
+            new AccountBuilder()
+                .addContact("mailto:acmeTest@ca3s.org")
+                .useKeyPair(accountKeyPair)
+                .withKeyIdentifier("wonder:user", tokenResponse.getTokenValue())
+                .create(session);
+            Assertions.fail("Account creation expected to fail using an unrecognized kid");
+        }catch(AcmeException e) {
+            Assertions.assertEquals("External account data did not validate successfully",
+                e.getMessage());
+        }
+
+        try {
+            // use tweaked key
+            char[] charArray = tokenResponse.getTokenValue().toCharArray();
+            charArray[8] = (char)(charArray[8] ^ 3);
+            new AccountBuilder()
+                .addContact("mailto:acmeTest@ca3s.org")
+                .useKeyPair(accountKeyPair)
+                .withKeyIdentifier(tokenResponse.getEabKid(), new String(charArray))
+                .create(session);
+            Assertions.fail("Account creation expected to fail using the wrong key");
+        }catch(AcmeException e) {
+            Assertions.assertEquals("External account binding attributes not parseable: verification of eab failed",
+                e.getMessage());
+        }
+
+
+        Account account = new AccountBuilder()
+            .addContact("mailto:acmeTest@ca3s.org")
+            .useKeyPair(accountKeyPair)
+            .withKeyIdentifier(tokenResponse.getEabKid(), tokenResponse.getTokenValue())
+            .create(session);
+
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
+        URL accountLocationUrl = account.getLocation();
+        LOG.info("accountLocationUrl {}", accountLocationUrl);
+
+
+        Optional<AcmeAccount> accountOptional = acmeAccountRepository.findByAccountId(Long.parseLong(account.getJSON().get("id").asString()));
+        Assertions.assertTrue(accountOptional.isPresent());
+        AcmeAccount acmeAccount = accountOptional.get();
+        Assertions.assertEquals("ca3s:user", acmeAccount.getEabKid());
+        Assertions.assertEquals(user.getId(), acmeAccount.getEabUser().getId());
+        Assertions.assertEquals(2, acmeAccount.getContacts().size());
+        Assertions.assertTrue(acmeAccount.getContacts().stream().anyMatch(con -> con.getContactUrl().equals("mailto:acmeTest@ca3s.org")));
+
+        Account retrievedAccount = new AccountBuilder()
+            .onlyExisting()         // Do not create a new account
+            .useKeyPair(accountKeyPair)
+            .create(session);
+
+        Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to fimnd the smae account (URL)");
+
+        account.modify()
+            .addContact("mailto:acmeHappyPathTest@ca3s.org")
+            .commit();
+
+        KeyPair accountNewKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        account.changeKey(accountNewKeyPair);
+
+        Assertions.assertNotNull(account.getContacts(), "account contacts MUST NOT be null");
+
+        KeyPair accountECKeyPair = KeyPairUtils.createECKeyPair("secp256r1");
+        account.changeKey(accountECKeyPair);
+
+        account.modify()
+            .addContact("mailto:acmeHappyPathECTest@ca3s.org")
+            .commit();
+
+        Assertions.assertEquals(4, account.getContacts().size(), "4 account contact expected");
+
+        account.deactivate();
+
+        Assertions.assertEquals(AccountStatus.DEACTIVATED.toString().toLowerCase(), account.getStatus().toString().toLowerCase(), "account status 'deactivated' expected");
+
+    }
+
+    @Test
+    public void testAccountHandlingNetworkCheck() throws AcmeException {
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+        {
+            System.out.println("connecting to " + dirUrlnetworkReject127_0_0_X);
+            Session session = new Session(dirUrlnetworkReject127_0_0_X);
+            Metadata meta = session.getMetadata();
+
+            URI tos = meta.getTermsOfService();
+            URL website = meta.getWebsite();
+            LOG.info("TermsOfService {}, website {}", tos, website);
+
+            try {
+                new AccountBuilder()
+                    .addContact("mailto:acmeTest@ca3s.org")
+                    .useKeyPair(accountKeyPair)
+                    .create(session);
+                Assertions.fail("Account creation expected to fail from a blacklisted IP range");
+            } catch (AcmeException e) {
+                Assertions.assertEquals("Request not from expected IP range",
+                    e.getMessage());
+            }
+        }
+        {
+            System.out.println("connecting to " + dirUrlnetworkAccept10_10_X_X);
+            Session session = new Session(dirUrlnetworkAccept10_10_X_X);
+
+            try {
+                new AccountBuilder()
+                    .addContact("mailto:acmeTest@ca3s.org")
+                    .useKeyPair(accountKeyPair)
+                    .create(session);
+                Assertions.fail("Account creation expected to fail from a blacklisted IP range");
+            } catch (AcmeException e) {
+                Assertions.assertEquals("Request not from expected IP range",
+                    e.getMessage());
+            }
+        }
+
+
+    }
+
+
+
+    @Test
 	public void testOrderHandling() throws AcmeException, IOException, InterruptedException {
 
 		System.out.println("connecting to " + dirUrl );
@@ -362,7 +585,7 @@ public class AcmeHappyPathIT {
 		byte[] csr = csrb.getEncoded();
 
 		for(Authorization auth: order.getAuthorizations()){
-		    System.out.println( " ################ "  + auth.getIdentifier().toString() + "" + auth.getLocation() );
+		    System.out.println( " ################ "  + auth.getIdentifier().toString() + " " + auth.getLocation() );
         }
 
 		order.execute(csr);

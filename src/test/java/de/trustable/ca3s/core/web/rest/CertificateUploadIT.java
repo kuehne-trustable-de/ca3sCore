@@ -10,6 +10,7 @@ import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
+import de.trustable.ca3s.core.service.KeyGenerationService;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.NamedValues;
 import de.trustable.ca3s.core.service.dto.TypedValue;
@@ -75,6 +76,8 @@ public class CertificateUploadIT {
     private BadKeysService badKeysService;
     @Autowired
     private AuditService auditService;
+    @Autowired
+    private KeyGenerationService keyGenerationService;
 
     @Autowired
     PipelineTestConfiguration ptc;
@@ -105,7 +108,8 @@ public class CertificateUploadIT {
              notificationService,
              badKeysService,
              auditService,
-            "^(.{6,10})$");
+            "^(.{6,10})$",
+            keyGenerationService);
     }
 
     @BeforeEach

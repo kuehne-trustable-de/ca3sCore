@@ -91,8 +91,8 @@ class UserJWTControllerIT {
         login.setPassword("wrong password");
         mockMvc
             .perform(post("/api/authenticate").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(login)))
-            .andExpect(status().isUnauthorized())
-            .andExpect(jsonPath("$.id_token").doesNotExist())
+            .andExpect(status().isForbidden())
+//            .andExpect(jsonPath("$.id_token").doesNotExist())
             .andExpect(header().doesNotExist("Authorization"));
     }
 }

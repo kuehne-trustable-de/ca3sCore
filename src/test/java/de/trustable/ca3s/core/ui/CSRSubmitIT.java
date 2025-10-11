@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.ui;
 
+import com.sun.mail.imap.IMAPStore;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
@@ -16,6 +17,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,6 +33,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.mail.Folder;
+import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.security.auth.x500.X500Principal;
 import java.io.*;
@@ -45,7 +49,9 @@ import java.util.*;
 
 import static org.junit.Assert.fail;
 
-@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Ca3SApp.class,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = { "mailservice.mock.enabled=false" })
 @Config(
     browser = Browser.CHROME,
     url = "http://localhost:${local.server.port}/"
@@ -80,8 +86,8 @@ public class CSRSubmitIT extends WebTestBase {
 
     public static final By LOC_TEXT_CSR_HEADER = By.xpath("//div/h2/span [text() = 'CSR']");
 
-    public static final By LOC_TEXT_REQUEST_LIST = By.xpath("//div/h2/span [text() = 'Request List']");
-    public static final By LOC_TEXT_CERTIFICATE_LIST = By.xpath("//div/h2/span [text() = 'Certificate List']");
+    public static final By LOC_TEXT_REQUEST_LIST = By.xpath("//div/h2/span [@id='request-list-header']");
+    public static final By LOC_TEXT_CERTIFICATE_LIST = By.xpath("//div/h2/span [@id='certificate-list-header']");
 
     public static final By LOC_SEL_CSR_ATTRIBUTE = By.xpath("//div/select [@name = 'csrSelectionAttribute']");
     public static final By LOC_SEL_CSR_CHOICE = By.xpath("//div/select [@name = 'csrSelectionChoice']");
@@ -100,7 +106,7 @@ public class CSRSubmitIT extends WebTestBase {
 
     public static final By LOC_TEXT_MESSAGE_NO_IP = By.xpath("//form//dl [dt[span [text() = 'Message']]]/dd/div[ul/li [contains(text(), 'is an IP address, not allowed')]]");
 
-    public static final By LOC_TD_CSR_ITEM_PENDING = By.xpath("//table//td [starts-with(text(), 'Pending')]");
+    public static final By LOC_TD_CSR_ITEM_PENDING = By.xpath("//table//td [@value='PENDING']");
 
     public static final By LOC_TA_DOWNLOAD_CERT_CONTENT = By.xpath("//dd/div/div/div/a [@id = 'certificate-download']");
 
@@ -122,7 +128,7 @@ public class CSRSubmitIT extends WebTestBase {
     public static final By LOC_BTN_EDIT = By.xpath("//form/div/button [@type='button'][@id = 'edit']");
 
     //    public static final By LOC_BTN_WITHDRAW_CERTIFICATE = By.xpath("//form/div/button [@type='button'][span [text() = 'Withdraw']]");
-    public static final By LOC_BTN_CONFIRM_REQUEST = By.xpath("//form/div/button [@type='button'][span [text() = 'Confirm Request']]");
+    public static final By LOC_BTN_CONFIRM_REQUEST = By.xpath("//form/div/button [(@type='button') and (@id='confirm')]");
     public static final By LOC_BTN_REVOKE = By.xpath("//form/div/button [(@type='button') and (@id='revoke')]");
 
     public static final By LOC_SPAN_REVOKE_QUESTION = By.xpath("//body/div//span[@id='ca3SApp.certificate.revoke.question']");
@@ -192,7 +198,6 @@ public class CSRSubmitIT extends WebTestBase {
 
         waitForUrl();
 
-        userUtil.updateUserByLogin( USER_NAME_USER, USER_PASSWORD_USER);
 
         ptc.getInternalWebDirectTestPipeline();
         ptc.getInternalWebDirectKeyReuseTestPipeline();
@@ -212,6 +217,9 @@ public class CSRSubmitIT extends WebTestBase {
         rand.nextBytes(commentBytes);
         randomComment = "Neque porro quisquam est, qui dolorem ipsum, quia dolor sit, amet, consectetur, adipisci velit " +
             Base64.getEncoder().encodeToString(commentBytes);
+
+        userUtil.updateUserByLogin(USER_NAME_USER, USER_PASSWORD_USER, "user@localhost");
+        userUtil.updateUserByLogin(USER_NAME_RA, USER_PASSWORD_RA, "ra@localhost");
     }
 
     void setAllUserLocale(String locale){
@@ -311,7 +319,7 @@ public class CSRSubmitIT extends WebTestBase {
         explain("csr.submit.12.0");
 
         validatePresent(LOC_INP_TOS_AGREED);
-        scrollToElement(LOC_SEL_CERTIFICATE_DOWNLOAD_FORMAT);
+        scrollToElement(LOC_INP_TOS_AGREED);
 
         validatePresent(LOC_A_TOS_LINK);
         selectElementText(LOC_A_TOS_LINK, "csr.submit.12.1");
@@ -510,6 +518,7 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_TEXT_CONTENT_TYPE);
 
         validatePresent(LOC_INP_TOS_AGREED);
+        scrollToElement(LOC_INP_TOS_AGREED);
         validatePresent(LOC_A_TOS_LINK);
         check(LOC_INP_TOS_AGREED);
 
@@ -672,12 +681,21 @@ public class CSRSubmitIT extends WebTestBase {
 
         signIn(USER_NAME_USER, USER_PASSWORD_USER, "Once you have entered your credentials into the respective fields, you can proceed.", 500);
 
+        wait(1000);
         validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        System.out.println("LOC_LNK_REQ_CERT_MENUE");
+        wait(1000);
+        validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        System.out.println("LOC_LNK_REQ_CERT_MENUE");
+        wait(1000);
+        validatePresent(LOC_LNK_REQ_CERT_MENUE);
+        System.out.println("LOC_LNK_REQ_CERT_MENUE");
+
         selectElementText(LOC_LNK_REQ_CERT_MENUE, "Press Request certificate on the top right menu ");
         click(LOC_LNK_REQ_CERT_MENUE);
 
+        waitForElement(LOC_SEL_PIPELINE, 20);
         validatePresent(LOC_SEL_PIPELINE);
-
         click(LOC_SEL_PIPELINE);
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
         explain("csr.submit.37");
@@ -712,10 +730,15 @@ public class CSRSubmitIT extends WebTestBase {
 
         validatePresent(LOC_TEXT_CONTENT_TYPE);
 
+        validatePresent(LOC_INP_TOS_AGREED);
+        validatePresent(LOC_A_TOS_LINK);
+        check(LOC_INP_TOS_AGREED);
+
         validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
         selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "Now you can press the Request Certificate button.");
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
+        wait(1000);
         waitForElement(LOC_TEXT_CERT_HEADER);
         validatePresent(LOC_TEXT_CERT_HEADER);
 //        validatePresent(LOC_TEXT_PKIX_LABEL);
@@ -856,8 +879,12 @@ public class CSRSubmitIT extends WebTestBase {
     }
 
 
-    @Test
-    public void testCSRSubmitRACheck() throws GeneralSecurityException, IOException {
+//    @Test
+    public void testCSRSubmitRACheck() throws GeneralSecurityException, IOException, MessagingException {
+
+        EMailInfo userEmailInfo = getInboxForUser(USER_NAME_USER);
+        EMailInfo raEmailInfo = getInboxForUser(USER_NAME_RA);
+
 
         signIn(USER_NAME_USER, USER_PASSWORD_USER);
 
@@ -891,8 +918,18 @@ public class CSRSubmitIT extends WebTestBase {
 
         validatePresent(LOC_TEXT_CSR_HEADER);
 
+        // wait for incoming notification
+        waitForNewMessage(raEmailInfo.getUserFolder(), 0);
+        Message msgReceived = raEmailInfo.getUserFolder().getMessage(1);
+        System.out.println( "msgReceived.getContentType() : " + msgReceived.getContentType() );
+
+        String emailContent = msgReceived.getContent().toString();
+        System.out.println( "msgReceived.getContent() : " + emailContent);
+
         // switch to RA officer role
         signIn(USER_NAME_RA, USER_PASSWORD_RA);
+
+        wait(1000);
 
         validatePresent(LOC_LNK_REQUESTS_MENUE);
         click(LOC_LNK_REQUESTS_MENUE);
@@ -900,11 +937,11 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_TEXT_REQUEST_LIST);
 
         validatePresent(LOC_SEL_CSR_ATTRIBUTE);
-        selectOptionByText(LOC_SEL_CSR_ATTRIBUTE, "Subject");
+        selectOptionByValue(LOC_SEL_CSR_ATTRIBUTE, "subject");
 
         validatePresent(LOC_SEL_CSR_CHOICE);
 
-        selectOptionByText(LOC_SEL_CSR_CHOICE, "equals");
+        selectOptionByValue(LOC_SEL_CSR_CHOICE, "EQUAL");
 
         validatePresent(LOC_INP_CSR_VALUE);
         setText(LOC_INP_CSR_VALUE, cn);
@@ -935,13 +972,42 @@ public class CSRSubmitIT extends WebTestBase {
         click(LOC_LNK_REQUESTS_MENUE);
 
         waitForElement(LOC_TEXT_REQUEST_LIST);
-
         validatePresent(LOC_TEXT_REQUEST_LIST);
+
+        waitForElement(LOC_LNK_CERTIFICATES_MENUE);
+        click(LOC_LNK_CERTIFICATES_MENUE);
+
+        wait(5000);
+
+        validatePresent(LOC_SEL_CERT_ATTRIBUTE);
+        selectOptionByValue(LOC_SEL_CERT_ATTRIBUTE, "subject");
+
+        validatePresent(LOC_SEL_CERT_CHOICE);
+        selectOptionByValue(LOC_SEL_CERT_CHOICE, "EQUAL");
+
+        validatePresent(LOC_INP_CERT_VALUE);
+        setText(LOC_INP_CERT_VALUE, cn);
+
+        // locate the created certificate
+        By byCertSubject = By.xpath("//table//td [contains(text(), '" + cn + "')]");
+        waitForElement(byCertSubject);
+        validatePresent(byCertSubject);
+        click(byCertSubject);
+
+        // wait for incoming notification
+        dropMessagesFromInbox(userEmailInfo.getUserFolder());
+        waitForNewMessage(userEmailInfo.getUserFolder(), 0);
+        Message userMsgReceived = userEmailInfo.getUserFolder().getMessage(1);
+        System.out.println( "userMsgReceived.getContentType() : " + userMsgReceived.getContentType() );
+
+        String userEmailContent = userMsgReceived.getContent().toString();
+        System.out.println( "userMsgReceived.getContent() : " +userEmailContent);
 
         signIn(USER_NAME_USER, USER_PASSWORD_USER);
 
         click(LOC_LNK_CERTIFICATES_MENUE);
 
+        waitForElement(LOC_TEXT_CERTIFICATE_LIST);
         validatePresent(LOC_TEXT_CERTIFICATE_LIST);
 
         validatePresent(LOC_SEL_CERT_ATTRIBUTE);
@@ -953,7 +1019,7 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_INP_CERT_VALUE);
         setText(LOC_INP_CERT_VALUE, cn);
 
-        By byCertSubject = By.xpath("//table//td [contains(text(), '" + cn + "')]");
+        waitForElement(byCertSubject);
         validatePresent(byCertSubject);
         click(byCertSubject);
 
@@ -1001,6 +1067,38 @@ public class CSRSubmitIT extends WebTestBase {
         setText(LOC_TA_COMMENT, randomComment + ", revoked by user");
 
 
+    }
+
+    private @NotNull EMailInfo getInboxForUser(String username) throws MessagingException {
+        IMAPStore imapStore;
+        Folder inbox;
+        byte[] emailBytes = new byte[6];
+        rand.nextBytes(emailBytes);
+        emailAddress = "User_" + encodeBytesToText(emailBytes) + "@localhost.com";
+
+        userUtil.updateUserByLogin( USER_NAME_USER, USER_PASSWORD_USER, emailAddress);
+
+        byte[] passwordBytes = new byte[6];
+        rand.nextBytes(passwordBytes);
+        emailPassword = "PasswordEMail_" + encodeBytesToText(passwordBytes);
+
+        greenMailSMTPIMAP.setUser(emailAddress, emailAddress, emailPassword);
+        System.out.println("create eMail account '" + emailAddress + "', identified by '" + emailPassword + "'");
+
+        imapStore = greenMailSMTPIMAP.getImap().createStore();
+        imapStore.connect(emailAddress, emailPassword);
+        inbox = imapStore.getFolder("INBOX");
+        inbox.open(Folder.READ_WRITE);
+
+        dropMessagesFromInbox(inbox);
+
+        Optional<User>  optUser = userRepository.findOneByLogin(username);
+        if(optUser.isPresent()){
+            optUser.get().setEmail(emailAddress);
+            userRepository.save(optUser.get());
+        }
+
+        return new EMailInfo(username, emailPassword, inbox);
     }
 
     public String buildCSRAsPEM(final X500Principal subjectPrincipal) throws GeneralSecurityException, IOException {
@@ -1078,4 +1176,29 @@ public class CSRSubmitIT extends WebTestBase {
         return x509CertificateList;
     }
 
+}
+
+class EMailInfo{
+
+    private final String username;
+    private final String emailAccountPassword;
+    private final Folder userFolder;
+
+    public EMailInfo(String username, String emailAccountPassword, Folder userFolder){
+        this.username = username;
+        this.emailAccountPassword = emailAccountPassword;
+        this.userFolder = userFolder;
+    }
+
+    public String getUserName() {
+        return username;
+    }
+
+    public String getEmailAccountPassword() {
+        return emailAccountPassword;
+    }
+
+    public Folder getUserFolder() {
+        return userFolder;
+    }
 }

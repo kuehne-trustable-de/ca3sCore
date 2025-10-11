@@ -4,15 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import de.trustable.ca3s.core.IntegrationTest;
-import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.service.dto.AdminUserDTO;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,8 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.auditing.AuditingHandler;
 import org.springframework.data.auditing.DateTimeProvider;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.security.RandomUtil;
 
@@ -51,6 +52,9 @@ class UserServiceIT {
     private UserService userService;
 
     @Autowired
+    private ProtectedContentUtil protectedContentUtil;
+
+    @Autowired
     private AuditingHandler auditingHandler;
 
     @MockBean
@@ -78,14 +82,14 @@ class UserServiceIT {
     @Transactional
     void assertThatUserMustExistToResetPassword() {
         userRepository.saveAndFlush(user);
-        Optional<User> maybeUser = userService.requestPasswordReset("invalid.login@localhost");
+        Optional<User> maybeUser = userService.requestPasswordReset("invalid.login@localhost", "someRandomString");
         assertThat(maybeUser).isNotPresent();
 
-        maybeUser = userService.requestPasswordReset(user.getLogin());
+        maybeUser = userService.requestPasswordReset(user.getLogin(),"someRandomString");
         assertThat(maybeUser).isPresent();
         assertThat(maybeUser.orElse(null).getEmail()).isEqualTo(user.getEmail());
-        assertThat(maybeUser.orElse(null).getResetDate()).isNotNull();
-        assertThat(maybeUser.orElse(null).getResetKey()).isNotNull();
+        assertThat(maybeUser.orElse(null).getResetDate()).isNull();
+        assertThat(maybeUser.orElse(null).getResetKey()).isNull();
     }
 
     @Test
@@ -94,7 +98,7 @@ class UserServiceIT {
         user.setActivated(false);
         userRepository.saveAndFlush(user);
 
-        Optional<User> maybeUser = userService.requestPasswordReset(user.getLogin());
+        Optional<User> maybeUser = userService.requestPasswordReset(user.getLogin(), "someRandomString");
         assertThat(maybeUser).isNotPresent();
         userRepository.delete(user);
     }
@@ -132,14 +136,23 @@ class UserServiceIT {
     @Transactional
     void assertThatUserCanResetPassword() {
         String oldPassword = user.getPassword();
-        Instant daysAgo = Instant.now().minus(2, ChronoUnit.HOURS);
         String resetKey = RandomUtil.generateResetKey();
+
         user.setActivated(true);
-        user.setResetDate(daysAgo);
-        user.setResetKey(resetKey);
+        user.setResetDate(null);
+        user.setResetKey(null);
         userRepository.saveAndFlush(user);
 
-        Optional<User> maybeUser = userService.completePasswordReset("johndoe2", user.getResetKey());
+        protectedContentUtil.createDerivedProtectedContent(resetKey,
+            ProtectedContentType.DERIVED_SECRET,
+            ContentRelationType.RESET_KEY,
+            user.getId(),
+            -1,
+            Instant.now().plus(1, ChronoUnit.DAYS));
+
+        userRepository.saveAndFlush(user);
+
+        Optional<User> maybeUser = userService.completePasswordReset("johndoe2", resetKey);
         assertThat(maybeUser).isPresent();
         assertThat(maybeUser.orElse(null).getResetDate()).isNull();
         assertThat(maybeUser.orElse(null).getResetKey()).isNull();

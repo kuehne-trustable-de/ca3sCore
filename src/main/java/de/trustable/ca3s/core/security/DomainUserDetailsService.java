@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.security;
 
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.AuthSecondFactor;
+import de.trustable.ca3s.core.exception.UserNotAuthenticatedException;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.exception.BlockedCredentialsException;
 import de.trustable.ca3s.core.service.util.UserUtil;
@@ -37,7 +38,7 @@ public class DomainUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    @Transactional
+    @Transactional(noRollbackFor = UserNotAuthenticatedException.class)
     public UserDetails loadUserByUsername(final String login) {
         log.debug("----------- Authenticating {}", login);
 

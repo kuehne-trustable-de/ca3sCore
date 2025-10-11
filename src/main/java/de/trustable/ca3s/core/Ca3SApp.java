@@ -4,6 +4,7 @@ import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
 import de.trustable.ca3s.core.config.ApplicationProperties;
 import de.trustable.ca3s.core.config.DefaultProfileUtil;
 import de.trustable.ca3s.core.security.provider.*;
+import de.trustable.ca3s.core.service.KeyGenerationService;
 import de.trustable.ca3s.core.service.util.KeyUtil;
 import de.trustable.util.JCAManager;
 import io.undertow.Undertow;
@@ -58,6 +59,7 @@ public class Ca3SApp implements InitializingBean {
 
     public static final String DEFAULT_BINDING_HOST = "0.0.0.0";
     public static final String HTTPS_CERTIFICATE_DN_SUFFIX = "ca3s.https.certificate.dnSuffix";
+    public static final String HTTPS_CERTIFICATE_FALLBACK_VALIDITY_HOURS = "ca3s.https.certificate.fallback.validityHours";
     public static final String O_TRUSTABLE_SOLUTIONS_C_DE = "O=trustable solutions, C=DE";
 
     private final Environment env;
@@ -66,7 +68,13 @@ public class Ca3SApp implements InitializingBean {
     KeyUtil keyUtil;
 
     @Autowired
+    KeyGenerationService keyGenerationService;
+
+    @Autowired
     Ca3sTrustManager ca3sTrustManager;
+
+    @Autowired
+    Ca3sClientCertTrustManager ca3sClientCertTrustManager;
 
     public Ca3SApp(Environment env) {
         this.env = env;
@@ -166,8 +174,14 @@ public class Ca3SApp implements InitializingBean {
         Security.addProvider(new BouncyCastlePQCProvider());
 
         String dnSuffix = env.getProperty(HTTPS_CERTIFICATE_DN_SUFFIX, O_TRUSTABLE_SOLUTIONS_C_DE);
+        int fallbackCertValidity = 1;
+        try {
+            fallbackCertValidity = Integer.parseInt(env.getProperty(HTTPS_CERTIFICATE_FALLBACK_VALIDITY_HOURS, "1"));
+        } catch (NumberFormatException e) {
+            log.warn("Value of 'ca3s.https.certificate.fallback.validityHours' not parseable, using 1 hour" );
+        }
 
-        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix, keyUtil));
+        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix, fallbackCertValidity, keyGenerationService));
         Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
         Security.addProvider(new Ca3sKeyManagerProvider(certMap));
 
@@ -206,7 +220,7 @@ public class Ca3SApp implements InitializingBean {
                     sslContext = SSLContext.getInstance("TLS");
                     sslContext.init(keyManagers, null, null);
 
-                    TrustManager[] trustManagers = {ca3sTrustManager};
+                    TrustManager[] trustManagers = {ca3sClientCertTrustManager};
                     SSLContext sslContextClientAuth;
                     sslContextClientAuth = SSLContext.getInstance("TLS");
                     sslContextClientAuth.init(keyManagers, trustManagers, null);
