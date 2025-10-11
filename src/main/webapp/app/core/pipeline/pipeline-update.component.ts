@@ -315,9 +315,6 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     this.fillData();
   }
 
-    this.fillData();
-  }
-
   public fillData(): void {
     window.console.info('calling fillData ');
     const self = this;
@@ -330,7 +327,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       window.console.info('allCertGenerators returns ' + response.data);
       self.allCertGenerators = response.data;
 
-      if( self.pipelineId) {
+      if (self.pipelineId) {
         self
           .pipelineViewService()
           .find(self.pipelineId)
@@ -353,35 +350,21 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
               self.pipeline.araRestrictions = [];
               self.pipeline.araRestrictions.push({});
             }
+            if (!self.pipeline.networkAcceptArr) {
+              self.pipeline.networkAcceptArr = [];
+            }
+            if (self.pipeline.networkAcceptArr.length === 0) {
+              self.pipeline.networkAcceptArr.push('');
+            }
+            if (!self.pipeline.networkRejectArr) {
+              self.pipeline.networkRejectArr = [];
+            }
+            if (self.pipeline.networkRejectArr.length === 0) {
+              self.pipeline.networkRejectArr.push('');
+            }
           });
       }
-          if (!self.pipeline.acmeConfigItems.allowChallengeDNS) {
-            self.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
-            self.pipeline.acmeConfigItems.allowWildcards = false;
-          }
-          if (self.pipeline.araRestrictions && self.pipeline.araRestrictions.length > 0) {
-            window.console.info('pipeline.araRestrictions.length' + self.pipeline.araRestrictions.length);
-          } else {
-            window.console.info('pipeline.araRestrictions undefined');
-            self.pipeline.araRestrictions = [];
-            self.pipeline.araRestrictions.push({});
-          }
-
-          if (!self.pipeline.networkAcceptArr) {
-            self.pipeline.networkAcceptArr = [];
-          }
-          if (self.pipeline.networkAcceptArr.length === 0) {
-            self.pipeline.networkAcceptArr.push('');
-          }
-          if (!self.pipeline.networkRejectArr) {
-            self.pipeline.networkRejectArr = [];
-          }
-          if (self.pipeline.networkRejectArr.length === 0) {
-            self.pipeline.networkRejectArr.push('');
-          }
-        });
     });
-
     this.retrieveAllTenants();
     this.retrieveAllAuthorities();
   }

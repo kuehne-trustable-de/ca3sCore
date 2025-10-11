@@ -49,7 +49,14 @@ public class CaConnectorAdapter {
 
     private List<CAConnectorStatus> caConnectorStatus = new ArrayList<>();
 
-    public CaConnectorAdapter(ADCSConnector adcsConnector, CaCmpConnector cmpConnector, VaultPKIConnector vaultPKIConnector, CaInternalConnector internalConnector, DirectoryConnector dirConnector, CAConnectorConfigRepository caConfigRepository, CSRUtil csrUtil) {
+    public CaConnectorAdapter(ADCSConnector adcsConnector,
+                              CaCmpConnector cmpConnector,
+                              VaultPKIConnector vaultPKIConnector,
+                              VaultCertificateConnector vaultCertificateConnector,
+                              CaInternalConnector internalConnector,
+                              DirectoryConnector dirConnector,
+                              CAConnectorConfigRepository caConfigRepository,
+                              CSRUtil csrUtil) {
         this.adcsConnector = adcsConnector;
         this.cmpConnector = cmpConnector;
         this.vaultPKIConnector = vaultPKIConnector;

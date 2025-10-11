@@ -29,7 +29,6 @@ import org.jscep.transport.response.Capability;
 import org.jscep.util.CertificationRequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletException;
@@ -43,6 +42,7 @@ import java.time.Instant;
 import java.util.*;
 
 import static de.trustable.ca3s.core.domain.ScepOrderAttribute.ATTRIBUTE_CN;
+import static de.trustable.ca3s.core.service.util.PipelineUtil.*;
 
 
 /**
@@ -374,34 +374,6 @@ public class ScepServletImpl extends ScepServlet {
             throw new OperationFailureException(FailInfo.badRequest);
         }
 
-    }
-
-    boolean checkCertificateAuthenticatesCSR( Certificate authenticatingCertificate, PKCS10CertificationRequest csr) {
-
-        Set<GeneralName> generalNameSetCSR = CSRUtil.getSANList(csr.getAttributes());
-        for (RDN rdn : csr.getSubject().getRDNs()) {
-            for (AttributeTypeAndValue atv : rdn.getTypesAndValues()) {
-                if (BCStyle.CN.equals(atv.getType())) {
-                    String cnValue = atv.getValue().toString();
-                    LOGGER.debug("cn found in CSR: " + cnValue);
-                    generalNameSetCSR.add(new GeneralName(GeneralName.dNSName, cnValue));
-                }
-            }
-        }
-
-        boolean found = true;
-        List<String> vsanList = certUtil.getCertAttributes(authenticatingCertificate,CsrAttribute.ATTRIBUTE_TYPED_VSAN);
-        for(GeneralName generalName: generalNameSetCSR){
-            String typedSan = CertificateUtil.getTypedSAN(generalName);
-            if( vsanList.contains(typedSan)){
-                LOGGER.debug("typedSan '{}' found in CSR and cert ", typedSan);
-            }else{
-                LOGGER.info("typedSan '{}' found in CSR, not in cert ", typedSan);
-                found = false;
-            }
-        }
-
-        return found;
     }
 
     boolean checkCertificateAuthenticatesCSR( Certificate authenticatingCertificate, PKCS10CertificationRequest csr) {

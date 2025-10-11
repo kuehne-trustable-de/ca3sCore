@@ -113,8 +113,6 @@ public class NotificationService {
         this.doNotifyRAOfficerOnUserRevocation = doNotifyRAOfficerOnUserRevocation;
         this.doNotifyRequestorOnExcessiveActiveCertificates = doNotifyRequestorOnExcessiveActiveCertificates;
 
-        this.notificationDayList = notificationDayList;
-/*
         this.notificationDayList = new ArrayList<>();
         String[] parts = notificationDays.split(",");
         for( String part: parts){
@@ -124,12 +122,6 @@ public class NotificationService {
                 LOG.info("Unexpected value '{}' in 'ca3s.schedule.requestor.notification.days': {}", part, nfe.getMessage());
             }
         }
-*/
-        this.notificationARAAttributes = notificationARAAttributeList;
-        /*
-        String[] araParts = notificationARAAttributesString.split(",");
-        notificationARAAttributes = Arrays.asList(araParts);
-*/
     }
 
 
