@@ -206,7 +206,7 @@
                     </b-dropdown-item>
 
 
-                    <b-dropdown-item v-if="authenticated" to="/account/settings" tag="b-dropdown-item" >
+                    <b-dropdown-item v-if="authenticated" to="/account/settings" tag="b-dropdown-item" id="settings">
                         <font-awesome-icon icon="wrench" />
                         <span v-text="$t('global.menu.account.settings')"></span>
                     </b-dropdown-item>

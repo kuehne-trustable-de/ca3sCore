@@ -39,7 +39,7 @@
                             <option value="ACME" v-bind:label="$t('ca3SApp.PipelineType.ACME')"></option>
                             <option value="SCEP" v-bind:label="$t('ca3SApp.PipelineType.SCEP')"></option>
                             <option value="WEB" v-bind:label="$t('ca3SApp.PipelineType.WEB')"></option>
-                            <option value="MANUAL_UPLOAD" v-bind:label="$t('ca3SApp.PipelineType.MANUAL_UPLOAD')"></option>
+                            <!--option value="MANUAL_UPLOAD" v-bind:label="$t('ca3SApp.PipelineType.MANUAL_UPLOAD')"></option-->
                         </select>
                         <div v-if="$v.pipeline.type.$anyDirty && $v.pipeline.type.$invalid">
                             <small class="form-text text-danger" v-if="$v.pipeline.type.required" v-text="$t('entity.validation.required')"></small>

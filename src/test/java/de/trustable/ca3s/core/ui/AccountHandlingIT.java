@@ -37,10 +37,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
     url     = "http://localhost:${local.server.port}/"
 )
 @ActiveProfiles("dev")
-public class AccountHandlingIT extends WebTestBase{
+public class AccountHandlingIT extends WebTestBase {
 
     public static final By LOC_LNK_ACCOUNT_REGISTER_MENUE = By.xpath("//nav//a [span [text() = 'Register']]");
     public static final By LOC_LNK_USER_MANAGEMENT_MENUE = By.xpath("//nav//a [span [text() = 'User Management']]");
+
+    public static final By LOC_LNK_ACCOUNT = By.xpath("//li/a [@href='#account-menu']");
 
     public static final By LOC_TEXT_REGISTER_HEADER = By.xpath("//div/h1 [text() = 'Registration']");
 
@@ -48,6 +50,11 @@ public class AccountHandlingIT extends WebTestBase{
     public static final By LOC_INP_EMAIL_VALUE = By.xpath("//div/input [@name = 'email']");
     public static final By LOC_INP_1_PASSWORD_VALUE = By.xpath("//div/input [@name = 'password']");
     public static final By LOC_INP_2_PASSWORD_VALUE = By.xpath("//div/input [@name = 'confirmPasswordInput']");
+
+    public static final By LOC_INP_FIRST_NAME_VALUE = By.xpath("//div/input [@name = 'firstName']");
+    public static final By LOC_INP_LAST_NAME_VALUE = By.xpath("//div/input [@name = 'lastName']");
+    public static final By LOC_INP_ID_EMAIL_VALUE = By.xpath("//div/input [@name = 'email']");
+
 
     public static final By LOC_INP_CURRENT_PASSWORD_VALUE = By.xpath("//div/input [@name = 'currentPassword']");
     public static final By LOC_INP_NEW_PASSWORD_VALUE = By.xpath("//div/input [@name = 'newPassword']");
@@ -57,8 +64,10 @@ public class AccountHandlingIT extends WebTestBase{
 
     public static final By LOC_TEXT_REGISTRATION_SUCCESSFUL = By.xpath("//div/strong [text() = 'Registration saved!']");
 
-    public static final By LOC_LNK_ACCOUNT_SIGN_IN_MENUE =  By.xpath("//nav//a [@id='login']");
-    public static final By LOC_LNK_ACCOUNT_PASSWORD_MENUE =  By.xpath("//nav//li [@id='password']/a");
+    public static final By LOC_LNK_ACCOUNT_SIGN_IN_MENUE = By.xpath("//nav//a [@id='login']");
+    public static final By LOC_LNK_ACCOUNT_MENUE = By.xpath("//nav//li [@id='account_menue']/a");
+    public static final By LOC_LNK_ACCOUNT_PASSWORD_MENUE = By.xpath("//nav//li [@id='password']/a");
+    public static final By LOC_LNK_ACCOUNT_SETTINGS_MENUE = By.xpath("//nav//li/a [@id='settings']");
 
     public static final By LOC_LNK_SIGNIN_RESET = By.xpath("//div/a [@href='/reset/request']");
     public static final By LOC_BTN_RESET = By.xpath("//form/button [@type='submit'][text() = 'Reset password']");
@@ -103,9 +112,9 @@ public class AccountHandlingIT extends WebTestBase{
 
         ptc.getInternalACMETestPipelineLaxRestrictions();
 
-        if( driver == null) {
+        if (driver == null) {
             super.startWebDriver();
-            driver.manage().window().setSize(new Dimension(2000,768));
+            driver.manage().window().setSize(new Dimension(2000, 768));
         }
     }
 
@@ -115,26 +124,157 @@ public class AccountHandlingIT extends WebTestBase{
         byte[] loginBytes = new byte[6];
         rand.nextBytes(loginBytes);
         String loginName = "User_" + encodeBytesToText(loginBytes);
+        rand.nextBytes(loginBytes);
+        String loginName2 = "User_" + encodeBytesToText(loginBytes);
 
         byte[] passwordBytes = new byte[6];
         rand.nextBytes(passwordBytes);
         String loginPassword = "S3cr3t!S_" + encodeBytesToText(passwordBytes);
         String newPassword = "New!S6_" + encodeBytesToText(passwordBytes);
+
+        rand.nextBytes(passwordBytes);
+        String loginPassword2 = "S3cr3t!S_" + encodeBytesToText(passwordBytes);
+        String newPassword2 = "New!S6_" + encodeBytesToText(passwordBytes);
         String wrongPassword = "Wron#g_" + encodeBytesToText(passwordBytes);
 
-        IMAPStore imapStore;
-        Folder inbox;
+        createUserAccount(emailAddress,
+            emailPassword,
+            loginName,
+            loginPassword,
+            newPassword);
+/*
+        // create second with the same email address
+        createUserAccount(imapStore,
+            loginName2,
+            loginPassword2,
+            newPassword2);
+*/
 
-        imapStore = greenMailSMTPIMAP.getImap().createStore();
+        signIn(loginName, newPassword);
+
+        wait(1000);
+//        validatePresent(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
+//        click(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
+        click(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
+
+        validatePresent(LOC_BTN_ADD_OTP);
+        click(LOC_BTN_ADD_OTP);
+
+        validatePresent(LOC_INP_CURRENT_PASSWORD_VALUE);
+        setText(LOC_INP_CURRENT_PASSWORD_VALUE, newPassword);
+
+        wait(1000);
+
+        scrollToElement(LOC_BTN_SAVE);
+
+        validatePresent(LOC_INP_OTP_SEED_VALUE);
+        String seed = getAttribute(LOC_INP_OTP_SEED_VALUE, "value");
+
+        System.out.println("given seed : " + seed);
+
+        Totp totp = new Totp(seed);
+        setText(LOC_INP_OTP_TEST_VALUE, totp.now());
+
+        Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
+
+        validatePresent(LOC_HEADER_CREDENTIAL_TABLE);
+
+        int tableSize = driver.findElements(LOC_CREDENTIAL_TABLE_ROWS).size();
+        Assertions.assertTrue(tableSize > 0, "credential table contains at least one entry");
+
+        signIn(loginName, newPassword, totp);
+        wait(1000);
+
+
+        String wrongSeed = "A" + seed.substring(2);
+        if (seed.charAt(1) == 'A') {
+            wrongSeed = "B" + seed.substring(2);
+        }
+        Totp wrongTotp = new Totp(wrongSeed);
+
+        signIn(loginName, newPassword, wrongTotp, null, 0, true);
+
+        signIn(loginName, wrongPassword, totp, null, 0, true);
+
+        signIn(loginName, newPassword, totp);
+
+        click(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
+        validatePresent(LOC_BTN_ADD_EAB);
+        click(LOC_BTN_ADD_EAB);
+
+        validatePresent(LOC_INP_CURRENT_PASSWORD_VALUE);
+        setText(LOC_INP_CURRENT_PASSWORD_VALUE, newPassword);
+
+        validatePresent(LOC_SEL_PIPELINE);
+        selectOptionById(LOC_SEL_PIPELINE, 0);
+
+        validatePresent(LOC_INP_API_KID_VALUE);
+        String kid = getAttribute(LOC_INP_API_KID_VALUE, "value");
+        Assertions.assertFalse(kid.isEmpty(), "kid should be present");
+
+        validatePresent(LOC_INP_API_TOKEN_VALUE);
+        String hmacKey = getAttribute(LOC_INP_API_TOKEN_VALUE, "value");
+        Assertions.assertFalse(hmacKey.isEmpty(), "hmacKey should be present");
+
+        Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
+
+        waitForElement(LOC_TD_EAB);
+        validatePresent(LOC_TD_EAB);
+
+
+        click(LOC_LNK_ACCOUNT);
+
+//        validatePresent(LOC_LNK_ACCOUNT_MENUE);
+//        click(LOC_LNK_ACCOUNT_MENUE);
+        validatePresent(LOC_LNK_ACCOUNT_SETTINGS_MENUE);
+        click(LOC_LNK_ACCOUNT_SETTINGS_MENUE);
+
+        String newFirstName = "Super";
+        String newLastName = "Admin";
+        String invalidEmail = "invalidEmail";
+        String validEmail = "validEmail@ca3s.org";
+
+        validatePresent(LOC_INP_FIRST_NAME_VALUE);
+        setText(LOC_INP_FIRST_NAME_VALUE, newFirstName);
+
+        validatePresent(LOC_INP_LAST_NAME_VALUE);
+        setText(LOC_INP_LAST_NAME_VALUE, newLastName);
+
+        validatePresent(LOC_INP_ID_EMAIL_VALUE);
+        setText(LOC_INP_ID_EMAIL_VALUE, invalidEmail);
+
+        Assertions.assertFalse(isEnabled(LOC_BTN_SAVE), "Expecting save button disabled");
+
+        setText(LOC_INP_ID_EMAIL_VALUE, validEmail);
+
+        wait(500);
+        Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
+
+        click(LOC_BTN_SAVE);
+
+    }
+
+    public void createUserAccount(String emailAddress,
+                                  String emailPassword,
+                                  String loginName,
+                                  String loginPassword,
+                                  String newPassword) throws MessagingException, IOException {
+
+        IMAPStore imapStore = greenMailSMTPIMAP.getImap().createStore();
         imapStore.connect(emailAddress, emailPassword);
-        inbox = imapStore.getFolder("INBOX");
+
+        Folder inbox = imapStore.getFolder("INBOX");
         inbox.open(Folder.READ_WRITE);
 
         dropMessagesFromInbox(inbox);
 
-        waitForElement(LOC_LNK_ACCOUNT_MENUE);
-        validatePresent(LOC_LNK_ACCOUNT_MENUE);
-        click(LOC_LNK_ACCOUNT_MENUE);
+        waitForElement(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
+        validatePresent(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
+        click(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
 
         validatePresent(LOC_LNK_ACCOUNT_REGISTER_MENUE);
         click(LOC_LNK_ACCOUNT_REGISTER_MENUE);
@@ -160,8 +300,8 @@ public class AccountHandlingIT extends WebTestBase{
 
         Message msgReceived = inbox.getMessage(1);
 
-        System.out.println( "msgReceived.getContentType() : " + msgReceived.getContentType() );
-        System.out.println( "msgReceived.getContent() : " + msgReceived.getContent() );
+        System.out.println("msgReceived.getContentType() : " + msgReceived.getContentType());
+        System.out.println("msgReceived.getContent() : " + msgReceived.getContent());
 
         String emailContent = msgReceived.getContent().toString();
 
@@ -193,7 +333,7 @@ public class AccountHandlingIT extends WebTestBase{
         assertTrue(m.find());
 
         String activateUrl = m.group(1);
-        System.out.println( "Confirming account at " + activateUrl);
+        System.out.println("Confirming account at " + activateUrl);
 
 
         navigateTo(activateUrl);
@@ -204,11 +344,12 @@ public class AccountHandlingIT extends WebTestBase{
 
         logOut();
 
-
+        /*
         imapStore = greenMailSMTPIMAP.getImap().createStore();
-        imapStore.connect("admin@localhost", emailPassword);
+        imapStore.connect(emailAddress, emailPassword);
         inbox = imapStore.getFolder("INBOX");
         inbox.open(Folder.READ_WRITE);
+*/
 
         // reset password
         dropMessagesFromInbox(inbox);
@@ -223,7 +364,7 @@ public class AccountHandlingIT extends WebTestBase{
         click(LOC_LNK_SIGNIN_RESET);
 
         validatePresent(LOC_LNK_SIGNIN_USERNAME);
-        setText(LOC_LNK_SIGNIN_USERNAME, "admin");
+        setText(LOC_LNK_SIGNIN_USERNAME, loginName);
 
         int nMsgCurrent = inbox.getMessageCount();
         Assertions.assertTrue(isEnabled(LOC_BTN_RESET), "Expecting reset button enabled");
@@ -235,8 +376,8 @@ public class AccountHandlingIT extends WebTestBase{
         // waitForElement(LOC_TEXT_REGISTRATION_SUCCESSFUL);
 
         Message msgResetReceived = inbox.getMessage(nMsgCurrent + 1);
-        System.out.println( "msgReceived.getContentType() : " + msgResetReceived.getContentType() );
-        System.out.println( "msgReceived.getContent() : " + msgResetReceived.getContent() );
+        System.out.println("msgReceived.getContentType() : " + msgResetReceived.getContentType());
+        System.out.println("msgReceived.getContent() : " + msgResetReceived.getContent());
 
         /*
         <!DOCTYPE html>
@@ -266,7 +407,7 @@ public class AccountHandlingIT extends WebTestBase{
         assertTrue(matchReset.find());
 
         activateUrl = matchReset.group(1);
-        System.out.println( "Confirming account at " + activateUrl);
+        System.out.println("Confirming account at " + activateUrl);
 
         navigateTo(activateUrl);
 
@@ -278,93 +419,10 @@ public class AccountHandlingIT extends WebTestBase{
         Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
         click(LOC_BTN_SAVE);
 
-        signIn("admin", newPassword);
-
-        wait(1000);
-//        validatePresent(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
-//        click(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
-        click(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
-
-        validatePresent(LOC_BTN_ADD_OTP);
-        click(LOC_BTN_ADD_OTP);
-
-        validatePresent(LOC_INP_CURRENT_PASSWORD_VALUE);
-        setText(LOC_INP_CURRENT_PASSWORD_VALUE, newPassword);
-
-        wait(1000);
-
-        scrollToElement(LOC_BTN_SAVE);
-
-        validatePresent(LOC_INP_OTP_SEED_VALUE);
-        String seed = getAttribute(LOC_INP_OTP_SEED_VALUE, "value");
-
-        System.out.println( "given seed : " + seed);
-
-        Totp totp = new Totp(seed);
-        setText(LOC_INP_OTP_TEST_VALUE, totp.now());
-
-        Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
-        validatePresent(LOC_BTN_SAVE);
-        click(LOC_BTN_SAVE);
-
-        validatePresent(LOC_HEADER_CREDENTIAL_TABLE);
-
-        int tableSize = driver.findElements(LOC_CREDENTIAL_TABLE_ROWS).size();
-        Assertions.assertTrue(tableSize > 0, "credential table contains at least one entry");
-
-        signIn("admin", newPassword, totp );
-        wait(1000);
-
-
-        String wrongSeed = "A" + seed.substring(2);
-        if(seed.charAt(1) == 'A'){
-            wrongSeed = "B" + seed.substring(2);
-        }
-        Totp wrongTotp = new Totp(wrongSeed);
-
-        signIn("admin", newPassword, wrongTotp, null, 0,true);
-
-        signIn("admin", wrongPassword, totp, null, 0,true);
-
-        signIn("admin", newPassword, totp );
-
-        click(LOC_LNK_ACCOUNT_PASSWORD_MENUE);
-        validatePresent(LOC_BTN_ADD_EAB);
-        click(LOC_BTN_ADD_EAB);
-
-        validatePresent(LOC_INP_CURRENT_PASSWORD_VALUE);
-        setText(LOC_INP_CURRENT_PASSWORD_VALUE, newPassword);
-
-        validatePresent(LOC_SEL_PIPELINE);
-        selectOptionById(LOC_SEL_PIPELINE, 0);
-
-        validatePresent(LOC_INP_API_KID_VALUE);
-        String kid = getAttribute(LOC_INP_API_KID_VALUE, "value");
-        Assertions.assertFalse(kid.isEmpty(), "kid should be present");
-
-        validatePresent(LOC_INP_API_TOKEN_VALUE);
-        String hmacKey = getAttribute(LOC_INP_API_TOKEN_VALUE, "value");
-        Assertions.assertFalse(hmacKey.isEmpty(), "hmacKey should be present");
-
-        Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
-        validatePresent(LOC_BTN_SAVE);
-        click(LOC_BTN_SAVE);
-
-        waitForElement(LOC_TD_EAB);
-        validatePresent(LOC_TD_EAB);
-
         inbox.close();
+
         imapStore.close();
 
-/*
-        try {
-            System.out.println("... waiting ...");
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-*/
+
     }
-
-
 }

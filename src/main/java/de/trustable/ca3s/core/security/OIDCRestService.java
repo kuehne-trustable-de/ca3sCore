@@ -64,7 +64,7 @@ public class OIDCRestService {
                            @Value("${ca3s.oidc.roles.domainra:DOMAIN_RA}") String[] rolesDomainRAArr,
                            @Value("${ca3s.oidc.roles.ra:RA}") String[] rolesRAArr,
                            @Value("${ca3s.oidc.roles.admin:ADMIN}") String[] rolesAdminArr,
-                           @Value("${ca3s.oidc.roles.other}") String[] rolesOtherArr,
+                           @Value("${ca3s.oidc.roles.other:}") String[] rolesOtherArr,
                            @Value("${ca3s.oidc.client-id:#{null}}") String clientId,
                            @Value("${ca3s.oidc.client-secret:clientSecret}") String clientSecret,
                            @Value("${ca3s.ui.languages:en,de,pl}") String availableLanguages,

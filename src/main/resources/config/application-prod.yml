@@ -156,8 +156,8 @@ spring:
   # The basic settings for outbound email support
   #additioanl email-related setting are located at 'jhipster.mail'
   mail:
-    host: 10.152.183.83
-    port: 1025
+    host: smtp.freesmtpservers.com
+    port: 25
     username:
     password:
 
@@ -528,7 +528,6 @@ ca3s:
       ra:
       admin:
       other: ROLE_1, ROLE_2
-
 
     # extract relevant information from the saml token by attribute name
     attributes:

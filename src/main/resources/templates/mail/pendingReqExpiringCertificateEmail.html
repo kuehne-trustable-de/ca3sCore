@@ -28,7 +28,8 @@
         <p th:text="#{email.notification.greeting.RA.2}">
             this is the daily notification eMail informing about pending requests and expiring certificates.
         </p>
-        <p th:if="${#lists.isEmpty(pendingCsrList) and #lists.isEmpty(expiringEECertList) and #lists.isEmpty(expiringCAList)}" th:text="#{email.notification.greeting.RA.empty.set(${nDaysExpiryCA},${nDaysExpiryEE},${nDaysPending})}">
+        <p th:if="${#lists.isEmpty(pendingCsrList) and #lists.isEmpty(expiringEECertList) and #lists.isEmpty(expiringCAList)}"
+           th:text="#{email.notification.greeting.RA.empty.set(${nDaysExpiryCA},${nDaysExpiryEE},${nDaysPending})}">
             Currently there are no pending requests and or expiring certificates.
         </p>
 
