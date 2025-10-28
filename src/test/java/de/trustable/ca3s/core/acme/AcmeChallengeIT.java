@@ -44,8 +44,10 @@ public class AcmeChallengeIT {
     @LocalServerPort
 	int serverPort; // random port chosen by spring test
 
-	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
-	String dirUrl;
+    final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
+    final String ACME_DNS_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_DNS_REALM + "/directory";
+    String dirUrl;
+    String dirUrlDNS;
 
     HttpChallengeHelper httpChallengeHelper;
 
@@ -60,10 +62,12 @@ public class AcmeChallengeIT {
 
     @BeforeEach
 	void init() {
-		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
+        dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
+        dirUrlDNS = "http://localhost:" + serverPort + ACME_DNS_PATH_PART;
         LOG.info("ptc: {}", ptc);
         try {
             ptc.getInternalACMETestPipelineLaxRestrictions();
+            ptc.getInternalACMETestPipelineDNSLaxRestrictions();
             prefTC.getTestUserPreference();
             httpChallengeHelper = new HttpChallengeHelper(prefTC.getHttpChallengePort());
             dnsChallengeHelper = new DnsChallengeHelper(dnsPort);
@@ -340,7 +344,7 @@ public class AcmeChallengeIT {
             LOG.warn("csr : " + Base64.getEncoder().encodeToString(csr));
 
             for (Authorization auth : order.getAuthorizations()) {
-                System.out.println(" ################ " + auth.getIdentifier().toString() + "" + auth.getLocation());
+                System.out.println(" ################ " + auth.getIdentifier().toString() + " " + auth.getLocation());
             }
 
             try {
@@ -358,7 +362,6 @@ public class AcmeChallengeIT {
         Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
     }
 
-    @Disabled
     @Test
     public void testHttpChallengeRateLimit() throws AcmeException, IOException, InterruptedException {
 
@@ -424,11 +427,10 @@ public class AcmeChallengeIT {
         }
     }
 
-    @Disabled
     @Test
     public void testDnsChallengeHandling() throws AcmeException, IOException {
 
-        Session session = new Session(dirUrl);
+        Session session = new Session(dirUrlDNS);
         Metadata meta = session.getMetadata();
 
         URI tos = meta.getTermsOfService();
@@ -454,7 +456,7 @@ public class AcmeChallengeIT {
             .create(session);
 
         Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
-        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to fimnd the smae account (URL)");
+        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to find the same account (URL)");
 
         // #########################
         // http endpoint serving wrong content
@@ -473,7 +475,7 @@ public class AcmeChallengeIT {
                 Dns01Challenge challenge = auth.findChallenge(Dns01Challenge.TYPE);
                 Assertions.assertNotNull(challenge, "expected to find a challenge");
 
-                dnsChallengeHelper.setChallengeDetails( challenge.getDigest(), auth.getIdentifier().toString());
+                dnsChallengeHelper.setChallengeDetails( challenge.getDigest(), auth.getIdentifier().getValue());
                 dnsChallengeHelper.start();
 
                 try {
@@ -503,7 +505,7 @@ public class AcmeChallengeIT {
             order.execute(csr);
             Assertions.fail("AcmeServerException expected");
         }catch( AcmeServerException acmeServerException){
-            Assertions.assertEquals("Public key of CSR already in use ", acmeServerException.getMessage());
+            Assertions.assertEquals("Public key of CSR already in use by account", acmeServerException.getMessage());
         }
 
         account.deactivate();
