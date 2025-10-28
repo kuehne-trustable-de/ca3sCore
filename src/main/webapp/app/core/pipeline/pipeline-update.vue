@@ -163,6 +163,15 @@
                         </select>
                     </div>
 
+                    <div  v-if="pipeline.type === 'WEB'" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.cn-san.restriction')" for="pipeline-cn-san-restriction"></label>  <help-tag role="Admin" target="pipeline.cn-san.restriction"/>
+                        <select class="form-control" id="pipeline-cn-san-restriction" name="pipeline-cn-san-restriction" v-model="pipeline.cnAsSanRestriction">
+                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.ignore')" value="CN_AS_SAN_IGNORE"></option>
+                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.warn')" value="CN_AS_SAN_WARN_ONLY"></option>
+                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.required')" value="CN_AS_SAN_REQUIRED"></option>
+                        </select>
+                    </div>
+
                     <table v-if="pipeline.type !== 'MANUAL_UPLOAD'" class="table">
                         <thead class="thead-light">
                         <tr>
@@ -355,8 +364,8 @@
                                 <input type="text" class="form-control" name="pipeline-san-template" id="pipeline-san-template" v-model="pipeline.restriction_SAN.contentTemplate" />
                             </td>
                             <td>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-san-regExMatch" id="pipeline-san-regExMatch" v-model="pipeline.restriction_SAN.regExMatch" />
-                                <input type="text" class="form-control" name="pipeline-san-regex" id="pipeline-san-regex" v-model="pipeline.restriction_SAN.regEx" />
+                              <input type="checkbox" class="form-check-inline" name="pipeline-san-regExMatch" id="pipeline-san-regExMatch" v-model="pipeline.restriction_SAN.regExMatch" />
+                              <input type="text" class="form-control" name="pipeline-san-regex" id="pipeline-san-regex" v-model="pipeline.restriction_SAN.regEx" />
                             </td>
                         </tr>
                         </tbody>
