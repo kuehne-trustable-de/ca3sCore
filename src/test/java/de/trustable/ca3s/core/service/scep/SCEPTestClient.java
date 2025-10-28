@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.service.scep;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
@@ -50,37 +49,63 @@ public class SCEPTestClient {
 
 		X509Certificate ephemeralCert = X509Certificates.createEphemeral(enrollingPrincipal, keyPair);
 
+        checkSupportedSCEPEndpoints(new URL("http://localhost:8080/scep/test"),
+            acceptAllVerifier,
+            ephemeralCert,
+            enrollingPrincipal,
+            keyPair,
+            password);
 
-		URL serverUrl = new URL("http://localhost:8080/scep/test");
-//		URL serverUrl = new URL("http://localhost:8080/scep/ejbca");
-		LOG.debug("scep serverUrl : " + serverUrl.toString());
+        checkSupportedSCEPEndpoints(new URL("http://localhost:8080/scep/test/pkiclient.exe"),
+            acceptAllVerifier,
+            ephemeralCert,
+            enrollingPrincipal,
+            keyPair,
+            password);
 
-		Client client = new Client(serverUrl, acceptAllVerifier);
+        checkSupportedSCEPEndpoints(new URL("http://localhost:8080/scep/test/cgi-bin/pkiclient.exe"),
+            acceptAllVerifier,
+            ephemeralCert,
+            enrollingPrincipal,
+            keyPair,
+            password);
 
-		LOG.info("ephemeralCert : " + ephemeralCert);
+    }
 
-		PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
-				keyPair.getPublic(),
-				keyPair.getPrivate(),
-				password);
+    private static void checkSupportedSCEPEndpoints(URL serverUrl ,
+                                                    CertificateVerifier acceptAllVerifier,
+                                                    X509Certificate ephemeralCert,
+                                                    X500Principal enrollingPrincipal,
+                                                    KeyPair keyPair,
+                                                    char[] password) throws GeneralSecurityException, IOException, ClientException, TransactionException {
 
-		EnrollmentResponse resp = client.enrol(ephemeralCert, keyPair.getPrivate(), csr);
-		assertNotNull(resp);
+        LOG.debug("scep serverUrl : " + serverUrl);
+
+        Client client = new Client(serverUrl, acceptAllVerifier);
+
+        LOG.info("ephemeralCert : " + ephemeralCert);
+
+        PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
+                keyPair.getPublic(),
+                keyPair.getPrivate(),
+            password);
+
+        EnrollmentResponse resp = client.enrol(ephemeralCert, keyPair.getPrivate(), csr);
+        assertNotNull(resp);
 
         if(resp.isFailure()) {
             LOG.info("request failed: " + resp.getFailInfo() );
         }
-		if (resp.isSuccess()) {
+        if (resp.isSuccess()) {
 
-			CertStore certStore = resp.getCertStore();
-			Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
+            CertStore certStore = resp.getCertStore();
+            Collection<? extends Certificate> collCerts = certStore.getCertificates(new AcceptAllCertSelector());
 
-			for (Certificate cert : collCerts) {
-				LOG.info("returned certificate : " + cert.toString());
-			}
+            for (Certificate cert : collCerts) {
+                LOG.info("returned certificate : " + cert.toString());
+            }
 
-		}
-
-	}
+        }
+    }
 
 }

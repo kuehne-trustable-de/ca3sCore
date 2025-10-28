@@ -707,6 +707,11 @@
   "ca3SApp.pipeline.key.reuse.domainReuseWithWarn": "Domain reuse with warning",
   "ca3SApp.pipeline.key.reuse.reuseWithWarn": "Key reuse with warning",
 
+  "ca3SApp.pipeline.cn-san.restriction": "check CN / SAN requirement",
+  "ca3SApp.pipeline.cn-san.restriction.ignore": "Ignore",
+  "ca3SApp.pipeline.cn-san.restriction.warn": "Warn on missing SAN",
+  "ca3SApp.pipeline.cn-san.restriction.required": "Require CN as SAN",
+
   "ca3SApp.pipelineAttribute.created": "A new Pipeline Attribute is created with identifier {{ param }}",
   "ca3SApp.pipelineAttribute.delete.question": "Are you sure you want to delete Pipeline Attribute {{ id }}?",
   "ca3SApp.pipelineAttribute.deleted": "A Pipeline Attribute is deleted with identifier {{ param }}",
@@ -910,6 +915,8 @@
   "entity.validation.secretRepeat": "Repeated secret must match!",
   "entity.validation.subnetRequired": "Provide a subnet in the form 'n.n.n.n/mm'",
   "entity.validation.subnet.notApplicableForProxies": "Network restrictions do NOT apply for request proxies",
+  "entity.validation.hint.sanRegex": "please ",
+
   "error.NotNull": "Field {{ fieldName }} cannot be empty!",
   "error.Size": "Field {{ fieldName }} does not meet min/max size requirements!",
   "error.concurrencyFailure": "Another user modified this data at the same time as you. Your changes were rejected.",
@@ -1284,6 +1291,9 @@
   "pkcsxx.upload.warning.publicKeyPresent": "Public key already in use",
   "pkcsxx.upload.tosAgreed": "Agreed to ",
   "pkcsxx.upload.tosAgreement.required": "Agreement required",
+
+  "pkcsxx.upload.cn-san.restriction.required": "CN MUST be present as DNS SAN entry!",
+  "pkcsxx.upload.cn-san.restriction.recommended": "It's recommended to include the CN as DNS SAN entry, additionally!",
 
   "register.form.button": "Register",
   "register.messages.error.emailexists": "<strong>Email is already in use!</strong> Please choose another one.",

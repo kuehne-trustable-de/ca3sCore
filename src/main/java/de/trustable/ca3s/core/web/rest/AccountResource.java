@@ -186,10 +186,10 @@ public class AccountResource {
 
         String userLogin = findCurrentUser().getLogin();
 
-        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
-        if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
-            throw new EmailAlreadyUsedException();
-        }
+        Optional<User> existingUser = userRepository.findOneByLogin(userDTO.getLogin());
+//        if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
+//            throw new EmailAlreadyUsedException();
+//        }
         userService.updateUser(userDTO.getFirstName(),
             userDTO.getLastName(),
             userDTO.getEmail(),

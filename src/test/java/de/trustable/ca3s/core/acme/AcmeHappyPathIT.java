@@ -56,6 +56,7 @@ import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -394,12 +395,13 @@ public class AcmeHappyPathIT {
 
         try {
             // use tweaked key
-            char[] charArray = tokenResponse.getTokenValue().toCharArray();
-            charArray[8] = (char)(charArray[8] ^ 3);
+            byte[] hmacKey = Base64.getUrlDecoder().decode(tokenResponse.getTokenValue());
+            hmacKey[8] = (byte)(hmacKey[8] ^ 3);
+
             new AccountBuilder()
                 .addContact("mailto:acmeTest@ca3s.org")
                 .useKeyPair(accountKeyPair)
-                .withKeyIdentifier(tokenResponse.getEabKid(), new String(charArray))
+                .withKeyIdentifier(tokenResponse.getEabKid(), Base64.getUrlEncoder().encodeToString(hmacKey))
                 .create(session);
             Assertions.fail("Account creation expected to fail using the wrong key");
         }catch(AcmeException e) {

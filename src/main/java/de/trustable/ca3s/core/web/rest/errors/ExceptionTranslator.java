@@ -180,6 +180,11 @@ public class ExceptionTranslator implements ProblemHandling, SecurityAdviceTrait
         return create(ex, problem, request);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<Problem> handleAccountResourceException(AccountResourceException ex, NativeWebRequest request) {
+        Problem problem = Problem.builder().withStatus(Status.NOT_FOUND).with(MESSAGE_KEY, ex.getMessage()).build();
+        return create(ex, problem, request);
+    }
 
     @Override
     public ProblemBuilder prepare(final @NotNull Throwable throwable, final @NotNull StatusType status, final @NotNull URI type) {

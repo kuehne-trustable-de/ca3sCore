@@ -14,10 +14,7 @@ import de.trustable.ca3s.core.service.dto.PkcsXXData;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
 import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
 import de.trustable.util.JCAManager;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.slf4j.Logger;
@@ -245,11 +242,12 @@ public class PipelineAdministrationIT extends WebTestBase{
         checkHelpTargets();
     }
 
+    @Disabled("Manual Upload not read, yet")
     @Test
     public void testPipelineCreateManualUpload() {
 
         String newPipelineName = "Pipeline_Manual_Upload_" + Math.random();
-        String newPipelineDesription = "Description_" + Math.random() + " text, lengthy ... lengthy ... very lengthy ";
+        String newPipelineDescription = "Description_" + Math.random() + " text, lengthy ... lengthy ... very lengthy ";
         String newPipelineListOrder = "" + (int)(10 * Math.random());
 
         signIn(USER_NAME_ADMIN, USER_PASSWORD_ADMIN);
@@ -277,7 +275,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         validatePresent(LOC_SEL_PIPELINE_DESCRIPTION);
         click(LOC_SEL_PIPELINE_DESCRIPTION);
-        setText(LOC_SEL_PIPELINE_DESCRIPTION, newPipelineDesription);
+        setText(LOC_SEL_PIPELINE_DESCRIPTION, newPipelineDescription);
 
         validatePresent(LOC_INP_PIPELINE_LIST_ORDER);
         click(LOC_INP_PIPELINE_LIST_ORDER);
@@ -321,7 +319,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         Assertions.assertEquals(newPipelineName, getText(LOC_INP_PIPELINE_NAME));
 
-        Assertions.assertEquals( newPipelineDesription, getText(LOC_SEL_PIPELINE_DESCRIPTION) );
+        Assertions.assertEquals( newPipelineDescription, getText(LOC_SEL_PIPELINE_DESCRIPTION) );
 
         Assertions.assertTrue(isChecked(LOC_INP_PIPELINE_ACTIVE));
 

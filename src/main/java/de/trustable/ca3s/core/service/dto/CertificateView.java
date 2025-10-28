@@ -907,6 +907,10 @@ public class CertificateView implements Serializable {
         this.fingerprintSha256 = fingerprint;
     }
 
+    public String getSkiUrlSafe() {
+        return Base64.getUrlEncoder().encodeToString(Base64.getDecoder().decode(ski));
+    }
+
     public String getSki() {
         return ski;
     }

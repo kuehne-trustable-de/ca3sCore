@@ -39,7 +39,7 @@
                             <option value="ACME" v-bind:label="$t('ca3SApp.PipelineType.ACME')"></option>
                             <option value="SCEP" v-bind:label="$t('ca3SApp.PipelineType.SCEP')"></option>
                             <option value="WEB" v-bind:label="$t('ca3SApp.PipelineType.WEB')"></option>
-                            <option value="MANUAL_UPLOAD" v-bind:label="$t('ca3SApp.PipelineType.MANUAL_UPLOAD')"></option>
+                            <!--option value="MANUAL_UPLOAD" v-bind:label="$t('ca3SApp.PipelineType.MANUAL_UPLOAD')"></option-->
                         </select>
                         <div v-if="$v.pipeline.type.$anyDirty && $v.pipeline.type.$invalid">
                             <small class="form-text text-danger" v-if="$v.pipeline.type.required" v-text="$t('entity.validation.required')"></small>
@@ -160,6 +160,15 @@
                             <option v-text="$t('ca3SApp.pipeline.key.reuse.reuse')" value="KEY_REUSE"></option>
                             <option v-if="$v.pipeline.type.$model === 'ACME'" v-text="$t('ca3SApp.pipeline.key.reuse.domainReuseWithWarn')" value="DOMAIN_REUSE_WARN_ONLY"></option>
                             <option v-if="$v.pipeline.type.$model === 'ACME'" v-text="$t('ca3SApp.pipeline.key.reuse.reuseWithWarn')" value="KEY_REUSE_WARN_ONLY"></option>
+                        </select>
+                    </div>
+
+                    <div  v-if="pipeline.type === 'WEB'" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.cn-san.restriction')" for="pipeline-cn-san-restriction"></label>  <help-tag role="Admin" target="pipeline.cn-san.restriction"/>
+                        <select class="form-control" id="pipeline-cn-san-restriction" name="pipeline-cn-san-restriction" v-model="pipeline.cnAsSanRestriction">
+                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.ignore')" value="CN_AS_SAN_IGNORE"></option>
+                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.warn')" value="CN_AS_SAN_WARN_ONLY"></option>
+                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.required')" value="CN_AS_SAN_REQUIRED"></option>
                         </select>
                     </div>
 
@@ -355,8 +364,8 @@
                                 <input type="text" class="form-control" name="pipeline-san-template" id="pipeline-san-template" v-model="pipeline.restriction_SAN.contentTemplate" />
                             </td>
                             <td>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-san-regExMatch" id="pipeline-san-regExMatch" v-model="pipeline.restriction_SAN.regExMatch" />
-                                <input type="text" class="form-control" name="pipeline-san-regex" id="pipeline-san-regex" v-model="pipeline.restriction_SAN.regEx" />
+                              <input type="checkbox" class="form-check-inline" name="pipeline-san-regExMatch" id="pipeline-san-regExMatch" v-model="pipeline.restriction_SAN.regExMatch" />
+                              <input type="text" class="form-control" name="pipeline-san-regex" id="pipeline-san-regex" v-model="pipeline.restriction_SAN.regEx" />
                             </td>
                         </tr>
                         </tbody>

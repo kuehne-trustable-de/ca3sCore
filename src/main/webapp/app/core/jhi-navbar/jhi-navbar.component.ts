@@ -5,12 +5,14 @@ import AccountService from '@/account/account.service';
 import TranslationService from '@/locale/translation.service';
 import axios from 'axios';
 import { IUIConfigView } from '@/shared/model/transfer-object.model';
+import { mixins } from 'vue-class-component';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
 const REQUESTED_URL_KEY = 'requested-url';
 const CA3S_JWT_COOKIE_NAME = 'ca3sJWT';
 
 @Component
-export default class JhiNavbar extends Vue {
+export default class JhiNavbar extends mixins(AlertMixin) {
   @Inject('loginService')
   private loginService: () => LoginService;
   @Inject('translationService') private translationService: () => TranslationService;
@@ -134,6 +136,7 @@ export default class JhiNavbar extends Vue {
   public doSSOLogin() {
     this._doSSOLogin(this.$store.state.uiConfigStore.config.ssoProvider[0]);
   }
+
   public _doSSOLogin(ssoProviderNameMixedCase: string) {
     if (!ssoProviderNameMixedCase) {
       window.console.info('undefined SSO provider name at SSOlogin');
@@ -141,7 +144,7 @@ export default class JhiNavbar extends Vue {
     }
 
     let ssoProviderName = ssoProviderNameMixedCase.toLowerCase();
-    window.console.info('forwarding to SSO Login: ' + ssoProviderName);
+    window.console.info('using SSO provider: ' + ssoProviderName);
 
     let ssoReturnUrl = window.location.pathname + window.location.search;
     window.console.info('setting requested-url to window.location.pathname: ' + ssoReturnUrl);
@@ -153,6 +156,8 @@ export default class JhiNavbar extends Vue {
       this.doOIDCLogin();
     } else if (ssoProviderName === 'saml') {
       this.doSAMLLogin();
+    } else if (ssoProviderName === 'spnego') {
+      this.doSpnegoLogin();
     } else {
       window.console.info('unexpected SSO provider name : ' + ssoProviderName);
     }
@@ -218,6 +223,33 @@ export default class JhiNavbar extends Vue {
     }
     window.console.info('forwarding to SAML authentication url ' + target);
     window.location.href = target;
+  }
+
+  public doSpnegoLogin(): void {
+    const self = this;
+
+    localStorage.removeItem('jhi-authenticationToken');
+    sessionStorage.removeItem('jhi-authenticationToken');
+
+    axios
+      .get('/spnego/login')
+      .then(result => {
+        self.extractAuthorization(result.headers);
+        //        self.$router.push('/');
+        self.setTimeoutPromise(() => {
+          window.console.warn('retrieving account details after successful Kerberos login.');
+          self.accountService().retrieveAccount();
+        }, 1000);
+      })
+      .catch(reason => {
+        const message = self.$t('global.messages.error.authenticationError');
+        window.console.warn('problem doing Kerberos login. ' + reason);
+        self.alertService().showAlert(message, 'warn');
+      });
+  }
+
+  setTimeoutPromise(callback: () => void, ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms)).then(callback);
   }
 
   public doOIDCLogout(): void {
@@ -318,5 +350,14 @@ export default class JhiNavbar extends Vue {
 
   public get inProduction(): boolean {
     return this.$store.getters.activeProfiles.indexOf('prod') > -1;
+  }
+
+  public extractAuthorization(headers): void {
+    const bearerToken = headers.authorization;
+    if (bearerToken && bearerToken.slice(0, 7) === 'Bearer ') {
+      window.console.warn('extractAuthorization: bearer token present!');
+      const jwt = bearerToken.slice(7, bearerToken.length);
+      localStorage.setItem('jhi-authenticationToken', jwt);
+    }
   }
 }

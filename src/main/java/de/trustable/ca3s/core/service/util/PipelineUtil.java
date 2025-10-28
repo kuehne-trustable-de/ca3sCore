@@ -44,6 +44,8 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import static de.trustable.ca3s.core.domain.CsrAttribute.ATTRIBUTE_TYPED_SAN;
+import static de.trustable.ca3s.core.domain.enumeration.CnAsSanRestriction.CN_AS_SAN_IGNORE;
+import static de.trustable.ca3s.core.domain.enumeration.CnAsSanRestriction.CN_AS_SAN_REQUIRED;
 
 
 @Service
@@ -101,6 +103,7 @@ public class PipelineUtil {
     public static final String RESTR_ARA_COMMENT = "COMMENT";
     public static final String RESTR_ARA_CONTENT_TYPE = "ARAContentType";
 
+    public static final String CN_AS_SAN_RESTRICTION = "CN_AS_SAN_RESTRICTION";
     public static final String KEY_UNIQUENESS = "KEY_UNIQUENESS";
     public static final String TOS_AGREEMENT_REQUIRED = "TOS_AGREEMENT_REQUIRED";
     public static final String TOS_AGREEMENT_LINK = "TOS_AGREEMENT_LINK";
@@ -149,6 +152,7 @@ public class PipelineUtil {
     public static final String SCEP_CA_CONNECTOR_RECIPIENT_NAME = "SCEP_CA_CONNECTOR_RECIPIENT_NAME";
     public static final String SCEP_PERIOD_DAYS_RENEWAL = "SCEP_PERIOD_DAYS_RENEWAL";
     public static final String SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL = "SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL";
+    private final CSRUtil cSRUtil;
 
 
     Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
@@ -195,7 +199,8 @@ public class PipelineUtil {
                         AuthorityRepository authorityRepository,
                         RequestProxyConfigRepository requestProxyConfigRepository,
                         @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec,
-                        RandomUtil randomUtil) {
+                        RandomUtil randomUtil,
+                        @Lazy CSRUtil cSRUtil) {
 
         this.certRepository = certRepository;
         this.csrRepository = csrRepository;
@@ -218,6 +223,7 @@ public class PipelineUtil {
         // @ToDo check back with the list of valid algos
         this.defaultKeySpec = defaultKeySpec;
         this.randomUtil = randomUtil;
+        this.cSRUtil = cSRUtil;
     }
 
 
@@ -303,6 +309,13 @@ public class PipelineUtil {
                 pv.setNetworkAcceptArr(splitNetworks(plAtt.getValue()));
             } else if (NETWORK_REJECT.equals(plAtt.getName())) {
                 pv.setNetworkRejectArr(splitNetworks(plAtt.getValue()));
+
+            } else if (CN_AS_SAN_RESTRICTION.equals(plAtt.getName()))  {
+                if(plAtt.getValue() == null || plAtt.getValue().isEmpty()){
+                    pv.setCnAsSanRestriction(CN_AS_SAN_IGNORE);
+                }else {
+                    pv.setCnAsSanRestriction(CnAsSanRestriction.valueOf(plAtt.getValue()));
+                }
             } else if (KEY_UNIQUENESS.equals(plAtt.getName())) {
                 if(plAtt.getValue() == null || plAtt.getValue().isEmpty()){
                     pv.setKeyUniqueness(KeyUniqueness.KEY_UNIQUE);
@@ -931,6 +944,12 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, KEY_UNIQUENESS, pv.getKeyUniqueness().toString());
         }
 
+        if( pv.getCnAsSanRestriction() == null){
+            addPipelineAttribute(pipelineAttributes, p, auditList, CN_AS_SAN_RESTRICTION, CN_AS_SAN_IGNORE.toString());
+        }else {
+            addPipelineAttribute(pipelineAttributes, p, auditList, CN_AS_SAN_RESTRICTION, pv.getCnAsSanRestriction().toString());
+        }
+
         addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_REQUIRED, pv.isTosAgreementRequired());
         addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_LINK, pv.getTosAgreementLink());
         addPipelineAttribute(pipelineAttributes, p, auditList, WEBSITE_LINK, pv.getWebsite());
@@ -1234,10 +1253,15 @@ public class PipelineUtil {
             return true;
         }
 
+        boolean cnSanMatch = isCnAndSanApplicable( p, p10ReqHolder, messageList);
+
         if (!isPipelineAdditionalRestrictionsResolved(initAraRestrictions(p), nvARArr, messageList)) {
             return false;
         }
-        return isPipelineRestrictionsResolved(p, p10ReqHolder, messageList);
+
+        boolean prSolved = isPipelineRestrictionsResolved(p, p10ReqHolder, messageList);
+
+        return cnSanMatch && prSolved;
     }
 
     public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
@@ -1863,6 +1887,39 @@ public class PipelineUtil {
         }
         return false;
     }
+
+    public boolean isCnAndSanApplicable(Pipeline pipeline,
+                                         Pkcs10RequestHolder p10ReqHolder,
+                                         List<String> messageList) {
+        CnAsSanRestriction cnAsSanRestriction = CnAsSanRestriction.valueOf(
+            getPipelineAttribute(pipeline, CN_AS_SAN_RESTRICTION, CN_AS_SAN_IGNORE.toString()));
+
+        if( CN_AS_SAN_IGNORE.equals(cnAsSanRestriction)) {
+            LOG.debug("CN / SAN matching not requested.");
+            return true;
+        }
+
+        boolean cnInSan = cSRUtil.isCNinSANSet(p10ReqHolder);
+
+        if(  CN_AS_SAN_REQUIRED.equals(cnAsSanRestriction)) {
+            if( !cnInSan){
+                LOG.debug("CN / SAN mismatch: CN must be present in SANs.");
+                messageList.add("CN / SAN mismatch: CN must be present in SANs.");
+                return false;
+            }
+            LOG.debug("CN / SAN matching successful.");
+            return true;
+        } else { // CN_AS_SAN_MUST_NOT_MATCH
+            if( cnInSan){
+                LOG.debug("CN / SAN matching successful.");
+            }else {
+                LOG.debug("CN / SAN mismatch: CN recommended be present in SANs.");
+                messageList.add("CN / SAN mismatch: CN recommended be present in SANs.");
+            }
+            return true;
+        }
+    }
+
 
     public boolean isPublicKeyApplicable(Pipeline pipeline, Pkcs10RequestHolder p10ReqHolder,
                                          List<String> messageList) {

@@ -38,7 +38,8 @@ public class Ca3sSCEPServiceResource {
         LOGGER.info("in Ca3sSCEPServiceResource()");
 	}
 
-	@RequestMapping(value = "/scep/{realm}", method = { RequestMethod.GET, RequestMethod.POST })
+
+	@RequestMapping(value = {"/scep/{realm}", "/scep/{realm}/pkiclient.exe", "/scep/{realm}/cgi-bin/pkiclient.exe"}, method = { RequestMethod.GET, RequestMethod.POST })
 	public @ResponseBody void handleSCEPRequest(@PathVariable("realm") String realm,
             HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {

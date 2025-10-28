@@ -11,6 +11,7 @@ public class UIConfigView implements Serializable {
     private final boolean autoSSOLogin;
     private final String[] ssoProvider;
     private final String samlEntityBaseUrl;
+    private final String spnegoEntityBaseUrl;
     private final AuthSecondFactor[] scndFactorTypes;
     private final String[] extUsageArr;
     private final String infoMsg;
@@ -20,7 +21,9 @@ public class UIConfigView implements Serializable {
                         boolean autoSSOLogin,
                         String[] ssoProvider,
                         String samlEntityBaseUrl,
-                        AuthSecondFactor[] scndFactorTypes, String[] extUsageArr, String infoMsg) {
+                        AuthSecondFactor[] scndFactorTypes,
+                        String[] extUsageArr,
+                        String infoMsg) {
         this.appName = appName;
         this.cryptoConfigView = cryptoConfigView;
         this.autoSSOLogin = autoSSOLogin;
@@ -29,6 +32,8 @@ public class UIConfigView implements Serializable {
         this.scndFactorTypes = scndFactorTypes;
         this.extUsageArr = extUsageArr;
         this.infoMsg = infoMsg;
+
+        this.spnegoEntityBaseUrl = "";
     }
 
     public CryptoConfigView getCryptoConfigView() {
@@ -48,6 +53,10 @@ public class UIConfigView implements Serializable {
 
     public String getSamlEntityBaseUrl() {
         return samlEntityBaseUrl;
+    }
+
+    public String getSpnegoEntityBaseUrl() {
+        return spnegoEntityBaseUrl;
     }
 
     public AuthSecondFactor[] getScndFactorTypes() {

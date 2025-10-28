@@ -1,10 +1,10 @@
-package de.trustable.ca3s.core.config.saml;
+package de.trustable.ca3s.core.config.oidc;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class SAMLMappingConfig {
+public class OIDCMappingConfig {
 
     private final String[] rolesUserArr;
     private final String[] rolesDomainRAArr;
@@ -23,22 +23,22 @@ public class SAMLMappingConfig {
     private final String exprTenant;
     private final String exprLanguage;
 
-    public SAMLMappingConfig(
-        @Value("${ca3s.saml.roles.user:USER}") String[] rolesUserArr,
-        @Value("${ca3s.saml.roles.domainra:}") String[] rolesDomainRAArr,
-        @Value("${ca3s.saml.roles.ra:}") String[] rolesRAArr,
-        @Value("${ca3s.saml.roles.admin:}") String[] rolesAdminArr,
-        @Value("${ca3s.saml.roles.other:}") String[] rolesOtherArr,
-        @Value("${ca3s.saml.attributes.firstName:firstName}") String[] attributesFirstName,
-        @Value("${ca3s.saml.attributes.lastName:lastName}") String[] attributesLastName,
-        @Value("${ca3s.saml.attributes.email:email}") String[] attributesEmail,
-        @Value("${ca3s.saml.attributes.tenant:}") String[] attributesTenant,
-        @Value("${ca3s.saml.attributes.language:}") String[] attributesLanguage,
-        @Value("${ca3s.saml.expression.firstName:}") String exprFirstName,
-        @Value("${ca3s.saml.expression.lastName:}") String exprLastName,
-        @Value("${ca3s.saml.expression.email:}") String exprEmail,
-        @Value("${ca3s.saml.expression.tenant:}") String exprTenant,
-        @Value("${ca3s.saml.expression.language:}") String exprLanguage) {
+    public OIDCMappingConfig(
+        @Value("${ca3s.oidc.roles.user:USER}") String[] rolesUserArr,
+        @Value("${ca3s.oidc.roles.domainra:}") String[] rolesDomainRAArr,
+        @Value("${ca3s.oidc.roles.ra:}") String[] rolesRAArr,
+        @Value("${ca3s.oidc.roles.admin:}") String[] rolesAdminArr,
+        @Value("${ca3s.oidc.roles.other:}") String[] rolesOtherArr,
+        @Value("${ca3s.oidc.attributes.firstName:firstName}") String[] attributesFirstName,
+        @Value("${ca3s.oidc.attributes.lastName:lastName}") String[] attributesLastName,
+        @Value("${ca3s.oidc.attributes.email:email}") String[] attributesEmail,
+        @Value("${ca3s.oidc.attributes.tenant:}") String[] attributesTenant,
+        @Value("${ca3s.oidc.attributes.language:}") String[] attributesLanguage,
+        @Value("${ca3s.oidc.expression.firstName:}") String exprFirstName,
+        @Value("${ca3s.oidc.expression.lastName:}") String exprLastName,
+        @Value("${ca3s.oidc.expression.email:}") String exprEmail,
+        @Value("${ca3s.oidc.expression.tenant:}") String exprTenant,
+        @Value("${ca3s.oidc.expression.language:}") String exprLanguage) {
 
         this.rolesUserArr = rolesUserArr;
         this.rolesDomainRAArr = rolesDomainRAArr;

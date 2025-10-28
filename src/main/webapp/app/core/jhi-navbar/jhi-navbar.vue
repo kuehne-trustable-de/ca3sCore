@@ -1,6 +1,15 @@
 <template>
 
     <b-navbar toggleable="md" type="light" class="jh-navbar" >
+        <b-alert :show="dismissCountDown"
+             dismissible
+             :variant="alertType"
+             @dismissed="dismissCountDown=0"
+             @dismiss-count-down="countDownChanged">
+          {{alertMessage}}
+        </b-alert>
+
+
         <div class="jh-logo-container float-left">
             <b-navbar-toggle right class="jh-navbar-toggler d-lg-none float-right" href="javascript:void(0);"  data-toggle="collapse" target="header-tabs" aria-expanded="false" aria-label="Toggle navigation">
                 <font-awesome-icon icon="bars" />
@@ -206,7 +215,7 @@
                     </b-dropdown-item>
 
 
-                    <b-dropdown-item v-if="authenticated" to="/account/settings" tag="b-dropdown-item" >
+                    <b-dropdown-item v-if="authenticated" to="/account/settings" tag="b-dropdown-item" id="settings">
                         <font-awesome-icon icon="wrench" />
                         <span v-text="$t('global.menu.account.settings')"></span>
                     </b-dropdown-item>
