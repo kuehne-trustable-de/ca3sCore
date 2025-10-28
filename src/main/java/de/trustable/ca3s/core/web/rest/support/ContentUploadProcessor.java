@@ -267,8 +267,7 @@ public class ContentUploadProcessor {
                 List<String> messageList = new ArrayList<>();
                 Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
                 if( optPipeline.isPresent()) {
-                    isPublicKeyApplicable =
-                        pipelineUtil.isPublicKeyApplicable(optPipeline.get(), p10ReqHolder, messageList);
+                    isPublicKeyApplicable = pipelineUtil.isPublicKeyApplicable(optPipeline.get(), p10ReqHolder, messageList);
                     p10ReqData.setCsrPublicKeyPresentInDB(!isPublicKeyApplicable);
 
                     if (pipelineUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
@@ -277,6 +276,7 @@ public class ContentUploadProcessor {
                         p10ReqData.setWarnings(messageList.toArray(new String[0]));
                         return new ResponseEntity<>(p10ReqData, HttpStatus.BAD_REQUEST);
                     }
+
                 }else{
                     LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
                     isPublicKeyApplicable =

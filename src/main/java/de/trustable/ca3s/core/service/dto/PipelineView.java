@@ -5,6 +5,7 @@ import java.time.Instant;
 
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.Tenant;
+import de.trustable.ca3s.core.domain.enumeration.CnAsSanRestriction;
 import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
 import de.trustable.ca3s.core.domain.enumeration.KeyUniqueness;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
@@ -42,6 +43,7 @@ public class PipelineView implements Serializable {
     private String processInfoNameNotify;
 
     private KeyUniqueness keyUniqueness;
+    private CnAsSanRestriction cnAsSanRestriction;
 
     private RDNRestriction restriction_C;
     private RDNRestriction restriction_CN;
@@ -140,6 +142,13 @@ public class PipelineView implements Serializable {
 
     public void setKeyUniqueness(KeyUniqueness keyUniqueness) {
         this.keyUniqueness = keyUniqueness;
+    }
+
+    public CnAsSanRestriction getCnAsSanRestriction() {
+        return cnAsSanRestriction;
+    }
+    public void setCnAsSanRestriction(CnAsSanRestriction cnAsSanRestriction) {
+        this.cnAsSanRestriction = cnAsSanRestriction;
     }
 
     public RDNRestriction getRestriction_C() {

@@ -16,6 +16,7 @@ import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,10 +30,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.security.GeneralSecurityException;
 import java.time.Instant;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static de.trustable.ca3s.core.service.util.PipelineUtil.ADDITIONAL_EMAIL_RECIPIENTS;
 
@@ -594,7 +592,33 @@ public class CSRUtil {
 		return generalNameSet;
 	}
 
-/**
+    public boolean isCNinSANSet(Pkcs10RequestHolder p10ReqHolder) {
+
+        Set<GeneralName> sanSet = getSANList(p10ReqHolder);
+
+        if(Arrays.stream(p10ReqHolder.getSubjectRDNs()).noneMatch(
+            rdn -> rdn.getFirst() != null && BCStyle.CN.equals(rdn.getFirst().getType())
+        )) {;
+            return true;
+        }
+
+        return Arrays.stream(p10ReqHolder.getSubjectRDNs()).filter(
+            rdn -> rdn.getFirst() != null && BCStyle.CN.equals(rdn.getFirst().getType())
+        ).anyMatch(
+            rdn -> {
+                String cn = rdn.getFirst().getValue().toString();
+                boolean cnInSan = sanSet.stream().anyMatch(
+                    gn -> {
+                        String sanValue = CertificateUtil.getTypedSAN(gn);
+                        return sanValue.equalsIgnoreCase("DNS:" + cn);
+                    }
+                );
+                return cnInSan;
+            }
+        );
+    }
+
+    /**
  *
  * @param gName
  * @return

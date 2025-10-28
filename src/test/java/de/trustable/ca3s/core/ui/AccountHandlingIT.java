@@ -123,9 +123,9 @@ public class AccountHandlingIT extends WebTestBase {
 
         byte[] loginBytes = new byte[6];
         rand.nextBytes(loginBytes);
-        String loginName = "User_" + encodeBytesToText(loginBytes);
+        String loginName = "user_" + encodeBytesToText(loginBytes).toLowerCase();
         rand.nextBytes(loginBytes);
-        String loginName2 = "User_" + encodeBytesToText(loginBytes);
+        String loginName2 = "user_" + encodeBytesToText(loginBytes).toLowerCase();
 
         byte[] passwordBytes = new byte[6];
         rand.nextBytes(passwordBytes);

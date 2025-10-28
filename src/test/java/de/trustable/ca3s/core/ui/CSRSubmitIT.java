@@ -5,7 +5,6 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
@@ -155,6 +154,9 @@ public class CSRSubmitIT extends WebTestBase {
     public static final By LOC_SEL_CERTIFICATE_DOWNLOAD_FORMAT = By.xpath("//div//dd//div/select [@name = 'download-format']");
     public static final By LOC_INP_CERTIFICATE_PKCS12_ALIAS = By.xpath("//div//dd//div/input [@name = 'p12Alias']");
 
+    public static final By LOC_SMALL_ERROR_CN_SAN_RESTRICTION = By.xpath("//div//form//div/small [@id = 'pkcsxx.upload.cn-san.restriction.required']");
+    public static final By LOC_SMALL_WARNING_CN_SAN_RESTRICTION = By.xpath("//div//form//div/small [@id = 'pkcsxx.upload.cn-san.restriction.recommended']");
+
     private static final Logger LOG = LoggerFactory.getLogger(CSRSubmitIT.class);
 
     private static final Random rand = new Random();
@@ -289,6 +291,11 @@ public class CSRSubmitIT extends WebTestBase {
         explain("csr.submit.8");
         setText(LOC_INP_SAN_VALUE, san);
         explain("csr.submit.8.1");
+
+        validatePresent(LOC_SMALL_WARNING_CN_SAN_RESTRICTION);
+        setText(LOC_INP_SAN_VALUE, cn);
+
+        validateNotPresent(LOC_SMALL_WARNING_CN_SAN_RESTRICTION);
 
         scrollToElement(LOC_BTN_REQUEST_CERTIFICATE);
 
