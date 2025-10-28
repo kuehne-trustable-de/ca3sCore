@@ -307,9 +307,13 @@ public class ProtectedContentUtil {
         log.debug("searching for protectedString '{}'", protectedString );
 
         List<ProtectedContent> pcList = protContentRepository.findByTypeRelationContentB64(type, crt, protectedString);
+        log.debug("searching for protectedString '{}' returns {} elements", protectedString, pcList.size() );
 
         Instant now = Instant.now();
-        Predicate<ProtectedContent> usableItem = pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);
+        Predicate<ProtectedContent> usableItem = pc -> {
+            log.debug("pc.getLeftUsages(): '{}', pc.getValidTo(): {}, valid now: {}", pc.getLeftUsages(), pc.getValidTo(), pc.getValidTo().isAfter(now) );
+            return ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);};
+
         return pcList.stream().filter(usableItem).collect(Collectors.toList());
     }
 

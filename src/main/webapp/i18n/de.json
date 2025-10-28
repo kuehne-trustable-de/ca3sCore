@@ -723,6 +723,17 @@
   "ca3SApp.pipeline.filter.connector": " Connector: ",
   "ca3SApp.pipeline.expiresOn": "Ablauf am",
 
+  "ca3SApp.pipeline.key.reuse.unique": "Schlüssel muss einzigartig sein",
+  "ca3SApp.pipeline.key.reuse.domainReuse": "Schlüssel kann innerhalb der Domäne wiederverwendet werden",
+  "ca3SApp.pipeline.key.reuse.reuse": "Schlüssel kann wiederverwendet werden",
+  "ca3SApp.pipeline.key.reuse.domainReuseWithWarn": "Warnung, wenn Schlüssel innerhalb der Domäne wiederverwendet wird",
+  "ca3SApp.pipeline.key.reuse.reuseWithWarn": "Warnung, wenn Schlüssel wiederverwendet wird",
+
+  "ca3SApp.pipeline.cn-san.restriction": "CN/SAN Abgleich",
+  "ca3SApp.pipeline.cn-san.restriction.ignore": "Kein CN/SAN Abgleich",
+  "ca3SApp.pipeline.cn-san.restriction.warn": "Warnung bei CN/SAN Abweichung",
+  "ca3SApp.pipeline.cn-san.restriction.required": "CN muss in SANs vorhanden sein",
+
   "ca3SApp.protectedContent.contentBase64": "Content Base 64",
   "ca3SApp.protectedContent.created": "Geschützter Inhalt erstellt mit ID {{ param }}",
   "ca3SApp.protectedContent.delete.question": "Soll Geschützter Inhalt {{ id }} wirklich dauerhaft gelöscht werden?",
@@ -1247,6 +1258,9 @@
   "pkcsxx.upload.warning.publicKeyPresent": "Öffentlicher Schlüssel bereits in Verwendung",
   "pkcsxx.upload.tosAgreed": "Zustimmung zu den Bedingungen ",
   "pkcsxx.upload.tosAgreement.required": "Zustimmung notwendig",
+
+  "pkcsxx.upload.cn-san.restriction.required": "Der CN MUSS als DNS SAN Eintrag enthalten sein!",
+  "pkcsxx.upload.cn-san.restriction.recommended": "Es wird empfohlen, den CN zusätzlich als DNS SAN Eintrag einzufügen!",
 
   "register.form.button": "Registrieren",
   "register.messages.error.emailexists": "<strong>E-Mail wird bereits verwendet!</strong> Bitte wähle einen anderen.",

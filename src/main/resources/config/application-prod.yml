@@ -428,7 +428,7 @@ ca3s:
       # enable / disable autologin via SSO
       autologin: false
       # define a SSO provider: keyCloak | saml
-      provider: saml
+      provider: spnego
       # per default use a secure cookie to transport auth token
       secureCookie: false
   acme:
@@ -497,8 +497,9 @@ ca3s:
       auth-token-admin: gTYvGKIfzLpWQSSIMT1XBaRfzdSLZmvFMNlfo6zeddYyg3FYmq7BH6qqB4dy75uYbLb0KXOU7jV50a360R4CB4UXriX085usWJnto5CMpOu34rxx0b5v2Xd97hpzDQdJ
 
     kerberos:
-      service-principal: HTTP/admin@ci-adcs
-      keytab-location: ca3s.keytab
+      service-principal: HTTP/ca3sService@TRUSTABLE.DEMO
+      keytab-location: ca3sService.keytab
+
     ad-domain: foo
     ldap:
       url: ldap://testLDAP.eu:123

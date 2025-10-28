@@ -15,12 +15,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.source.InvalidConfigurationPropertyValueException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -35,6 +37,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.kerberos.authentication.KerberosAuthenticationProvider;
+import org.springframework.security.kerberos.authentication.KerberosServiceAuthenticationProvider;
+import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosClient;
+import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosTicketValidator;
+import org.springframework.security.kerberos.web.authentication.SpnegoAuthenticationProcessingFilter;
 import org.springframework.security.saml.*;
 import org.springframework.security.saml.key.KeyManager;
 import org.springframework.security.saml.metadata.ExtendedMetadata;
@@ -59,6 +66,7 @@ import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -90,7 +98,6 @@ public class SecurityConfiguration{
 	@Value("${ca3s.scepAccess.port:0}")
 	int scepPort;
 
-
     @Value("${ca3s.saml.activate:true}")
     private boolean samlActivate;
 
@@ -99,6 +106,12 @@ public class SecurityConfiguration{
 
     @Value("${ca3s.saml.entity.base-url:#{null}}")
     private String samlEntityBaseurl;
+
+    @Value("${ca3s.auth.kerberos.service-principal:#{null}}")
+    private String servicePrincipal;
+
+    @Value("${ca3s.auth.kerberos.keytab-location:#{null}}")
+    private String keytabLocation;
 
     @Autowired
     @Qualifier("saml")
@@ -228,17 +241,64 @@ public class SecurityConfiguration{
     public AuthenticationManager authManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder =
             http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.authenticationProvider(samlAuthenticationProvider)
-        .authenticationProvider(daoAuthenticationProvider());
+
+        authenticationManagerBuilder
+            .authenticationProvider(samlAuthenticationProvider)
+            .authenticationProvider(daoAuthenticationProvider());
+
+        if (keytabLocation != null && !keytabLocation.isEmpty() &&
+            servicePrincipal != null && !servicePrincipal.isEmpty()) {
+            authenticationManagerBuilder
+                .authenticationProvider(kerberosAuthenticationProvider())
+                .authenticationProvider(kerberosServiceAuthenticationProvider());
+        }
         return authenticationManagerBuilder.build();
     }
-/*
+
     @Bean
-    public AuthenticationManager authenticationManager() throws Exception {
-        return new ProviderManager(List.of(samlAuthenticationProvider, daoAuthenticationProvider()));
+    @ConditionalOnProperty("ca3s.auth.kerberos.service-principal")
+    public KerberosAuthenticationProvider kerberosAuthenticationProvider() {
+        LOG.info("Instantiating bean for kerberosAuthenticationProvider()");
+        KerberosAuthenticationProvider provider = new KerberosAuthenticationProvider();
+        SunJaasKerberosClient client = new SunJaasKerberosClient();
+        client.setDebug(true);
+        provider.setKerberosClient(client);
+        provider.setUserDetailsService(userDetailsService);
+        return provider;
     }
 
- */
+    @Bean
+    @ConditionalOnProperty("ca3s.auth.kerberos.service-principal")
+    public KerberosServiceAuthenticationProvider kerberosServiceAuthenticationProvider() {
+        LOG.info("Instantiating bean for kerberosServiceAuthenticationProvider()");
+        KerberosServiceAuthenticationProvider provider = new KerberosServiceAuthenticationProvider();
+        provider.setTicketValidator(sunJaasKerberosTicketValidator());
+        provider.setUserDetailsService(userDetailsService);
+        return provider;
+    }
+
+    @Bean
+    @ConditionalOnProperty("ca3s.auth.kerberos.service-principal")
+    public SunJaasKerberosTicketValidator sunJaasKerberosTicketValidator() {
+        LOG.info("Instantiating bean for SunJaasKerberosTicketValidator() with principal '{}' and keytab at '{}'",
+            servicePrincipal, new File(keytabLocation).getAbsolutePath());
+
+        SunJaasKerberosTicketValidator ticketValidator = new SunJaasKerberosTicketValidator();
+        ticketValidator.setServicePrincipal(servicePrincipal);
+        ticketValidator.setKeyTabLocation(new FileSystemResource(keytabLocation));
+        ticketValidator.setDebug(true);
+        return ticketValidator;
+    }
+
+    @Bean
+    @ConditionalOnProperty("ca3s.auth.kerberos.service-principal")
+    public SpnegoAuthenticationProcessingFilter spnegoAuthenticationProcessingFilter(
+        AuthenticationManager authenticationManager) {
+        SpnegoAuthenticationProcessingFilter filter = new SpnegoAuthenticationProcessingFilter();
+        filter.setAuthenticationManager(authenticationManager);
+        return filter;
+    }
+
 
     @Bean
     public FilterChainProxy samlFilter(AuthenticationManager authenticationManager) throws Exception {
@@ -299,7 +359,8 @@ public class SecurityConfiguration{
         AuthenticationManager authenticationManager = authManager(http);
 
         // @formatter:off
-        http
+        HttpSecurity httpSecurity =
+            http
             .cors(Customizer.withDefaults())
             .csrf().disable()
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
@@ -307,10 +368,17 @@ public class SecurityConfiguration{
 
             .addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
             .addFilterAfter(samlFilter(authenticationManager), BasicAuthenticationFilter.class)
-            .addFilterBefore(samlFilter(authenticationManager), CsrfFilter.class)
+            .addFilterBefore(samlFilter(authenticationManager), CsrfFilter.class);
 
+        if (servicePrincipal != null && !servicePrincipal.isEmpty()) {
+            LOG.debug("add Filter : spnegoAuthenticationProcessingFilter");
+            httpSecurity = httpSecurity.addFilterBefore(spnegoAuthenticationProcessingFilter(authenticationManager), BasicAuthenticationFilter.class);
+        }
+
+        httpSecurity
             .exceptionHandling()
             .accessDeniedHandler(problemSupport)
+
             .and()
             .headers()
             .contentSecurityPolicy("default-src 'self';" +
@@ -354,6 +422,7 @@ public class SecurityConfiguration{
             .antMatchers("/auth").permitAll()
             .antMatchers("/saml/SSO").permitAll()
             .antMatchers("/saml/**").permitAll()
+            .antMatchers("/spnego/**").permitAll()
             .antMatchers("/publicapi/**").permitAll()
 
             .antMatchers("/management/loggers").permitAll()

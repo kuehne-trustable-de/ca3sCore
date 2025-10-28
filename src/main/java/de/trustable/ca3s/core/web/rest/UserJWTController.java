@@ -70,7 +70,7 @@ public class UserJWTController {
 
         {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            log.info("--- is already authenticated: {}", authentication.isAuthenticated());
+            log.info("--- is already authenticated: {} for {}", authentication.isAuthenticated(), authentication.getName());
         }
 
         try {
