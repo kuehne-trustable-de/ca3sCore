@@ -8,6 +8,8 @@ import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.exception.BlockedCredentialsException;
 import de.trustable.ca3s.core.service.mapper.LDAPUserProviderMapping;
 import de.trustable.ca3s.core.service.util.UserUtil;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,7 +21,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.NamingException;
-import javax.naming.directory.*;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -60,10 +61,12 @@ public class DomainUserDetailsService implements UserDetailsService {
                 username);
 
             try {
-                handleUserAccount(username);
+                User user = enrichUserAccount(username);
+                List<GrantedAuthority> grantedAuthorities = getGrantedAuthorities(user);
+
                 return new org.springframework.security.core.userdetails.User(username,
-                    "KerberosToken",
-                    AuthorityUtils.createAuthorityList(AuthoritiesConstants.USER));
+                    RandomStringUtils.random(16),
+                    grantedAuthorities);
             } catch (NamingException e) {
                 log.warn("Problem accessing LDAP", e);
                 throw new UserNotAuthenticatedException(e.getMessage());
@@ -95,20 +98,27 @@ public class DomainUserDetailsService implements UserDetailsService {
             throw new UserCredentialsExpiredException("User " + login + " credentials expired since " + user.getCredentialsValidToDate());
         }
 
-        List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
-            .map(authority -> new SimpleGrantedAuthority(authority.getName()))
-            .collect(Collectors.toList());
+        List<GrantedAuthority> grantedAuthorities = getGrantedAuthorities(user);
+
         return new org.springframework.security.core.userdetails.User(user.getLogin(),
             user.getPassword(),
             grantedAuthorities);
     }
 
-    private void handleUserAccount(String username) throws NamingException {
+    private static @NotNull List<GrantedAuthority> getGrantedAuthorities(User user) {
+        List<GrantedAuthority> grantedAuthorities = user.getAuthorities().stream()
+            .map(authority -> new SimpleGrantedAuthority(authority.getName()))
+            .collect(Collectors.toList());
+        return grantedAuthorities;
+    }
+
+    private User enrichUserAccount(String username) throws NamingException {
 
         Optional<User> userOpt = userRepository.findOneByLogin(username);
         if(userOpt.isPresent()){
             ldapUserProviderMapping.updateUserFromLDAP(userOpt.get());
             log.info("updated known user {}", userOpt.get().getId());
+            return userOpt.get();
         }else{
 
             User user = new User();
@@ -120,8 +130,8 @@ public class DomainUserDetailsService implements UserDetailsService {
 //            user.setLangKey(languages.alignLanguage("en"));
 
             ldapUserProviderMapping.updateUserFromLDAP(user);
-
             log.info("created new user {}", user.getId());
+            return user;
         }
     }
 }

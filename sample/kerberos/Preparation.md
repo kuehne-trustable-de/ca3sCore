@@ -76,16 +76,17 @@ The attributes sections defines a mapping of LDAP attributes to ca3s user attrib
     ca3s:
       auth:
         ldap:
-          url: ldap://testLDAP.eu:123
-          baseDN: dc=testLDAP,dc=eu
-          principal: cn=alice,ou=people,dc=testLDAP,dc=eu
+          host: dc.trustable.demo
+          port: 636
+          baseDN: DC=trustable,DC=demo
+          principal: ca3sService@trustable.demo
           password: s3cr3t
 
           roles:
             user: 'CN=ca3sUsers,DC=trustable,DC=demo'
             domainra:
             ra: 'CN=ca3sRaOfficers,DC=trustable,DC=demo'
-            admin: 'CN=ca3sAdmins,DC=trustable,DC=demo',
+            admin: 'CN=ca3sAdmins,DC=trustable,DC=demo'
           attributes:
             firstName: givenName
             lastName: sn
