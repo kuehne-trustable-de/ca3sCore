@@ -125,7 +125,7 @@
         <saml2-core.spring.version>1.0.10.RELEASE</saml2-core.spring.version>
         <open-saml.version>4.3.0</open-saml.version>
 
-        <undertow.core.version>2.3.19.Final</undertow.core.version>
+        <undertow.core.version>2.3.20.Final</undertow.core.version>
         <bucket4j.version>8.10.1</bucket4j.version>
 
         <h2.version>2.3.232</h2.version>
