@@ -29,10 +29,10 @@
                 <option value="SCEP">{{$t('ca3SApp.pipeline.filter.type.scep')}}</option>
                 <!--option value="EST">{{$t('ca3SApp.pipeline.filter.type.est')}}</option-->
                 <option value="ACME">{{$t('ca3SApp.pipeline.filter.type.acme')}}</option>
-                <option value="MANUAL_UPLOAD">{{$t('ca3SApp.pipeline.filter.type.upload')}}</option>
+                <!--option value="MANUAL_UPLOAD">{{$t('ca3SApp.pipeline.filter.type.upload')}}</option-->
 
             </select>
-            <span v-text="$t('ca3SApp.pipeline.filter.state')"> State: </span>
+            <span v-text="$t('ca3SApp.pipeline.filter.state')"></span>
             <select float="left" class="smallSelector fa-1x" v-model="activeFilter"
                     name="activeFilter"
                     v-on:change="filterPipelines">
@@ -71,7 +71,7 @@
                 <tr v-for="pipeline in filteredPipelines" :key="pipeline.id">
                     <td>{{pipeline.id}}</td>
                     <td>{{pipeline.name}}</td>
-                    <td v-text="$t('ca3SApp.PipelineType.' + pipeline.type)">{{pipeline.type}}</td>
+                    <td v-text="$t('ca3SApp.PipelineType.' + pipeline.type)"></td>
                     <td>{{pipeline.active}}</td>
                     <td :style="getValidToStyle(pipeline.expiryDate)">{{ toLocalDate(pipeline.expiryDate)}}</td>
                     <td>{{pipeline.urlPart}}</td>

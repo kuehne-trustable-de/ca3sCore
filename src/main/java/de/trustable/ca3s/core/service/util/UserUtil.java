@@ -104,11 +104,15 @@ public class UserUtil {
         return optCurrentUser.get();
     }
 
+    public boolean isRaRoleUser() {
+        return isRaRoleUser(getCurrentUser());
+    }
+
     public boolean isAdministrativeUser() {
         return isAdministrativeUser(getCurrentUser());
     }
 
-    public static boolean isAdministrativeUser(final User user){
+    public static boolean isRaRoleUser(final User user){
         for( Authority authority: user.getAuthorities()){
             String authorityName = authority.getName();
             if( authorityName.equals(AuthoritiesConstants.ADMIN) ||
@@ -120,8 +124,18 @@ public class UserUtil {
         return false;
     }
 
+    public static boolean isAdministrativeUser(final User user){
+        for( Authority authority: user.getAuthorities()){
+            String authorityName = authority.getName();
+            if( authorityName.equals(AuthoritiesConstants.ADMIN)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void addUserDetails(CertificateView certificateView){
-        if( isAdministrativeUser()){
+        if( isRaRoleUser()){
             Optional<User> optionalUser = userRepository.findOneByLogin(certificateView.getRequestedBy());
             if(optionalUser.isPresent()){
                 User user = optionalUser.get();
@@ -132,7 +146,7 @@ public class UserUtil {
         }
     }
     public void addUserDetails(CSRView csrView){
-        if( isAdministrativeUser()){
+        if( isRaRoleUser()){
             Optional<User> optionalUser = userRepository.findOneByLogin(csrView.getRequestedBy());
             if(optionalUser.isPresent()){
                 User user = optionalUser.get();

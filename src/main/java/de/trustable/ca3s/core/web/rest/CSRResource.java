@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -46,7 +47,6 @@ public class CSRResource {
     private final CSRService cSRService;
     private final CSRUtil csrUtil;
     private final PipelineUtil pipelineUtil;
-    private final UserRepository userRepository;
     private final UserUtil userUtil;
     private final String certificateStoreIsolation;
 
@@ -55,14 +55,12 @@ public class CSRResource {
     public CSRResource(CSRService cSRService,
                        CSRUtil csrUtil,
                        PipelineUtil pipelineUtil,
-                       UserRepository userRepository,
                        UserUtil userUtil,
                        @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                        @Value("${ca3s.ui.csr.dnslookup:false}") boolean doDNSLookup) {
         this.cSRService = cSRService;
         this.csrUtil = csrUtil;
         this.pipelineUtil = pipelineUtil;
-        this.userRepository = userRepository;
         this.userUtil = userUtil;
         this.certificateStoreIsolation = certificateStoreIsolation;
         this.doDNSLookup = doDNSLookup;
@@ -99,11 +97,10 @@ public class CSRResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated cSR,
      * or with status {@code 400 (Bad Request)} if the cSR is not valid,
      * or with status {@code 500 (Internal Server Error)} if the cSR couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/csrs")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<CSR> updateCSR(@Valid @RequestBody CSR cSR) throws URISyntaxException {
+    public ResponseEntity<CSR> updateCSR(@Valid @RequestBody CSR cSR) {
         log.debug("REST request to update CSR : {}", cSR);
         return ResponseEntity.badRequest().build();
     }
@@ -200,12 +197,12 @@ public class CSRResource {
             return;
         }
 
-        if( !userUtil.isAdministrativeUser() ){
+        if( !userUtil.isRaRoleUser() ){
             User currentUser = userUtil.getCurrentUser();
             Tenant tenant = currentUser.getTenant();
             if( tenant == null ) {
                 // null == default tenant
-            } else if( tenant.getId() != csr.getTenant().getId()){
+            } else if(!Objects.equals(tenant.getId(), csr.getTenant().getId())){
                 log.info("user [{}] tried to download csr [{}] of tenant [{}]",
                     currentUser.getLogin(), csr.getId(), tenant.getLongname());
                 throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
