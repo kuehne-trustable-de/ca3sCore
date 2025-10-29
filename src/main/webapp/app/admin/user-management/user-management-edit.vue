@@ -30,7 +30,8 @@
                         />
 
                         <div v-if="$v.userAccount.login.$anyDirty && $v.userAccount.login.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.userAccount.login.required"
+                            <small class="form-text text-danger"
+                                   v-if="!$v.userAccount.login.required"
                                    v-text="$t('entity.validation.required')"></small>
 
                             <small

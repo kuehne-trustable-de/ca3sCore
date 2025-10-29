@@ -427,8 +427,8 @@ ca3s:
     sso:
       # enable / disable autologin via SSO
       autologin: false
-      # define a SSO provider: keyCloak | saml
-      provider: spnego
+      # define a SSO provider: oidc / saml / spnego
+      provider: oidc
       # per default use a secure cookie to transport auth token
       secureCookie: false
   acme:
@@ -504,14 +504,11 @@ ca3s:
     ldap:
       url: ldap://testLDAP.eu:123
       baseDN: dc=testLDAP,dc=eu
-      search-base: dc=testLDAP,dc=eu
-      search-filter: dc=testLDAP,dc=eu
-      group-search-base: (| (userPrincipalName={0}) (sAMAccountName={0}))
       principal: cn=alice,ou=people,dc=testLDAP,dc=eu
       password: s3cr3t
 
   saml:
-    activate: true
+    activate: false
 
     # define the location of the SAML IDP+-
     idp: http://10.152.183.139/realms/master
@@ -582,15 +579,18 @@ ca3s:
       admin:
       other: ROLE_1, ROLE_2
 
-    client-id: oidc_client
+    client-id: ca3s-oidc
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
     scope: openid, profile
     authorization-grant-type: password
 
-    auth-server-url: http://keycloak.trustable.eu:50080
-    realm: ca3s
+    auth-server-url: http://10.152.183.139
+    realm: master
 
-    authorization-uri: http://localhost:8080/auth/realms/ca3sRealm/protocol/openid-connect/auth
+
+    authorization-uri: http://10.152.183.139/realms/master/protocol/openid-connect/auth
     #    authorization-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/auth
 
     use-post-logout-redirect-uri: true
+
+  http%3A%2F%2Fakuehne-thinkpad-e16-gen-1%3A18080%2Foidc%2Fcode
