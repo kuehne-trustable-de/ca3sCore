@@ -3,7 +3,7 @@ import { Component, Inject, Vue } from 'vue-property-decorator';
 import UserManagementService from './user-management.service';
 import AlertService from '@/shared/alert/alert.service';
 import { IUser, User } from '@/shared/model/user.model';
-import { ITenant } from '../../shared/model/tenant.model';
+import { ITenant } from '@/shared/model/tenant.model';
 import TenantService from '../tenant/tenant.service';
 import { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -45,7 +45,7 @@ const validations: any = {
 @Component({
   validations,
 })
-export default class JhiUserManagementEdit extends mixins(AlertMixin) {
+export default class JhiUserManagementEdit extends mixins(AlertMixin, Vue)  {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('userService') private userManagementService: () => UserManagementService;
   @Inject('tenantService') private tenantService: () => TenantService;
@@ -56,6 +56,8 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin) {
   public authorities: any[] = [];
   public scndFactors: string[] = [];
   public languages: any = this.$store.getters.languages;
+
+  public updateCounter = 1;
 
   beforeRouteEnter(to, from, next) {
     next(vm => {
@@ -95,7 +97,7 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin) {
           this.tenants = res.data;
         },
         err => {
-          this.alertService().showAlert(err.response, 'warn');
+          self.alertService().showAlert(err.response, 'warn');
         }
       );
   }
@@ -145,5 +147,10 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin) {
   private returnToList(): void {
     this.isSaving = false;
     this.$router.push('/admin/user-list');
+  }
+
+  public updateForm(): void {
+    window.console.info('in updateForm, incrementing this.updateCounter:  ' + this.updateCounter);
+    this.updateCounter += 1;
   }
 }

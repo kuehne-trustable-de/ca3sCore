@@ -13,11 +13,11 @@
 
 			<div class="col-xs-12 table-responsive">
                 <h2 class="jh-entity-heading">
-                    <span v-text="$t('ca3SApp.bPNMProcessInfo.subtitle.process.list')">BPMN Process List</span>
+                    <span v-text="$t('ca3SApp.bPNMProcessInfo.subtitle.process.list')"></span>
 
                      <router-link :to="{name: 'BpmnNew'}" tag="button" id="jh-create-entity" class="btn btn-primary float-right jh-create-entity create-bpnm-process-info">
                         <font-awesome-icon icon="plus"></font-awesome-icon>
-                        <span v-text="$t('ca3SApp.bPNMProcessInfo.home.createLabel')">Create a new BPNM Process Info</span>
+                        <span v-text="$t('ca3SApp.bPNMProcessInfo.home.createLabel')"></span>
                     </router-link>
 
                 </h2>
@@ -33,7 +33,7 @@
                             <td @click="$router.push({name: 'BpmnInfo', params: {bpmnId: row.id}})" >{{ toLocalDate(row.lastChange) }}</td>
                             <td class="text-right">
                                 <div class="btn-group">
-                                    <b-button v-on:click="$router.push({name: 'BpmnInfo', params: {bpmnId: row.id, interactionMode: 'TEST'}})""
+                                    <b-button v-on:click="$router.push({name: 'BpmnInfo', params: {bpmnId: row.id, interactionMode: 'TEST'}})"
                                               variant="primary"
                                               class="btn btn-sm" >
                                         <font-awesome-icon icon="times"></font-awesome-icon>

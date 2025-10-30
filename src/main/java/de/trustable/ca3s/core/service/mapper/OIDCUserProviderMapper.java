@@ -150,6 +150,11 @@ public class OIDCUserProviderMapper {
         attributeMap.put("PreferredUsername", Collections.singletonList(keycloakUserDetails.getPreferred_username()));
         attributeMap.put("Email", Collections.singletonList(keycloakUserDetails.getEmail()));
         attributeMap.put("Sub", Collections.singletonList(keycloakUserDetails.getSub()));
+        if( keycloakUserDetails.getRoles() == null){
+            attributeMap.put("Roles", Collections.EMPTY_LIST);
+        }else {
+            attributeMap.put("Roles", List.of(keycloakUserDetails.getRoles()));
+        }
 
         if (oidcMappingConfig.getExprFirstName() != null && !oidcMappingConfig.getExprFirstName().isEmpty()) {
             user.setFirstName(sPeLUtil.evaluateExpression(attributeMap, oidcMappingConfig.getExprFirstName()));
@@ -273,7 +278,6 @@ public class OIDCUserProviderMapper {
                 addMatchedRole(authoritySet, roles, authority, oidcMappingConfig.getRolesAdminArr());
             }else{
                 addMatchedRole(authoritySet, roles, authority, oidcMappingConfig.getRolesOtherArr());
-                LOG.warn("Unexpected authority '{}' !", authority.getName());
             }
         }
 

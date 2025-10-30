@@ -554,12 +554,12 @@
 
 					</div>
 				</form>
-        <div>
-            <input type="hidden" class="form-control" name="updateCounter"
-                   v-model="updateCounter" />
+            <div>
+                <input type="hidden" class="form-control" name="updateCounter"
+                       v-model="updateCounter" />
+            </div>
         </div>
       </div>
-		</div>
 	</div>
 </template>
 

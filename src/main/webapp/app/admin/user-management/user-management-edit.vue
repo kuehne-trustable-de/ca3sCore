@@ -27,19 +27,20 @@
                             name="login"
                             :class="{ valid: !$v.userAccount.login.$invalid, invalid: $v.userAccount.login.$invalid }"
                             v-model="$v.userAccount.login.$model"
+                            v-on:input="updateForm()"
                         />
 
                         <div v-if="$v.userAccount.login.$anyDirty && $v.userAccount.login.$invalid">
                             <small class="form-text text-danger"
-                                   v-if="!$v.userAccount.login.required"
+                                   v-if="$v.userAccount.login.required"
                                    v-text="$t('entity.validation.required')"></small>
 
                             <small
                                 class="form-text text-danger"
-                                v-if="!$v.userAccount.login.maxLength"
+                                v-if="$v.userAccount.login.maxLength"
                                 v-text="$t('entity.validation.maxlength', { max: 50 })"></small>
 
-                            <small class="form-text text-danger" v-if="!$v.userAccount.login.pattern"
+                            <small class="form-text text-danger" v-if="$v.userAccount.login.pattern"
                                    v-text="$t('entity.validation.patternLogin')"></small>
                         </div>
                     </div>
@@ -104,23 +105,23 @@
                             :class="{ valid: !$v.userAccount.email.$invalid, invalid: $v.userAccount.email.$invalid }"
                             :disabled="userAccount.managedExternally"
                             v-model="$v.userAccount.email.$model"
-                            email
+                            v-on:input="updateForm()"
                             required
                         />
                         <div v-if="$v.userAccount.email.$anyDirty && $v.userAccount.email.$invalid">
                             <small
                                 class="form-text text-danger"
-                                v-if="!$v.userAccount.email.required"
+                                v-if="$v.userAccount.email.required"
                                 v-text="$t('global.messages.validate.email.required')"></small>
-                            <small class="form-text text-danger" v-if="!$v.userAccount.email.email"
+                            <small class="form-text text-danger" v-if="$v.userAccount.email.email"
                                    v-text="$t('global.messages.validate.email.invalid')"></small>
                             <small
                                 class="form-text text-danger"
-                                v-if="!$v.userAccount.email.minLength"
+                                v-if="$v.userAccount.email.minLength"
                                 v-text="$t('global.messages.validate.email.minlength')"></small>
                             <small
                                 class="form-text text-danger"
-                                v-if="!$v.userAccount.email.maxLength"
+                                v-if="$v.userAccount.email.maxLength"
                                 v-text="$t('global.messages.validate.email.maxlength')"
                             ></small>
                         </div>
@@ -146,7 +147,7 @@
                         </div>
                     </div>
 
-                    <div class="form-check">
+                    <div v-if="!userAccount.managedExternally" class="form-check">
                         <label class="form-check-label" for="activated">
                             <input
                                 class="form-check-input"
@@ -160,7 +161,7 @@
                         </label>
                     </div>
 
-                    <div class="form-check">
+                    <div v-if="!userAccount.managedExternally" class="form-check">
                         <label class="form-check-label" for="secondFactorRequired">
                             <input
                                 class="form-check-input"
@@ -262,6 +263,10 @@
                     </button>
                 </div>
             </form>
+            <div>
+                <input type="hidden" class="form-control" name="updateCounter"
+                       v-model="updateCounter" />
+            </div>
         </div>
     </div>
 </template>

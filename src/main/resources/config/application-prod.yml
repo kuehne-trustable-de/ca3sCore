@@ -571,13 +571,13 @@ ca3s:
   # http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
   oidc:
     # list comma separated list of oidc roles applicable for given authorities
-    # an asterik matches with any role
+    # a (quoted) asterik matches with any role
     roles:
-      user: '*'
+      user: 'ca3s user'
       domainra:
       ra: ROLE_RA
       admin:
-      other: ROLE_1, ROLE_2
+      other: ROLE_1, ROLE_2, someOtherRole
 
     client-id: ca3s-oidc
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
@@ -593,4 +593,3 @@ ca3s:
 
     use-post-logout-redirect-uri: true
 
-  http%3A%2F%2Fakuehne-thinkpad-e16-gen-1%3A18080%2Foidc%2Fcode
