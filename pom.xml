@@ -130,7 +130,7 @@
 
         <h2.version>2.4.240</h2.version>
 
-        <json.version>2.9.0</json.version>
+        <json.version>2.10.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <!--archunit-junit5.version>0.23.1</archunit-junit5.version-->
         <archunit-junit5.version>1.4.1</archunit-junit5.version>
