@@ -226,7 +226,7 @@
 
         <selenium.version>4.35.0</selenium.version>
 
-        <kerby.version>2.0.3</kerby.version>
+        <kerby.version>2.1.0</kerby.version>
         <embedded-ldap.version>0.9.0</embedded-ldap.version>
         <greenmail.version>1.6.15</greenmail.version>
 
