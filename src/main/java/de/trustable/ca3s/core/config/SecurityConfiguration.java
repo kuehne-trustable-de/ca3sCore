@@ -374,11 +374,9 @@ public class SecurityConfiguration{
             LOG.debug("add Filter : spnegoAuthenticationProcessingFilter");
             httpSecurity = httpSecurity.addFilterBefore(spnegoAuthenticationProcessingFilter(authenticationManager), BasicAuthenticationFilter.class);
         }
-
         httpSecurity
             .exceptionHandling()
             .accessDeniedHandler(problemSupport)
-
             .and()
             .headers()
             .contentSecurityPolicy("default-src 'self';" +

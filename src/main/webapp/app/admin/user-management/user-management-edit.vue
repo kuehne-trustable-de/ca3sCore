@@ -1,15 +1,6 @@
 <template>
     <div class="row justify-content-center">
 
-        <b-alert :show="dismissCountDown"
-                 dismissible
-                 :variant="alertType"
-                 @dismissed="dismissCountDown=0"
-                 @dismiss-count-down="countDownChanged">
-            {{alertMessage}}
-        </b-alert>
-        <br/>
-
         <div class="col-8">
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" v-if="userAccount">
                 <h2 id="myUserLabel" v-text="$t('userManagement.home.createOrEditLabel')"></h2>
@@ -34,14 +25,13 @@
                             <small class="form-text text-danger"
                                    v-if="$v.userAccount.login.required"
                                    v-text="$t('entity.validation.required')"></small>
-
                             <small
                                 class="form-text text-danger"
-                                v-if="$v.userAccount.login.maxLength"
+                                v-if="!$v.userAccount.login.maxLength"
                                 v-text="$t('entity.validation.maxlength', { max: 50 })"></small>
 
-                            <small class="form-text text-danger" v-if="$v.userAccount.login.pattern"
-                                   v-text="$t('entity.validation.patternLogin')"></small>
+                            <!--small class="form-text text-danger" v-if="$v.userAccount.login.pattern"
+                                   v-text="$t('entity.validation.patternLogin')"></small-->
                         </div>
                     </div>
 
@@ -117,11 +107,11 @@
                                    v-text="$t('global.messages.validate.email.invalid')"></small>
                             <small
                                 class="form-text text-danger"
-                                v-if="$v.userAccount.email.minLength"
+                                v-if="!$v.userAccount.email.minLength"
                                 v-text="$t('global.messages.validate.email.minlength')"></small>
                             <small
                                 class="form-text text-danger"
-                                v-if="$v.userAccount.email.maxLength"
+                                v-if="!$v.userAccount.email.maxLength"
                                 v-text="$t('global.messages.validate.email.maxlength')"
                             ></small>
                         </div>
@@ -242,7 +232,7 @@
 
                     <div class="form-group" v-if="userAccount.authorities.includes('ROLE_USER')">
                         <label v-text="$t('userManagement.tenant')"></label>
-                        <select class="form-control" name="selectedTenants" v-model="$v.userAccount.tenantId.$model">
+                        <select class="form-control" name="selectedTenants" v-model="userAccount.tenantId">
                             <option value="" key="0"></option>
                             <option v-for="tenant of tenants" :value="tenant.id" :key="tenant.id">{{
                                     tenant.longname

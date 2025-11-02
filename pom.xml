@@ -1780,6 +1780,7 @@
                         <class>de.trustable.ca3s.core.service.dto.UIConfigView</class>
                         <class>de.trustable.ca3s.core.service.dto.RequestProxyConfigView</class>
                         <class>de.trustable.ca3s.core.service.dto.UserLoginData</class>
+                        <class>de.trustable.ca3s.core.service.dto.UserDTO</class>
 
                         <class>de.trustable.ca3s.core.service.dto.CSRView</class>
                         <class>de.trustable.ca3s.core.service.dto.Selector</class>

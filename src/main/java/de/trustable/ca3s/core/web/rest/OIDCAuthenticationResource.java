@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.security.PublicKey;
@@ -346,6 +347,8 @@ public class OIDCAuthenticationResource {
                 log.info("accessToken Name: {}", accessToken.getName());
 
                 KeycloakUserDetails keycloakUserDetails = oidcRestService.getUserInfo(accessToken);
+
+                // @todo update roles here !!
 
                 if (keycloakUserDetails != null) {
                     ServletUriComponentsBuilder servletUriComponentsBuilder = ServletUriComponentsBuilder.fromRequestUri(request);

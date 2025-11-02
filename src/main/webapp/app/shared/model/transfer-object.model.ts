@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-10-17 18:13:22.
+// Generated using typescript-generator version 3.2.1263 on 2025-11-01 13:26:30.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -279,11 +279,11 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
-  issuingActiveCertificates?: boolean;
-  auditPresent?: boolean;
   skiUrlSafe?: string;
-  fullChainAvailable?: boolean;
+  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
+  fullChainAvailable?: boolean;
+  issuingActiveCertificates?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -322,6 +322,31 @@ export interface IUserLoginData {
   login?: string;
   password?: string;
   rememberMe?: boolean;
+}
+
+export interface IUserDTO {
+  id?: number;
+  login?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  imageUrl?: string;
+  secondFactorRequired?: boolean;
+  activated?: boolean;
+  langKey?: string;
+  createdBy?: string;
+  createdDate?: Date;
+  lastModifiedBy?: string;
+  lastModifiedDate?: Date;
+  authorities?: string[];
+  tenantName?: string;
+  tenantId?: number;
+  failedLogins?: number;
+  blockedUntilDate?: Date;
+  credentialsValidToDate?: Date;
+  managedExternally?: boolean;
+  blocked?: boolean;
 }
 
 export interface ICSRView extends ISerializable {

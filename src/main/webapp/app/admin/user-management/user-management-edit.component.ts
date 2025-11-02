@@ -2,7 +2,7 @@ import { email, maxLength, minLength, required } from 'vuelidate/lib/validators'
 import { Component, Inject, Vue } from 'vue-property-decorator';
 import UserManagementService from './user-management.service';
 import AlertService from '@/shared/alert/alert.service';
-import { IUser, User } from '@/shared/model/user.model';
+import { IUserDTO } from '@/shared/model/transfer-object.model';
 import { ITenant } from '@/shared/model/tenant.model';
 import TenantService from '../tenant/tenant.service';
 import { mixins } from 'vue-class-component';
@@ -19,8 +19,8 @@ const validations: any = {
   userAccount: {
     login: {
       required,
+      minLength: minLength(5),
       maxLength: maxLength(254),
-      pattern: loginValidator,
     },
     firstName: {
       maxLength: maxLength(50),
@@ -38,20 +38,20 @@ const validations: any = {
       minLength: minLength(0),
       maxLength: maxLength(254),
     },
-    tenantId: {},
   },
 };
 
 @Component({
   validations,
 })
-export default class JhiUserManagementEdit extends mixins(AlertMixin, Vue)  {
+// export default class JhiUserManagementEdit extends mixins(AlertMixin, Vue)  {
+export default class JhiUserManagementEdit extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('userService') private userManagementService: () => UserManagementService;
   @Inject('tenantService') private tenantService: () => TenantService;
 
   public tenants: ITenant[] = [];
-  public userAccount: IUser;
+  public userAccount: IUserDTO;
   public isSaving = false;
   public authorities: any[] = [];
   public scndFactors: string[] = [];
@@ -64,8 +64,8 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin, Vue)  {
       vm.initAuthorities();
       if (to.params.userId) {
         vm.init(to.params.userId);
-      }else {
-        vm.userAccount = { "authorities": ["ROLE_USER"]};
+      } else {
+        vm.userAccount = { authorities: ['ROLE_USER'] };
       }
     });
   }
@@ -77,8 +77,7 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin, Vue)  {
 
   public constructor() {
     super();
-    this.userAccount = new User();
-    this.userAccount.authorities = [];
+    this.userAccount = new UserDTO();
   }
 
   public initAuthorities() {
@@ -90,6 +89,7 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin, Vue)  {
   }
 
   public retrieveAllTenants(): void {
+    const self = this;
     this.tenantService()
       .retrieve()
       .then(
@@ -151,6 +151,48 @@ export default class JhiUserManagementEdit extends mixins(AlertMixin, Vue)  {
 
   public updateForm(): void {
     window.console.info('in updateForm, incrementing this.updateCounter:  ' + this.updateCounter);
+
+    //    window.console.info('$v.userAccount.login.pattern : ' + this.$v.userAccount.login.pattern );
     this.updateCounter += 1;
+  }
+}
+
+export class UserDTO implements IUserDTO {
+  constructor(
+    public id?: number,
+    public login?: string,
+    public firstName?: string,
+    public lastName?: string,
+    public email?: string,
+    public phone?: string,
+    public imageUrl?: string,
+    public secondFactorRequired?: boolean,
+    public activated?: boolean,
+    public langKey?: string,
+    public createdBy?: string,
+    public createdDate?: Date,
+    public lastModifiedBy?: string,
+    public lastModifiedDate?: Date,
+    public authorities?: string[],
+    public tenantName?: string,
+    public tenantId?: number,
+    public failedLogins?: number,
+    public blockedUntilDate?: Date,
+    public credentialsValidToDate?: Date,
+    public managedExternally?: boolean,
+    public blocked?: boolean
+  ) {
+    this.secondFactorRequired = this.secondFactorRequired || false;
+    this.activated = this.activated || false;
+    this.managedExternally = this.managedExternally || false;
+    this.blocked = this.blocked || false;
+
+    this.authorities = ['ROLE_USER'];
+
+    this.login = '';
+    this.firstName = '';
+    this.lastName = '';
+    this.email = '';
+    this.phone = '';
   }
 }
