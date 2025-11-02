@@ -138,7 +138,7 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <!-- Plugin versions -->
         <checksum-maven-plugin.version>1.11</checksum-maven-plugin.version>
-        <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
+        <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
         <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
 
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
