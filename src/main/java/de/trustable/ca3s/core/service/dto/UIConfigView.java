@@ -32,7 +32,6 @@ public class UIConfigView implements Serializable {
         this.scndFactorTypes = scndFactorTypes;
         this.extUsageArr = extUsageArr;
         this.infoMsg = infoMsg;
-
         this.spnegoEntityBaseUrl = "";
     }
 

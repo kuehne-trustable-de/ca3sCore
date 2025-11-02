@@ -214,9 +214,9 @@ public class OIDCUserProviderMapper {
         Set<Authority> authoritySet = getAuthorities(keycloakUserDetails);
 
         if( authoritySet.containsAll(user.getAuthorities()) && user.getAuthorities().containsAll(authoritySet)){
-            LOG.debug("Roles local / saml are identical");
+            LOG.debug("Roles local / oidc are identical");
         }else{
-            LOG.info("saml roles '{}' != current roles '{}'", authoritySet, user.getAuthorities());
+            LOG.info("oidc roles '{}' != current roles '{}'", authoritySet, user.getAuthorities());
             user.setAuthorities(authoritySet);
             update = true;
         }

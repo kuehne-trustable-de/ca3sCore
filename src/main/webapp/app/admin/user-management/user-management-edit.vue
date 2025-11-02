@@ -30,8 +30,8 @@
                                 v-if="!$v.userAccount.login.maxLength"
                                 v-text="$t('entity.validation.maxlength', { max: 50 })"></small>
 
-                            <!--small class="form-text text-danger" v-if="$v.userAccount.login.pattern"
-                                   v-text="$t('entity.validation.patternLogin')"></small-->
+                            <small class="form-text text-danger" v-if="$v.userAccount.login.pattern"
+                                   v-text="$t('entity.validation.patternLogin')"></small>
                         </div>
                     </div>
 

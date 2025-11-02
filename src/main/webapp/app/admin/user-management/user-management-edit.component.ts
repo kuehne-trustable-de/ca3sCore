@@ -21,6 +21,7 @@ const validations: any = {
       required,
       minLength: minLength(5),
       maxLength: maxLength(254),
+      pattern: loginValidator,
     },
     firstName: {
       maxLength: maxLength(50),
@@ -38,6 +39,7 @@ const validations: any = {
       minLength: minLength(0),
       maxLength: maxLength(254),
     },
+    tenantId: {},
   },
 };
 
@@ -64,8 +66,8 @@ export default class JhiUserManagementEdit extends Vue {
       vm.initAuthorities();
       if (to.params.userId) {
         vm.init(to.params.userId);
-      } else {
-        vm.userAccount = { authorities: ['ROLE_USER'] };
+      }else {
+        vm.userAccount = new UserDTO();
       }
     });
   }
@@ -111,7 +113,7 @@ export default class JhiUserManagementEdit extends Vue {
   }
 
   public previousState(): void {
-    this.$router.go(-1);
+    this.$router.push('/admin/user-list');
   }
 
   public save(): void {
@@ -151,8 +153,6 @@ export default class JhiUserManagementEdit extends Vue {
 
   public updateForm(): void {
     window.console.info('in updateForm, incrementing this.updateCounter:  ' + this.updateCounter);
-
-    //    window.console.info('$v.userAccount.login.pattern : ' + this.$v.userAccount.login.pattern );
     this.updateCounter += 1;
   }
 }

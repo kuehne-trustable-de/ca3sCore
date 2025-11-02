@@ -573,11 +573,25 @@ ca3s:
     # list comma separated list of oidc roles applicable for given authorities
     # a (quoted) asterik matches with any role
     roles:
-      user: 'ca3s user'
+      user: 'ROLE_ca3s-oidc_ca3s user'
       domainra:
-      ra: ROLE_RA
+      ra:
       admin:
-      other: ROLE_1, ROLE_2, someOtherRole
+      other: ROLE_ca3s-oidc_someOtherRole
+
+    # The expressions operate on a map with some normalized items:
+    #
+    # 'Name'
+    # 'FamilyName'
+    # 'PreferredUsername'
+    # 'Email'
+    # 'Sub'
+    #
+    # The roles are mapped from different role elements into the key
+    # 'Roles'
+
+    expression:
+      tenant: "get('PreferredUsername').get(0).substring(0,2).toUpperCase()"
 
     client-id: ca3s-oidc
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
