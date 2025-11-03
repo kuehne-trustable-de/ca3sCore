@@ -2,14 +2,10 @@
     <div class="row justify-content-center">
         <div class="col-8">
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
-                <h2 id="ca3SApp.cAConnectorConfig.home.createOrEditLabel" v-text="$t('ca3SApp.cAConnectorConfig.home.createOrEditLabel')"></h2>
-                <div>
-                    <!--div class="form-group" v-if="cAConnectorConfig.id">
-                        <label for="id" v-text="$t('global.field.id')">ID</label>
-                        <input type="text" class="form-control" id="id" name="id"
-                               v-model="cAConnectorConfig.id" readonly />
-                    </div-->
+                <h2 v-if="!cAConnectorConfig.id" id="ca3SApp.cAConnectorConfig.home.createOrEditLabel" v-text="$t('ca3SApp.cAConnectorConfig.home.createLabel')"></h2>
+                <h2 v-if="cAConnectorConfig.id" id="ca3SApp.cAConnectorConfig.home.createOrEditLabel" v-text="$t('ca3SApp.cAConnectorConfig.home.editLabel', {'id': cAConnectorConfig.id})"></h2>
 
+                <div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.name')" for="ca-connector-config-name"></label>  <help-tag role="Admin" target="ca-connector.name"/>
                         <input type="text" class="form-control" name="name" id="ca-connector-config-name"

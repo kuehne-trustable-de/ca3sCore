@@ -330,6 +330,7 @@
   "ca3SApp.cAConnectorConfig.deleted": "A CA Connector Config is deleted with identifier {{ param }}",
   "ca3SApp.cAConnectorConfig.detail.title": "CA Connector Config",
   "ca3SApp.cAConnectorConfig.home.createLabel": "Create a new CA Connector Config",
+  "ca3SApp.cAConnectorConfig.home.editLabel": "Edit CA Connector Config #{{ id }}",
   "ca3SApp.cAConnectorConfig.home.createOrEditLabel": "Create or edit a CA Connector Config",
   "ca3SApp.cAConnectorConfig.home.notFound": "No CA Connector Configs found",
   "ca3SApp.cAConnectorConfig.home.title": "CA Connector Configs",

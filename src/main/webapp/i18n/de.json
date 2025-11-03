@@ -326,6 +326,7 @@
   "ca3SApp.cAConnectorConfig.deleted": "CA Konnektorkonfiguration gelöscht mit ID {{ param }}",
   "ca3SApp.cAConnectorConfig.detail.title": "CA Konnektorkonfiguration",
   "ca3SApp.cAConnectorConfig.home.createLabel": "CA Konnektorkonfiguration erstellen",
+  "ca3SApp.cAConnectorConfig.home.editLabel": "CA Konnektorkonfiguration #{{ id }} bearbeiten",
   "ca3SApp.cAConnectorConfig.home.createOrEditLabel": "CA Konnektorkonfiguration erstellen oder bearbeiten",
   "ca3SApp.cAConnectorConfig.home.notFound": "Keine CA Konnektorkonfiguration gefunden",
   "ca3SApp.cAConnectorConfig.home.title": "CA Konnektorkonfiguration",

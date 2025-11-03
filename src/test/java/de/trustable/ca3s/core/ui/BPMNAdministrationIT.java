@@ -42,34 +42,8 @@ public class BPMNAdministrationIT extends WebTestBase{
     public static final By LOC_INP_BPMN_NEW_NAME = By.xpath("//div/input [@type = 'text'][@id = 'bpmn.new.name']");
     public static final By LOC_INP_BPMN_NEW_VERSION = By.xpath("//div/input [@type = 'text'][@id = 'bpmn.new.version']");
     public static final By LOC_SEL_BPMN_NEW_TYPE = By.xpath("//div//select [@id = 'bpmn.new.type']");
-    public static final By LOC_SEL_PIPELINE_DESCRIPTION = By.xpath("//div/Textarea [@type = 'text'][@id = 'pipeline-description']");
-
-    public static final By LOC_INP_PIPELINE_LIST_ORDER = By.xpath("//div/input [@type = 'number'][@id = 'pipeline-listOrder']");
-    public static final By LOC_SEL_PIPELINE_CA_CONNECTOR = By.xpath("//div//select [@id = 'pipeline-caConnector']");
-    public static final By LOC_SEL_PIPELINE_USAGE = By.xpath("//div//select [@id = 'pipeline-csrUsage']");
 
 
-    public static final By LOC_INP_PIPELINE_URL_PART = By.xpath("//div/input [@type = 'text'][@id = 'pipeline-urlPart']");
-    public static final By LOC_INP_CA_CONFIG_TLS_AUTH = By.xpath("//div/input [@type = 'number'][@id = 'ca-connector-config-tlsAuthentication']");
-    public static final By LOC_INP_CA_CONFIG_MESSAGE_PROTECTION = By.xpath("//div/input [@type = 'number'][@id = 'ca-connector-config-messageProtection']");
-
-    public static final By LOC_INP_CA_CONFIG_TRUST_SELFSIGNED = By.xpath("//div/input [@type = 'checkbox'][@id = 'ca-connector-config-trustSelfsignedCertificates']");
-    public static final By LOC_INP_CA_CONFIG_DEFAULT_CA = By.xpath("//div/input [@type = 'checkbox'][@id = 'ca-connector-config-defaultCA']");
-    public static final By LOC_INP_PIPELINE_ACTIVE = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-active']");
-    public static final By LOC_INP_PIPELINE_APPROVAL_REQUIRED = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-approvalRequired']");
-    public static final By LOC_INP_PIPELINE_PENDING_ON_FAILURE = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-toPendingOnFailedRestrictions']");
-    public static final By LOC_INP_PIPELINE_IP_AS_SUBJECT = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-ipAsSubjectAllowed']");
-    public static final By LOC_INP_PIPELINE_IP_AS_SAN = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-ipAsSanAllowed']");
-    public static final By LOC_INP_PIPELINE_HTTP01 = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-allowChallengeHTTP01']");
-    public static final By LOC_INP_PIPELINE_ALPN = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-allowChallengeAlpn']");
-    public static final By LOC_INP_PIPELINE_DNS = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-allowChallengeDNS']");
-    public static final By LOC_INP_PIPELINE_WILDCARDS = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-allowWildcards']");
-    public static final By LOC_INP_PIPELINE_CHECK_CAA = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-checkCAA']");
-
-
-    public static final By LOC_INP_CA_CONFIG_PASSPHRASE = By.xpath("//div/input [@type = 'password'][@id = 'ca-connector-config-plainSecret']");
-    public static final By LOC_INP_CA_ISSUER_NAME = By.xpath("//div/input [@type = 'text'][@id = 'ca-connector-config-issuerName']");
-    public static final By LOC_INP_CA_MESSAGE_CONTENT_TYPE = By.xpath("//div/input [@type = 'text'][@id = 'ca-connector-config-msgContentType']");
     public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='button'][span [text() = 'Save']]");
     public static final By LOC_TEXT_PROCESS_LIST = By.xpath("//div/h2/span [text() = 'Process list']");
     private static final Logger LOG = LoggerFactory.getLogger(BPMNAdministrationIT.class);

@@ -2,8 +2,13 @@ import { mixins } from 'vue-class-component';
 
 import { Component, Inject } from 'vue-property-decorator';
 import Vue2Filters from 'vue2-filters';
-import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
-import { ICAConnectorStatus, ICAStatus, ICertificateFilter, ICertificateFilterList } from '@/shared/model/transfer-object.model';
+import {
+  ICaConnectorConfigView,
+  ICAConnectorStatus,
+  ICAStatus,
+  ICertificateFilter,
+  ICertificateFilterList,
+} from '@/shared/model/transfer-object.model';
 import { DateUtils } from '@/shared/date-utils';
 
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -18,8 +23,8 @@ export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMi
   @Inject('cAConnectorConfigService') private cAConnectorConfigService: () => CAConnectorConfigService;
   private removeId: number = null;
 
-  public cAConnectorConfigs: ICAConnectorConfig[] = [];
-  public filteredCAConnectorConfigs: ICAConnectorConfig[] = [];
+  public cAConnectorConfigs: ICaConnectorConfigView[] = [];
+  public filteredCAConnectorConfigs: ICaConnectorConfigView[] = [];
 
   public cAConnectorStatus: ICAConnectorStatus[] = [];
 
@@ -104,7 +109,7 @@ export default class CAConnectorConfig extends mixins(Vue2Filters.mixin, AlertMi
     return DateUtils.getValidToStyle(validToString);
   }
 
-  public prepareRemove(instance: ICAConnectorConfig): void {
+  public prepareRemove(instance: ICaConnectorConfigView): void {
     this.removeId = instance.id;
     if (<any>this.$refs.removeEntity) {
       (<any>this.$refs.removeEntity).show();
