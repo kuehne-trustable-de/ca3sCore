@@ -5,6 +5,7 @@ import AccountService from '@/account/account.service';
 import { IPreferences, ILoginData, IAuthSecondFactor } from '@/shared/model/transfer-object.model';
 
 const STORAGE_SECONDFACTOR = '2ndFactor';
+const STORAGE_LOGIN_MODE = 'loginMode';
 
 @Component({
   watch: {
@@ -19,6 +20,7 @@ export default class LoginForm extends Vue {
   @Inject('accountService')
   private accountService: () => AccountService;
   public authenticationError = null;
+  public spnegoAuthenticationError = false;
 
   public loginData: ILoginData = { authSecondFactor: 'NONE' };
 
@@ -29,12 +31,21 @@ export default class LoginForm extends Vue {
   public isSmsSent = false;
   public blockedUntil = '';
 
+  public loginMode = '';
+
   public preferences: IPreferences = {};
 
   async mounted() {
     const authSecondFactorString = localStorage.getItem(STORAGE_SECONDFACTOR) || 'NONE';
+    this.loginMode = localStorage.getItem(STORAGE_LOGIN_MODE) || 'password';
+    window.console.info('loginMode: ' + this.loginMode);
+
     this.loginData.authSecondFactor = authSecondFactorString as IAuthSecondFactor;
     window.console.info('local storage: ' + STORAGE_SECONDFACTOR + ' : ' + this.loginData.authSecondFactor);
+
+    if (this.loginMode === 'spnego') {
+      this.doSpnegoLogin();
+    }
   }
 
   public retrievePreference(): void {
@@ -170,6 +181,44 @@ export default class LoginForm extends Vue {
       return this.$store.state.uiConfigStore.config.scndFactorTypes.includes(secondFactorType);
     }
     return false;
+  }
+
+  public doSpnegoLogin(): void {
+    const self = this;
+
+    localStorage.removeItem('jhi-authenticationToken');
+    sessionStorage.removeItem('jhi-authenticationToken');
+    this.spnegoAuthenticationError = false;
+
+    axios
+      .get('/spnego/login')
+      .then(result => {
+        self.extractAuthorization(result.headers);
+        //        self.$router.push('/');
+        self.setTimeoutPromise(() => {
+          window.console.warn('retrieving account details after successful Kerberos login.');
+          self.accountService().retrieveAccount();
+          self.$root.$emit('bv::hide::modal', 'login-page');
+        }, 1000);
+      })
+      .catch(reason => {
+        const message = self.$t('global.messages.error.authenticationError');
+        window.console.warn('problem doing Kerberos login. ' + reason);
+        self.spnegoAuthenticationError = true;
+      });
+  }
+
+  setTimeoutPromise(callback: () => void, ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms)).then(callback);
+  }
+
+  public extractAuthorization(headers): void {
+    const bearerToken = headers.authorization;
+    if (bearerToken && bearerToken.slice(0, 7) === 'Bearer ') {
+      window.console.warn('extractAuthorization: bearer token present!');
+      const jwt = bearerToken.slice(7, bearerToken.length);
+      localStorage.setItem('jhi-authenticationToken', jwt);
+    }
   }
 
   public convertDateTimeFromServer(value: Date): string {

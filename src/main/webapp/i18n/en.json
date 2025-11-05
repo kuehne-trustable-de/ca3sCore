@@ -1124,10 +1124,14 @@
   "global.form.secondFactorRequired.label": "Second Factor required",
 
   "login.messages.error.authentication": "<strong>Failed to sign in!</strong> Please check your credentials and try again.",
+  "login.messages.error.authentication.spnegoAuthenticationError": "<strong>The Domain Login failed!</strong>Contact your Administrator.",
+
   "login.messages.error.blocked": "<strong>Too many failed login attempts!</strong> Your account is blocked until {{blockedUntil}}",
   "login.messages.error.noClientCertificate": "No Client Certificate",
   "login.messages.info.validatingClientCertificate": "Checking Client Certificate ...",
   "login.messages.info.sendingSMS": "Sending SMS ...",
+
+  "login.messages.info.spnegoLogin": "Domain login ...",
 
   "login.password.forgot": "Did you forget your password?",
   "login.title": "Sign in",

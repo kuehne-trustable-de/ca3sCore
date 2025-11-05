@@ -1090,10 +1090,13 @@
   "global.form.secondFactorRequired.label": "Zweiter Faktor notwendig",
 
   "login.messages.error.authentication": "<strong>Anmeldung fehlgeschlagen!</strong> Überprüfen Sie bitte Ihre Angaben und versuchen Sie es erneut.",
+  "login.messages.error.authentication.spnegoAuthenticationError": "<strong>Domain-Anmeldung fehlgeschlagen!</strong> Kontaktieren Sie Ihren Administrator.",
   "login.messages.error.blocked": "<strong>Zu viele fehlgeschlagene Anmeldeversuche!</strong> Der Account ist bis {{blockedUntil}} gesperrt.",
   "login.messages.error.noClientCertificate": "Kein Nutzer-Zertifikat",
   "login.messages.info.validatingClientCertificate": "Prüfung Nutzer-Zertifikat ...",
   "login.messages.info.sendingSMS": "SMS wird versandt ...",
+
+  "login.messages.info.spnegoLogin": "Domain Anmeldung läuft ...",
 
   "login.password.forgot": "Sie haben Ihr Passwort vergessen?",
   "login.title": "Anmeldung",

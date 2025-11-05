@@ -38,10 +38,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.KeyStore;
+import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 @EnableConfigurationProperties({LiquibaseProperties.class, ApplicationProperties.class})
@@ -168,8 +171,8 @@ public class Ca3SApp implements InitializingBean {
 
     @Bean
     public TimedRenewalCertMapHolder registerJCEProvider() {
-        JCAManager.getInstance();
         Security.addProvider(new BouncyCastlePQCProvider());
+        JCAManager.getInstance();
 
         String dnSuffix = env.getProperty(HTTPS_CERTIFICATE_DN_SUFFIX, O_TRUSTABLE_SOLUTIONS_C_DE);
         int fallbackCertValidity = 1;
@@ -187,6 +190,16 @@ public class Ca3SApp implements InitializingBean {
         trcmh.setCertMap(certMap);
 
         log.info("JCAManager and Provider initialized ..." );
+
+        List<String> algorithms = Arrays.stream(Security.getProviders())
+            .flatMap(provider -> provider.getServices().stream())
+            .filter(service -> "Cipher".equals(service.getType()) )
+            .map(Provider.Service::getAlgorithm)
+            .collect(Collectors.toList());
+
+        algorithms.forEach(algorithm -> {
+            log.info("Algorithm: {}", algorithm);
+        });
         return trcmh;
 
     }

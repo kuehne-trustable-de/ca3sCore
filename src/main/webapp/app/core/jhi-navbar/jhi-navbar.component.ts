@@ -1,4 +1,4 @@
-import { Component, Inject, Vue } from 'vue-property-decorator';
+import { Component, Inject } from 'vue-property-decorator';
 import { VERSION } from '@/constants';
 import LoginService from '@/account/login.service';
 import AccountService from '@/account/account.service';
@@ -226,26 +226,7 @@ export default class JhiNavbar extends mixins(AlertMixin) {
   }
 
   public doSpnegoLogin(): void {
-    const self = this;
-
-    localStorage.removeItem('jhi-authenticationToken');
-    sessionStorage.removeItem('jhi-authenticationToken');
-
-    axios
-      .get('/spnego/login')
-      .then(result => {
-        self.extractAuthorization(result.headers);
-        //        self.$router.push('/');
-        self.setTimeoutPromise(() => {
-          window.console.warn('retrieving account details after successful Kerberos login.');
-          self.accountService().retrieveAccount();
-        }, 1000);
-      })
-      .catch(reason => {
-        const message = self.$t('global.messages.error.authenticationError');
-        window.console.warn('problem doing Kerberos login. ' + reason);
-        self.alertService().showAlert(message, 'warn');
-      });
+    this.loginService().openLoginSpnego((<any>this).$root);
   }
 
   setTimeoutPromise(callback: () => void, ms: number) {
@@ -309,15 +290,9 @@ export default class JhiNavbar extends mixins(AlertMixin) {
       return false;
     }
 
-    if (this.$store.getters.account.tenantName === undefined) {
-      return false;
-    }
-
-    if (this.$store.getters.account.tenantName.length === 0) {
-      return false;
-    }
-    return true;
+    return this.$store.getters.account.tenantName.length !== 0;
   }
+
   public get tenant(): string {
     if (this.hasTenant()) {
       window.console.warn('hasTenant ' + this.$store.getters.account.tenantName);
@@ -352,12 +327,4 @@ export default class JhiNavbar extends mixins(AlertMixin) {
     return this.$store.getters.activeProfiles.indexOf('prod') > -1;
   }
 
-  public extractAuthorization(headers): void {
-    const bearerToken = headers.authorization;
-    if (bearerToken && bearerToken.slice(0, 7) === 'Bearer ') {
-      window.console.warn('extractAuthorization: bearer token present!');
-      const jwt = bearerToken.slice(7, bearerToken.length);
-      localStorage.setItem('jhi-authenticationToken', jwt);
-    }
-  }
 }
