@@ -61,6 +61,7 @@ public class UIDatasetSupport {
     private final String certificateStoreIsolation;
 
     private final String[] ssoProvider;
+    private final String ldapLoginDomainName;
     private final String samlEntityBaseUrl;
 
     private final List<AuthSecondFactor> secondFactorList;
@@ -79,6 +80,7 @@ public class UIDatasetSupport {
                             BPMNProcessInfoRepository bpmnProcessInfoRepository,
                             @Value("${ca3s.app.name:ca3s}") String appName,
                             @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
+                            @Value("${ca3s.auth.ad-domain:}")String ldapLoginDomainName,
                             @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                             @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider,
                             @Value("${ca3s.saml.entity.base-url:}") String samlEntityBaseUrl,
@@ -100,6 +102,7 @@ public class UIDatasetSupport {
         this.ssoProvider = ssoProvider;
         this.samlEntityBaseUrl = samlEntityBaseUrl;
         this.certificateAttributeRepository = certificateAttributeRepository;
+        this.ldapLoginDomainName = ldapLoginDomainName;
 
         this.secondFactorList = new ArrayList<>();
         for( String factor: scndFactorTypes){
@@ -140,6 +143,7 @@ public class UIDatasetSupport {
             cryptoConfigView,
             autoSSOLogin,
             ssoProvider,
+            ldapLoginDomainName,
             samlEntityBaseUrl,
             effSecondFactorList.toArray(new AuthSecondFactor[0]),
             certificateAttributeRepository.findDistinctValues(

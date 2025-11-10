@@ -21,10 +21,14 @@
                 <div v-else>
                     <b-form role="form" v-on:submit.prevent="doLogin()">
                         <b-form-group v-bind:label="$t('global.form.username.label')" label-for="username">
-                            <b-form-input id="username" type="text" name="username" autofocus v-bind:placeholder="$t('global.form.username.placeholder')" v-model="loginData.username">
+                            <b-form-input id="username" type="text" name="username" autofocus v-bind:placeholder="$t('global.form.username.placeholder')"
+                                    v-on:input="notifyChange"
+                                    v-model="loginData.username">
                             </b-form-input>
                             <small v-if="showUsernameWarning()"
                                    class="form-text text-danger" v-text="$t('entity.validation.required')"></small>
+                            <small v-if="showUsernameDomainWarning()"
+                                   class="form-text text-danger" v-text="$t('entity.validation.requiresDomain')"></small>
                         </b-form-group>
 
                         <b-form-group v-bind:label="$t('login.form.password')" label-for="password">
@@ -34,7 +38,7 @@
                                    class="form-text text-danger" v-text="$t('entity.validation.required')"></small>
                         </b-form-group>
 
-                        <b-form-group v-bind:label="$t('global.form.second-factor')" label-for="second-factor">
+                        <b-form-group v-if="loginMode !== 'ldap'" v-bind:label="$t('global.form.second-factor')" label-for="second-factor">
                             <select class="form-control" id="second-factor" name="second-factor" v-model="loginData.authSecondFactor">
                                 <option id="second-factor-none" value="NONE" v-bind:label="$t('login.form.second-factor.NONE')"></option>
                                 <option id="second-factor-client-cert" value="CLIENT_CERT" v-if="canUseSecondFactor('CLIENT_CERT')" v-bind:label="$t('login.form.second-factor.CLIENT_CERT')">CLIENT_CERT</option>
@@ -44,7 +48,7 @@
                             </select>
                         </b-form-group>
 
-                        <b-form-group v-bind:label="$t('global.form.second-factor')" label-for="second-factor" v-if="(loginData.authSecondFactor == 'SMS') && !isSmsSent">
+                        <b-form-group v-bind:label="$t('global.form.second-factor')" label-for="second-factor" v-if="(loginData.authSecondFactor === 'SMS') && !isSmsSent && (loginMode !== 'ldap')">
                             <button type="submit" class="btn btn-primary"
                                     v-text="$t('login.form.send.sms')"
                                     @click.prevent="sendSMS()">
@@ -52,9 +56,10 @@
                         </b-form-group>
 
 
-                        <div v-if="loginData.authSecondFactor == 'TOTP' ||
-                                loginData.authSecondFactor == 'EMAIL' ||
-                                ( loginData.authSecondFactor == 'SMS' && isSmsSent )">
+                        <div v-if="loginMode !== 'ldap' &&
+                              ( loginData.authSecondFactor === 'TOTP' ||
+                                loginData.authSecondFactor === 'EMAIL' ||
+                                ( loginData.authSecondFactor === 'SMS' && isSmsSent ))">
                             <b-form-input id="secondSecret" type="password" name="secondSecret" v-bind:placeholder="$t('login.form.password.secondSecret')"
                                           v-model="loginData.secondSecret">
                             </b-form-input>
@@ -74,6 +79,10 @@
                                       variant="primary"
                                       id="login.form.submit"
                                       v-text="$t('login.form.button')"></b-button>
+                        </div>
+                        <div>
+                          <input type="hidden" class="form-control" name="updateCounter"
+                            v-model="updateCounter" />
                         </div>
                     </b-form>
                 </div>

@@ -6,6 +6,7 @@ import { IPreferences, ILoginData, IAuthSecondFactor } from '@/shared/model/tran
 
 const STORAGE_SECONDFACTOR = '2ndFactor';
 const STORAGE_LOGIN_MODE = 'loginMode';
+const STORAGE_LOGIN_DOMAIN = 'loginDomain';
 
 @Component({
   watch: {
@@ -32,22 +33,34 @@ export default class LoginForm extends Vue {
   public blockedUntil = '';
 
   public loginMode = '';
+  public loginDomain = '';
 
   public preferences: IPreferences = {};
+
+  public updateCounter = 1;
 
   async mounted() {
     const authSecondFactorString = localStorage.getItem(STORAGE_SECONDFACTOR) || 'NONE';
     this.loginMode = localStorage.getItem(STORAGE_LOGIN_MODE) || 'password';
-    window.console.info('loginMode: ' + this.loginMode);
+    this.loginDomain = localStorage.getItem(STORAGE_LOGIN_DOMAIN) || '';
+    this.loginDomain = this.loginDomain.toLowerCase();
+    window.console.info('loginMode: ' + this.loginMode + ' at domain ' + this.loginDomain);
 
     this.loginData.authSecondFactor = authSecondFactorString as IAuthSecondFactor;
-    window.console.info('local storage: ' + STORAGE_SECONDFACTOR + ' : ' + this.loginData.authSecondFactor);
 
     if (this.loginMode === 'spnego') {
       this.doSpnegoLogin();
     }
+    if (this.loginMode === 'ldap') {
+      this.loginData.authSecondFactor = 'NONE';
+      this.loginData.username = this.loginDomain + '\\';
+    }
+    window.console.info('local storage: ' + STORAGE_SECONDFACTOR + ' : ' + this.loginData.authSecondFactor);
   }
 
+  public notifyChange(_evt: Event): void {
+    this.updateCounter++;
+  }
   public retrievePreference(): void {
     axios
       .get('/api/preference/1')
@@ -79,6 +92,25 @@ export default class LoginForm extends Vue {
     console.log('showTOTPExpFieldWarning( ' + this.totpRegEx + ', "' + value + '") -> ' + valid);
     return !valid;
   }
+
+  public showUsernameDomainWarning(): boolean {
+    if (this.loginMode !== 'ldap') {
+      return false;
+    }
+
+    if (!this.loginData.username) {
+      return false;
+    }
+
+    console.log(
+      'showUsernameDomainWarning( ' +
+        this.loginData.username.toLowerCase() +
+        ' : "' +
+        !this.loginData.username.toLowerCase().startsWith(this.loginDomain + '\\') +
+        '")'
+    );
+    return !this.loginData.username.toLowerCase().startsWith(this.loginDomain + '\\');
+  }
   public showUsernameWarning(): boolean {
     if (!this.loginData.username || this.loginData.username.trim().length < 1) {
       return true;
@@ -109,6 +141,10 @@ export default class LoginForm extends Vue {
       return false;
     }
 
+    if (this.showUsernameDomainWarning()) {
+      return false;
+    }
+
     if (this.showPasswordWarning()) {
       return false;
     }
@@ -121,7 +157,7 @@ export default class LoginForm extends Vue {
   }
 
   public doLogin(): void {
-    if (this.loginData.authSecondFactor == 'CLIENT_CERT') {
+    if (this.loginData.authSecondFactor === 'CLIENT_CERT') {
       this.requestClientCert();
     } else {
       this.authenticateCredentials();
@@ -132,10 +168,11 @@ export default class LoginForm extends Vue {
     this.isBlocked = false;
     this.isNoClientCertificate = false;
 
+    const target: string = this.loginMode === 'ldap' ? 'api/authenticateLDAP' : 'api/authenticate';
     const self = this;
 
     axios
-      .post('api/authenticate', this.loginData)
+      .post(target, this.loginData)
       .then(result => {
         if (result && result.headers) {
           const bearerToken = result.headers.authorization;
@@ -177,7 +214,7 @@ export default class LoginForm extends Vue {
   }
 
   public canUseSecondFactor(secondFactorType: string): boolean {
-    if( this.$store.state.uiConfigStore.config.scndFactorTypes) {
+    if (this.$store.state.uiConfigStore.config.scndFactorTypes) {
       return this.$store.state.uiConfigStore.config.scndFactorTypes.includes(secondFactorType);
     }
     return false;
@@ -238,7 +275,6 @@ export default class LoginForm extends Vue {
     const self = this;
 
     axios
-      //      .post(clientAuthTarget + '/publicapi/clientAuth', userLoginData
       .get(clientAuthTarget + '/publicapi/clientAuth')
       .then(result => {
         console.info('connected to client auth port');

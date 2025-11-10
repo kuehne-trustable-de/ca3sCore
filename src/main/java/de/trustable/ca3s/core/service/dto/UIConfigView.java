@@ -10,6 +10,7 @@ public class UIConfigView implements Serializable {
     private final CryptoConfigView cryptoConfigView;
     private final boolean autoSSOLogin;
     private final String[] ssoProvider;
+    private final String ldapLoginDomainName;
     private final String samlEntityBaseUrl;
     private final String spnegoEntityBaseUrl;
     private final AuthSecondFactor[] scndFactorTypes;
@@ -20,6 +21,7 @@ public class UIConfigView implements Serializable {
     public UIConfigView(String appName, CryptoConfigView cryptoConfigView,
                         boolean autoSSOLogin,
                         String[] ssoProvider,
+                        String ldapLoginDomainName,
                         String samlEntityBaseUrl,
                         AuthSecondFactor[] scndFactorTypes,
                         String[] extUsageArr,
@@ -27,6 +29,7 @@ public class UIConfigView implements Serializable {
         this.appName = appName;
         this.cryptoConfigView = cryptoConfigView;
         this.autoSSOLogin = autoSSOLogin;
+        this.ldapLoginDomainName = ldapLoginDomainName;
         this.samlEntityBaseUrl = samlEntityBaseUrl;
         this.ssoProvider = ssoProvider;
         this.scndFactorTypes = scndFactorTypes;
@@ -48,6 +51,10 @@ public class UIConfigView implements Serializable {
 
     public String[] getSsoProvider() {
         return ssoProvider;
+    }
+
+    public String getLdapLoginDomainName() {
+        return ldapLoginDomainName;
     }
 
     public String getSamlEntityBaseUrl() {

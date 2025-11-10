@@ -544,6 +544,7 @@
   "ca3SApp.form.client.password.eab.create": "ACME EAB",
 
   "ca3SApp.form.client.token.eab": "ACME EAB",
+  "ca3SApp.form.client.token.eab.no.pipeline": "No available ACME pipeline requires EAB",
 
   "ca3SApp.form.client.scep.token.value": "SCEP Secret",
   "ca3SApp.form.client.pipeline": "Processing Pipeline",
@@ -913,6 +914,7 @@
   "entity.validation.pattern": "This field should follow pattern for '{{ pattern }}'.",
   "entity.validation.patternLogin": "This field can only contain letters, digits and e-mail addresses.",
   "entity.validation.required": "This field is required.",
+  "entity.validation.requiresDomain": "Domain required",
   "entity.validation.requiredOrSAN": "This field or a SAN entry is required.",
   "entity.validation.secretRepeat": "Repeated secret must match!",
   "entity.validation.subnetRequired": "Provide a subnet in the form 'n.n.n.n/mm'",
@@ -965,6 +967,7 @@
   "global.menu.about.main": "About",
   "global.menu.account.login": "Sign in",
   "global.menu.account.SSOLogin": "SSO Login",
+  "global.menu.account.LdapLogin": "Login @ {{ldapLoginDomainName}}",
   "global.menu.account.logout": "Sign out",
   "global.menu.account.main": "Account",
   "global.menu.account.password": "Password and Token",

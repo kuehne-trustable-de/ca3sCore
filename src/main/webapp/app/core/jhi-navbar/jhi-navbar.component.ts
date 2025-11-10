@@ -25,6 +25,7 @@ export default class JhiNavbar extends mixins(AlertMixin) {
   public showNavBar = true;
   public instantLogin = true;
   public ssoProvider: any = [];
+  public ldapLoginDomainName: string = '';
   public uiConfig: IUIConfigView = {};
 
   public mounted(): void {
@@ -62,6 +63,7 @@ export default class JhiNavbar extends mixins(AlertMixin) {
       self.uiConfig = response.data;
       self.$store.commit('updateCV', self.uiConfig);
       self.ssoProvider = self.uiConfig.ssoProvider;
+      self.ldapLoginDomainName = self.uiConfig.ldapLoginDomainName;
 
       if (self.uiConfig.appName) {
         document.title = self.uiConfig.appName;
@@ -131,6 +133,10 @@ export default class JhiNavbar extends mixins(AlertMixin) {
 
   public openLogin(): void {
     this.loginService().openLogin((<any>this).$root);
+  }
+
+  public openLdapLogin() {
+    this.loginService().openLdapLogin((<any>this).$root, this.ldapLoginDomainName);
   }
 
   public doSSOLogin() {
@@ -326,5 +332,4 @@ export default class JhiNavbar extends mixins(AlertMixin) {
   public get inProduction(): boolean {
     return this.$store.getters.activeProfiles.indexOf('prod') > -1;
   }
-
 }

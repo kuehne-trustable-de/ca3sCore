@@ -530,6 +530,9 @@
   "ca3SApp.form.client.token.est.create": "EST Secret",
   "ca3SApp.form.client.password.eab.create": "ACME EAB",
 
+  "ca3SApp.form.client.token.eab": "ACME EAB",
+  "ca3SApp.form.client.token.eab.no.pipeline": "Keine ACME-Pipeline verlangt ein EAB",
+
   "ca3SApp.form.client.cert.download": "Nutzer-Zertifikat",
   "ca3SApp.form.client.cert.install": "Nutzer-Zertifikat herunterladen und im Browser installieren",
   "ca3SApp.form.client.credentials.client-cert.test": "Teste Nutzer-Zertifikat",
@@ -881,6 +884,7 @@
   "entity.validation.pattern": "Dieses Feld muss das Muster '{{pattern}}' erfüllen.",
   "entity.validation.patternLogin": "Dieses Feld darf nur Buchstaben, Ziffern und E-Mail-Adressen enthalten.",
   "entity.validation.required": "Dieses Feld wird benötigt.",
+  "entity.validation.requiresDomain": "Domäne notwendig",
   "entity.validation.requiredOrSAN": "Dieses Feld oder ein SAN-Eintrag wird benötigt.",
   "entity.validation.secretRepeat": "Passwort-Wiederholung muss übereinstimmen!",
   "entity.validation.subnetRequired": "Dieses Feld muss ein Subnetz in der Form 'n.n.n.n/mm' enthalten",
@@ -933,6 +937,7 @@
   "global.menu.about.main": "Über",
   "global.menu.account.login": "Anmelden",
   "global.menu.account.SSOLogin": "Anmelden mit SSO",
+  "global.menu.account.LdapLogin": "Anmelden @ {{ldapLoginDomainName}}",
   "global.menu.account.logout": "Abmelden",
   "global.menu.account.main": "Zugang",
   "global.menu.account.password": "Passwort und Token",

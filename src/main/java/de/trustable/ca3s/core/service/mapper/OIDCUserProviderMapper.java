@@ -32,7 +32,6 @@ public class OIDCUserProviderMapper {
 
     private final Logger LOG = LoggerFactory.getLogger(OIDCUserProviderMapper.class);
 
-
     final private OIDCMappingConfig oidcMappingConfig;
     final private UserPreferenceRepository userPreferenceRepository;
     final private UserRepository userRepository;

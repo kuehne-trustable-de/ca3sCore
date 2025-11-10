@@ -227,10 +227,18 @@
                         <font-awesome-icon icon="sign-out-alt" />
                         <span v-text="$t('global.menu.account.logout')"></span>
                     </b-dropdown-item>
-                    <b-dropdown-item v-if="!authenticated && (ssoProvider.length > 0)"  v-on:click="doSSOLogin()" id="oidcLogin">
+                    <b-dropdown-item v-if="!authenticated && (ssoProvider.length > 0)" v-on:click="doSSOLogin()" id="oidcLogin">
                         <font-awesome-icon icon="sign-in-alt" />
                         <span v-text="$t('global.menu.account.SSOLogin')"></span>
                     </b-dropdown-item>
+
+                    <b-dropdown-item v-if="!authenticated && (ldapLoginDomainName.trim().length > 0)" v-on:click="openLdapLogin()" id="ldapLogin">
+                        <font-awesome-icon icon="sign-in-alt" />
+                        <span v-text="$t('global.menu.account.LdapLogin', { 'ldapLoginDomainName': ldapLoginDomainName})"></span>
+                    </b-dropdown-item>
+
+
+
                     <b-dropdown-item v-if="!authenticated"  v-on:click="openLogin()" id="login">
                         <font-awesome-icon icon="sign-in-alt" />
                         <span v-text="$t('global.menu.account.login')"></span>

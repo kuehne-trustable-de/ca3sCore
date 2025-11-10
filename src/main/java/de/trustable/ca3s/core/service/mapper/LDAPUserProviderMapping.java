@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.naming.NamingException;
 import javax.naming.directory.*;
 import java.net.MalformedURLException;
 import java.security.GeneralSecurityException;
@@ -56,7 +55,7 @@ public class LDAPUserProviderMapping {
     }
 
 
-    public void updateUserFromLDAP(final User user) throws NamingException {
+    public void updateUserFromLDAP(final User user, String sAMAccountName) {
         boolean update = false;
 
         String firstNameOld = user.getFirstName();
@@ -70,7 +69,7 @@ public class LDAPUserProviderMapping {
         sc.setReturningAttributes(null);
 
         try{
-            HashMap<String, List<String>> ldapAttributeMap = getUserAttributesFromLDAP( user.getLogin());
+            HashMap<String, List<String>> ldapAttributeMap = getUserAttributesFromLDAP(sAMAccountName);
 
             List<String> attributesFirstNameList = Arrays.asList(ldapConfig.getAttributesFirstName());
             List<String> attributesLastNameList = Arrays.asList(ldapConfig.getAttributesLastName());
@@ -245,7 +244,7 @@ public class LDAPUserProviderMapping {
         }
     }
 
-    HashMap<String, List<String>> getUserAttributesFromLDAP(final String username) throws GeneralSecurityException, LDAPException, MalformedURLException {
+    HashMap<String, List<String>> getUserAttributesFromLDAP(final String sAMAccountName) throws GeneralSecurityException, LDAPException, MalformedURLException {
 
         HashMap<String, List<String>> ldapAttributeMap = new HashMap<>();
 
@@ -262,7 +261,7 @@ public class LDAPUserProviderMapping {
 
             Filter filter = Filter.and(
                 Filter.equals("objectClass", "user"),
-                Filter.equals("sAMAccountName", username)
+                Filter.equals("sAMAccountName", sAMAccountName)
             );
 
             SearchRequest searchRequest = new SearchRequest(ldapConfig.getBaseDN(), SearchScope.SUB, filter, ALL_USER_ATTRIBUTES );

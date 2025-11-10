@@ -402,6 +402,7 @@ public class SecurityConfiguration{
             .antMatchers("/api/account").permitAll()
             .antMatchers("/api/saml/jwt").permitAll()
             .antMatchers("/api/authenticate").permitAll()
+            .antMatchers("/api/authenticateLDAP").permitAll()
             .antMatchers("/api/register").permitAll()
             .antMatchers("/api/activate").permitAll()
             .antMatchers("/api/authorities").permitAll()

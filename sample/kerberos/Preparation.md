@@ -9,6 +9,10 @@ The domain is 'trustable' which will be referred to as {domain}. No case restric
 ## procedure
 - Logon to the DC as Administrator
 
+- ensure the time service is in good shape
+
+Any warning messages / events regarding the Time Service are critical (e.g. Time service error - Event ID 36 ). The DC will not support Kerberos once the time service detects any problems. 
+  
 - ensure that AES cipher is enabled for the participants in the kerberos protocol
 
 - create a Windows user with a name different from the hostname
@@ -51,8 +55,13 @@ One or more mappings will be listed
 - verify the keytab content
 
 
-    ktab -l -k {path to keytab file}
+    ktab -l -e -t -k {path to keytab file}
 
+- after problems or changes it's recommended to drop the ticket cache
+
+
+    klist purge
+ 
 - configure the application to use the keytab file an the principal
 
 
@@ -101,5 +110,10 @@ Troubleshooting:
 
 !! Ensure the browser accepts ca3s servers's certificate as secure! Otherwise an NTLM ticket will be issued instead of a Kerberos ticket.
 !! Don't try user authentication as 'Administrator' user, it won't work.
+!! Don't do a login into a server on the same host. This may trigger a fallback to NTLM, resulting in an error containing 'negotiated result = ACCEPT_INCOMPLETE"'
 
 https://stackoverflow.com/questions/33927316/spring-security-kerberos-ad-checksum-fail
+
+There are some JVM switches to enable the dumping of more details regarding the kerberos handshake. Add it to tha java commandline:
+
+    "-Dsun.security.krb5.debug=true" "-Dsun.security.jgss.debug=true" "-Dsun.security.spnego.debug=true"

@@ -223,7 +223,7 @@
                                for="pipeline"></label>
                     </div>
 
-                    <div class="col-6">
+                    <div v-if="pipelineViewArr && pipelineViewArr.length > 0" class="col-6">
                       <select
                         class="form-control form-check-inline w-50"
                         id="pipeline" name="pipeline"
@@ -233,6 +233,11 @@
                                 :key="pipeline.id">{{ pipeline.name }}
                         </option>
                       </select>
+                    </div>
+
+                    <div v-else class="col-6">
+                      <small class="form-text text-danger"
+                             v-text="$t('ca3SApp.form.client.token.eab.no.pipeline')"></small>
                     </div>
 
                     <div class="col"></div>

@@ -13,7 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -39,7 +38,10 @@ public class DomainUserDetailsService implements UserDetailsService {
 
     private String domainSuffix;
 
-    public DomainUserDetailsService(UserUtil userUtil, UserRepository userRepository, LDAPConfig ldapConfig, LDAPUserProviderMapping ldapUserProviderMapping) {
+    public DomainUserDetailsService(UserUtil userUtil,
+                                    UserRepository userRepository,
+                                    LDAPConfig ldapConfig,
+                                    LDAPUserProviderMapping ldapUserProviderMapping) {
         this.userUtil = userUtil;
         this.userRepository = userRepository;
         this.ldapUserProviderMapping = ldapUserProviderMapping;
@@ -55,24 +57,27 @@ public class DomainUserDetailsService implements UserDetailsService {
         log.debug("----------- Authenticating by username '{}'", login);
 
         if (login.toLowerCase().endsWith(domainSuffix)) {
-            String username = login.split("@")[0];
-
-            log.info("returning static 'user' role for kerberos-authenticated user '{}' ! Implement AD / LDAP access !!",
-                username);
-
-            try {
-                User user = enrichUserAccount(username);
-                List<GrantedAuthority> grantedAuthorities = getGrantedAuthorities(user);
-
-                return new org.springframework.security.core.userdetails.User(username,
-                    RandomStringUtils.random(16),
-                    grantedAuthorities);
-            } catch (NamingException e) {
-                log.warn("Problem accessing LDAP", e);
-                throw new UserNotAuthenticatedException(e.getMessage());
-            }
+            String sAMAccountName = login.split("@")[0];
+            String username = domainSuffix + "\\" + sAMAccountName;
+            return handleAuthenticatedUser(username, sAMAccountName);
         } else {
             return createSpringSecurityUser(login, userUtil.getUserByLogin(login));
+        }
+    }
+
+    public org.springframework.security.core.userdetails.User handleAuthenticatedUser(String username, String sAMAccountName) {
+
+        log.info("processing kerberos-authenticated user '{}' ", username);
+        try {
+            User user = enrichUserAccount(username, sAMAccountName);
+            List<GrantedAuthority> grantedAuthorities = getGrantedAuthorities(user);
+
+            return new org.springframework.security.core.userdetails.User(username,
+                RandomStringUtils.random(16),
+                grantedAuthorities);
+        } catch (NamingException e) {
+            log.warn("Problem accessing LDAP", e);
+            throw new UserNotAuthenticatedException(e.getMessage());
         }
     }
 
@@ -112,12 +117,14 @@ public class DomainUserDetailsService implements UserDetailsService {
         return grantedAuthorities;
     }
 
-    private User enrichUserAccount(String username) throws NamingException {
+    private User enrichUserAccount(String username, String sAMAccountName) throws NamingException {
 
         Optional<User> userOpt = userRepository.findOneByLogin(username);
         if(userOpt.isPresent()){
-            ldapUserProviderMapping.updateUserFromLDAP(userOpt.get());
-            log.info("updated known user {}", userOpt.get().getId());
+            User user = userOpt.get();
+            ldapUserProviderMapping.updateUserFromLDAP(user, sAMAccountName);
+            userRepository.save(user);
+            log.info("updated known user {}", user.getId());
             return userOpt.get();
         }else{
 
@@ -129,8 +136,9 @@ public class DomainUserDetailsService implements UserDetailsService {
 
 //            user.setLangKey(languages.alignLanguage("en"));
 
-            ldapUserProviderMapping.updateUserFromLDAP(user);
+            ldapUserProviderMapping.updateUserFromLDAP(user, sAMAccountName);
             log.info("created new user {}", user.getId());
+            userRepository.save(user);
             return user;
         }
     }
