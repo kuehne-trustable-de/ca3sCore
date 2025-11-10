@@ -35,6 +35,7 @@ public class AlgorithmRestrictionUtil {
     }
 
     public boolean isAlgorithmRestrictionsResolved(Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
+
         return isAlgorithmRestrictionsResolved(p10ReqHolder.getPublicKeyAlgorithmShortName(),
             p10ReqHolder.getPublicSigningKey(),
             p10ReqHolder.getAlgorithmInfo().getHashAlgName(),

@@ -303,7 +303,7 @@ public class AcmeController {
                 checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, patternReject, contactUrl, true);
 
                 if( acctDao.getContacts().stream().anyMatch(c -> c.getContactUrl().trim().equals(contactUrl.trim()))){
-                    LOG.info("contact utl '{}' already known fo account {}", contactUrl, acctDao.getId());
+                    LOG.info("contact url '{}' already known for account {}", contactUrl, acctDao.getId());
                     continue;
                 }
 

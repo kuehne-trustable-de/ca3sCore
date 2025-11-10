@@ -76,7 +76,7 @@ public class Ca3sBundleFactory implements BundleFactory {
             LOG.debug("Storing TLS certificate in database." );
             return newDBKeyBundle(bundleName, minValiditySeconds);
         }else if( KeyPersistenceType.FILE.equals(keyPersistenceType)){
-            LOG.warn("Storing of TLS certificate in file not implemented, yet! Falling bak to 'NO' persistence." );
+            LOG.warn("Storing of TLS certificate in file not implemented, yet! Falling back to 'NO' persistence." );
         }
 
         return createKeyBundle(bundleName, minValiditySeconds).getKeyCertBundle();

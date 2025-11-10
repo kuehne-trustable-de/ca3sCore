@@ -1,11 +1,7 @@
 package de.trustable.ca3s.core.schedule;
 
 import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.NotificationService;
-import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.ca3s.core.service.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,16 +15,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.mail.MessagingException;
-import javax.naming.NamingException;
-import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.security.cert.*;
-import java.time.Instant;
 import java.util.*;
 
 import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_CERTIFICATE_NOTIFICATION;
-import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_CERTIFICATE_NOTIFICATION_COUNTER;
 
 /**
  *

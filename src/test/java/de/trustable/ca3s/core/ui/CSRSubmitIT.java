@@ -39,9 +39,7 @@ import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.security.*;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.*;
@@ -505,7 +503,14 @@ public class CSRSubmitIT extends WebTestBase {
         String subject = "CN=" + cn + ", O=trustable solutions, C=DE";
         X500Principal subjectPrincipal = new X500Principal(subject);
 
-        String csrFilePath = buildCSRAsDERFile(subjectPrincipal, null);
+
+        KeyPair keyPair1 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        KeyPair keyPair2 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        String csrFilePath = buildCSRAsDERFile(subjectPrincipal,
+            null,
+            keyPair1.getPublic(),
+            keyPair2.getPrivate() );
+
         validatePresent(LOC_SELECT_FILE);
         setText(LOC_SELECT_FILE, csrFilePath);
         explain("csr.submit.38");
@@ -1148,12 +1153,23 @@ public class CSRSubmitIT extends WebTestBase {
 
     }
 
-    public String buildCSRAsDERFile(final X500Principal subjectPrincipal, GeneralName[] sanArray) throws GeneralSecurityException, IOException {
+    public String buildCSRAsDERFile(final X500Principal subjectPrincipal,
+                                    GeneralName[] sanArray) throws GeneralSecurityException, IOException {
         KeyPair keyPair = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        return buildCSRAsDERFile(subjectPrincipal,
+        sanArray,
+            keyPair.getPublic(),
+            keyPair.getPrivate() );
+    }
+
+    public String buildCSRAsDERFile(final X500Principal subjectPrincipal,
+                                    GeneralName[] sanArray,
+                                    PublicKey pubKey,
+                                    PrivateKey privKey) throws GeneralSecurityException, IOException {
 
         PKCS10CertificationRequest req = CryptoUtil.getCsr(subjectPrincipal,
-            keyPair.getPublic(),
-            keyPair.getPrivate(),
+            pubKey,
+            privKey,
             "password".toCharArray(),
             null,
             sanArray);
@@ -1201,6 +1217,21 @@ public class CSRSubmitIT extends WebTestBase {
         return x509CertificateList;
     }
 
+
+    public static void main(String[] args) throws GeneralSecurityException, IOException {
+        KeyPair keyPair1 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+        KeyPair keyPair2 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
+
+        X500Principal subjectPrincipal = new X500Principal("CN=subjectPrincipal");
+        PKCS10CertificationRequest req = CryptoUtil.getCsr(subjectPrincipal,
+            keyPair1.getPublic(),
+            keyPair2.getPrivate(),
+            "password".toCharArray(),
+            null,
+            null);
+
+        System.out.println("broken CSR:\n"+ CryptoUtil.pkcs10RequestToPem(req));
+    }
 }
 
 class EMailInfo{
