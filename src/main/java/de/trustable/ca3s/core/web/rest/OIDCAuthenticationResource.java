@@ -29,13 +29,20 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.openid.OpenIDAttribute;
 import org.springframework.security.openid.OpenIDAuthenticationToken;
+import org.springframework.security.web.*;
+import org.springframework.security.web.util.RedirectUrlBuilder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.PublicKey;
 import java.util.*;
 
@@ -49,31 +56,38 @@ public class OIDCAuthenticationResource {
     private final Logger log = LoggerFactory.getLogger(OIDCAuthenticationResource.class);
 
     private final TokenProvider tokenProvider;
-    private final String keycloakAuthorizationUri;
+    private final String oidcAuthorizationUri;
     private final String flowType;
     private final String clientId;
+    private final String redirectUri;
     private final boolean usePostLogoutRedirectUri;
     private final OIDCRestService oidcRestService;
     final private OIDCUserProviderMapper oidcUserProviderMapper;
 
     private KeycloakDeployment deployment;
 
+    private PortResolver portResolver = new PortResolverImpl();
+    private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+
+
     public OIDCAuthenticationResource(TokenProvider tokenProvider,
-//                                      @Value("${ca3s.oidc.authorization-uri:}") String keycloakAuthorizationUri,
-                                      @Value("${ca3s.oidc.auth-server-url:}") String keycloakAuthorizationUri,
+                                      @Value("${ca3s.oidc.authorization-uri:}") String oidcAuthorizationUri,
                                       @Value("${ca3s.oidc.realm:@null}") String realm,
                                       @Value("${ca3s.oidc.client-id:#{null}}") String clientId,
                                       @Value("${ca3s.oidc.flow-type:code}") String flowType,
+                                      @Value("${ca3s.oidc.redirectUri:google-login}") String redirectUri,
                                       @Value("${ca3s.oidc.use-post-logout-redirect-uri:true}") boolean usePostLogoutRedirectUri,
                                       OIDCRestService OIDCRestService, OIDCUserProviderMapper oidcUserProviderMapper) {
         this.tokenProvider = tokenProvider;
-        this.keycloakAuthorizationUri = keycloakAuthorizationUri;
+        this.oidcAuthorizationUri = oidcAuthorizationUri;
         this.usePostLogoutRedirectUri = usePostLogoutRedirectUri;
         this.oidcRestService = OIDCRestService;
         this.flowType = flowType;
         this.oidcUserProviderMapper = oidcUserProviderMapper;
 
-        if (keycloakAuthorizationUri.isEmpty()) {
+        this.redirectUri = redirectUri;
+
+        if (oidcAuthorizationUri.isEmpty()) {
             log.info("OIDC not configured, 'ca3s.oidc.authorization-uri' is empty!");
             this.clientId = "";
         } else if( clientId == null){
@@ -82,14 +96,14 @@ public class OIDCAuthenticationResource {
         } else {
             this.clientId = clientId;
 
-//            String authServerUrl = keycloakAuthorizationUri;
+//            String authServerUrl = oidcAuthorizationUri;
 
             try {
 //                String authUrl = StringUtils.substringBefore(authServerUrl, "/realms/");
 //                String postRealms = StringUtils.substringAfter(authServerUrl, "/realms/");
 //                String realm = StringUtils.substringBefore(postRealms, '/');
 
-                String authUrl = keycloakAuthorizationUri;
+                String authUrl = oidcAuthorizationUri;
                 log.info("authUrl : {}, realm : {}", authUrl, realm);
 
                 AdapterConfig adapterConfig = new AdapterConfig();
@@ -116,10 +130,76 @@ public class OIDCAuthenticationResource {
      */
     @CrossOrigin
     @GetMapping("/authenticate")
+    public ResponseEntity<Void> redirectToOIDCInstance(HttpServletRequest request,
+                                                       @RequestParam Map<String,String> allParams) {
+
+        if (oidcAuthorizationUri.isEmpty()) {
+            log.info("oidc Authentication not configured");
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        String redirectUrl = buildHttpsRedirectUrlForRequest(request);
+        log.info("redirectUrl : '{}'", redirectUrl);
+
+
+        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(oidcAuthorizationUri)
+            .queryParam("client_id", clientId)
+            .queryParam("scope", "openid")
+            .queryParam("response_type", "code")
+            .queryParam("initialUri", "")
+            .queryParam("redirect_uri", redirectUrl)
+            .build();
+
+        String location = uriComponents.normalize().toUriString();
+        log.info("oidc target location: '{}'", location);
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("Access-Control-Allow-Origin", "*");
+        httpHeaders.add("Access-Control-Allow-Methods", "GET, POST, PATCH, PUT, DELETE, OPTIONS");
+        httpHeaders.add("Access-Control-Allow-Headers", "Origin, Content-Type, X-Auth-Token");
+        httpHeaders.add("Location", location);
+        return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
+
+    }
+
+    protected String buildHttpsRedirectUrlForRequest(HttpServletRequest request){
+
+        try {
+            URL url = new URI(redirectUri).toURL();
+            if( url.getProtocol() != null && !url.getProtocol().isEmpty() ){
+                return redirectUri;
+            }
+        } catch (MalformedURLException | URISyntaxException e) {
+            log.info("parsing of redirectUri failed", e);
+        }
+
+        int serverPort = this.portResolver.getServerPort(request);
+        RedirectUrlBuilder urlBuilder = new RedirectUrlBuilder();
+        urlBuilder.setScheme(request.getScheme());
+        urlBuilder.setServerName(request.getServerName());
+        urlBuilder.setPort(serverPort);
+        urlBuilder.setContextPath(request.getContextPath());
+        urlBuilder.setServletPath(request.getServletPath());
+        urlBuilder.setPathInfo(request.getPathInfo());
+//        urlBuilder.setQuery(request.getQueryString());
+        String redirectUrl = urlBuilder.getUrl();
+        log.warn("OIDC login, redirecting to '{}'", redirectUrl);
+        return redirectUrl;
+
+    }
+
+    /**
+     * {@code GET  /authenticate} : check if the user is authenticated, and return its login.
+     *
+     * @param request the HTTP request.
+     * @return the login if the user is authenticated.
+     */
+    @CrossOrigin
+    @GetMapping("/authenticateKeyCloak")
     public ResponseEntity<String> getAuthenticatedUser(HttpServletRequest request,
                                                        @RequestParam Map<String,String> allParams) {
 
-        if (keycloakAuthorizationUri.isEmpty()) {
+        if (oidcAuthorizationUri.isEmpty()) {
             log.info("oidc Authentication not configured");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -241,7 +321,7 @@ public class OIDCAuthenticationResource {
 
         log.debug("getCode() code : '{}', accessToken '{}'", code, accessToken);
 
-        if (keycloakAuthorizationUri.isEmpty()) {
+        if (oidcAuthorizationUri.isEmpty()) {
             log.info("oidc Authentication not configured");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -376,6 +456,16 @@ public class OIDCAuthenticationResource {
         }
 
         return publicKey;
+    }
+
+    @CrossOrigin
+    @PostMapping("/login")
+    public ResponseEntity login(HttpServletRequest request) {
+
+        log.info("oidc login request at /oidc/login");
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        return new ResponseEntity<>(httpHeaders, HttpStatus.OK);
     }
 
     @CrossOrigin
