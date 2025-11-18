@@ -605,15 +605,45 @@ ca3s:
     expression:
       tenant: "get('PreferredUsername').get(0).substring(0,2).toUpperCase()"
 
-    client-id: ca3s-oidc
-    client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
+    #client-id: ca3s-oidc
+    #client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
+    #scope: openid, profile
+    #issuer: foo
+    #accessTokenUri: "http://10.152.183.139/realms/master/protocol/openid-connect/token"
+    #userAuthorizationUri: "http://10.152.183.139/realms/master/protocol/openid-connect/userinfo"
+    #jwkUrl: "http://10.152.183.139/realms/master/protocol/openid-connect/certs"
+
+    client-id: 528678999149-90svlt60psv083eddmk6oi0ehpepgp70.apps.googleusercontent.com
+    client-secret:
     scope: openid, profile
+    issuer: accounts.google.com
+    accessTokenUri: https://www.googleapis.com/oauth2/v3/token
+    userAuthorizationUri: https://accounts.google.com/o/oauth2/auth
+    jwkUrl: https://www.googleapis.com/oauth2/v2/certs
+
+
+#    redirectUri: "http://localhost:18080/oidc/code"
+    redirectUri: "http://localhost:18080/google-login"
+
+
+#  "authorization_endpoint": "http://10.152.183.139/realms/master/protocol/openid-connect/auth",
+#  "token_endpoint": "http://10.152.183.139/realms/master/protocol/openid-connect/token",
+#  "introspection_endpoint": "http://10.152.183.139/realms/master/protocol/openid-connect/token/introspect",
+#  "userinfo_endpoint": "http://10.152.183.139/realms/master/protocol/openid-connect/userinfo",
+#  "end_session_endpoint": "http://10.152.183.139/realms/master/protocol/openid-connect/logout",
+
     authorization-grant-type: password
 
     auth-server-url: http://10.152.183.139
     realm: master
 
-    authorization-uri: http://10.152.183.139/realms/master/protocol/openid-connect/auth
-    #    authorization-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/auth
+
+
+    authorization-uri: https://accounts.google.com/o/oauth2/auth
+    # authorization-uri: http://10.152.183.139/realms/master/protocol/openid-connect/auth
+    # authorization-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/auth
 
     use-post-logout-redirect-uri: true
+
+# http://10:152:183:139/realms/master/protocol/openid-connect/auth?client_id=ca3s-oidc&scope=openid&response_type=code&initialUri=&redirect_uri=http%3A%2F%2Flocalhost%3A18080%2Foidc%2Fcode:
+# https://accounts.google.com/o/oauth2/auth?client_id=528678999149-90svlt60psv083eddmk6oi0ehpepgp70.apps.googleusercontent.com&scope=openid&response_type=code&initialUri=&redirect_uri=http://localhost:18080/oidc/authenticate?initialUri=

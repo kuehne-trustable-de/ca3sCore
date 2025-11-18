@@ -192,7 +192,8 @@ public class UIDatasetSupport {
         pipelineTypes.add(PipelineType.WEB);
         pipelineTypes.add(PipelineType.MANUAL_UPLOAD);
 
-        return activeByPipelineType(pipelineTypes).stream()
+        List<PipelineView> pvList = activeByPipelineType(pipelineTypes);
+        return pvList.stream()
             .filter(pv -> Arrays.stream(pv.getSelectedRolesList())
                 .anyMatch( authority -> currentUser.getAuthorities().contains(authority)))
             .collect(Collectors.toList());

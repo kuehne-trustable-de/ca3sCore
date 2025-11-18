@@ -9,6 +9,7 @@ import de.trustable.ca3s.core.security.apikey.APIKeyAuthenticationManager;
 import de.trustable.ca3s.core.security.apikey.NullAuthFilter;
 import de.trustable.ca3s.core.security.jwt.JWTConfigurer;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
+import de.trustable.ca3s.core.security.oidc.OpenIdConnectFilter;
 import de.trustable.ca3s.core.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,8 @@ import org.springframework.security.kerberos.authentication.KerberosServiceAuthe
 import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosClient;
 import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosTicketValidator;
 import org.springframework.security.kerberos.web.authentication.SpnegoAuthenticationProcessingFilter;
+import org.springframework.security.oauth2.client.OAuth2RestTemplate;
+import org.springframework.security.oauth2.client.filter.OAuth2ClientContextFilter;
 import org.springframework.security.saml.*;
 import org.springframework.security.saml.key.KeyManager;
 import org.springframework.security.saml.metadata.ExtendedMetadata;
@@ -51,6 +54,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.FilterChainProxy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.channel.ChannelProcessingFilter;
+import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 import org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -110,6 +114,10 @@ public class SecurityConfiguration{
     @Value("${ca3s.saml.entity.base-url:#{null}}")
     private String samlEntityBaseurl;
 
+    @Value("${ca3s.oidc.authorization-uri:#{null}}")
+    private String oidcAuthorizationUri;
+
+
     @Value("${ca3s.auth.kerberos.service-principal:#{null}}")
     private String servicePrincipal;
 
@@ -133,6 +141,9 @@ public class SecurityConfiguration{
 
     @Autowired
     private SAMLLogoutProcessingFilter samlLogoutProcessingFilter;
+
+    @Autowired
+    private OAuth2RestTemplate restTemplate;
 
     @Autowired
     private SAMLAuthenticationProvider samlAuthenticationProvider;
@@ -322,6 +333,12 @@ public class SecurityConfiguration{
     }
 
     @Bean
+    public OpenIdConnectFilter openIdConnectFilter() {
+        final OpenIdConnectFilter filter = new OpenIdConnectFilter("/oidc/login");
+        filter.setRestTemplate(restTemplate);
+        return filter;
+    }
+    @Bean
     public WebSecurityCustomizer configure() {
 
         return (web) ->
@@ -372,7 +389,10 @@ public class SecurityConfiguration{
 
             .addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
             .addFilterAfter(samlFilter(authenticationManager), BasicAuthenticationFilter.class)
-            .addFilterBefore(samlFilter(authenticationManager), CsrfFilter.class);
+            .addFilterBefore(samlFilter(authenticationManager), CsrfFilter.class)
+
+            .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
+            .addFilterAfter(openIdConnectFilter(), OAuth2ClientContextFilter.class);
 
         if (servicePrincipal != null && !servicePrincipal.isEmpty()) {
             LOG.debug("add Filter : spnegoAuthenticationProcessingFilter");
@@ -417,14 +437,10 @@ public class SecurityConfiguration{
             .antMatchers("/api/ui/config").permitAll()
             .antMatchers("/api/certificateSelectionAttributes").permitAll()
 
-            // really all??
-            .antMatchers("/api/pipelineViews").permitAll()
-            .antMatchers("/api/pipeline-attributes").permitAll()
-            .antMatchers("/api/pipeline/activeWeb").permitAll()
-
             .antMatchers("/auth").permitAll()
             .antMatchers("/saml/SSO").permitAll()
             .antMatchers("/saml/**").permitAll()
+            .antMatchers("/oidc/**").permitAll()
             .antMatchers("/spnego/**").permitAll()
             .antMatchers("/publicapi/**").permitAll()
 
@@ -435,6 +451,9 @@ public class SecurityConfiguration{
             .antMatchers("/management/prometheus").permitAll()
 
             .antMatchers("/api/userProperties/filterList/CertList").authenticated()
+
+            .antMatchers("/api/pipelineViews").authenticated()
+            .antMatchers("/api/pipeline/activeWeb").authenticated()
 
             .requestMatchers( forPortAndPath(new Integer[]{raPort, adminPort}, "/api/administerRequest"))
               .hasAnyAuthority(AuthoritiesConstants.RA_OFFICER,AuthoritiesConstants.DOMAIN_RA_OFFICER, AuthoritiesConstants.ADMIN)
@@ -541,6 +560,8 @@ public class SecurityConfiguration{
 
             .and()
             .httpBasic()
+            .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint(oidcAuthorizationUri))
+
         .and().authenticationManager(authenticationManager)
         .apply(securityConfigurerAdapter());
         // @formatter:on

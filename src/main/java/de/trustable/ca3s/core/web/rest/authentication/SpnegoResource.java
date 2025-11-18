@@ -39,18 +39,15 @@ public class SpnegoResource {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Authentication authentication = securityContext.getAuthentication();
 
-        log.info("####################### Current authentication in SecurityContext: " + authentication);
-        if(authentication != null ) {
-            log.info("####################### Is authenticated: " + authentication.isAuthenticated());
-        }
-
         HttpHeaders headers = new HttpHeaders();
         if(authentication instanceof KerberosServiceRequestToken){
+            log.info("Kerberos token present for : {}", authentication.getName());
             String jwt = tokenProvider.createToken(authentication, false);
             headers.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
             return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
 
         }else {
+            log.info("Non-Kerberos authentication token found : {} with value {}", authentication.getClass().getName(), authentication);
 
             headers.add(HttpHeaders.WWW_AUTHENTICATE, "Negotiate");
             return new ResponseEntity<>(headers, HttpStatus.UNAUTHORIZED);
