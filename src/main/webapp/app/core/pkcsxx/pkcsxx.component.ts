@@ -556,7 +556,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     } else if (this.keyAlgoLength.startsWith('ecdsa')) {
       algo = 'ECDSA';
       algoKeyTool = 'EC';
-    } else if (this.keyAlgoLength.startsWith('ed25519')) {
+    } else if (this.keyAlgoLength.startsWith('Ed25519')) {
       algo = 'ED25519';
       algoKeyTool = 'EdDSA';
     }

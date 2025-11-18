@@ -39,6 +39,8 @@ logging:
     de.trustable.ca3s.core.service.cmp: DEBUG
     de.trustable.ca3s.core.service.vault: DEBUG
     de.trustable.ca3s.core.service.dir: WARN
+    de.trustable.ca3s.core.service.util.CertificateUtil: DEBUG
+    de.trustable.ca3s.core.service.util.CRLUtil: DEBUG
     de.trustable.ca3s.core.security.provider: DEBUG
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
     de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
@@ -359,6 +361,15 @@ ca3s:
         attributes: adcs manager
         user-only: false
 
+  catalog:
+    algos:
+      hash:
+        available: sha-256,sha-384,sha-512
+        selected: sha-256,sha-384,sha-512
+      sign:
+        available: rsa-2048,rsa-3072,rsa-4096,rsa-6144,rsa-8192,ecdsa-224, ecdsa-256, ecdsa-384, ecdsa-512, Ed25519, brainpoolP256r1, dilithium2/20224, dilithium3/32000, dilithium5/38912, falcon-512/7176, falcon-1024/14344
+        selected: Ed25519, brainpoolP256r1, rsa-2048,rsa-3072,rsa-4096,rsa-8192
+
   # enable the creation of the PKCS12 download container with specific algorithms
   pkcs12:
     # the restriction on the input 'secret' protecting the PKCS12 container
@@ -601,9 +612,7 @@ ca3s:
     auth-server-url: http://10.152.183.139
     realm: master
 
-
     authorization-uri: http://10.152.183.139/realms/master/protocol/openid-connect/auth
     #    authorization-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/auth
 
     use-post-logout-redirect-uri: true
-

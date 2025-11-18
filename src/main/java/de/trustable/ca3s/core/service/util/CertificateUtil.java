@@ -2098,6 +2098,7 @@ public class CertificateUtil {
 
     private StringWriter keyToPEM(KeyPair keyPair) throws IOException {
         StringWriter sw = new StringWriter();
+        LOG.debug("writing private key class : {}", keyPair.getPrivate().getClass().getName());
         PemObject pemObject = new PemObject("PRIVATE KEY", keyPair.getPrivate().getEncoded());
         try (PemWriter pemWriter = new PemWriter(sw)) {
             pemWriter.writeObject(pemObject);
@@ -2188,10 +2189,8 @@ public class CertificateUtil {
 
                 String content = protUtil.unprotectString(pcList.get(0).getContentBase64());
                 priKey = cryptoUtil.convertPemToPrivateKey(content);
-                LOG.debug("getPrivateKey() returns key for ProtectedContent #" + id);
-
+                LOG.debug("getPrivateKey() returns key of calss {} for ProtectedContent #{}", priKey.getClass().getName(), id);
             }
-
         } catch (GeneralSecurityException e) {
             LOG.warn("getPrivateKey", e);
         }
@@ -2374,7 +2373,8 @@ public class CertificateUtil {
                     if( crl.getNextUpdate() == null){
                         LOG.warn("nextUpdate missing in CRL '{}' of certificate #{}", crlUrl, cert.getId());
                     }else {
-                        long nextUpdate = crl.getNextUpdate().getTime();
+                        long crlExpiry = crl.getNextUpdate().getTime();
+                        long nextUpdate = crlExpiry;
                         if (nextUpdate > maxNextUpdate) {
                             LOG.debug("nextUpdate {} from CRL limited to {}", crl.getNextUpdate(), new Date(maxNextUpdate));
                             nextUpdate = maxNextUpdate;
@@ -2387,6 +2387,9 @@ public class CertificateUtil {
 
                         // set the crl's 'next update' timestamp to the certificate
                         setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, Long.toString(nextUpdate), false);
+                        long crlCreation = crl.getThisUpdate().getTime();
+                        setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_CREATION, Long.toString(crlCreation), false);
+                        setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_EXPIRY, Long.toString(crlExpiry), false);
                     }
 
                     setRevocationStatus(cert, x509Cert, crl);
@@ -2497,15 +2500,22 @@ public class CertificateUtil {
 
         X509Certificate[] chain = getX509CertificateChain(certDao);
 
-        Set<KeyStore.Entry.Attribute> privateKeyAttributes = new HashSet<>();
-        p12.setEntry(entryAlias,
-            new KeyStore.PrivateKeyEntry(key,
-                chain,
-                privateKeyAttributes),
-            new KeyStore.PasswordProtection(passphraseChars,
-                passwordProtectionAlgo,
-                new PBEParameterSpec(salt, 100000)));
+        LOG.debug("public key class {} ", chain[0].getPublicKey().getClass().getName());
+        LOG.debug("private key class {} ", key.getClass().getName());
 
+        Set<KeyStore.Entry.Attribute> privateKeyAttributes = new HashSet<>();
+        try {
+            p12.setEntry(entryAlias,
+                new KeyStore.PrivateKeyEntry(key,
+                    chain,
+                    privateKeyAttributes),
+                new KeyStore.PasswordProtection(passphraseChars,
+                    passwordProtectionAlgo,
+                    new PBEParameterSpec(salt, 100000)));
+        }catch( IllegalArgumentException iae){
+            LOG.debug("problem building keystora", iae);
+            throw new GeneralSecurityException(iae.getMessage());
+        }
         return new KeyStoreAndPassphrase(p12, passphraseChars);
     }
 

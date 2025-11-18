@@ -10,17 +10,17 @@ class KeyAlgoLengthTest {
     void from() {
         KeyAlgoLengthOrSpec keyAlgoLength = KeyAlgoLengthOrSpec.from( "rsa-2048");
         assertEquals(2048, keyAlgoLength.getKeyLength());
-        assertEquals("rsa", keyAlgoLength.getAlgoName());
+        assertEquals("RSA", keyAlgoLength.getAlgoName());
 
         keyAlgoLength = KeyAlgoLengthOrSpec.from( "rsa_2048");
         assertEquals(2048, keyAlgoLength.getKeyLength());
-        assertEquals("rsa", keyAlgoLength.getAlgoName());
+        assertEquals("RSA", keyAlgoLength.getAlgoName());
 
     }
 
     @Test
     void testToString() {
         KeyAlgoLengthOrSpec keyAlgoLength = KeyAlgoLengthOrSpec.from( "rsa-2048");
-        assertEquals("rsa-2048", keyAlgoLength.toString());
+        assertEquals("RSA-2048", keyAlgoLength.toString());
     }
 }
