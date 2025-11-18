@@ -530,8 +530,6 @@ public class ContentUploadProcessor {
                 csBuilder = new JcaContentSignerBuilder(algo);
             }
 
-
-
 //            JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder(algo);
             ContentSigner signer = csBuilder.build(pk);
 

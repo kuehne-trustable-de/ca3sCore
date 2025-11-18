@@ -102,6 +102,10 @@ public class CSRSubmitIT extends WebTestBase {
     public static final By LOC_INP_CERT_BOOLEAN = By.xpath("//div/input [@name = 'certSelectionValueBoolean']");
 
     public static final By LOC_TEXT_MESSAGE_NO_IP = By.xpath("//form//dl [dt[span [text() = 'Message']]]/dd/div[ul/li [contains(text(), 'is an IP address, not allowed')]]");
+    public static final By LOC_TEXT_MESSAGE_CSR_SIGNATURE_INVALID = By.xpath("//form//dl [dt[span [text() = 'Message']]]/dd/div[ul/li [contains(text(), 'CSR signature invalid')]]");
+    public static final By LOC_TEXT_MESSAGE_CSR_ALGO_LENGTH_INVALID =
+        By.xpath("//form//dl [dt[span [text() = 'Message']]]/dd/div[ul/li [contains(text(), 'restriction mismatch: signature algo / length')]]");
+
 
     public static final By LOC_TD_CSR_ITEM_PENDING = By.xpath("//table//td [@value='PENDING']");
 
@@ -504,6 +508,7 @@ public class CSRSubmitIT extends WebTestBase {
         X500Principal subjectPrincipal = new X500Principal(subject);
 
 
+        // build an invalid CSR
         KeyPair keyPair1 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
         KeyPair keyPair2 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
         String csrFilePath = buildCSRAsDERFile(subjectPrincipal,
@@ -526,6 +531,66 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
         selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "csr.submit.49");
         click(LOC_BTN_REQUEST_CERTIFICATE);
+
+        validatePresent(LOC_TEXT_CONTENT_TYPE);
+        String invalidContent = getText(LOC_TEXT_CONTENT_TYPE);
+        Assertions.assertTrue(invalidContent.contains("invalid"));
+        validatePresent(LOC_TEXT_MESSAGE_CSR_SIGNATURE_INVALID);
+
+        // build an invalid CSR
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(1024, new SecureRandom());
+        KeyPair keyPair3 = keyPairGenerator.generateKeyPair();
+        csrFilePath = buildCSRAsDERFile(subjectPrincipal,
+            null,
+            keyPair3.getPublic(),
+            keyPair3.getPrivate() );
+
+        validatePresent(LOC_SELECT_FILE);
+        setText(LOC_SELECT_FILE, csrFilePath);
+//        explain("csr.submit.38");
+
+        waitForElement(LOC_TEXT_CONTENT_TYPE);
+        validatePresent(LOC_TEXT_CONTENT_TYPE);
+
+        validatePresent(LOC_INP_TOS_AGREED);
+        scrollToElement(LOC_INP_TOS_AGREED);
+        validatePresent(LOC_A_TOS_LINK);
+        check(LOC_INP_TOS_AGREED);
+
+        validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
+        // @ToDo
+        selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "csr.submit.49");
+        click(LOC_BTN_REQUEST_CERTIFICATE);
+
+        validatePresent(LOC_TEXT_MESSAGE_CSR_ALGO_LENGTH_INVALID);
+
+        validatePresent(LOC_TEXT_CONTENT_TYPE);
+        Assertions.assertEquals("CSR", getText(LOC_TEXT_CONTENT_TYPE));
+
+        // use a valid CSR
+        csrFilePath = buildCSRAsDERFile(subjectPrincipal,
+            null,
+            keyPair1.getPublic(),
+            keyPair1.getPrivate() );
+
+        validatePresent(LOC_SELECT_FILE);
+        setText(LOC_SELECT_FILE, csrFilePath);
+        explain("csr.submit.38");
+
+        waitForElement(LOC_TEXT_CONTENT_TYPE);
+        validatePresent(LOC_TEXT_CONTENT_TYPE);
+
+        validatePresent(LOC_INP_TOS_AGREED);
+        scrollToElement(LOC_INP_TOS_AGREED);
+        validatePresent(LOC_A_TOS_LINK);
+        check(LOC_INP_TOS_AGREED);
+
+        validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
+        selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "csr.submit.49");
+        click(LOC_BTN_REQUEST_CERTIFICATE);
+
+        validateNotPresent(LOC_TEXT_MESSAGE_CSR_SIGNATURE_INVALID);
 
         waitForElement(LOC_TEXT_CERT_HEADER, 20);
         validatePresent(LOC_TEXT_CERT_HEADER);
@@ -1030,13 +1095,6 @@ public class CSRSubmitIT extends WebTestBase {
 
         validatePresent(LOC_INP_CERT_VALUE);
         setText(LOC_INP_CERT_VALUE, cn);
-
-        try {
-            System.out.println("... waiting ...");
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         waitForElement(byCertSubject);
         validatePresent(byCertSubject);

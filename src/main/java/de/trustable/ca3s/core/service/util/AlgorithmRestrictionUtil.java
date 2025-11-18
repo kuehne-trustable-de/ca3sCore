@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.service.util;
 
+import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
 import de.trustable.ca3s.core.service.dto.Preferences;
 import de.trustable.util.AlgorithmInfo;
 import de.trustable.util.OidNameMapper;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.security.PublicKey;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Service
 public class AlgorithmRestrictionUtil {
@@ -74,19 +76,33 @@ public class AlgorithmRestrictionUtil {
 
     private boolean matchesAlgo(String a, String signingAlgo, int keyLength) {
 
-        if( a.toLowerCase().startsWith("dilithium") ||
-            a.toLowerCase().startsWith("falcon")) {
+        String algoNameLC = a.toLowerCase();
+        if( algoNameLC.startsWith("dilithium") ||
+            algoNameLC.startsWith("falcon")) {
 
-            if (a.toLowerCase().startsWith("dilithium2")) {
+            if (algoNameLC.startsWith("dilithium2")) {
                 return signingAlgo.equalsIgnoreCase("dilithium2");
-            } else if (a.toLowerCase().startsWith("dilithium3")) {
+            } else if (algoNameLC.startsWith("dilithium3")) {
                 return signingAlgo.equalsIgnoreCase( "dilithium3");
-            } else if (a.toLowerCase().startsWith("dilithium5")) {
+            } else if (algoNameLC.startsWith("dilithium5")) {
                 return signingAlgo.equalsIgnoreCase("dilithium5");
-            } else if (a.toLowerCase().startsWith("falcon-512")) {
+            } else if (algoNameLC.startsWith("falcon-512")) {
                 return signingAlgo.equalsIgnoreCase("falcon-512");
-            } else if (a.toLowerCase().startsWith("falcon-1024")) {
+            } else if (algoNameLC.startsWith("falcon-1024")) {
                 return signingAlgo.equalsIgnoreCase("falcon-1024");
+            }
+        }
+
+        if( algoNameLC.equalsIgnoreCase(KeyAlgoLengthOrSpec.Ed25519.getAlgoName() )){
+            return true;
+        }
+        if( algoNameLC.startsWith("brainpool")) {
+            if (algoNameLC.startsWith(KeyAlgoLengthOrSpec.Brainpool_P256r1.getAlgoName().toLowerCase(Locale.ROOT))) {
+                return true;
+            }else if (algoNameLC.startsWith(KeyAlgoLengthOrSpec.Brainpool_P384r1.getAlgoName().toLowerCase(Locale.ROOT))) {
+                return true;
+            }else if (algoNameLC.startsWith(KeyAlgoLengthOrSpec.Brainpool_P512r1.getAlgoName().toLowerCase(Locale.ROOT))) {
+                return true;
             }
         }
 
