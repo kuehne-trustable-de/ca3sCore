@@ -421,7 +421,7 @@ public class NotificationService {
             .collect(Collectors.joining(",")));
 
         if( expiringEECertList.isEmpty()) {
-            LOG.info("No expiring certificates in the next {} days / no pending requests requested in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiryEE, nDaysPending);
+            LOG.info("No expiring certificates in the next {} days / no pending requests initiated in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiryEE, nDaysPending);
         }else {
             LOG.info("#{} expiring certificate in the next {} days.", expiringEECertList.size(), maxExpiry);
 

@@ -43,8 +43,12 @@ import java.security.*;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = Ca3SApp.class,
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -311,7 +315,7 @@ public class CSRSubmitIT extends WebTestBase {
 
         // mismatch of secret
         setText(LOC_INP_SECRET_REPEAT_VALUE, "aa" + secret + "zz");
-        Assertions.assertFalse(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button disabled");
+        assertFalse(isEnabled(LOC_BTN_REQUEST_CERTIFICATE), "Expecting request button disabled");
         explain("csr.submit.12");
         setText(LOC_INP_SECRET_REPEAT_VALUE, secret);
         explain("csr.submit.12.0");
@@ -1069,6 +1073,7 @@ public class CSRSubmitIT extends WebTestBase {
 //        validatePresent(byCertSubject);
 //        click(byCertSubject);
 
+
         // wait for incoming notification
         System.out.println( "------ wait for incoming user notification regarding issuance");
         waitForNewMessage(userEmailInfo.getUserFolder(), 0);
@@ -1077,6 +1082,20 @@ public class CSRSubmitIT extends WebTestBase {
 
         String userEmailContent = userMsgReceived.getContent().toString();
         System.out.println( "userMsgReceived.getContent() : " +userEmailContent);
+
+        System.out.println( "userEmailInfo.getUserFolder().getMessageCount() : " + userEmailInfo.getUserFolder().getMessageCount());
+        waitForNewMessage(userEmailInfo.getUserFolder(), 1);
+        Message userDownloadMsgReceived = userEmailInfo.getUserFolder().getMessage(2);
+        String userDownloadContent = userDownloadMsgReceived.getContent().toString();
+        System.out.println( "userDownloadContent : " +userDownloadContent);
+
+        Pattern patternSKI = Pattern.compile("<a href=\"http:\\/\\/.*:.*\\/publicapi\\/certPKIX\\/.*\\/ski\\/(.*)\\/.*\">");
+        Matcher m = patternSKI.matcher(userDownloadContent);
+        assertTrue(m.find());
+
+        String ski = m.group(1);
+        System.out.println("Download link include ski " + ski);
+        assertFalse(ski.contains("%"));
 
         signIn(USER_NAME_USER, USER_PASSWORD_USER);
 
