@@ -62,6 +62,7 @@ public class AccessRestrictionsIT {
         knownAnonymousResources.add("post /cmpTest/{alias}");
         knownAnonymousResources.add("post /api/register");
         knownAnonymousResources.add("post /api/authenticate");
+        knownAnonymousResources.add("post /api/authenticateLDAP");
         knownAnonymousResources.add("post /api/acme-challenges/validation");
         knownAnonymousResources.add("post /api/acme-challenges/pending/request-proxy-configs/{requestProxyId}");
         knownAnonymousResources.add("post /api/request-proxy-configs/remote-config/{requestProxyId}");
