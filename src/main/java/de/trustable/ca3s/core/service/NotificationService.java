@@ -19,8 +19,6 @@ import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -754,9 +752,11 @@ public class NotificationService {
         Context context = new Context(locale);
 
         context.setVariable("certId", cert.getId());
+
+        String skiBase64 = certificateUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI);
         context.setVariable("certSKI",
-            URLEncoder.encode(certificateUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI),
-            StandardCharsets.UTF_8));
+            skiBase64.replace('+', '-').replace('/', '_'));
+
         context.setVariable("subject", cert.getSubject());
         context.setVariable("sans", cert.getSans());
 
