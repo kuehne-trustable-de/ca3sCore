@@ -1354,6 +1354,12 @@
             <groupId>de.trustable.ca3s</groupId>
             <artifactId>CertificateBundle</artifactId>
             <version>${certBundleVersion}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -1366,6 +1372,12 @@
             <groupId>de.trustable.cmp.client</groupId>
             <artifactId>cmpClient</artifactId>
             <version>${cmpClientVersion}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
