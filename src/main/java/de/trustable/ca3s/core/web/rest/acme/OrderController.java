@@ -498,7 +498,6 @@ public class OrderController extends AcmeController {
         String finalizeUrl = uriBuilder.path(ORDER_RESOURCE_MAPPING).path("/finalize/").path(Long.toString(orderDao.getOrderId())).build().toUriString();
         LOG.debug("order request finalize url: {}", finalizeUrl);
 
-
         String certificateUrl = null;
         if (orderDao.getCertificate() != null) {
             long certId = orderDao.getCertificate().getId();
@@ -536,8 +535,13 @@ public class OrderController extends AcmeController {
                 orderDao,
                 nvArr, messageList);
         } catch (KeyApplicableException e) {
+
+            String msg = "Key usage scope not applicable. Hint: create a new keypair for each request";
+            orderDao.setError(msg);
+            orderRepository.save(orderDao);
+
             final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR,
-                "Key usage scope not applicable. Hint: create a new keypair for each request",
+                msg,
                 BAD_REQUEST, "", AcmeController.NO_INSTANCE);
             throw new AcmeProblemException(problem);
         }

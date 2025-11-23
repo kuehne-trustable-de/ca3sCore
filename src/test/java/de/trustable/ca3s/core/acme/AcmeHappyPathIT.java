@@ -925,9 +925,7 @@ public class AcmeHappyPathIT {
 
             order.execute(csrb.getEncoded());
             Assertions.assertEquals(Status.VALID, order.getStatus(), "Expecting the finalize request to succeed, policy allows key reuse");
-
         }
-
     }
 
     private void resolveAuthorizations(Order order) throws IOException, InterruptedException, AcmeException {
