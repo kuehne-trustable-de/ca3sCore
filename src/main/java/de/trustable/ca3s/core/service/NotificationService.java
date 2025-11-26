@@ -48,6 +48,7 @@ public class NotificationService {
     private final int nDaysPending;
     private final List<Integer> notificationDayList;
     private final boolean notifyUserOnly;
+    private final List<String> notifyExpiryCCList;
 
     private final boolean doNotifyAdminOnConnectorExpiry;
     private final boolean doNotifyRAOfficerHolderOnExpiry;
@@ -74,6 +75,7 @@ public class NotificationService {
                                @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending,
                                @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays, ProtectedContentUtil protectedContentUtil,
                                @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly,
+                               @Value("${ca3s.schedule.requestor.notification.cc:}") String[] notifyExpiryCCArr,
                                @Value("${ca3s.notify.adminOnConnectorExpiry:true}") boolean doNotifyAdminOnConnectorExpiry,
                                @Value("${ca3s.notify.raOfficerHolderOnExpiry:true}") boolean doNotifyRAOfficerHolderOnExpiry,
                                @Value("${ca3s.notify.requestorOnExpiry:true}") boolean doNotifyRequestorOnExpiry,
@@ -120,6 +122,8 @@ public class NotificationService {
                 LOG.info("Unexpected value '{}' in 'ca3s.schedule.requestor.notification.days': {}", part, nfe.getMessage());
             }
         }
+
+        this.notifyExpiryCCList = Arrays.asList(notifyExpiryCCArr);
     }
 
 
@@ -311,7 +315,13 @@ public class NotificationService {
         List<Certificate> expiringCAList = certificateRepo.findNonRevokedByTypeAndValidTo(false, now, beforeCA);
 
         Instant beforeEE = now.plus(nDaysExpiryEE, ChronoUnit.DAYS);
-        List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE);
+        List<Certificate> expiringEECertList =
+            certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE)
+                .stream()
+                .filter(c -> c.getCsr() != null &&
+                    c.getCsr().getPipeline() != null &&
+                    c.getCsr().getPipeline().getType() == PipelineType.WEB)
+                .collect(Collectors.toList());
 
         Instant relevantPendingStart = now.minus(nDaysPending, ChronoUnit.DAYS);
         List<CSR> pendingCsrList = csrRepo.findPendingByDay(relevantPendingStart, now);
@@ -515,7 +525,7 @@ public class NotificationService {
         for( Certificate cert : certListGroupedByUser.get(requestor)) {
             LOG.info("sending notification for expiring certificate {} to requestor {}.", cert.getId(), requestor.getId());
 
-            List<String> ccList = new ArrayList<>();
+            Set<String> ccList = new HashSet<>();
             if( cert.getCsr() != null &&
                 cert.getCsr().getPipeline() != null ){
                 Pipeline pipeline = cert.getCsr().getPipeline();
@@ -527,6 +537,8 @@ public class NotificationService {
 
                 ccList.addAll(findARAEmailRecipients(pipelineView, cert));
             }
+
+            ccList.addAll(notifyExpiryCCList);
 
             context.setVariable("expiringCertList", Collections.singletonList(cert));
             try {

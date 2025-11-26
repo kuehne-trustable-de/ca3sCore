@@ -342,7 +342,7 @@ ca3s:
     # define a cron pattern for regular tasks
     cron:
       # send notification emails regarding expirations
-      expiryNotificationCron: 0 15 2 * * ?
+      expiryNotificationCron: 0 57 17 * * ?
       # drop user information as soon as no relevant certificate is active anymore
       dropUnrelatedUsersCron: 0 20 02 * * ?
       # drop historic process information after process completion and a grace period
@@ -358,8 +358,8 @@ ca3s:
     requestor:
       notification:
         days: 30,14,7,6,5,4,3,2,1,0
-        attributes: adcs manager
         user-only: false
+        cc: foo@test.com
 
   catalog:
     algos:
@@ -391,9 +391,8 @@ ca3s:
   template:
     email:
       useTitleAsMailSubject: false
-
-  #  all:
-  #    bcc: foo@ca3s.org, bar@ca3s.org
+      all:
+        bcc: foo@ca3s.org, bar@ca3s.org
 
   ui:
     user:

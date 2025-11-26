@@ -53,7 +53,7 @@ public class MailService {
                        MessageSource messageSource,
                        SpringTemplateEngine templateEngine,
                        @Value("${ca3s.template.email.useTitleAsMailSubject:false}") boolean useTitleAsMailSubject,
-                       @Value("${ca3s.email.all.bcc:#{null}}") String[] defaultBCC) {
+                       @Value("${ca3s.template.email.all.bcc:#{null}}") String[] defaultBCC) {
 
         this.jHipsterProperties = jHipsterProperties;
         this.javaMailSender = javaMailSender;
@@ -65,8 +65,8 @@ public class MailService {
 
     @Transactional
     public void sendEmail(String to, String[] cc, String subject, String content, boolean isMultipart, boolean isHtml) throws MessagingException {
-        log.debug("Send email[multipart' '{}' and html '{}'] to '{}' (cc to '{}') with subject '{}' and content={}",
-            isMultipart, isHtml, to, cc, subject, content);
+        log.debug("Send email[multipart' '{}' and html '{}'] to '{}' (cc to '{}', bcc to '{}') with subject '{}' and content={}",
+            isMultipart, isHtml, to, cc, defaultBCC, subject, content);
 
         // Prepare message using a Spring helper
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();

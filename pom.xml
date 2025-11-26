@@ -8,7 +8,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.14</version>
+    <version>1.2.15</version>
 
     <packaging>jar</packaging>
 
@@ -1836,7 +1836,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
-                <!--version>3.2.8</version-->
                 <version>3.2.8</version>
                 <executions>
                     <execution>
