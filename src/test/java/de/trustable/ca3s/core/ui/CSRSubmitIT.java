@@ -1294,7 +1294,7 @@ public class CSRSubmitIT extends WebTestBase {
         return x509CertificateList;
     }
 
-
+/*
     public static void main(String[] args) throws GeneralSecurityException, IOException {
         KeyPair keyPair1 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
         KeyPair keyPair2 = KeyPairGenerator.getInstance("RSA").generateKeyPair();
@@ -1309,6 +1309,8 @@ public class CSRSubmitIT extends WebTestBase {
 
         System.out.println("broken CSR:\n"+ CryptoUtil.pkcs10RequestToPem(req));
     }
+
+ */
 }
 
 class EMailInfo{

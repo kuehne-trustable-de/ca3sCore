@@ -1826,7 +1826,7 @@ public class PipelineUtil {
 
         String scepRecipientKeyLength = getPipelineAttribute(pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, defaultKeySpec);
         KeyAlgoLengthOrSpec kal = KeyAlgoLengthOrSpec.from(scepRecipientKeyLength);
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getKeyFactoryAlgo());
         keyPairGenerator.initialize(kal.getKeyLength(), randomUtil.getSecureRandom());
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 

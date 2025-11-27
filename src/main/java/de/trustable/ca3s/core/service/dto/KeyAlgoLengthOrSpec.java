@@ -19,14 +19,22 @@ public class KeyAlgoLengthOrSpec {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeyAlgoLengthOrSpec.class);
 
-    public static final KeyAlgoLengthOrSpec RSA_2048 = new KeyAlgoLengthOrSpec("RSA", 2048);
-    public static final KeyAlgoLengthOrSpec RSA_4096 = new KeyAlgoLengthOrSpec("RSA", 4096);
+    public static final KeyAlgoLengthOrSpec RSA_2048 = new KeyAlgoLengthOrSpec("rsa-2048", 2048);
+    public static final KeyAlgoLengthOrSpec RSA_3072 = new KeyAlgoLengthOrSpec("rsa-3072", 3072);
+    public static final KeyAlgoLengthOrSpec RSA_4096 = new KeyAlgoLengthOrSpec("rsa-4096", 4096);
+    public static final KeyAlgoLengthOrSpec RSA_6144 = new KeyAlgoLengthOrSpec("rsa-6144", 6144);
+    public static final KeyAlgoLengthOrSpec RSA_8192 = new KeyAlgoLengthOrSpec("rsa-8192", 8192);
+
+    public static final KeyAlgoLengthOrSpec ECDSA_224 = new KeyAlgoLengthOrSpec("ECDSA","ecdsa-224","ecdsa-224", "BC", 224, ECNamedCurveTable.getParameterSpec("secp224r1"));
+    public static final KeyAlgoLengthOrSpec ECDSA_256 = new KeyAlgoLengthOrSpec("ECDSA","ecdsa-256","ecdsa-256", "BC", 256, ECNamedCurveTable.getParameterSpec("secp256r1"));
+    public static final KeyAlgoLengthOrSpec ECDSA_384 = new KeyAlgoLengthOrSpec("ECDSA","ecdsa-384","ecdsa-384", "BC", 384, ECNamedCurveTable.getParameterSpec("secp384r1"));
+    public static final KeyAlgoLengthOrSpec ECDSA_512 = new KeyAlgoLengthOrSpec("ECDSA","ecdsa-512","ecdsa-512", "BC", 512, ECNamedCurveTable.getParameterSpec("secp512r1"));
 
     public static final KeyAlgoLengthOrSpec Ed25519	= new KeyAlgoLengthOrSpec("Ed25519", "Ed25519","Ed25519", "BC", 256, NamedParameterSpec.ED25519);
 
-    public static final KeyAlgoLengthOrSpec Brainpool_P256r1 = new KeyAlgoLengthOrSpec("Brainpool", "ECDH","brainpoolP256r1", "BC", 256, ECNamedCurveTable.getParameterSpec("brainpoolP256r1"));
-    public static final KeyAlgoLengthOrSpec Brainpool_P384r1 = new KeyAlgoLengthOrSpec("Brainpool", "ECDH","brainpoolP384r1", "BC", 384, ECNamedCurveTable.getParameterSpec("brainpoolP384r1"));
-    public static final KeyAlgoLengthOrSpec Brainpool_P512r1 = new KeyAlgoLengthOrSpec("Brainpool", "ECDH","brainpoolP512r1", "BC", 512, ECNamedCurveTable.getParameterSpec("brainpoolP512r1"));
+    public static final KeyAlgoLengthOrSpec Brainpool_P256r1 = new KeyAlgoLengthOrSpec("Brainpool", "brainpoolP256r1","brainpoolP256r1", "BC", 256, ECNamedCurveTable.getParameterSpec("brainpoolP256r1"));
+    public static final KeyAlgoLengthOrSpec Brainpool_P384r1 = new KeyAlgoLengthOrSpec("Brainpool", "brainpoolP384r1","brainpoolP384r1", "BC", 384, ECNamedCurveTable.getParameterSpec("brainpoolP384r1"));
+    public static final KeyAlgoLengthOrSpec Brainpool_P512r1 = new KeyAlgoLengthOrSpec("Brainpool", "brainpoolP512r1","brainpoolP512r1", "BC", 512, ECNamedCurveTable.getParameterSpec("brainpoolP512r1"));
 
     public static final KeyAlgoLengthOrSpec Dilithium_2 = new KeyAlgoLengthOrSpec("Dilithium", "dilithium2","dilithium2", "BCPQC", 2528*8, DilithiumParameterSpec.dilithium2);
     public static final KeyAlgoLengthOrSpec Dilithium_3 = new KeyAlgoLengthOrSpec("Dilithium", "dilithium3","dilithium3", "BCPQC", 4000*8, DilithiumParameterSpec.dilithium3);
@@ -36,23 +44,31 @@ public class KeyAlgoLengthOrSpec {
     public static final KeyAlgoLengthOrSpec Falcon_1024 = new KeyAlgoLengthOrSpec("Falcon", "falcon1024","falcon-1024", "BCPQC", 14344, FalconParameterSpec.falcon_1024);
 
     public static final KeyAlgoLengthOrSpec[] NamedAlgoArr = {
-    RSA_2048,
-    RSA_4096,
-    Ed25519,
-    Brainpool_P256r1,
-    Brainpool_P384r1,
-    Brainpool_P512r1,
-    Dilithium_2,
-    Dilithium_3,
-    Dilithium_5,
-    Falcon_512,
-    Falcon_1024
+        RSA_2048,
+        RSA_3072,
+        RSA_4096,
+        RSA_6144,
+        RSA_8192,
+        ECDSA_224,
+        ECDSA_256,
+        ECDSA_384,
+        ECDSA_512,
+        Ed25519,
+        Brainpool_P256r1,
+        Brainpool_P384r1,
+        Brainpool_P512r1,
+        Dilithium_2,
+        Dilithium_3,
+        Dilithium_5,
+        Falcon_512,
+        Falcon_1024
     };
 
     String algoName = "RSA";
     String contentBuilderName = "RSA";
     String providerName = null;
     String algoGroup = "RSA";
+    String keyFactoryAlgo = "RSA";
     int keyLength = 4096;
     AlgorithmParameterSpec algorithmParameterSpec = null;
 
@@ -102,25 +118,29 @@ public class KeyAlgoLengthOrSpec {
         throw new GeneralSecurityException("unknown AlgorithmParameterSpec: '" + spec.getClass().getName() + "' !");
     }
 
-    public static KeyAlgoLengthOrSpec from(String value){
+    public static KeyAlgoLengthOrSpec from(String value) {
 
-        String valueLC = value.toLowerCase(Locale.ROOT);
+        String valueLC = value.toLowerCase(Locale.ROOT).replace('_', '-');
 
         for( KeyAlgoLengthOrSpec keyAlgoLengthOrSpec: NamedAlgoArr){
-            if( valueLC.startsWith(keyAlgoLengthOrSpec.contentBuilderName.toLowerCase(Locale.ROOT))) {
+            if( valueLC.startsWith(keyAlgoLengthOrSpec.algoName.toLowerCase(Locale.ROOT))) {
                 return keyAlgoLengthOrSpec;
             }
         }
 
-       KeyAlgoLengthOrSpec keyAlgoLength = new KeyAlgoLengthOrSpec();
+        KeyAlgoLengthOrSpec keyAlgoLength = new KeyAlgoLengthOrSpec();
+
+        /*
         String[] parts = value.split("[_-]");
         if(parts.length > 0){
-            keyAlgoLength.algoName = parts[0];
+            keyAlgoLength.algoName = parts[0].toLowerCase(Locale.ROOT);
         }
         if(parts.length > 1){
             keyAlgoLength.keyLength = Integer.parseInt( parts[1]);
         }
+         */
         return keyAlgoLength;
+
     }
 
     public KeyAlgoLengthOrSpec(){}
@@ -131,6 +151,12 @@ public class KeyAlgoLengthOrSpec {
     }
     public KeyAlgoLengthOrSpec(String algoGroup, String algoName, String contentBuilderName, String providerName, int keyLength, AlgorithmParameterSpec algorithmParameterSpec){
         this.algoGroup = algoGroup;
+        if( "ECDSA".equalsIgnoreCase(algoGroup) ||
+            "Ed25519".equalsIgnoreCase(algoGroup) ||
+            "Brainpool".equalsIgnoreCase(algoGroup) ){
+            this.keyFactoryAlgo = "EC";
+        }
+
         this.algoName = algoName;
         this.keyLength = keyLength;
         this.algorithmParameterSpec = algorithmParameterSpec;
@@ -155,6 +181,10 @@ public class KeyAlgoLengthOrSpec {
         return algoName;
     }
 
+    public String getKeyFactoryAlgo() {
+        return keyFactoryAlgo;
+    }
+
     public int getKeyLength() {
         return keyLength;
     }
@@ -172,7 +202,7 @@ public class KeyAlgoLengthOrSpec {
     }
 
     public String toString(){
-        return algoName + "-" + keyLength;
+        return algoName;
     }
 
 }
