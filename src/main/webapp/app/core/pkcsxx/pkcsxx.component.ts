@@ -1173,7 +1173,20 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       return false;
     }
     for (const pipeline of this.allWebPipelines) {
-      if (pipeline.id === pipelineId && pipeline.type === 'WEB') {
+      if (pipeline.id === pipelineId && (pipeline.type === 'WEB' || pipeline.type === 'MANUAL_UPLOAD')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public isUploadPipelineChoosen() {
+    const pipelineId = this.upload.pipelineId;
+    if (pipelineId < 0) {
+      return false;
+    }
+    for (const pipeline of this.allWebPipelines) {
+      if (pipeline.id === pipelineId && pipeline.type === 'MANUAL_UPLOAD') {
         return true;
       }
     }

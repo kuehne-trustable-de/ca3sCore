@@ -29,7 +29,7 @@
                 <option value="SCEP">{{$t('ca3SApp.pipeline.filter.type.scep')}}</option>
                 <!--option value="EST">{{$t('ca3SApp.pipeline.filter.type.est')}}</option-->
                 <option value="ACME">{{$t('ca3SApp.pipeline.filter.type.acme')}}</option>
-                <!--option value="MANUAL_UPLOAD">{{$t('ca3SApp.pipeline.filter.type.upload')}}</option-->
+                <option value="MANUAL_UPLOAD">{{$t('ca3SApp.pipeline.filter.type.upload')}}</option>
 
             </select>
             <span v-text="$t('ca3SApp.pipeline.filter.state')"></span>
