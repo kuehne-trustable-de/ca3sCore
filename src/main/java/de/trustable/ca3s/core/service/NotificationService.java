@@ -350,9 +350,21 @@ public class NotificationService {
                     }
                 }
             }
+            if(logNotification) {
+                auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationSent(expiringEECertList.size()));
+            }
 
             // Process subset of CSRs for domain officers
             for( User domainOfficer: domainOfficerList) {
+
+                List<Certificate> expiringDomainEEList = new ArrayList<>();
+                for( Certificate cert: expiringEECertList){
+                    if( cert.getCsr() != null && cert.getCsr().getPipeline() != null) {
+                        if (pipelineUtil.isUserValidAsRA(cert.getCsr().getPipeline(), domainOfficer)) {
+                            expiringDomainEEList.add(cert);
+                        }
+                    }
+                }
 
                 List<CSR> pendingDomainCsrList = new ArrayList<>();
                 for( CSR csr: pendingCsrList){
@@ -361,11 +373,16 @@ public class NotificationService {
                     }
                 }
 
+                if( expiringDomainEEList.isEmpty() && pendingDomainCsrList.isEmpty()){
+                    LOG.debug("No relevant certificate / CSR information available for domain ra officer {}", domainOfficer.getLogin());
+                    continue;
+                }
+
                 Locale locale = getUserLocale(domainOfficer);
                 Context context = new Context(locale);
                 context.setVariable("expiringCAList", expiringCAList);
-                context.setVariable("expiringEECertList", expiringEECertList);
-                context.setVariable("pendingCsrList", pendingCsrList);
+                context.setVariable("expiringEECertList", expiringDomainEEList);
+                context.setVariable("pendingCsrList", pendingDomainCsrList);
                 context.setVariable("nDaysPending", nDaysPending);
                 context.setVariable("nDaysExpiryEE", nDaysExpiryEE);
                 context.setVariable("nDaysExpiryCA", nDaysExpiryCA);
@@ -378,9 +395,7 @@ public class NotificationService {
                     }
                 }
             }
-            if(logNotification) {
-                auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationSent(expiringEECertList.size()));
-            }
+
         }
 
         return expiringEECertList.size();
@@ -625,11 +640,9 @@ public class NotificationService {
                 mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/userRevokedCertificateEmail", "email.userRevokedCertificateEmail.subject");
             }catch (Throwable throwable){
                 LOG.warn("Problem occurred while sending a notification eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
-/*
                 if(logNotification) {
                     auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(raOfficer.getEmail()));
                 }
- */
             }
         }
 
@@ -647,7 +660,7 @@ public class NotificationService {
                     context.setVariable("cert", certificate);
                     context.setVariable("revokedByUser", revokedByUser);
                     try {
-                        mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
+                        mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/userRevokedCertificateEmail", "email.userRevokedCertificateEmail.subject");
                     } catch (Throwable throwable) {
                         LOG.warn("Problem occurred while sending a notification eMail to domain officer address '" + domainOfficer.getEmail() + "'", throwable);
                         if (logNotification) {
@@ -731,25 +744,7 @@ public class NotificationService {
                 }
             }
         }
-/*
-        // Process subset of CSRs for domain officers
-        for( User domainOfficer: domainOfficerList) {
 
-            if( pipelineUtil.isUserValidAsRA(csr.getPipeline(), domainOfficer) ){
-                Locale locale = getUserLocale(domainOfficer);
-                Context context = new Context(locale);
-                context.setVariable("newCsrList", newCsrList);
-                try {
-                    mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
-                }catch (Throwable throwable){
-                    LOG.warn("Problem occurred while sending a notification eMail to domain officer address '" + domainOfficer.getEmail() + "'", throwable);
-                    if(logNotification) {
-                        auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(domainOfficer.getEmail()));
-                    }
-                }
-            }
-        }
- */
     }
 
     @Transactional
