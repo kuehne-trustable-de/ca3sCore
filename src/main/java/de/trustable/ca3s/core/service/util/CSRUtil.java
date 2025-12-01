@@ -160,8 +160,8 @@ public class CSRUtil {
 		/**
 		 * produce a readable form of algorithms
 		 */
-		String sigAlgName = OidNameMapper.lookupOid(p10ReqHolder.getSigningAlgorithm());
-        String keyAlgName = getKeyAlgoName(sigAlgName);
+        String sigAlgName = OidNameMapper.lookupOid(p10ReqHolder.getSigningAlgorithm());
+        String keyAlgName = OidNameMapper.lookupOid(p10ReqHolder.getPublicKeyAlgorithm());
 
         csr.setSigningAlgorithm(sigAlgName);
 

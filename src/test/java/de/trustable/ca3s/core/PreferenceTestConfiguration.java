@@ -44,7 +44,8 @@ public class PreferenceTestConfiguration {
         initTestUserPreference(PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED, "true", SYSTEM_PREFERENCE_ID);
 
         initTestUserPreference(PreferenceUtil.SELECTED_HASHES, "sha-1,sha-256,sha-512", SYSTEM_PREFERENCE_ID);
-        initTestUserPreference(PreferenceUtil.SELECTED_SIGNING_ALGOS, "rsa-2048,rsa-3072,rsa-4096,ec-256", SYSTEM_PREFERENCE_ID);
+        initTestUserPreference(PreferenceUtil.SELECTED_SIGNING_ALGOS, "rsa-2048,rsa-3072,rsa-4096,rsa-6144,rsa-8192,ecdsa-224, ecdsa-256, ecdsa-512,Ed25519,brainpoolP256r1", SYSTEM_PREFERENCE_ID);
+
 
         return prefUtil.getPrefs(SYSTEM_PREFERENCE_ID);
 

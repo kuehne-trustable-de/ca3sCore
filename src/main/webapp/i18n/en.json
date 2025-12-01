@@ -1301,7 +1301,7 @@
   "pkcsxx.upload.tosAgreed": "Agreed to ",
   "pkcsxx.upload.tosAgreement.required": "Agreement required",
 
-  "pkcsxx.upload.cn-san.restriction.required": "CN MUST be present as DNS SAN entry!",
+  "pkcsxx.upload.cn-san.restriction.required": "CN MUST be present as DNS SAN entry, too!",
   "pkcsxx.upload.cn-san.restriction.recommended": "It's recommended to include the CN as DNS SAN entry, additionally!",
 
   "register.form.button": "Register",

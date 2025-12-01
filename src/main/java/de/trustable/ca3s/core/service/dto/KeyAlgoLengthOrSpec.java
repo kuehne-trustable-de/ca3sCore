@@ -151,10 +151,12 @@ public class KeyAlgoLengthOrSpec {
     }
     public KeyAlgoLengthOrSpec(String algoGroup, String algoName, String contentBuilderName, String providerName, int keyLength, AlgorithmParameterSpec algorithmParameterSpec){
         this.algoGroup = algoGroup;
-        if( "ECDSA".equalsIgnoreCase(algoGroup) ||
-            "Ed25519".equalsIgnoreCase(algoGroup) ||
-            "Brainpool".equalsIgnoreCase(algoGroup) ){
+        if( "ECDSA".equalsIgnoreCase(algoGroup) ){
             this.keyFactoryAlgo = "EC";
+        } else if( "Brainpool".equalsIgnoreCase(algoGroup) ){
+                this.keyFactoryAlgo = "ECDH";
+        }else if("Ed25519".equalsIgnoreCase(algoGroup)){
+            this.keyFactoryAlgo = "EdDSA";
         }
 
         this.algoName = algoName;

@@ -387,7 +387,7 @@
   "ca3SApp.cSR.rejectionReason": "Grund der Ablehnung",
   "ca3SApp.cSR.requestedBy": "Beantragt von",
   "ca3SApp.cSR.requestedOn": "Beantragt am",
-  "ca3SApp.cSR.requestorComment": "Antragsteller Kommentar",
+  "ca3SApp.cSR.requestorComment": "Kommentar zum Antrag",
   "ca3SApp.cSR.sans": "Sans",
   "ca3SApp.cSR.serversideKeyGeneration": "Serverseitige Schlüsselerzeugung",
   "ca3SApp.cSR.signingAlgorithm": "Signieralgorithmus",
@@ -1268,7 +1268,7 @@
   "pkcsxx.upload.tosAgreed": "Zustimmung zu den Bedingungen ",
   "pkcsxx.upload.tosAgreement.required": "Zustimmung notwendig",
 
-  "pkcsxx.upload.cn-san.restriction.required": "Der CN MUSS als DNS SAN Eintrag enthalten sein!",
+  "pkcsxx.upload.cn-san.restriction.required": "Der CN MUSS auch als DNS SAN Eintrag vorhanden sein!",
   "pkcsxx.upload.cn-san.restriction.recommended": "Es wird empfohlen, den CN zusätzlich als DNS SAN Eintrag einzufügen!",
 
   "register.form.button": "Registrieren",
