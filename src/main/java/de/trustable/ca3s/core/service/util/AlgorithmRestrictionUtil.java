@@ -5,7 +5,6 @@ import de.trustable.ca3s.core.service.dto.Preferences;
 import de.trustable.util.AlgorithmInfo;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -48,8 +47,6 @@ public class AlgorithmRestrictionUtil {
                                                    PublicKey publicKey,
                                                    String hashAlgName,
                                                    List<String> messageList) {
-        boolean outcome = true;
-
         Preferences preferences = preferenceUtil.getPrefs(PreferenceUtil.SYSTEM_PREFERENCE_ID);
 
         int keyLength = CertificateUtil.getAlignedKeyLength(publicKey);
@@ -58,7 +55,7 @@ public class AlgorithmRestrictionUtil {
             String msg = "restriction mismatch: signature algo / length '" + signingAlgo + "/" + keyLength + "' does not match expected set!";
             messageList.add(msg);
             LOG.info(msg);
-            outcome = false;
+            return false;
         }
 
         if((hashAlgName != null ) && CertificateUtil.isHashRequired(signingAlgo)) {
@@ -67,11 +64,11 @@ public class AlgorithmRestrictionUtil {
                 String msg = "restriction mismatch: hash algo '" + hashAlgName + "' does not match expected set!";
                 messageList.add(msg);
                 LOG.debug(msg);
-                outcome = false;
+                return false;
             }
         }
 
-        return outcome;
+        return true;
     }
 
     private boolean matchesAlgo(String a, String signingAlgo, int keyLength) {
@@ -93,10 +90,10 @@ public class AlgorithmRestrictionUtil {
             }
         }
 
-        if( algoNameLC.equalsIgnoreCase(KeyAlgoLengthOrSpec.Ed25519.getAlgoName() )){
+        if( signingAlgo.equalsIgnoreCase(KeyAlgoLengthOrSpec.Ed25519.getAlgoName() )){
             return true;
         }
-        if( algoNameLC.startsWith("brainpool")) {
+        if( signingAlgo.startsWith("brainpool")) {
             if (algoNameLC.startsWith(KeyAlgoLengthOrSpec.Brainpool_P256r1.getAlgoName().toLowerCase(Locale.ROOT))) {
                 return true;
             }else if (algoNameLC.startsWith(KeyAlgoLengthOrSpec.Brainpool_P384r1.getAlgoName().toLowerCase(Locale.ROOT))) {
