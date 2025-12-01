@@ -39,6 +39,7 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jcajce.interfaces.EdDSAPublicKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.X509Principal;
@@ -78,6 +79,7 @@ import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECParameterSpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.util.*;
 
@@ -2262,6 +2264,22 @@ public class CertificateUtil {
         cert.setRevokedSince(revocationDate);
     }
 
+    public static String getCnOrFirstSan(final Certificate cert) {
+
+        for (CertificateAttribute certificateAttribute : cert.getCertificateAttributes()) {
+
+            if (CertificateAttribute.ATTRIBUTE_RDN_CN.equals(certificateAttribute.getName())) {
+                if (certificateAttribute.getValue() != null) {
+                    return certificateAttribute.getValue();
+                }
+            }
+            if (CertificateAttribute.ATTRIBUTE_SAN.equals(certificateAttribute.getName())) {
+                return certificateAttribute.getValue();
+            }
+        }
+        return "(noCommonName)";
+    }
+
     public static String getDownloadFilename(final Certificate cert) {
 
         String cn = null;
@@ -2503,17 +2521,28 @@ public class CertificateUtil {
         LOG.debug("public key class {} ", chain[0].getPublicKey().getClass().getName());
         LOG.debug("private key class {} ", key.getClass().getName());
 
+        PrivateKey storeKey = key;
+
+        if( key instanceof BCECPrivateKey ) {
+            KeyFactory kf = KeyFactory.getInstance("EC", "BC");
+
+            // Rebuild the private key into a standard ECPrivateKey
+            storeKey = kf.generatePrivate( new PKCS8EncodedKeySpec(key.getEncoded()));
+            LOG.debug("regenerated private key class {} ", storeKey.getClass().getName());
+
+        }
+
         Set<KeyStore.Entry.Attribute> privateKeyAttributes = new HashSet<>();
         try {
             p12.setEntry(entryAlias,
-                new KeyStore.PrivateKeyEntry(key,
+                new KeyStore.PrivateKeyEntry(storeKey,
                     chain,
                     privateKeyAttributes),
                 new KeyStore.PasswordProtection(passphraseChars,
                     passwordProtectionAlgo,
                     new PBEParameterSpec(salt, 100000)));
         }catch( IllegalArgumentException iae){
-            LOG.debug("problem building keystora", iae);
+            LOG.debug("problem building keystore", iae);
             throw new GeneralSecurityException(iae.getMessage());
         }
         return new KeyStoreAndPassphrase(p12, passphraseChars);
