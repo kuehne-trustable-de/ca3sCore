@@ -164,11 +164,20 @@ public class MailService {
 
         if (useTitleAsMailSubject){
             String contentLowerCase = content.toLowerCase(Locale.ROOT);
-            int startPosTitle = contentLowerCase.indexOf("<title>");
-            int endPosTitle = contentLowerCase.indexOf("</title>");
-            if( startPosTitle > 0 && endPosTitle > 0 &&
-                endPosTitle > startPosTitle + 8){
-                String templateTitle = content.substring(startPosTitle + 7, endPosTitle);
+            int contentLen = contentLowerCase.length();
+            int startPosTitleTag = contentLowerCase.indexOf("<title");
+            int posTitleStart = startPosTitleTag+6;
+            for(; posTitleStart < contentLen; posTitleStart++ ){
+                if(contentLowerCase.charAt(posTitleStart) == '>'){
+                    posTitleStart++;
+                    break;
+                }
+            }
+            int endPosTitle = contentLowerCase.indexOf("</title");
+            if( endPosTitle > 0 &&
+                endPosTitle > posTitleStart){
+
+                String templateTitle = content.substring(posTitleStart, endPosTitle);
                 log.debug("Template title used as email subject '{}'", templateTitle);
                 return templateTitle;
             }

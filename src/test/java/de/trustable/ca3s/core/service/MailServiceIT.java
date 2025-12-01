@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,6 +24,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -60,9 +62,6 @@ class MailServiceIT {
     @Autowired
     private SpringTemplateEngine templateEngine;
 
-    @Autowired
-    private ProtectedContentUtil protectedContentUtil;
-
     @Spy
     private JavaMailSenderImpl javaMailSender;
 
@@ -70,6 +69,7 @@ class MailServiceIT {
     private ArgumentCaptor<MimeMessage> messageCaptor;
 
     private MailService mailService;
+    private MailService mailServiceUseHTMLTitle;
 
     @BeforeEach
     public void setup() {
@@ -80,6 +80,12 @@ class MailServiceIT {
             messageSource,
             templateEngine,
             false,
+            null);
+        mailServiceUseHTMLTitle = new MailService(jHipsterProperties,
+            javaMailSender,
+            messageSource,
+            templateEngine,
+            true,
             null);
     }
 
@@ -255,5 +261,41 @@ class MailServiceIT {
             javaLangKey = matcher3.group(1) + "_" + matcher3.group(2) + "_" + matcher3.group(3).toUpperCase();
         }
         return javaLangKey;
+    }
+
+
+    @Test
+    void testSubjectRetrievalFromTitle (){
+        String content = "<!DOCTYPE html> <html> <head> =20 <title>1 Certificate Expires Soon!</title> <meta http-equiv=3D\"Content-Type\" content=3D\"text/html; charset=3DU= TF-8\" /> <link rel=3D\"shortcut icon\" href=3D\"https://ca3s.services.domain.org/favicon.ico\" /> <style> table th { font-weight: bold; } table th, table td { padding: 1px 2px; border: 1px solid #ddd; } table tr { background-color: #fff; border-top: 1px solid #ccc; } table tr:nth-child(2n) { background-color: #f8f8f8; } </style> </head> <body> <div> <p> =09=09<br/>  </p> </br> </div> =09=09<p> Hello <span></span> <span></span>, </p> =09=09<p> =09=09this is a reminder regarding expiring certificates: =09=09</p> <p> <h2>Expiring User Certificate</h2> <table> <tr> <th>remaining days</th> <th>valid until</th> <th>Subject</th> <th>SAN</th> =09=09=09=09=09<th>Serial</th> =20 </tr> <tr> <td>7</td> =09=09=09=09=09<td>04.12.2025, 12:36</td> <td>C=3DDE, CN=3Dsubject.domain.org, EMAILADDRESS=3Dsysmgmt@domain.org</td> <td>subject.domain.org</td> =09=09=09=09=09<td>23d8068be958a38cca5c179584257d43ef3d4</td> = =20 </tr> </table> </p> <div> <br/> <p>Greetings</p> <p>PKI team</p> </div> </body> </html>";
+        String subject = mailServiceUseHTMLTitle.getSubject(content, "dummyTitleKey", new String[0], Locale.ROOT);
+        Assertions.assertThat(subject).isEqualTo("1 Certificate Expires Soon!");
+
+        try {
+            mailService.getSubject(content, "dummyTitleKey", new String[0], Locale.ROOT);
+            Assertions.fail("Should have thrown an exception");
+        }catch( Exception e){
+            // as expected
+        }
+
+        try {
+            String noTitleContent = "<!DOCTYPE html> <html> <head> =20 <meta http-equiv=3D\"Content-Type\" content=3D\"text/html; charset=3DU= TF-8\" /> ";
+            mailService.getSubject(noTitleContent, "dummyTitleKey", new String[0], Locale.ROOT);
+            Assertions.fail("Should have thrown an exception");
+        }catch( Exception e){
+            // as expected
+        }
+
+        String[] contentArr = {
+            "<!DOCTYPE html> <html> <head> =20 <title >1 Certificate Expires Soon!</title> <meta http-equiv=3D\"Content-Type\" content=3D\"text/html; charset=3DU= TF-8\" /> ",
+            "<!DOCTYPE html> <html> <head> =20 <Title >1 Certificate Expires Soon!</title          > <meta http-equiv=3D\"Content-Type\" content=3D\"text/html; charset=3DU= TF-8\" /> ",
+            "<!DOCTYPE html> <html> <head> =20 <Title >1 Certificate Expires Soon!</title> <meta http-equiv=3D\"Content-Type\" content=3D\"text/html; charset=3DU= TF-8\" /> ",
+            "<!DOCTYPE html> <html> <head> =20 <Title >1 Certificate Expires Soon!</title> </title>  <meta http-equiv=3D\"Content-Type\" content=3D\"text/html; charset=3DU= TF-8\" /> ",
+            "<!DOCTYPE html> <html> <head> =20 <Title                        >1 Certificate Expires Soon!</title> <meta http-equiv=3D\"Content-Type\" content=3D\"text/html; charset=3DU= TF-8\" /> "};
+        for( String testContent: contentArr) {
+            Assertions.assertThat(
+                mailServiceUseHTMLTitle.getSubject(testContent, "dummyTitleKey", new String[0], Locale.ROOT)
+            ).isEqualTo("1 Certificate Expires Soon!");
+        }
+
     }
 }
