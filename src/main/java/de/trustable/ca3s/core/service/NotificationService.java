@@ -896,17 +896,24 @@ public class NotificationService {
     }
 
 
-    private List<String> findARAEmailRecipients(final PipelineView pipelineView, final CSR csr){
+    private List<String> findARAEmailRecipients(final PipelineView pipelineView, final CSR csr) {
 
         List<String> emailAttributeList = new ArrayList<>();
-        for( ARARestriction araRestriction : pipelineView.getAraRestrictions()){
-            if( ARAContentType.EMAIL_ADDRESS == araRestriction.getContentType()){
+        List<String> recipientList = new ArrayList<>();
+
+        for (ARARestriction araRestriction : pipelineView.getAraRestrictions()) {
+            if (ARAContentType.EMAIL_ADDRESS == araRestriction.getContentType()) {
                 emailAttributeList.add(araRestriction.getName());
             }
         }
 
-        List<String> recipientList = new ArrayList<>();
-        for( String araAttribute: emailAttributeList) {
+        String additionalEmailRecipients = pipelineView.getWebConfigItems().getAdditionalEMailRecipients();
+        if (!additionalEmailRecipients.trim().isEmpty()) {
+            addSplittedEMailAddress(recipientList, additionalEmailRecipients);
+        }
+
+
+        for (String araAttribute : emailAttributeList) {
             String emailAttribute = csrUtil.getCSRAttribute(csr, CsrAttribute.ARA_PREFIX + araAttribute);
             addSplittedEMailAddress(recipientList, emailAttribute);
         }
