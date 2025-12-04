@@ -9,7 +9,6 @@ import de.trustable.ca3s.core.security.apikey.APIKeyAuthenticationManager;
 import de.trustable.ca3s.core.security.apikey.NullAuthFilter;
 import de.trustable.ca3s.core.security.jwt.JWTConfigurer;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
-import de.trustable.ca3s.core.security.oidc.OpenIdConnectFilter;
 import de.trustable.ca3s.core.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -328,13 +327,15 @@ public class SecurityConfiguration{
         }
         return new FilterChainProxy(chains);
     }
-
+/*
     @Bean
     public OpenIdConnectFilter openIdConnectFilter() {
-        final OpenIdConnectFilter filter = new OpenIdConnectFilter("/oidc/login");
+        final OpenIdConnectFilter filter = new OpenIdConnectFilter("/google-login");
         filter.setRestTemplate(restTemplate);
         return filter;
     }
+
+ */
     @Bean
     public WebSecurityCustomizer configure() {
 
@@ -388,7 +389,8 @@ public class SecurityConfiguration{
             .addFilterBefore(samlFilter(authenticationManager), CsrfFilter.class)
 
             .addFilterAfter(new OAuth2ClientContextFilter(), AbstractPreAuthenticatedProcessingFilter.class)
-            .addFilterAfter(openIdConnectFilter(), OAuth2ClientContextFilter.class);
+//            .addFilterAfter(openIdConnectFilter(), OAuth2ClientContextFilter.class)
+            ;
 
         if (servicePrincipal != null && !servicePrincipal.isEmpty()) {
             LOG.debug("add Filter : spnegoAuthenticationProcessingFilter");
