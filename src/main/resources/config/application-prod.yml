@@ -613,8 +613,6 @@ ca3s:
     #userAuthorizationUri: "http://10.152.183.139/realms/master/protocol/openid-connect/userinfo"
     #jwkUrl: "http://10.152.183.139/realms/master/protocol/openid-connect/certs"
 
-    client-id: 528678999149-90svlt60psv083eddmk6oi0ehpepgp70.apps.googleusercontent.com
-    client-secret:
     scope: openid, profile
     issuer: accounts.google.com
     accessTokenUri: https://www.googleapis.com/oauth2/v3/token

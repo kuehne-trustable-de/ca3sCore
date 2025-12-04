@@ -11,6 +11,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import de.trustable.ca3s.core.config.SecurityConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -32,6 +35,9 @@ import com.auth0.jwk.UrlJwkProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class OpenIdConnectFilter extends AbstractAuthenticationProcessingFilter {
+
+    private final Logger LOG = LoggerFactory.getLogger(OpenIdConnectFilter.class);
+
     @Value("ca3s.oidc.client-id:#{null}")
     private String clientId;
 
@@ -51,18 +57,26 @@ public class OpenIdConnectFilter extends AbstractAuthenticationProcessingFilter 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
 
+        LOG.info("Attempting OpenID Connect Authentication" );
+
         OAuth2AccessToken accessToken;
         try {
             accessToken = restTemplate.getAccessToken();
+            LOG.info("oidc accessToken: {}", accessToken.getValue() );
         } catch (final OAuth2Exception e) {
+            LOG.info("oidc accessToken problem", e );
             throw new BadCredentialsException("Could not obtain access token", e);
         }
+
         try {
             final String idToken = accessToken.getAdditionalInformation().get("id_token").toString();
+            LOG.info("oidc id_token: {}", idToken );
+
             String kid = JwtHelper.headers(idToken).get("kid");
             final Jwt tokenDecoded = JwtHelper.decodeAndVerify(idToken, verifier(kid));
             final Map<String, String> authInfo = new ObjectMapper().readValue(tokenDecoded.getClaims(), Map.class);
             verifyClaims(authInfo);
+            LOG.info("oidc authInfo: {}", authInfo );
             final OpenIdConnectUserDetails user = new OpenIdConnectUserDetails(authInfo, accessToken);
             return new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
         } catch (final Exception e) {

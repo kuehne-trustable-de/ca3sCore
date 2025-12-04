@@ -2,6 +2,8 @@ package de.trustable.ca3s.core.config.oidc;
 
 import java.util.Arrays;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +16,8 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.E
 @Configuration
 @EnableOAuth2Client
 public class OpenIdConnectConfig {
+    private final Logger LOG = LoggerFactory.getLogger(OpenIdConnectConfig.class);
+
     @Value("ca3s.oidc.client-id:#{null}")
     private String clientId;
 
@@ -44,6 +48,7 @@ public class OpenIdConnectConfig {
 
     @Bean
     public OAuth2RestTemplate googleOpenIdTemplate(final OAuth2ClientContext clientContext) {
+        LOG.info("googleOpenIdTemplate ({})", clientContext);
         final OAuth2RestTemplate template = new OAuth2RestTemplate(googleOpenId(), clientContext);
         return template;
     }
