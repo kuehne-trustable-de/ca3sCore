@@ -624,6 +624,8 @@
   "ca3SApp.pipeline.ara.comment": "Hinweistext zum Attribut",
   "ca3SApp.pipeline.ara.content.type": "Typ",
 
+  "ca3SApp.pipeline.ara.content.type.EMAIL_ADDRESS": "Email-Adresse für Benachrichtigung",
+
   "ca3SApp.pipeline.cardinality": "Kardinalität",
   "ca3SApp.pipeline.cn": "Common Name (CN)",
   "ca3SApp.pipeline.c": "Land (C)",

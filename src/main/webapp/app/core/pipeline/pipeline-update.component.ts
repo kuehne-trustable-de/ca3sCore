@@ -24,7 +24,6 @@ import {
 } from '@/shared/model/transfer-object.model';
 
 import CAConnectorConfigService from '../../entities/ca-connector-config/ca-connector-config.service';
-import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 import { IUser } from '@/shared/model/user.model';
 import { ITenant } from '@/shared/model/tenant.model';
 
@@ -524,9 +523,11 @@ export class RDNRestriction implements IRDNRestriction {
     public rdnName?: string,
     public cardinalityRestriction?: IRDNCardinalityRestriction,
     public contentTemplate?: string,
+    public templateReadOnly?: boolean,
     public regEx?: string,
     public regExMatch?: boolean
   ) {
+    this.templateReadOnly = this.templateReadOnly || false;
     this.regExMatch = this.regExMatch || false;
     this.cardinalityRestriction = this.cardinalityRestriction || 'ZERO_OR_ONE';
   }

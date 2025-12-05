@@ -2,6 +2,8 @@ export interface IPipelineRestriction {
   name: string;
   cardinality: string;
   template: string;
+  templateReadOnly: boolean,
+  contentType: string,
   comment: string;
   regExMatch: boolean;
   regEx: string;
@@ -21,11 +23,16 @@ export class PipelineRestriction implements IPipelineRestriction {
     public name: string,
     public cardinality: string,
     public template: string,
+    public templateReadOnly: boolean,
+    public contentType: string,
     public comment: string,
     public regExMatch: boolean,
     public regEx: string
   ) {
     this.template = template || '';
+    this.templateReadOnly = this.templateReadOnly || false;
+    this.contentType = contentType || '';
+    this.readOnly = this.templateReadOnly || false;
     this.comment = comment || '';
     this.regEx = regEx || '';
     this.regExMatch = regExMatch || false;
@@ -35,10 +42,6 @@ export class PipelineRestriction implements IPipelineRestriction {
   public alignContent(): void {
     window.console.info('alignContent ');
 
-    this.readOnly = false;
-    if (this.template.trim().length > 0 && !this.regExMatch) {
-      this.readOnly = true;
-    }
     this.required = false;
     if (this.cardinality === 'ONE' || this.cardinality === 'ONE_OR_MANY') {
       this.required = true;

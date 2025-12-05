@@ -48,8 +48,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.fail;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest(classes = Ca3SApp.class,
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
@@ -152,6 +151,7 @@ public class CSRSubmitIT extends WebTestBase {
     public static final By LOC_INP_OU_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.OU']");
     public static final By LOC_INP_L_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.L']");
     public static final By LOC_INP_ST_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.ST']");
+    public static final By LOC_INP_E_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.E']");
     public static final By LOC_INP_SAN_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.SAN']");
 
     public static final By LOC_INP_SECRET_VALUE = By.xpath("//div/input [@name = 'upload-secret']");
@@ -228,8 +228,8 @@ public class CSRSubmitIT extends WebTestBase {
         randomComment = "Neque porro quisquam est, qui dolorem ipsum, quia dolor sit, amet, consectetur, adipisci velit " +
             Base64.getEncoder().encodeToString(commentBytes);
 
-        userUtil.updateUserByLogin(USER_NAME_USER, USER_PASSWORD_USER, "user@localhost");
-        userUtil.updateUserByLogin(USER_NAME_RA, USER_PASSWORD_RA, "ra@localhost");
+        userUtil.updateUserByLogin(USER_NAME_USER, USER_PASSWORD_USER, USER_EMAIL_USER);
+        userUtil.updateUserByLogin(USER_NAME_RA, USER_PASSWORD_RA, USER_EMAIL_RA);
     }
 
 
@@ -302,6 +302,10 @@ public class CSRSubmitIT extends WebTestBase {
         explain("csr.submit.8");
         setText(LOC_INP_SAN_VALUE, san);
         explain("csr.submit.8.1");
+
+        String prefilledEMail = getText(LOC_INP_E_VALUE);
+        assertEquals(USER_EMAIL_USER, prefilledEMail);
+        assertTrue(isReadOnly(LOC_INP_E_VALUE));
 
         validatePresent(LOC_SMALL_WARNING_CN_SAN_RESTRICTION);
         setText(LOC_INP_SAN_VALUE, cn);
@@ -727,8 +731,11 @@ public class CSRSubmitIT extends WebTestBase {
             keyPair1.getPublic(),
             keyPair2.getPrivate() );
 
+        LOG.info("upload csrFilePath '{}'", csrFilePath);
+
         validatePresent(LOC_SELECT_FILE);
         setText(LOC_SELECT_FILE, csrFilePath);
+
         explain("csr.submit.38");
 
         waitForElement(LOC_TEXT_CONTENT_TYPE);

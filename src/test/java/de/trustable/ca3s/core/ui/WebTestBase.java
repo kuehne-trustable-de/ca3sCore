@@ -70,8 +70,10 @@ public class WebTestBase extends LocomotiveBase {
 
     public static final String USER_NAME_USER = "user";
     public static final String USER_PASSWORD_USER = "S3cr3t!S_user";
+    public static final String USER_EMAIL_USER = "user@localhost";
     public static final String USER_NAME_RA = "ra";
     public static final String USER_PASSWORD_RA = "s3cr3t";
+    public static final String USER_EMAIL_RA ="ra@localhost";
 
     public static int testPortHttp;
     public static int testPortHttps;
@@ -520,11 +522,20 @@ public class WebTestBase extends LocomotiveBase {
 
 	}
 
-	public boolean isEnabled(final By loc) {
+    public boolean isEnabled(final By loc) {
 
-		WebElement we = waitForElement(loc);
-		return we.isEnabled();
-	}
+        WebElement we = waitForElement(loc);
+        return we.isEnabled();
+    }
+    public boolean isReadOnly(final By loc) {
+
+        WebElement we = waitForElement(loc);
+        String attVal = we.getAttribute("readonly");
+        if(attVal == null) {
+            return false;
+        }
+        return attVal.equalsIgnoreCase("true");
+    }
 
     public void wait(int ms)
     {

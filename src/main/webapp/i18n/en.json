@@ -632,6 +632,9 @@
   "ca3SApp.pipeline.ara.required": "Attribute required",
   "ca3SApp.pipeline.ara.comment": "Attribute comment",
   "ca3SApp.pipeline.ara.content.type": "Type",
+
+  "ca3SApp.pipeline.ara.content.type.EMAIL_ADDRESS": "Notification Email address",
+
   "ca3SApp.pipeline.c.cardinality": "Cardinality 'C'",
   "ca3SApp.pipeline.caConnector": "Ca Connector",
   "ca3SApp.pipeline.caNameCAA": "CA Name in CAA",

@@ -663,6 +663,9 @@ public class PipelineTestConfiguration {
 
         addPipelineAttribute(pipelineWeb, CN_AS_SAN_RESTRICTION, CnAsSanRestriction.CN_AS_SAN_WARN_ONLY.toString());
 
+        addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE, "{{user.email}}");
+        addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE_READ_ONLY, "true");
+
         pipelineWeb.setProcessInfoNotify(getSimpleBPMNProcessInfo());
 
         pipelineAttributeRepository.saveAll(pipelineWeb.getPipelineAttributes());

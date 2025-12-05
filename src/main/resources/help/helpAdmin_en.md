@@ -237,7 +237,13 @@ This listbox allows to define the cardinality of the parts of the distinguished 
 
 #### <a id="pipeline.template"></a> DN part's template
 
-Define a preselected value for this part of the distinguished name.
+Define a preselected value for this part of the distinguished name. This may be a constant text value or values of the requesting user in moustache notation:
+- {{user.firstName}} : the first name of the requestor
+- {{user.lastName}} : the last name of the requestor
+- {{user.login}} : the user identification of the requestor
+- {{user.email}} : the email address of the requestor
+
+The checkbox decides whether the field is presented to the requestor in read-only mode.
 
 #### <a id="pipeline.regex"></a> DN part's regular expression
 
@@ -257,6 +263,16 @@ Define additional attribute required for processing of this pipeline. The aspect
 - Type: Select the type of content. Values of the type 'EMAIL_ADDRESS' will be used as targets for notification email delivery.
 - Attribute Required: Is this attribute required or just informative.
 - Attribute Comment: A hint for the user to provide the expected value.
+
+#### <a id="pipeline.ara.template"></a> Additional request attribute
+
+Define a preselected value for this part of the additional request attributes. This may be a constant text value or values of the requesting user in moustache notation:
+- {{user.firstName}} : the first name of the requestor
+- {{user.lastName}} : the last name of the requestor
+- {{user.login}} : the user identification of the requestor
+- {{user.email}} : the email address of the requestor
+
+The checkbox decides whether the field is presented to the requestor in read-only mode.
 
 #### <a id="pipeline.tosAgreed"></a> Terms of Service agreed
 

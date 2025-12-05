@@ -401,7 +401,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
           // ignore this
         } else {
           this.rdnRestrictions.push(
-            new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, '', rr.regExMatch, rr.regEx)
+            new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.templateReadOnly, '', '', rr.regExMatch, rr.regEx)
           );
         }
       }
@@ -428,11 +428,16 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     for (const rr of this.rdnRestrictions) {
       const nv: INamedValues = {};
       nv.name = rr.name;
+      nv.values = [{value: this.replacePlaceholder(rr.template)}];
+
+      /*
       if (rr.readOnly) {
         nv.values = [{ value: rr.template }];
       } else {
         nv.values = [{ value: '' }];
       }
+      */
+
       if (nv.name === 'SAN') {
         nv.values[0].type = 'DNS';
       }
@@ -446,7 +451,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       for (const rr of pipeline.araRestrictions) {
         const cardinalityRestriction = rr.required ? 'ONE' : 'ZERO_OR_ONE';
         this.araRestrictions.push(
-          new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.comment, rr.regExMatch, rr.regEx)
+          new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.templateReadOnly, rr.contentType, rr.comment, rr.regExMatch, rr.regEx)
         );
       }
     }
@@ -454,11 +459,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     for (const rr of this.araRestrictions) {
       const nv: INamedValues = {};
       nv.name = rr.name;
-      if (rr.readOnly) {
-        nv.values = [{ value: rr.template }];
-      } else {
-        nv.values = [{ value: '' }];
-      }
+
+      nv.values = [{value: this.replacePlaceholder(rr.template)}];
+
       this.upload.arAttributes.push(nv);
     }
 
@@ -469,6 +472,19 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     this.updateForm();
 
     window.console.info('end of updatePipelineRestrictionsByPipelineInfo');
+  }
+
+  public replacePlaceholder(valueIn: string): string {
+
+    const account = this.$store.getters.account;
+    let value = valueIn;
+    if (account) {
+      return value.replace('{{user.firstName}}', account.firstName)
+        .replace('{{user.lastName}}', account.lastName)
+        .replace('{{user.login}}', account.login)
+        .replace('{{user.email}}', account.email);
+    }
+    return value;
   }
 
   public buildCommandLine(): string {
@@ -899,16 +915,21 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public notifyFileChange(evt: any): void {
     const self = this;
     const selectedFile = evt.target.files[0];
+    window.console.info('notifyFileChange: ' + selectedFile);
+
     const readerBase64 = new FileReader();
     readerBase64.onload = function (_result) {
       const base64Text = readerBase64.result.toString();
+      window.console.info('notifyFileChange: uploaded text :' + base64Text);
 
       // check, whether this is base64 encoded content
       if (/^[\x00-\x7F]*$/.test(base64Text)) {
         self.upload.content = base64Text;
         self.contentCall(precheckUrl);
+        window.console.info('notifyFileChange: base64Test found');
       } else {
-        // binary, start re-reading it as base64-encoded comntent
+        // binary, start re-reading it as base64-encoded content
+        window.console.info('notifyFileChange: binary data, reread as base64');
         const readerBinary = new FileReader();
         readerBinary.onload = function (__result) {
           self.upload.content = readerBinary.result.toString().split(',')[1];
@@ -918,6 +939,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       }
     };
     readerBase64.readAsText(selectedFile);
+    window.console.info('notifyFileChange: readerBase64.readAsText');
   }
 
   // handle any changes affecting the plain content
@@ -1174,19 +1196,6 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     }
     for (const pipeline of this.allWebPipelines) {
       if (pipeline.id === pipelineId && (pipeline.type === 'WEB' || pipeline.type === 'MANUAL_UPLOAD')) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public isUploadPipelineChoosen() {
-    const pipelineId = this.upload.pipelineId;
-    if (pipelineId < 0) {
-      return false;
-    }
-    for (const pipeline of this.allWebPipelines) {
-      if (pipeline.id === pipelineId && pipeline.type === 'MANUAL_UPLOAD') {
         return true;
       }
     }

@@ -50,8 +50,8 @@
                         <input type="text" class="form-control" name="urlPart" id="pipeline-urlPart"
                             :class="{'valid': !$v.pipeline.urlPart.$invalid, 'invalid': $v.pipeline.urlPart.$invalid }" v-model="$v.pipeline.urlPart.$model" />
 
-                        <label v-if="$v.pipeline.type.$model === 'ACME'" class="form-check-inline" name="pipeline-acme-url" id="pipeline-acme-url">ACME-URL: https://SERVER/acme/{{encodeURIComponent($v.pipeline.urlPart.$model)}}/directory</label>
-                        <label v-if="$v.pipeline.type.$model === 'SCEP'" class="form-check-inline" name="pipeline-scep-url" id="pipeline-scep-url">SCEP-URL: http://SERVER/scep/{{encodeURIComponent($v.pipeline.urlPart.$model)}}</label>
+                        <label v-if="$v.pipeline.type.$model === 'ACME'" class="form-check-inline" id="pipeline-acme-url">ACME-URL: https://SERVER/acme/{{encodeURIComponent($v.pipeline.urlPart.$model)}}/directory</label>
+                        <label v-if="$v.pipeline.type.$model === 'SCEP'" class="form-check-inline" id="pipeline-scep-url">SCEP-URL: http://SERVER/scep/{{encodeURIComponent($v.pipeline.urlPart.$model)}}</label>
 
                     </div>
 
@@ -208,9 +208,9 @@
                             </td>
                             <td>
                                 <input type="text" class="form-control" name="pipeline-cn-template" id="pipeline-cn-template" v-model="pipeline.restriction_CN.contentTemplate" />
+                                <input type="checkbox" class="form-check-inline" name="pipeline-cn-template-readonly" id="pipeline-cn-template-readonly" v-model="pipeline.restriction_CN.templateReadOnly" />
                             </td>
                             <td>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-cn-regExMatch" id="pipeline-cn-regExMatch" v-model="pipeline.restriction_CN.regExMatch" />
                                 <input type="text" class="form-control" name="pipeline-cn-regex" id="pipeline-cn-regex" v-model="pipeline.restriction_CN.regEx" />
                             </td>
                         </tr>
@@ -230,9 +230,9 @@
                             </td>
                             <td>
                                 <input type="text" class="form-control" name="pipeline-c-template" id="pipeline-c-template" v-model="pipeline.restriction_C.contentTemplate" />
+                                <input type="checkbox" class="form-check-inline" name="pipeline-c-template-readonly" id="pipeline-c-template-readonly" v-model="pipeline.restriction_C.templateReadOnly" />
                             </td>
                             <td>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-c-regExMatch" id="pipeline-c-regExMatch" v-model="pipeline.restriction_C.regExMatch" />
                                 <input type="text" class="form-control" name="pipeline-c-regex" id="pipeline-c-regex" v-model="pipeline.restriction_C.regEx" />
                             </td>
                         </tr>
@@ -252,9 +252,9 @@
                             </td>
                             <td>
                                 <input type="text" class="form-control" name="pipeline-o-template" id="pipeline-o-template" v-model="pipeline.restriction_O.contentTemplate" />
+                                <input type="checkbox" class="form-check-inline" name="pipeline-o-template-readonly" id="pipeline-o-template-readonly" v-model="pipeline.restriction_O.templateReadOnly" />
                             </td>
                             <td>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-o-regExMatch" id="pipeline-o-regExMatch" v-model="pipeline.restriction_O.regExMatch" />
                                 <input type="text" class="form-control" name="pipeline-o-regex" id="pipeline-o-regex" v-model="pipeline.restriction_O.regEx" />
                             </td>
                         </tr>
@@ -274,9 +274,9 @@
                             </td>
                             <td>
                                 <input type="text" class="form-control" name="pipeline-cn-template" id="pipeline-cn-template" v-model="pipeline.restriction_CN.contentTemplate" />
+                                <input type="checkbox" class="form-check-inline" name="pipeline-ou-template-readonly" id="pipeline-ou-template-readonly" v-model="pipeline.restriction_OU.templateReadOnly" />
                             </td>
                             <td>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-ou-regExMatch" id="pipeline-ou-regExMatch" v-model="pipeline.restriction_OU.regExMatch" />
                                 <input type="text" class="form-control" name="pipeline-ou-regex" id="pipeline-ou-regex" v-model="pipeline.restriction_OU.regEx" />
                             </td>
                         </tr>
@@ -296,9 +296,9 @@
                             </td>
                             <td>
                                 <input type="text" class="form-control" name="pipeline-s-template" id="pipeline-s-template" v-model="pipeline.restriction_S.contentTemplate" />
+                                <input type="checkbox" class="form-check-inline" name="pipeline-s-template-readonly" id="pipeline-s-template-readonly" v-model="pipeline.restriction_S.templateReadOnly" />
                             </td>
                             <td>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-s-regExMatch" id="pipeline-s-regExMatch" v-model="pipeline.restriction_S.regExMatch" />
                                 <input type="text" class="form-control" name="pipeline-s-regex" id="pipeline-s-regex" v-model="pipeline.restriction_S.regEx" />
                             </td>
                         </tr>
@@ -318,9 +318,9 @@
                             </td>
                             <td>
                                 <input type="text" class="form-control" name="pipeline-l-template" id="pipeline-l-template" v-model="pipeline.restriction_L.contentTemplate" />
+                                <input type="checkbox" class="form-check-inline" name="pipeline-l-template-readonly" id="pipeline-l-template-readonly" v-model="pipeline.restriction_L.templateReadOnly" />
                             </td>
                             <td>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-l-regExMatch" id="pipeline-l-regExMatch" v-model="pipeline.restriction_L.regExMatch" />
                                 <input type="text" class="form-control" name="pipeline-l-regex" id="pipeline-l-regex" v-model="pipeline.restriction_L.regEx" />
                             </td>
                         </tr>
@@ -340,9 +340,9 @@
                             </td>
                             <td>
                                 <input type="text" class="form-control" name="pipeline-e-template" id="pipeline-e-template" v-model="pipeline.restriction_E.contentTemplate" />
+                                <input type="checkbox" class="form-check-inline" name="pipeline-e-template-readonly" id="pipeline-e-template-readonly" v-model="pipeline.restriction_E.templateReadOnly" />
                             </td>
                             <td>
-                                <input type="checkbox" class="form-check-inline" name="pipeline-e-regExMatch" id="pipeline-e-regExMatch" v-model="pipeline.restriction_E.regExMatch" />
                                 <input type="text" class="form-control" name="pipeline-e-regex" id="pipeline-e-regex" v-model="pipeline.restriction_E.regEx" />
                             </td>
                         </tr>
@@ -362,9 +362,9 @@
                             </td>
                             <td>
                                 <input type="text" class="form-control" name="pipeline-san-template" id="pipeline-san-template" v-model="pipeline.restriction_SAN.contentTemplate" />
+                                <input type="checkbox" class="form-check-inline" name="pipeline-san-template-readonly" id="pipeline-san-template-readonly" v-model="pipeline.restriction_SAN.templateReadOnly" />
                             </td>
                             <td>
-                              <input type="checkbox" class="form-check-inline" name="pipeline-san-regExMatch" id="pipeline-san-regExMatch" v-model="pipeline.restriction_SAN.regExMatch" />
                               <input type="text" class="form-control" name="pipeline-san-regex" id="pipeline-san-regex" v-model="pipeline.restriction_SAN.regEx" />
                             </td>
                         </tr>
@@ -399,6 +399,7 @@
                                 <th>
                                     <label class="form-control-label" v-text="$t('ca3SApp.pipeline.template')"
                                            for="pipeline-ara-template"></label>
+                                    <help-tag role="Admin" target="pipeline.ara.template"/>
                                 </th>
                                 <th>
                                     <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')"
@@ -429,11 +430,11 @@
                                     <input type="text" class="form-control-inline" name="pipeline-ara-template"
                                            id="pipeline-ara-template"
                                            v-model="pipeline.araRestrictions[index].contentTemplate"/>
+                                    <input type="checkbox" class="form-check-inline" name="pipeline-ara-templateReadOnly"
+                                           id="pipeline-ara-templateReadOnly"
+                                           v-model="pipeline.araRestrictions[index].templateReadOnly"/>
                                 </td>
                                 <td>
-                                    <input type="checkbox" class="form-check-inline" name="pipeline-ara-regExMatch"
-                                           id="pipeline-ara-regExMatch"
-                                           v-model="pipeline.araRestrictions[index].regExMatch"/>
                                     <input type="text" class="form-control-inline" name="pipeline-ara-regex"
                                            id="pipeline-ara-regex" v-model="pipeline.araRestrictions[index].regEx"/>
                                 </td>
@@ -442,7 +443,7 @@
                                             name="pipeline-ara-content-type"
                                             v-model="pipeline.araRestrictions[index].contentType">
                                         <option value="NO_TYPE"></option>
-                                        <option value="EMAIL_ADDRESS">EMAIL_ADDRESS</option>
+                                        <option value="EMAIL_ADDRESS" v-text="$t('ca3SApp.pipeline.ara.content.type.EMAIL_ADDRESS')"></option>
                                     </select>
                                 </td>
                                 <td>
