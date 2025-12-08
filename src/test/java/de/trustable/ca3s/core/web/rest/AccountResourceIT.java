@@ -14,6 +14,7 @@ import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.AuthorityRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.AdminUserDTO;
 import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
@@ -29,6 +30,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -122,7 +128,7 @@ class AccountResourceIT {
     void testGetUnknownAccount() throws Exception {
         restAccountMockMvc
             .perform(get("/api/account").accept(MediaType.APPLICATION_PROBLEM_JSON))
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -323,7 +329,7 @@ class AccountResourceIT {
             .andExpect(status().isCreated());
 
         Optional<User> testUser2 = userRepository.findOneByLogin("test-register-duplicate-email");
-        assertThat(testUser2).isEmpty();
+        assertThat(testUser2).isPresent();
 
         Optional<User> testUser3 = userRepository.findOneByLogin("test-register-duplicate-email-2");
         assertThat(testUser3).isPresent();
@@ -359,7 +365,7 @@ class AccountResourceIT {
         // Register 4th (already activated) user
         restAccountMockMvc
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(secondUser)))
-            .andExpect(status().is4xxClientError());
+            .andExpect(status().isCreated());
     }
 
     @Test
@@ -421,7 +427,7 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testActivateAccountWithWrongKey() throws Exception {
-        restAccountMockMvc.perform(get("/api/activate?key=wrongActivationKey")).andExpect(status().isInternalServerError());
+        restAccountMockMvc.perform(get("/api/activate?key=wrongActivationKey")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -520,7 +526,58 @@ class AccountResourceIT {
 
         restAccountMockMvc
             .perform(post("/api/account").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(userDTO)))
-            .andExpect(status().isBadRequest());
+            .andExpect(status().isOk());
+
+        User updatedUser = userRepository.findOneByLogin("save-existing-email").orElse(null);
+        assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email@example.com");
+    }
+
+    @Test
+    @Transactional
+    @WithMockUser("save-existing-email")
+    void testSaveExistingEmailAsAdmin() throws Exception {
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ADMIN));
+        securityContext.setAuthentication(new UsernamePasswordAuthenticationToken("admin", "admin", authorities));
+        SecurityContextHolder.setContext(securityContext);
+        Optional<String> optLogin = SecurityUtils.getCurrentUserLogin();
+        assertThat(optLogin.isPresent()).isTrue();
+        assertThat(optLogin.get().equals("admin")).isTrue();
+        assertThat(SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)).isTrue();
+
+        User user = new User();
+        user.setLogin("save-existing-email");
+        user.setEmail("save-existing-email@example.com");
+        user.setPassword(RandomStringUtils.random(60));
+        user.setActivated(true);
+        userRepository.saveAndFlush(user);
+
+        User anotherUser = new User();
+        anotherUser.setLogin("save-existing-email2");
+        anotherUser.setEmail("save-existing-email2@example.com");
+        anotherUser.setPassword(RandomStringUtils.random(60));
+        anotherUser.setActivated(true);
+
+        userRepository.saveAndFlush(anotherUser);
+
+        AdminUserDTO userDTO = new AdminUserDTO();
+        userDTO.setLogin("not-used");
+        userDTO.setFirstName("firstname");
+        userDTO.setLastName("lastname");
+        userDTO.setEmail("save-existing-email2@example.com");
+        userDTO.setActivated(false);
+        userDTO.setImageUrl("http://placehold.it/50x50");
+        userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
+        userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
+
+        SecurityContextHolder.setContext(securityContext);
+        assertThat(SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)).isTrue();
+
+        restAccountMockMvc
+            .perform(post("/api/account").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(userDTO)))
+            .andExpect(status().isOk());
 
         User updatedUser = userRepository.findOneByLogin("save-existing-email").orElse(null);
         assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email@example.com");
@@ -753,7 +810,7 @@ class AccountResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(keyAndPassword))
             )
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isNotFound());
 
         List<ProtectedContent> protectedContentList = protectedContentUtil.findProtectedContentBySecret(resetKey,
             ProtectedContentType.DERIVED_SECRET,
@@ -805,6 +862,6 @@ class AccountResourceIT {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(TestUtil.convertObjectToJsonBytes(keyAndPassword))
             )
-            .andExpect(status().isInternalServerError());
+            .andExpect(status().isNotFound());
     }
 }

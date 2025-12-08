@@ -16,16 +16,24 @@ import java.io.InputStreamReader;
 import java.util.stream.Collectors;
 
 @Controller
-@RequestMapping("/app/{realm}/certsrv/mscep_admin")
 public class NDESPasswordController {
 
     @Value("${ca3s.help.en:classpath:templates/web/NDES_PASSWORD.html}")
     private Resource ndesPasswordTemplate;
 
-    @GetMapping(value = "/*", produces = MediaType.TEXT_HTML_VALUE)
+
+    @GetMapping(value = {"/certsrv/mscep", "/certsrv/mscep/mscep.dll", "/certsrv/mscep_admin"}, produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody
+    public String ndesDefaultPasswordHTML() throws IOException {
+
+        InputStream is = ndesPasswordTemplate.getInputStream();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+        return ndesPasswordHTML("default");
+    }
+
+    @GetMapping(value = {"/certsrv/{realm}/mscep","/certsrv/{realm}/mscep/mscep.dll", "/certsrv/{realm}/mscep_admin"}, produces = MediaType.TEXT_HTML_VALUE)
     @ResponseBody
     public String ndesPasswordHTML(@PathVariable("realm") String realm) throws IOException {
-
         InputStream is = ndesPasswordTemplate.getInputStream();
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         return reader.lines().collect(Collectors.joining(System.lineSeparator()));

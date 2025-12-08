@@ -27,6 +27,7 @@ import de.trustable.ca3s.core.web.rest.ApiTokenController;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
 import de.trustable.ca3s.core.web.rest.vm.TokenResponse;
 import de.trustable.util.CryptoUtil;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -53,6 +54,7 @@ public class ClientCertBotIT {
 
     String hostname;
 
+//    @TempDir(cleanup = CleanupMode.NEVER)
     @TempDir
     Path directory;
 
@@ -85,7 +87,13 @@ public class ClientCertBotIT {
 
     @BeforeEach
 	void init() throws IOException {
+/*
+        File tmpFile = File.createTempFile("test_", "certbotIT");
+        Assertions.assertTrue( tmpFile.exists(), "expected tmpFile exists");
+        Assertions.assertTrue( tmpFile.canWrite(), "expected tmpFile is writable");
 
+        directory = tmpFile.toPath();
+*/
         ptc.getInternalACMETestPipelineLaxRestrictions();
 
         hostname = InetAddress.getLocalHost().getHostName().toLowerCase();
@@ -119,10 +127,10 @@ public class ClientCertBotIT {
             Path workFolder= directory.resolve("work");
             Path logFolder= directory.resolve("log");
 
-            webrootFolder.toFile().mkdirs();
-            configFolder.toFile().mkdirs();
-            workFolder.toFile().mkdirs();
-            logFolder.toFile().mkdirs();
+            Assertions.assertTrue(webrootFolder.toFile().mkdirs(), "expecting successful creation of webroot");
+            Assertions.assertTrue(configFolder.toFile().mkdirs(), "expecting successful creation of config folder");
+            Assertions.assertTrue(workFolder.toFile().mkdirs(), "expecting successful creation of work folder");
+            Assertions.assertTrue(logFolder.toFile().mkdirs(), "expecting successful creation of log folder");
 
             ProcessBuilder builderCreate = new ProcessBuilder();
             builderCreate.command("certbot",

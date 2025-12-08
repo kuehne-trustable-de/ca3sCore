@@ -18,6 +18,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.transaction.Transactional;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Locale;
 
 /**
@@ -53,28 +54,42 @@ public class MailService {
                        MessageSource messageSource,
                        SpringTemplateEngine templateEngine,
                        @Value("${ca3s.template.email.useTitleAsMailSubject:false}") boolean useTitleAsMailSubject,
-                       @Value("${ca3s.email.all.bcc:#{null}}") String[] defaultBCC) {
+                       @Value("${ca3s.template.email.all.bcc:}") String[] defaultBCC) {
 
         this.jHipsterProperties = jHipsterProperties;
         this.javaMailSender = javaMailSender;
         this.messageSource = messageSource;
         this.templateEngine = templateEngine;
         this.useTitleAsMailSubject = useTitleAsMailSubject;
-        this.defaultBCC = defaultBCC;
+
+        this.defaultBCC = new String[0];
+        if( defaultBCC != null ) {
+            Arrays.stream(defaultBCC).filter(
+                    address -> !address.trim().isEmpty())
+                .toArray(String[]::new);
+        }
+
     }
 
     @Transactional
-    public void sendEmail(String to, String[] cc, String subject, String content, boolean isMultipart, boolean isHtml) throws MessagingException {
-        log.debug("Send email[multipart' '{}' and html '{}'] to '{}' (cc to '{}') with subject '{}' and content={}",
-            isMultipart, isHtml, to, cc, subject, content);
+    public void sendEmail(String to, String[] ccIn, String subject, String content, boolean isMultipart, boolean isHtml) throws MessagingException {
+        String[] cc;
+        if (ccIn == null) {
+            cc = new String[0];
+        } else {
+            cc = Arrays.stream(ccIn).filter(
+                    address -> !address.trim().isEmpty())
+                .toArray(String[]::new);
+        }
+
+        log.debug("Send email[multipart' '{}' and html '{}'] to '{}' (cc to '{}', bcc to '{}') with subject '{}' and content={}",
+            isMultipart, isHtml, to, cc, defaultBCC, subject, content);
 
         // Prepare message using a Spring helper
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper message = new MimeMessageHelper(mimeMessage, isMultipart, StandardCharsets.UTF_8.name());
         message.setTo(to);
-        if( cc != null) {
-            message.setCc(cc);
-        }
+        message.setCc(cc);
 
         if( defaultBCC != null ) {
             log.info( "Added general BCC email '{}'.", (Object) defaultBCC);
@@ -164,11 +179,20 @@ public class MailService {
 
         if (useTitleAsMailSubject){
             String contentLowerCase = content.toLowerCase(Locale.ROOT);
-            int startPosTitle = contentLowerCase.indexOf("<title>");
-            int endPosTitle = contentLowerCase.indexOf("</title>");
-            if( startPosTitle > 0 && endPosTitle > 0 &&
-                endPosTitle > startPosTitle + 8){
-                String templateTitle = content.substring(startPosTitle + 7, endPosTitle);
+            int contentLen = contentLowerCase.length();
+            int startPosTitleTag = contentLowerCase.indexOf("<title");
+            int posTitleStart = startPosTitleTag+6;
+            for(; posTitleStart < contentLen; posTitleStart++ ){
+                if(contentLowerCase.charAt(posTitleStart) == '>'){
+                    posTitleStart++;
+                    break;
+                }
+            }
+            int endPosTitle = contentLowerCase.indexOf("</title");
+            if( endPosTitle > 0 &&
+                endPosTitle > posTitleStart){
+
+                String templateTitle = content.substring(posTitleStart, endPosTitle);
                 log.debug("Template title used as email subject '{}'", templateTitle);
                 return templateTitle;
             }

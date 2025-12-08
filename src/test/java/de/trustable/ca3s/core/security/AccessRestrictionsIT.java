@@ -51,6 +51,10 @@ public class AccessRestrictionsIT {
 
         knownAnonymousResources.add("get /scep/{realm}");
         knownAnonymousResources.add("post /scep/{realm}");
+        knownAnonymousResources.add("get /scep/{realm}/pkiclient.exe");
+        knownAnonymousResources.add("post /scep/{realm}/pkiclient.exe");
+        knownAnonymousResources.add("get /scep/{realm}/cgi-bin/pkiclient.exe");
+        knownAnonymousResources.add("post /scep/{realm}/cgi-bin/pkiclient.exe");
         knownAnonymousResources.add("get /acme/{realm}/directory");
         knownAnonymousResources.add("post /acme/{realm}/directory");
         knownAnonymousResources.add("post /api/pipelineViews");
@@ -58,6 +62,7 @@ public class AccessRestrictionsIT {
         knownAnonymousResources.add("post /cmpTest/{alias}");
         knownAnonymousResources.add("post /api/register");
         knownAnonymousResources.add("post /api/authenticate");
+        knownAnonymousResources.add("post /api/authenticateLDAP");
         knownAnonymousResources.add("post /api/acme-challenges/validation");
         knownAnonymousResources.add("post /api/acme-challenges/pending/request-proxy-configs/{requestProxyId}");
         knownAnonymousResources.add("post /api/request-proxy-configs/remote-config/{requestProxyId}");

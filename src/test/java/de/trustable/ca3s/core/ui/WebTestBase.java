@@ -4,14 +4,18 @@ import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.sun.mail.imap.protocol.FLAGS;
 import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.test.speech.SoundOutput;
 import org.jboss.aerogear.security.otp.Totp;
+import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -30,7 +34,9 @@ import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.net.*;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 import java.util.Random;
 
 import static org.junit.Assert.fail;
@@ -60,10 +66,14 @@ public class WebTestBase extends LocomotiveBase {
 
     public static final By LOC_LOGIN_FAILED_TEXT = By.xpath("//div/strong [text() = 'Failed to sign in!']");
 
+    public static final By LOC_HELP_TARGET_LIST = By.xpath("//a [starts-with(@href,'/helpTargetAdmin')]");
+
     public static final String USER_NAME_USER = "user";
     public static final String USER_PASSWORD_USER = "S3cr3t!S_user";
+    public static final String USER_EMAIL_USER = "user@localhost";
     public static final String USER_NAME_RA = "ra";
     public static final String USER_PASSWORD_RA = "s3cr3t";
+    public static final String USER_EMAIL_RA ="ra@localhost";
 
     public static int testPortHttp;
     public static int testPortHttps;
@@ -78,6 +88,10 @@ public class WebTestBase extends LocomotiveBase {
 
     protected SoundOutput soundOutput = null;
 
+    @Autowired
+    UserRepository userRepository;
+
+
     public String getLocale() {
         return locale;
     }
@@ -88,6 +102,15 @@ public class WebTestBase extends LocomotiveBase {
         }else{
             this.locale = "en";
         }
+    }
+
+    void setAllUserLocale(String locale){
+
+        List<User> userList = userRepository.findAll();
+        for(User user: userList){
+            user.setLangKey(locale);
+        }
+        userRepository.saveAll(userList);
     }
 
     private String locale = "en";
@@ -116,7 +139,7 @@ public class WebTestBase extends LocomotiveBase {
         ClassPathResource explainationsResource =  new ClassPathResource("tutorial/explanations.xml");
 
         DocumentBuilderFactory builderFactory = newSecureDocumentBuilderFactory();
-        DocumentBuilder builder = null;
+        DocumentBuilder builder;
         try {
             builder = builderFactory.newDocumentBuilder();
             tutorialDocument = builder.parse(explainationsResource.getInputStream());
@@ -139,7 +162,7 @@ public class WebTestBase extends LocomotiveBase {
         soundOutput = new SoundOutput(speechifyApiTokenArr);
     }
 
-    protected static void startEmailMock() throws IOException, MessagingException {
+    protected static void startEmailMock() throws IOException {
         ServerSocket ssSMTP = new ServerSocket(0);
         ServerSocket ssIMAP = new ServerSocket(0);
         int randomPortSMTP = ssSMTP.getLocalPort();
@@ -499,11 +522,21 @@ public class WebTestBase extends LocomotiveBase {
 
 	}
 
-	public boolean isEnabled(final By loc) {
+    public boolean isEnabled(final By loc) {
 
-		WebElement we = waitForElement(loc);
-		return we.isEnabled();
-	}
+        WebElement we = waitForElement(loc);
+        return we.isEnabled();
+    }
+    public boolean isReadOnly(final By loc) {
+
+        WebElement we = waitForElement(loc);
+        String attVal = we.getAttribute("readonly");
+        if(attVal == null) {
+            return false;
+        }
+        return attVal.equalsIgnoreCase("true");
+    }
+
     public void wait(int ms)
     {
         try
@@ -585,6 +618,7 @@ public class WebTestBase extends LocomotiveBase {
         click(LOC_BTN_SIGNIN_SUBMIT);
 
         if( expectFailure ) {
+            wait(1000);
             validatePresent(LOC_LOGIN_FAILED_TEXT);
             driver.findElement(LOC_LNK_SIGNIN_PASSWORD).sendKeys(Keys.ESCAPE);
         } else {
@@ -606,4 +640,38 @@ public class WebTestBase extends LocomotiveBase {
         }
     }
 
+    void checkHelpTargets() {
+
+        List<String> missingHelpRefs = new ArrayList<>();
+        List<WebElement> webElementList = driver.findElements(LOC_HELP_TARGET_LIST);
+        Assertions.assertFalse(webElementList.isEmpty(), "Expect some help targets on the page");
+        for( WebElement we: webElementList){
+            we.click();
+            waitForWindow("ca3s Admin Help");
+            switchToWindow("ca3s Admin Help");
+
+            try {
+                URL url = new URL(driver.getCurrentUrl());
+//                System.out.println("CurrentUrl: " + url);
+//                System.out.println("ref = " + url.getRef());
+
+                By helpItem = By.xpath("//a [@id = '" + url.getRef() + "']");
+                if (driver.findElements(helpItem).isEmpty()){
+                    missingHelpRefs.add(url.getRef());
+                }
+
+            } catch (MalformedURLException e) {
+                System.out.println( "MalformedURLException : " + e.getMessage());
+            }
+
+            switchToWindow("ca3s");
+        }
+        if( !missingHelpRefs.isEmpty()){
+            System.out.println("\n######### Missing help targets found !");
+            for( String missíngRef: missingHelpRefs){
+                System.out.println("Missing help target: " + missíngRef);
+            }
+        }
+        Assertions.assertEquals(0, missingHelpRefs.size(), "No missing help targets expected");
+    }
 }

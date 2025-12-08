@@ -27,7 +27,6 @@ public class BPMNExecutor {
         this.runtimeService = runtimeService;
         this.bpnmInfoRepo = bpnmInfoRepo;
         this.protectedContentUtil = protectedContentUtil;
-
     }
 
 

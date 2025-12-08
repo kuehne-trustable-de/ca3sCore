@@ -71,7 +71,7 @@ public class ProtectedContentUtil {
 
         PasswordUtil passwordUtil = new PasswordUtil("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{16,100}$");
 
-        if( (protectionSecret == null) || (protectionSecret.trim().length() == 0)) {
+        if( (protectionSecret == null) || (protectionSecret.trim().isEmpty())) {
             if ((protectionSecretFallback != null) && !protectionSecretFallback.trim().isEmpty()) {
                 if("mJvR25yt4NHTIqe5Hz7nUHhQNUuM".equals(protectionSecretFallback)){
                     log.warn("Please provide a secure value for 'ca3s.protectionSecret'!");
@@ -82,7 +82,7 @@ public class ProtectedContentUtil {
             }
         }
 
-		if( (protectionSecret == null) || (protectionSecret.trim().length() == 0)) {
+		if( (protectionSecret == null) || (protectionSecret.trim().isEmpty())) {
             log.warn("Configuration parameter 'protectionSecret' missing or invalid!!");
             throw new UnsupportedOperationException("Configuration parameter 'protectionSecret' missing or invalid");
 		}
@@ -298,7 +298,7 @@ public class ProtectedContentUtil {
                                                                   final ProtectedContentType type,
                                                                   final ContentRelationType crt) {
 
-        String protectedString = null;
+        String protectedString;
         try {
             protectedString = Base64.getEncoder().encodeToString( deriveSecret(plainText));
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -307,9 +307,13 @@ public class ProtectedContentUtil {
         log.debug("searching for protectedString '{}'", protectedString );
 
         List<ProtectedContent> pcList = protContentRepository.findByTypeRelationContentB64(type, crt, protectedString);
+        log.debug("searching for protectedString '{}' returns {} elements", protectedString, pcList.size() );
 
         Instant now = Instant.now();
-        Predicate<ProtectedContent> usableItem = pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);
+        Predicate<ProtectedContent> usableItem = pc -> {
+            log.debug("pc.getLeftUsages(): '{}', pc.getValidTo(): {}, valid now: {}", pc.getLeftUsages(), pc.getValidTo(), pc.getValidTo().isAfter(now) );
+            return ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);};
+
         return pcList.stream().filter(usableItem).collect(Collectors.toList());
     }
 
@@ -327,7 +331,7 @@ public class ProtectedContentUtil {
             .collect(Collectors.toList());
 
         Instant now = Instant.now();
-        Predicate<ProtectedContent> usableItem = pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);
+        Predicate<ProtectedContent> usableItem = pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && (pc.getValidTo() == null || pc.getValidTo().isAfter(now));
         return matchingItemList.stream().filter(usableItem).collect(Collectors.toList());
     }
 

@@ -112,8 +112,11 @@ public class CertificateProcessingUtil {
 	 * @param messageList			messageList
 	 * @return csr
 	 */
-	public CSR buildCSR(final String csrAsPem, final String requestorName, final String requestAuditType,
-                        String requestorComment, Pipeline pipeline,
+	public CSR buildCSR(final String csrAsPem,
+                        final String requestorName,
+                        final String requestAuditType,
+                        final String requestorComment,
+                        Pipeline pipeline,
                         AcmeOrder acmeOrder,
                         NamedValues[] araArr,
                         List<String> messageList ) throws KeyApplicableException {
@@ -136,8 +139,7 @@ public class CertificateProcessingUtil {
                 restrictionArr = pvUtil.initAraRestrictions(pipeline);
             }
 
-
-			csr.setRequestorComment(requestorComment);
+            csrUtil.setCSRComment(csr, requestorComment);
 			csrRepository.save(csr);
 
             if( araArr != null) {

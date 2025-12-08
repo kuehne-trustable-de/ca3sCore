@@ -81,4 +81,12 @@ public class RandomUtil {
         getSecureRandom().nextBytes(randBytes);
         return Base64.getUrlEncoder().encodeToString(randBytes);
     }
+
+    /**
+     * Generate a random key id for EAB "kid" parameter.
+     * @return
+     */
+    public String generateKidId() {
+        return "" + Math.abs(getSecureRandom().nextLong());
+    }
 }

@@ -1,16 +1,18 @@
-import { Component, Inject, Vue } from 'vue-property-decorator';
+import { Component, Inject } from 'vue-property-decorator';
 import { VERSION } from '@/constants';
 import LoginService from '@/account/login.service';
 import AccountService from '@/account/account.service';
 import TranslationService from '@/locale/translation.service';
 import axios from 'axios';
 import { IUIConfigView } from '@/shared/model/transfer-object.model';
+import { mixins } from 'vue-class-component';
+import AlertMixin from '@/shared/alert/alert.mixin';
 
 const REQUESTED_URL_KEY = 'requested-url';
 const CA3S_JWT_COOKIE_NAME = 'ca3sJWT';
 
 @Component
-export default class JhiNavbar extends Vue {
+export default class JhiNavbar extends mixins(AlertMixin) {
   @Inject('loginService')
   private loginService: () => LoginService;
   @Inject('translationService') private translationService: () => TranslationService;
@@ -23,6 +25,7 @@ export default class JhiNavbar extends Vue {
   public showNavBar = true;
   public instantLogin = true;
   public ssoProvider: any = [];
+  public ldapLoginDomainName: string = '';
   public uiConfig: IUIConfigView = {};
 
   public mounted(): void {
@@ -60,6 +63,7 @@ export default class JhiNavbar extends Vue {
       self.uiConfig = response.data;
       self.$store.commit('updateCV', self.uiConfig);
       self.ssoProvider = self.uiConfig.ssoProvider;
+      self.ldapLoginDomainName = self.uiConfig.ldapLoginDomainName;
 
       if (self.uiConfig.appName) {
         document.title = self.uiConfig.appName;
@@ -131,9 +135,14 @@ export default class JhiNavbar extends Vue {
     this.loginService().openLogin((<any>this).$root);
   }
 
+  public openLdapLogin() {
+    this.loginService().openLdapLogin((<any>this).$root, this.ldapLoginDomainName);
+  }
+
   public doSSOLogin() {
     this._doSSOLogin(this.$store.state.uiConfigStore.config.ssoProvider[0]);
   }
+
   public _doSSOLogin(ssoProviderNameMixedCase: string) {
     if (!ssoProviderNameMixedCase) {
       window.console.info('undefined SSO provider name at SSOlogin');
@@ -141,7 +150,7 @@ export default class JhiNavbar extends Vue {
     }
 
     let ssoProviderName = ssoProviderNameMixedCase.toLowerCase();
-    window.console.info('forwarding to SSO Login: ' + ssoProviderName);
+    window.console.info('using SSO provider: ' + ssoProviderName);
 
     let ssoReturnUrl = window.location.pathname + window.location.search;
     window.console.info('setting requested-url to window.location.pathname: ' + ssoReturnUrl);
@@ -153,6 +162,8 @@ export default class JhiNavbar extends Vue {
       this.doOIDCLogin();
     } else if (ssoProviderName === 'saml') {
       this.doSAMLLogin();
+    } else if (ssoProviderName === 'spnego') {
+      this.doSpnegoLogin();
     } else {
       window.console.info('unexpected SSO provider name : ' + ssoProviderName);
     }
@@ -220,6 +231,14 @@ export default class JhiNavbar extends Vue {
     window.location.href = target;
   }
 
+  public doSpnegoLogin(): void {
+    this.loginService().openLoginSpnego((<any>this).$root);
+  }
+
+  setTimeoutPromise(callback: () => void, ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms)).then(callback);
+  }
+
   public doOIDCLogout(): void {
     axios
       .post('oidc/logout')
@@ -277,15 +296,9 @@ export default class JhiNavbar extends Vue {
       return false;
     }
 
-    if (this.$store.getters.account.tenantName === undefined) {
-      return false;
-    }
-
-    if (this.$store.getters.account.tenantName.length === 0) {
-      return false;
-    }
-    return true;
+    return this.$store.getters.account.tenantName.length !== 0;
   }
+
   public get tenant(): string {
     if (this.hasTenant()) {
       window.console.warn('hasTenant ' + this.$store.getters.account.tenantName);

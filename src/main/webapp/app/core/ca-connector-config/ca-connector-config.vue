@@ -49,7 +49,7 @@
             <table class="table table-striped">
                 <thead>
                 <tr>
-                    <!--th><span v-text="$t('global.field.id')">ID</span></th-->
+                    <th><span v-text="$t('global.field.id')">ID</span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.name')"></span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.caConnectorType')"></span></th>
                     <th><span v-text="$t('ca3SApp.cAConnectorConfig.caUrl')"></span></th>
@@ -65,9 +65,9 @@
                 <tbody>
                 <tr v-for="cAConnectorConfig in filteredCAConnectorConfigs"
                     :key="cAConnectorConfig.id">
-                    <!--td>
+                    <td>
                         <router-link :to="{name: 'CAConnectorConfigView', params: {cAConnectorConfigId: cAConnectorConfig.id}}">{{cAConnectorConfig.id}}</router-link>
-                    </td-->
+                    </td>
                     <td>{{cAConnectorConfig.name}}</td>
                     <td v-text="$t('ca3SApp.CAConnectorType.' + cAConnectorConfig.caConnectorType)">{{cAConnectorConfig.caConnectorType}}</td>
                     <td>{{cAConnectorConfig.caUrl}}</td>
@@ -76,7 +76,9 @@
                     <td v-if="cAConnectorConfig.caConnectorType === 'INTERNAL' || cAConnectorConfig.caConnectorType === 'ADCS' || cAConnectorConfig.caConnectorType === 'CMP' || cAConnectorConfig.caConnectorType === 'VAULT'">{{cAConnectorConfig.defaultCA}}</td>
                     <td v-else></td>
 
-                    <td>{{$t(getStatus(cAConnectorConfig.id))}}</td>
+                    <!--td>{{$t(getStatus(cAConnectorConfig.id))}}</td-->
+                    <td>{{cAConnectorConfig.active}}</td>
+
                     <td :style="getValidToStyle(cAConnectorConfig.expiryDate)">{{ toLocalDate(cAConnectorConfig.expiryDate)}}</td>
 
                     <td v-if="cAConnectorConfig.caConnectorType === 'ADCS' || cAConnectorConfig.caConnectorType === 'CMP' || cAConnectorConfig.caConnectorType === 'VAULT_INVENTORY'">{{cAConnectorConfig.selector}}</td>

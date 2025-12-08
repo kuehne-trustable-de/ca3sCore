@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.service.util.CertificateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
  */
 public class CertificateView implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
 	private final Logger LOG = LoggerFactory.getLogger(CertificateView.class);
@@ -272,7 +274,7 @@ public class CertificateView implements Serializable {
     	this.sans = cert.getSans();
         this.issuer = cert.getIssuer();
         this.type = cert.getType();
-   		this.keyLength = cert.getKeyLength().toString();
+   		this.keyLength = "" + cert.getKeyLength();
    		this.keyAlgorithm = cert.getKeyAlgorithm();
 		this.signingAlgorithm = cert.getSigningAlgorithm();
 		this.paddingAlgorithm = cert.getPaddingAlgorithm();
@@ -905,6 +907,10 @@ public class CertificateView implements Serializable {
 
     public void setFingerprintSha256(String fingerprint) {
         this.fingerprintSha256 = fingerprint;
+    }
+
+    public String getSkiUrlSafe() {
+        return Base64.getUrlEncoder().encodeToString(Base64.getDecoder().decode(ski));
     }
 
     public String getSki() {

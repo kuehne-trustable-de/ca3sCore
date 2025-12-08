@@ -2,14 +2,10 @@
     <div class="row justify-content-center">
         <div class="col-8">
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
-                <h2 id="ca3SApp.cAConnectorConfig.home.createOrEditLabel" v-text="$t('ca3SApp.cAConnectorConfig.home.createOrEditLabel')"></h2>
-                <div>
-                    <!--div class="form-group" v-if="cAConnectorConfig.id">
-                        <label for="id" v-text="$t('global.field.id')">ID</label>
-                        <input type="text" class="form-control" id="id" name="id"
-                               v-model="cAConnectorConfig.id" readonly />
-                    </div-->
+                <h2 v-if="!cAConnectorConfig.id" id="ca3SApp.cAConnectorConfig.home.createOrEditLabel" v-text="$t('ca3SApp.cAConnectorConfig.home.createLabel')"></h2>
+                <h2 v-if="cAConnectorConfig.id" id="ca3SApp.cAConnectorConfig.home.createOrEditLabel" v-text="$t('ca3SApp.cAConnectorConfig.home.editLabel', {'id': cAConnectorConfig.id})"></h2>
 
+                <div>
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.name')" for="ca-connector-config-name"></label>  <help-tag role="Admin" target="ca-connector.name"/>
                         <input type="text" class="form-control" name="name" id="ca-connector-config-name"
@@ -139,7 +135,7 @@
                   <div class="form-group"
                        v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT_INVENTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' || ($v.cAConnectorConfig.caConnectorType.$model === 'CMP' && cAConnectorConfig.messageProtectionPassphrase)">
 
-                    <div class="form-group"v-if="isADCSConnectorConfig()">
+                    <div class="form-group" v-if="isADCSConnectorConfig()">
                       <label class="form-control-label" v-text="$t('ca3SApp.authenticationSelection.kdfType')"
                              for="authentication-selection-kdf-type"></label>
                       <select class="form-control"
@@ -275,7 +271,7 @@
                         <input type="checkbox" class="form-check" name="ca-connector-config-ignoreResponseMessageVerification" id="ca-connector-config-ignoreResponseMessageVerification"
                                v-model="$v.cAConnectorConfig.ignoreResponseMessageVerification.$model" />
 
-                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.fillEmptySubjectWithSAN')" for="ca-connector-config-fillEmptySubjectWithSAN"></label>  <help-tag role="Admin" target="ca-connector.cmp.fill-empty-eubject-with-san"/>
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.fillEmptySubjectWithSAN')" for="ca-connector-config-fillEmptySubjectWithSAN"></label>  <help-tag role="Admin" target="ca-connector.cmp.fill-empty-subject-with-san"/>
                         <input type="checkbox" class="form-check" name="ca-connector-config-ignoreResponseMessageVerification" id="ca-connector-config-fillEmptySubjectWithSAN"
                                v-model="$v.cAConnectorConfig.fillEmptySubjectWithSAN.$model" />
                     </div>

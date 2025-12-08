@@ -65,6 +65,8 @@ public class ScepServiceIT {
     CertificateVerifier acceptAllVerifier = new AcceptAllVerifier();
 
     Client client;
+    Client pkiclienClient;
+    Client cgiPkiclienClient;
     Client client1CN;
     Client clientSR;
 
@@ -94,9 +96,16 @@ public class ScepServiceIT {
 
         URL serverUrl = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP_REALM);
         LOG.debug("scep serverUrl : " + serverUrl);
-
         client = new Client(serverUrl, acceptAllVerifier);
 
+
+        URL serverPkiclientUrl = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP_REALM + "/pkiclient.exe");
+        LOG.debug("scep serverPkiclientUrl : " + serverPkiclientUrl);
+        pkiclienClient = new Client(serverPkiclientUrl, acceptAllVerifier);
+
+        URL serverCgiPkiclientUrl = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP_REALM + "/cgi-bin/pkiclient.exe");
+        LOG.debug("scep serverCgiPkiclientUrl : " + serverCgiPkiclientUrl);
+        cgiPkiclienClient = new Client(serverCgiPkiclientUrl, acceptAllVerifier);
 
         URL serverUrl1CN = new URL("http://localhost:" + serverPort + "/scep/" + PipelineTestConfiguration.SCEP1CN_REALM);
         LOG.debug("scep serverUrl1CN : " + serverUrl1CN);
@@ -115,10 +124,20 @@ public class ScepServiceIT {
 
         LOG.info("ephemeralCert : " + ephemeralCert);
 
+        testClient(client);
+        testClient(pkiclienClient);
+        testClient(cgiPkiclienClient);
+
+    }
+    private void testClient(Client client) throws GeneralSecurityException, IOException, ClientException, TransactionException {
+
+        keyPair = keyUtil.createKeyPair();
+
         PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
             keyPair.getPublic(),
             keyPair.getPrivate(),
             password);
+
 
         EnrollmentResponse resp = client.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
@@ -162,7 +181,6 @@ public class ScepServiceIT {
                 Assertions.fail("Renewal failed");
             }
         }
-
 
     }
 

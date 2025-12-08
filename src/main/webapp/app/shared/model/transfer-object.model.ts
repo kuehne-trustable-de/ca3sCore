@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2025-09-09 16:08:07.
+// Generated using typescript-generator version 3.2.1263 on 2025-12-05 13:35:22.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -166,6 +166,7 @@ export interface IPipelineView extends ISerializable {
   processInfoNameRevoke?: string;
   processInfoNameNotify?: string;
   keyUniqueness?: IKeyUniqueness;
+  cnAsSanRestriction?: ICnAsSanRestriction;
   restriction_C?: IRDNRestriction;
   restriction_CN?: IRDNRestriction;
   restriction_L?: IRDNRestriction;
@@ -278,6 +279,7 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedValue[];
+  skiUrlSafe?: string;
   auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
@@ -301,7 +303,9 @@ export interface IUIConfigView extends ISerializable {
   cryptoConfigView?: ICryptoConfigView;
   autoSSOLogin?: boolean;
   ssoProvider?: string[];
+  ldapLoginDomainName?: string;
   samlEntityBaseUrl?: string;
+  spnegoEntityBaseUrl?: string;
   scndFactorTypes?: IAuthSecondFactor[];
   extUsageArr?: string[];
   infoMsg?: string;
@@ -319,6 +323,31 @@ export interface IUserLoginData {
   login?: string;
   password?: string;
   rememberMe?: boolean;
+}
+
+export interface IUserDTO {
+  id?: number;
+  login?: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  imageUrl?: string;
+  secondFactorRequired?: boolean;
+  activated?: boolean;
+  langKey?: string;
+  createdBy?: string;
+  createdDate?: Date;
+  lastModifiedBy?: string;
+  lastModifiedDate?: Date;
+  authorities?: string[];
+  tenantName?: string;
+  tenantId?: number;
+  failedLogins?: number;
+  blockedUntilDate?: Date;
+  credentialsValidToDate?: Date;
+  managedExternally?: boolean;
+  blocked?: boolean;
 }
 
 export interface ICSRView extends ISerializable {
@@ -359,8 +388,8 @@ export interface ICSRView extends ISerializable {
   isAdministrable?: boolean;
   tosAgreed?: boolean;
   tosAgreementLink?: string;
-  csrvalid?: boolean;
   administrable?: boolean;
+  csrvalid?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -608,6 +637,7 @@ export interface IRDNRestriction {
   rdnName?: string;
   cardinalityRestriction?: IRDNCardinalityRestriction;
   contentTemplate?: string;
+  templateReadOnly?: boolean;
   regEx?: string;
   regExMatch?: boolean;
 }
@@ -615,6 +645,7 @@ export interface IRDNRestriction {
 export interface IARARestriction {
   name?: string;
   contentTemplate?: string;
+  templateReadOnly?: boolean;
   regEx?: string;
   comment?: string;
   contentType?: IARAContentType;
@@ -792,6 +823,7 @@ export interface IKeyAlgoLengthOrSpec {
   contentBuilderName?: string;
   providerName?: string;
   algoGroup?: string;
+  keyFactoryAlgo?: string;
   keyLength?: number;
   algorithmParameterSpec?: IAlgorithmParameterSpec;
 }
@@ -1003,9 +1035,11 @@ export type ICAConnectorType = "INTERNAL" | "CMP" | "ADCS" | "ADCS_CERTIFICATE_I
 
 export type IInterval = "MINUTE" | "HOUR" | "DAY" | "WEEK" | "MONTH";
 
-export type IPipelineType = "ACME" | "SCEP" | "EST" | "WEB" | "INTERNAL" | "MANUAL_REQUEST";
+export type IPipelineType = "ACME" | "SCEP" | "EST" | "WEB" | "INTERNAL" | "MANUAL_REQUEST" | "MANUAL_UPLOAD";
 
 export type IKeyUniqueness = "KEY_UNIQUE" | "DOMAIN_REUSE" | "KEY_REUSE" | "KEY_UNIQUE_WARN_ONLY" | "DOMAIN_REUSE_WARN_ONLY";
+
+export type ICnAsSanRestriction = "CN_AS_SAN_REQUIRED" | "CN_AS_SAN_IGNORE" | "CN_AS_SAN_WARN_ONLY";
 
 export type ICsrUsage = "TLS_SERVER" | "TLS_CLIENT" | "DOC_SIGNING" | "CODE_SIGNING";
 

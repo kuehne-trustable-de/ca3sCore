@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title th:if="${expiringCertList.size() == 1}" th:text="#{email.expiringCertificate.title(${expiringCertList.get(0).subject})}">Certificate '${expiringCertList.get(0).subject}' will expire soon!</title>
-        <title th:if="${expiringCertList.size() > 1}" th:text="#{email.expiringCertificates.title(${expiringCertList.size()})}">${expiringCertList.size()} certificates will expire soon</title>
+        <title th:if="${expiringCertList.size() == 1}" th:text="#{email.expiringCertificate.title(${T(de.trustable.ca3s.core.service.util.CertificateUtil).getCnOrFirstSan(expiringCertList.get(0))})}">Certificate '${expiringCertList.get(0).subject}' will expire soon!</title>
+        <title th:unless="${expiringCertList.size() == 1}" th:text="#{email.expiringCertificates.title(${expiringCertList.size()})}">${expiringCertList.size()} certificates will expire soon</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
         <style>
@@ -42,7 +42,7 @@
                 </tr>
                 <tr th:each="cert : ${expiringCertList}">
                     <td th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(now,cert.validTo)}">7</td>
-                    <td th:text="${cert.validTo}">2.41</td>
+                    <td th:text="${#dates.format(cert.validTo, 'dd.MM.yyyy, HH:mm')}">2.41</td>
                     <td th:text="${cert.subject}">foo.com</td>
                     <td th:text="${cert.sans}">foo.com, 8.8.8.8</td>
                     <td><a

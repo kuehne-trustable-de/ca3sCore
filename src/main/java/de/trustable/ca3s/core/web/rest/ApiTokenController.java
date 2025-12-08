@@ -68,7 +68,7 @@ public class ApiTokenController {
                 break;
             case EAB_PASSWORD:
                 tokenResponse.setTokenValue(randomUtil.generateMacKey());
-                tokenResponse.setEabKid(eabKidPrefix + ":" + user.getLogin());
+                tokenResponse.setEabKid(eabKidPrefix + ":" + user.getLogin() + ":" + randomUtil.generateKidId());
                 break;
             default:
                 String msg = String.format("unexpected type '%s' for token request!", tokenRequest.getCredentialType());

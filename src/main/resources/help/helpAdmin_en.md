@@ -127,6 +127,14 @@ This entry field offers the option to provide a specific SNI value to support th
 
 This flag offers the option to disable the host name validation. This option disables a relevant security feature of TLS and allows Man-in-the-middle attacks. May only be required in complex network setups.
 
+##### <a id="ca-connector.cmp.ignore-response-message-verification"></a> Ignore Response Message Verification
+
+Ignoring the validation of the response message integrity is a dangerous option! It maybe acceptable in test / dev environments.
+
+##### <a id="ca-connector.cmp.fill-empty-subject-with-san"></a> Fill Empty Subject with SAN
+
+Some CAs may require a subject. But especially TLS request do not include a subject but SANs. This option fills the subject with the first SAN entry if the subject is empty.
+
 #### ADCS specific settings
 
 ##### <a id="ca-connector.template"></a> Template
@@ -174,7 +182,7 @@ Activate this checkbox if an approval required by an RA officer for issuing a ce
 An approval is quite common for web based requests, deactivate it only e.g. for testing environments, where an authorization is not required.
 On the other hand it is unusual to request an approval for auto-enrollment protocols like ACME and SCEP.
 
-#### <a id="pipeline.pipeline.issuesSecondFactorClientCert"></a> Pipeline producing client certificates
+#### <a id="pipeline.issuesSecondFactorClientCert"></a> Pipeline producing client certificates
 
 Using the option 'client certificate' for second factor authentication requires a pipeline for producing the certificate.
 This option can be selected at one pipeline, only.
@@ -229,7 +237,13 @@ This listbox allows to define the cardinality of the parts of the distinguished 
 
 #### <a id="pipeline.template"></a> DN part's template
 
-Define a preselected value for this part of the distinguished name.
+Define a preselected value for this part of the distinguished name. This may be a constant text value or values of the requesting user in moustache notation:
+- {{user.firstName}} : the first name of the requestor
+- {{user.lastName}} : the last name of the requestor
+- {{user.login}} : the user identification of the requestor
+- {{user.email}} : the email address of the requestor
+
+The checkbox decides whether the field is presented to the requestor in read-only mode.
 
 #### <a id="pipeline.regex"></a> DN part's regular expression
 
@@ -249,6 +263,16 @@ Define additional attribute required for processing of this pipeline. The aspect
 - Type: Select the type of content. Values of the type 'EMAIL_ADDRESS' will be used as targets for notification email delivery.
 - Attribute Required: Is this attribute required or just informative.
 - Attribute Comment: A hint for the user to provide the expected value.
+
+#### <a id="pipeline.ara.template"></a> Additional request attribute
+
+Define a preselected value for this part of the additional request attributes. This may be a constant text value or values of the requesting user in moustache notation:
+- {{user.firstName}} : the first name of the requestor
+- {{user.lastName}} : the last name of the requestor
+- {{user.login}} : the user identification of the requestor
+- {{user.email}} : the email address of the requestor
+
+The checkbox decides whether the field is presented to the requestor in read-only mode.
 
 #### <a id="pipeline.tosAgreed"></a> Terms of Service agreed
 
@@ -296,6 +320,14 @@ This listbox allows the selection of a BPMN process that will be invoked for cer
 This listbox allows the selection of a BPMN process that will be invoked after successful certificate creation by this pipeline. As the certificate is already created this BPMN process has no option to veto on it. This is useful to forward the certificate ( and / or certificate information) to e.g. resource management systems.
 The process is also invoked on revocations.
 
+#### <a id="pipeline.process.notify"></a> BPMN process 'Revoke'
+
+This listbox allows the selection of a BPMN process that will be invoked for certificate state change (creation or revocation) by this pipeline.
+
+#### <a id="pipeline.roles"></a> Roles list
+
+This multi-selection listbox assigns this pipeline to different roles. If no role is selected, no user is able to use this pipeline.
+
 #### <a id="pipeline.tenants"></a> Tenants list
 
 This multi-selection listbox assigns this pipeline to different tenants. If no tenant is selected, no user is able to use this pipeline.
@@ -324,15 +356,15 @@ This listbox allows the selection of the appropriate CA connector for issuing th
 ##### <a id="pipeline.acme.allow-challenge-http01"></a> Allow HTTP-01 Challenge
 
 This checkbox allows the use of the most common HTTP-01 challenge. The client is required to allow incoming validation requests to port 80 and the path '/.wellknown/acme-challenge/\*'. Make sure that the usual 'redirect to HTTPS'-rule does not apply to this path.
-The details of this challenge are available at [RFC 8555-8.3](https://datatracker.ietf.org/doc/html/rfc8555#section-8.3) .
+The details of this challenge are available at [RFC 8555-8.3](https://datatracker.ietf.org/doc/html/rfc8555#section-8.3).
 
 ##### <a id="pipeline.acme.allow-challenge-alpn"></a> Allow ALPN Challenge
 
 This checkbox allows the use of the ALPN challenge. The distinct advantage of this challenge is that it does not required an additional port for incoming validation requests. But it requires to present a specifically crafted certificate as the response to the challenge. This isn't a problem on the initial setup but may lead to irritations for users as it may cause security warnings while performing the renewal process. The details of this challenge are available at [RFC 8737](https://www.rfc-editor.org/rfc/rfc8737.html).
 
-##### <a id="pipeline.acme.pipeline.acme.allow-challenge-dns"></a> Allow DNS Challenge
+##### <a id="pipeline.acme.allow-challenge-dns"></a> Allow DNS-01 Challenge
 
-This checkbox allows the use of the DNS challenge. This challenge type has the outstanding feature of validating wildcard certificate requests.
+This checkbox allows the use of the DNS challenge. This challenge type has the outstanding feature of validating wildcard certificate requests. In some environments in may be difficult to grant selective DNS update rights to the requesting client.
 The client has no requirements to open any ports but requires write access to the relevant DNS server.
 The details of this challenge are available at [RFC 8555-8.4](https://datatracker.ietf.org/doc/html/rfc8555#section-8.4) .
 
@@ -340,6 +372,19 @@ The details of this challenge are available at [RFC 8555-8.4](https://datatracke
 
 This checkbox allows requesting wildcard certificate. It can only be used with the DNS Challenge.
 The major use case of this checkbox is to prohibit wildcards when DNS Challenge is allowed.
+
+##### <a id="pipeline.acme.accountEmailRegex"></a> Check Account Email Address
+
+Define regular expressions to accept or reject account email addresses. This is a simple way to validate the account's contact email address. A more sophisticated approach is to use an external account binding.
+
+##### <a id="pipeline.acme.notify-contacts-on-error"></a> Notify Account Contacts On Errors
+
+This checkbox enables sending problem notifications to the related account's email addresses.
+
+##### <a id="pipeline.acme.eabRequired"></a> External Account Binding Required
+
+To ensure a higher level of security the ACME protocol offers the option of 'External Account Binding' (EAB). This requires the client to prove its identity by using a pre-shared key. The key is specific to the account and must be obtained out-of-band.
+An existing ca3s account may retrieve the EAB information from its credentials page. For bindings to other accounts a specific BPMN process is required.
 
 ##### <a id="pipeline.acme.check-caa"></a> Check CAA record
 

@@ -40,6 +40,8 @@ logging:
     de.trustable.ca3s.core.service.est: DEBUG
     de.trustable.ca3s.core.service.vault: DEBUG
     de.trustable.ca3s.core.service.dir: WARN
+    de.trustable.ca3s.core.service.util.CertificateUtil: DEBUG
+    de.trustable.ca3s.core.service.util.CRLUtil: DEBUG
     de.trustable.ca3s.core.security.provider: DEBUG
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
     de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
@@ -157,8 +159,8 @@ spring:
   # The basic settings for outbound email support
   #additioanl email-related setting are located at 'jhipster.mail'
   mail:
-    host: 10.152.183.83
-    port: 1025
+    host: smtp.freesmtpservers.com
+    port: 25
     username:
     password:
 
@@ -342,7 +344,7 @@ ca3s:
     # define a cron pattern for regular tasks
     cron:
       # send notification emails regarding expirations
-      expiryNotificationCron: 0 15 2 * * ?
+      expiryNotificationCron: 0 57 17 * * ?
       # drop user information as soon as no relevant certificate is active anymore
       dropUnrelatedUsersCron: 0 20 02 * * ?
       # drop historic process information after process completion and a grace period
@@ -358,8 +360,17 @@ ca3s:
     requestor:
       notification:
         days: 30,14,7,6,5,4,3,2,1,0
-        attributes: adcs manager
         user-only: false
+        cc: foo@test.com
+
+  catalog:
+    algos:
+      hash:
+        available: sha-256,sha-384,sha-512
+        selected: sha-256,sha-384,sha-512
+      sign:
+        available: rsa-2048,rsa-3072,rsa-4096,rsa-6144,rsa-8192,ecdsa-224, ecdsa-256, ecdsa-384, ecdsa-512, Ed25519, brainpoolP256r1, dilithium2/20224, dilithium3/32000, dilithium5/38912, falcon-512/7176, falcon-1024/14344
+        selected: Ed25519, brainpoolP256r1, rsa-2048,rsa-3072,rsa-4096,rsa-8192
 
   # enable the creation of the PKCS12 download container with specific algorithms
   pkcs12:
@@ -382,9 +393,8 @@ ca3s:
   template:
     email:
       useTitleAsMailSubject: false
-
-  #  all:
-  #    bcc: foo@ca3s.org, bar@ca3s.org
+      all:
+        bcc: foo@ca3s.org, bar@ca3s.org
 
   ui:
     user:
@@ -429,8 +439,8 @@ ca3s:
     sso:
       # enable / disable autologin via SSO
       autologin: false
-      # define a SSO provider: keyCloak | saml
-      provider: saml
+      # define a SSO provider: oidc / saml / spnego
+      provider: oidc
       # per default use a secure cookie to transport auth token
       secureCookie: false
   acme:
@@ -499,20 +509,18 @@ ca3s:
       auth-token-admin: gTYvGKIfzLpWQSSIMT1XBaRfzdSLZmvFMNlfo6zeddYyg3FYmq7BH6qqB4dy75uYbLb0KXOU7jV50a360R4CB4UXriX085usWJnto5CMpOu34rxx0b5v2Xd97hpzDQdJ
 
     kerberos:
-      service-principal: HTTP/admin@ci-adcs
-      keytab-location: ca3s.keytab
+      service-principal: HTTP/ca3sService@TRUSTABLE.DEMO
+      keytab-location: ca3sService.keytab
+
     ad-domain: foo
     ldap:
       url: ldap://testLDAP.eu:123
       baseDN: dc=testLDAP,dc=eu
-      search-base: dc=testLDAP,dc=eu
-      search-filter: dc=testLDAP,dc=eu
-      group-search-base: (| (userPrincipalName={0}) (sAMAccountName={0}))
       principal: cn=alice,ou=people,dc=testLDAP,dc=eu
       password: s3cr3t
 
   saml:
-    activate: true
+    activate: false
 
     # define the location of the SAML IDP+-
     idp: http://10.152.183.139/realms/master
@@ -530,7 +538,6 @@ ca3s:
       ra:
       admin:
       other: ROLE_1, ROLE_2
-
 
     # extract relevant information from the saml token by attribute name
     attributes:
@@ -576,23 +583,37 @@ ca3s:
   # http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
   oidc:
     # list comma separated list of oidc roles applicable for given authorities
-    # an asterik matches with any role
+    # a (quoted) asterik matches with any role
     roles:
-      user: '*'
+      user: 'ROLE_ca3s-oidc_ca3s user'
       domainra:
-      ra: ROLE_RA
+      ra:
       admin:
-      other: ROLE_1, ROLE_2
+      other: ROLE_ca3s-oidc_someOtherRole
 
-    client-id: oidc_client
+    # The expressions operate on a map with some normalized items:
+    #
+    # 'Name'
+    # 'FamilyName'
+    # 'PreferredUsername'
+    # 'Email'
+    # 'Sub'
+    #
+    # The roles are mapped from different role elements into the key
+    # 'Roles'
+
+    expression:
+      tenant: "get('PreferredUsername').get(0).substring(0,2).toUpperCase()"
+
+    client-id: ca3s-oidc
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
     scope: openid, profile
     authorization-grant-type: password
 
-    auth-server-url: http://keycloak.trustable.eu:50080
-    realm: ca3s
+    auth-server-url: http://10.152.183.139
+    realm: master
 
-    authorization-uri: http://localhost:8080/auth/realms/ca3sRealm/protocol/openid-connect/auth
+    authorization-uri: http://10.152.183.139/realms/master/protocol/openid-connect/auth
     #    authorization-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/auth
 
     use-post-logout-redirect-uri: true

@@ -11,7 +11,7 @@
         </p>
 
         <p th:text="#{email.excessive.active.text1(${certificate.subject}, ${numberActive})}">
-            For the certificate '${certificate.subject}' there are more than ${numberActive} active certificate! Consider to revoke certificates not used / not required anymore!
+            For the certificate <span th:text='${certificate.subject}'/> there are more than <span th:text='${numberActive}'/> active certificate! Consider to revoke certificates not used / not required anymore!
         </p>
         <p>
             <span th:text="#{email.activation.text2}">Regards, </span>

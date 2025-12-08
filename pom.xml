@@ -5,9 +5,10 @@
                              https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.9</version>
+    <version>1.2.19</version>
 
     <packaging>jar</packaging>
 
@@ -125,12 +126,12 @@
         <saml2-core.spring.version>1.0.10.RELEASE</saml2-core.spring.version>
         <open-saml.version>4.3.0</open-saml.version>
 
-        <undertow.core.version>2.3.17.Final</undertow.core.version>
+        <undertow.core.version>2.3.20.Final</undertow.core.version>
         <bucket4j.version>8.10.1</bucket4j.version>
 
-        <h2.version>2.3.232</h2.version>
+        <h2.version>2.4.240</h2.version>
 
-        <json.version>2.9.0</json.version>
+        <json.version>2.10.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <!--archunit-junit5.version>0.23.1</archunit-junit5.version-->
         <archunit-junit5.version>1.4.1</archunit-junit5.version>
@@ -138,34 +139,34 @@
         <mapstruct.version>1.6.3</mapstruct.version>
         <!-- Plugin versions -->
         <checksum-maven-plugin.version>1.11</checksum-maven-plugin.version>
-        <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
+        <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
         <maven-site-plugin.version>3.21.0</maven-site-plugin.version>
 
         <maven-clean-plugin.version>3.5.0</maven-clean-plugin.version>
-        <maven-javadoc-plugin.version>3.11.2</maven-javadoc-plugin.version>
-        <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+        <maven-compiler-plugin.version>3.14.1</maven-compiler-plugin.version>
+        <maven-javadoc-plugin.version>3.12.0</maven-javadoc-plugin.version>
         <maven-eclipse-plugin.version>2.10</maven-eclipse-plugin.version>
-        <maven-enforcer-plugin.version>3.6.1</maven-enforcer-plugin.version>
-        <maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
+        <maven-enforcer-plugin.version>3.6.2</maven-enforcer-plugin.version>
+        <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
         <maven-idea-plugin.version>2.2.1</maven-idea-plugin.version>
         <maven-resources-plugin.version>3.3.1</maven-resources-plugin.version>
-        <maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
-        <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
+        <maven-surefire-plugin.version>3.5.4</maven-surefire-plugin.version>
+        <maven-war-plugin.version>3.5.0</maven-war-plugin.version>
         <maven-checkstyle.version>3.6.0</maven-checkstyle.version>
         <maven-source.version>3.3.1</maven-source.version>
-        <checkstyle.version>10.26.1</checkstyle.version>
+        <checkstyle.version>11.1.0</checkstyle.version>
         <spring-nohttp-checkstyle.version>0.0.11</spring-nohttp-checkstyle.version>
-        <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
+        <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
         <git-commit-id-plugin.version>4.9.9</git-commit-id-plugin.version>
-        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
-        <jib-maven-plugin.version>3.4.6</jib-maven-plugin.version>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <jib-maven-plugin.version>3.5.1</jib-maven-plugin.version>
         <jib.allowInsecureRegistries>true</jib.allowInsecureRegistries>
         <jib-maven-plugin.from.image>eclipse-temurin:17-jre-focal</jib-maven-plugin.from.image>
         <jib-maven-plugin.to.image>docker.io/ca3s/ca3s</jib-maven-plugin.to.image>
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
         <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
-        <sonar-maven-plugin.version>5.1.0.4751</sonar-maven-plugin.version>
+        <sonar-maven-plugin.version>5.2.0.4988</sonar-maven-plugin.version>
         <jacoco.utReportFolder>${project.build.directory}/jacoco/test</jacoco.utReportFolder>
         <jacoco.utReportFile>${jacoco.utReportFolder}/test.exec</jacoco.utReportFile>
         <jacoco.itReportFolder>${project.build.directory}/jacoco/integrationTest</jacoco.itReportFolder>
@@ -179,12 +180,12 @@
         <keycloak.version>26.0.6</keycloak.version>
         <keycloak.adapter.version>25.0.3</keycloak.adapter.version>
 
-        <bouncyCastleVersion>1.81</bouncyCastleVersion>
+        <bouncyCastleVersion>1.82</bouncyCastleVersion>
 
         <spring-vault.version>2.3.4</spring-vault.version>
 
-        <cryptoUtilVersion>1.3.36</cryptoUtilVersion>
-        <certBundleVersion>1.1.1</certBundleVersion>
+        <cryptoUtilVersion>1.3.37</cryptoUtilVersion>
+        <certBundleVersion>1.1.4</certBundleVersion>
         <cmpClientVersion>3.2.0</cmpClientVersion>
         <adcsUtilVersion>1.2.9</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.9</adcsProxyClientVersion>
@@ -222,18 +223,18 @@
         <crawler4jVersion>4.4.0</crawler4jVersion>
         <flexmarkVersion>0.64.8</flexmarkVersion>
         <pdfbox.version>2.0.34</pdfbox.version>
-        <jsoup.version>1.21.1</jsoup.version>
+        <jsoup.version>1.21.2</jsoup.version>
 
-        <selenium.version>4.34.0</selenium.version>
+        <selenium.version>4.38.0</selenium.version>
 
-        <kerby.version>2.0.3</kerby.version>
+        <kerby.version>2.1.0</kerby.version>
         <embedded-ldap.version>0.9.0</embedded-ldap.version>
         <greenmail.version>1.6.15</greenmail.version>
 
-        <xml.maven.saxon.version>12.8</xml.maven.saxon.version>
+        <xml.maven.saxon.version>12.9</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.1.0</xml.maven.plugin.version>
 
-        <dependencyCheck.version>12.1.3</dependencyCheck.version>
+        <dependencyCheck.version>12.1.9</dependencyCheck.version>
         <dependencyCheck.skip>true</dependencyCheck.skip>
 
     </properties>
@@ -269,7 +270,7 @@
             <dependency>
                 <groupId>org.junit</groupId>
                 <artifactId>junit-bom</artifactId>
-                <version>5.13.4</version>
+                <version>5.14.1</version>
                 <type>pom</type>
             </dependency>
 
@@ -280,7 +281,7 @@
             <dependency>
                 <groupId>net.minidev</groupId>
                 <artifactId>json-smart</artifactId>
-                <version>2.5.2</version>
+                <version>2.6.0</version>
             </dependency>
 
             <!-- Fix for CVE-2021-31811 & CVE-2021-31812
@@ -316,7 +317,7 @@
             <dependency>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations</artifactId>
-                <version>2.2.36</version>
+                <version>2.2.40</version>
             </dependency>
 
             <!-- check whether required after jhispter update ( > 7.5.1 ) -->
@@ -510,7 +511,7 @@
             <dependency>
                 <groupId>org.apache.tika</groupId>
                 <artifactId>tika-parsers</artifactId>
-                <version>1.28.5</version>
+                <version>2.0.0</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
@@ -534,7 +535,7 @@
             <dependency>
                 <groupId>com.squareup.okio</groupId>
                 <artifactId>okio</artifactId>
-                <version>3.16.0</version>
+                <version>3.16.4</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.ow2.asm/asm -->
             <dependency>
@@ -643,7 +644,7 @@
             <dependency>
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>preflight</artifactId>
-                <version>2.0.34</version>
+                <version>2.0.35</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-to-slf4j -->
@@ -773,13 +774,13 @@
             <dependency>
                 <groupId>org.apache.httpcomponents.core5</groupId>
                 <artifactId>httpcore5</artifactId>
-                <version>5.3.4</version>
+                <version>5.3.6</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5-h2 -->
             <dependency>
                 <groupId>org.apache.httpcomponents.core5</groupId>
                 <artifactId>httpcore5-h2</artifactId>
-                <version>5.3.4</version>
+                <version>5.3.6</version>
             </dependency>
 
         </dependencies>
@@ -820,19 +821,19 @@
         <dependency>
             <groupId>ch.qos.logback.access</groupId>
             <artifactId>logback-access-common</artifactId>
-            <version>2.0.6</version>
+            <version>2.0.7</version>
         </dependency>
 
         <dependency>
             <groupId>ch.qos.logback.access</groupId>
             <artifactId>logback-access-common</artifactId>
-            <version>2.0.6</version>
+            <version>2.0.7</version>
         </dependency>
 
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>2.2.36</version>
+            <version>2.2.40</version>
         </dependency>
 
         <!--dependency>
@@ -885,6 +886,16 @@
             </exclusions>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.security.kerberos</groupId>
+            <artifactId>spring-security-kerberos-web</artifactId>
+            <version>1.0.1.RELEASE</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security.kerberos</groupId>
+            <artifactId>spring-security-kerberos-client</artifactId>
+            <version>1.0.1.RELEASE</version>
+        </dependency>
 
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
@@ -984,7 +995,7 @@
             <groupId>io.github.bonigarcia</groupId>
             <artifactId>webdrivermanager</artifactId>
             <!--version>5.9.3</version-->
-            <version>6.2.0</version>
+            <version>6.3.3</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -1135,11 +1146,11 @@
         </dependency>
 
         <!-- Spring Security OAuth 2.0 -->
-        <!--dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
         </dependency-->
@@ -1304,7 +1315,7 @@
         <dependency>
             <groupId>com.jayway.jsonpath</groupId>
             <artifactId>json-path</artifactId>
-            <version>2.9.0</version>
+            <version>2.10.0</version>
         </dependency>
 
         <!--dependency>
@@ -1344,6 +1355,12 @@
             <groupId>de.trustable.ca3s</groupId>
             <artifactId>CertificateBundle</artifactId>
             <version>${certBundleVersion}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -1356,6 +1373,13 @@
             <groupId>de.trustable.cmp.client</groupId>
             <artifactId>cmpClient</artifactId>
             <version>${cmpClientVersion}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                </exclusion>
+            </exclusions>
+
         </dependency>
 
         <dependency>
@@ -1407,14 +1431,14 @@
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>core</artifactId>
-            <version>3.5.3</version>
+            <version>3.5.4</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.google.zxing/javase -->
         <dependency>
             <groupId>com.google.zxing</groupId>
             <artifactId>javase</artifactId>
-            <version>3.5.3</version>
+            <version>3.5.4</version>
         </dependency>
 
 
@@ -1443,6 +1467,11 @@
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
             <version>${commonsValidatorVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.unboundid</groupId>
+            <artifactId>unboundid-ldapsdk</artifactId>
         </dependency>
 
         <!--dependency>
@@ -1635,6 +1664,8 @@
                         </path>
                         <!-- jhipster-needle-maven-add-annotation-processor -->
                     </annotationProcessorPaths>
+                    <source>15</source>
+                    <target>15</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -1773,6 +1804,7 @@
                         <class>de.trustable.ca3s.core.service.dto.UIConfigView</class>
                         <class>de.trustable.ca3s.core.service.dto.RequestProxyConfigView</class>
                         <class>de.trustable.ca3s.core.service.dto.UserLoginData</class>
+                        <class>de.trustable.ca3s.core.service.dto.UserDTO</class>
 
                         <class>de.trustable.ca3s.core.service.dto.CSRView</class>
                         <class>de.trustable.ca3s.core.service.dto.Selector</class>
@@ -1835,7 +1867,7 @@
             <plugin>
                 <groupId>org.sonatype.central</groupId>
                 <artifactId>central-publishing-maven-plugin</artifactId>
-                <version>0.8.0</version>
+                <version>0.9.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <publishingServerId>central</publishingServerId>
@@ -2351,7 +2383,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
-                    <version>2.6.0</version>
+                    <version>2.7.0</version>
                     <executions>
                         <execution>
                             <id>download-licenses</id>

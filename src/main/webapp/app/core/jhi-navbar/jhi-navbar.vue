@@ -1,6 +1,15 @@
 <template>
 
     <b-navbar toggleable="md" type="light" class="jh-navbar" >
+        <b-alert :show="dismissCountDown"
+             dismissible
+             :variant="alertType"
+             @dismissed="dismissCountDown=0"
+             @dismiss-count-down="countDownChanged">
+          {{alertMessage}}
+        </b-alert>
+
+
         <div class="jh-logo-container float-left">
             <b-navbar-toggle right class="jh-navbar-toggler d-lg-none float-right" href="javascript:void(0);"  data-toggle="collapse" target="header-tabs" aria-expanded="false" aria-label="Toggle navigation">
                 <font-awesome-icon icon="bars" />
@@ -206,11 +215,11 @@
                     </b-dropdown-item>
 
 
-                    <b-dropdown-item to="/account/settings" tag="b-dropdown-item" v-if="authenticated">
+                    <b-dropdown-item v-if="authenticated" to="/account/settings" tag="b-dropdown-item" id="settings">
                         <font-awesome-icon icon="wrench" />
                         <span v-text="$t('global.menu.account.settings')"></span>
                     </b-dropdown-item>
-                    <b-dropdown-item to="/account/password" tag="b-dropdown-item" v-if="authenticated">
+                    <b-dropdown-item v-if="authenticated" to="/account/password" tag="b-dropdown-item" id="password">
                         <font-awesome-icon icon="lock" />
                         <span id="menu-account-password" v-text="$t('global.menu.account.password')"></span>
                     </b-dropdown-item>
@@ -218,10 +227,18 @@
                         <font-awesome-icon icon="sign-out-alt" />
                         <span v-text="$t('global.menu.account.logout')"></span>
                     </b-dropdown-item>
-                    <b-dropdown-item v-if="!authenticated && (ssoProvider.length > 0)"  v-on:click="doSSOLogin()" id="oidcLogin">
+                    <b-dropdown-item v-if="!authenticated && (ssoProvider.length > 0)" v-on:click="doSSOLogin()" id="oidcLogin">
                         <font-awesome-icon icon="sign-in-alt" />
                         <span v-text="$t('global.menu.account.SSOLogin')"></span>
                     </b-dropdown-item>
+
+                    <b-dropdown-item v-if="!authenticated && (ldapLoginDomainName.trim().length > 0)" v-on:click="openLdapLogin()" id="ldapLogin">
+                        <font-awesome-icon icon="sign-in-alt" />
+                        <span v-text="$t('global.menu.account.LdapLogin', { 'ldapLoginDomainName': ldapLoginDomainName})"></span>
+                    </b-dropdown-item>
+
+
+
                     <b-dropdown-item v-if="!authenticated"  v-on:click="openLogin()" id="login">
                         <font-awesome-icon icon="sign-in-alt" />
                         <span v-text="$t('global.menu.account.login')"></span>

@@ -66,7 +66,8 @@ public class UserService {
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        ProtectedContentUtil protectedContentUtil,
-                       ProtectedContentRepository protContentRepository, PipelineRepository pipelineRepository,
+                       ProtectedContentRepository protContentRepository,
+                       PipelineRepository pipelineRepository,
                        AuthorityRepository authorityRepository,
                        TenantRepository tenantRepository,
                        CacheManager cacheManager,
@@ -165,12 +166,15 @@ public class UserService {
                 throw new UsernameAlreadyUsedException();
             }
         });
+/*
         userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).ifPresent(existingUser -> {
             boolean removed = removeNonActivatedUser(existingUser);
             if (!removed) {
                 throw new EmailAlreadyUsedException();
             }
         });
+
+ */
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(userDTO.getLogin().toLowerCase());
@@ -299,6 +303,7 @@ public class UserService {
 
                 this.clearUserCaches(user);
                 log.debug("Changed Information for User: {}", user);
+                userRepository.save(user);
             });
     }
 

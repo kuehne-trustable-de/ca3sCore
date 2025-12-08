@@ -39,6 +39,7 @@ import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jcajce.interfaces.EdDSAPublicKey;
+import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jce.PrincipalUtil;
 import org.bouncycastle.jce.X509Principal;
@@ -78,6 +79,7 @@ import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.ECParameterSpec;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Instant;
 import java.util.*;
 
@@ -2098,6 +2100,7 @@ public class CertificateUtil {
 
     private StringWriter keyToPEM(KeyPair keyPair) throws IOException {
         StringWriter sw = new StringWriter();
+        LOG.debug("writing private key class : {}", keyPair.getPrivate().getClass().getName());
         PemObject pemObject = new PemObject("PRIVATE KEY", keyPair.getPrivate().getEncoded());
         try (PemWriter pemWriter = new PemWriter(sw)) {
             pemWriter.writeObject(pemObject);
@@ -2188,10 +2191,8 @@ public class CertificateUtil {
 
                 String content = protUtil.unprotectString(pcList.get(0).getContentBase64());
                 priKey = cryptoUtil.convertPemToPrivateKey(content);
-                LOG.debug("getPrivateKey() returns key for ProtectedContent #" + id);
-
+                LOG.debug("getPrivateKey() returns key of calss {} for ProtectedContent #{}", priKey.getClass().getName(), id);
             }
-
         } catch (GeneralSecurityException e) {
             LOG.warn("getPrivateKey", e);
         }
@@ -2261,6 +2262,22 @@ public class CertificateUtil {
         }
 
         cert.setRevokedSince(revocationDate);
+    }
+
+    public static String getCnOrFirstSan(final Certificate cert) {
+
+        for (CertificateAttribute certificateAttribute : cert.getCertificateAttributes()) {
+
+            if (CertificateAttribute.ATTRIBUTE_RDN_CN.equals(certificateAttribute.getName())) {
+                if (certificateAttribute.getValue() != null) {
+                    return certificateAttribute.getValue();
+                }
+            }
+            if (CertificateAttribute.ATTRIBUTE_SAN.equals(certificateAttribute.getName())) {
+                return certificateAttribute.getValue();
+            }
+        }
+        return "(noCommonName)";
     }
 
     public static String getDownloadFilename(final Certificate cert) {
@@ -2374,7 +2391,8 @@ public class CertificateUtil {
                     if( crl.getNextUpdate() == null){
                         LOG.warn("nextUpdate missing in CRL '{}' of certificate #{}", crlUrl, cert.getId());
                     }else {
-                        long nextUpdate = crl.getNextUpdate().getTime();
+                        long crlExpiry = crl.getNextUpdate().getTime();
+                        long nextUpdate = crlExpiry;
                         if (nextUpdate > maxNextUpdate) {
                             LOG.debug("nextUpdate {} from CRL limited to {}", crl.getNextUpdate(), new Date(maxNextUpdate));
                             nextUpdate = maxNextUpdate;
@@ -2387,6 +2405,9 @@ public class CertificateUtil {
 
                         // set the crl's 'next update' timestamp to the certificate
                         setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE, Long.toString(nextUpdate), false);
+                        long crlCreation = crl.getThisUpdate().getTime();
+                        setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_CREATION, Long.toString(crlCreation), false);
+                        setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CRL_EXPIRY, Long.toString(crlExpiry), false);
                     }
 
                     setRevocationStatus(cert, x509Cert, crl);
@@ -2497,15 +2518,33 @@ public class CertificateUtil {
 
         X509Certificate[] chain = getX509CertificateChain(certDao);
 
-        Set<KeyStore.Entry.Attribute> privateKeyAttributes = new HashSet<>();
-        p12.setEntry(entryAlias,
-            new KeyStore.PrivateKeyEntry(key,
-                chain,
-                privateKeyAttributes),
-            new KeyStore.PasswordProtection(passphraseChars,
-                passwordProtectionAlgo,
-                new PBEParameterSpec(salt, 100000)));
+        LOG.debug("public key class {} ", chain[0].getPublicKey().getClass().getName());
+        LOG.debug("private key class {} ", key.getClass().getName());
 
+        PrivateKey storeKey = key;
+
+        if( key instanceof BCECPrivateKey ) {
+            KeyFactory kf = KeyFactory.getInstance("EC", "BC");
+
+            // Rebuild the private key into a standard ECPrivateKey
+            storeKey = kf.generatePrivate( new PKCS8EncodedKeySpec(key.getEncoded()));
+            LOG.debug("regenerated private key class {} ", storeKey.getClass().getName());
+
+        }
+
+        Set<KeyStore.Entry.Attribute> privateKeyAttributes = new HashSet<>();
+        try {
+            p12.setEntry(entryAlias,
+                new KeyStore.PrivateKeyEntry(storeKey,
+                    chain,
+                    privateKeyAttributes),
+                new KeyStore.PasswordProtection(passphraseChars,
+                    passwordProtectionAlgo,
+                    new PBEParameterSpec(salt, 100000)));
+        }catch( IllegalArgumentException iae){
+            LOG.debug("problem building keystore", iae);
+            throw new GeneralSecurityException(iae.getMessage());
+        }
         return new KeyStoreAndPassphrase(p12, passphraseChars);
     }
 

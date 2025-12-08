@@ -9,9 +9,15 @@
         <p th:text="#{email.notification.greeting(${user.login})}">
             Dear
         </p>
-        <p th:text="#{email.certificate.revoked.text1(${cert.subject}, ${cert.revokedSince}, ${cert.revocationReason})}">
+        <p th:text="#{email.certificate.revoked.text1(${cert.subject}, ${#dates.format(cert.revokedSince, 'dd.MM.yyyy, HH:mm')}, ${cert.revocationReason})}">
             Your certificate ${cert.subject} was revoked on ${cert.revokedSince} by the Registration officer for reason ${cert.revocationReason}!
         </p>
+        <p>
+            <a
+               th:with="url=(@{|${baseUrl}/cert-info?certificateId=${cert.id}|})"
+               th:text="#{email.revoked.certificate.link}" th:href="${url}">Review the revoked cerificate</a>
+        </p>
+
         <p>
             <span th:text="#{email.activation.text2}">Regards, </span>
             <br/>

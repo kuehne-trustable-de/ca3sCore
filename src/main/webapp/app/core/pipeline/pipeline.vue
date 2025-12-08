@@ -26,9 +26,13 @@
                     v-on:change="filterPipelines">
                 <option value="all">{{$t('ca3SApp.pipeline.filter.type.all')}}</option>
                 <option value="WEB">{{$t('ca3SApp.pipeline.filter.type.web')}}</option>
+                <option value="SCEP">{{$t('ca3SApp.pipeline.filter.type.scep')}}</option>
+                <!--option value="EST">{{$t('ca3SApp.pipeline.filter.type.est')}}</option-->
                 <option value="ACME">{{$t('ca3SApp.pipeline.filter.type.acme')}}</option>
                 <option value="SCEP">{{$t('ca3SApp.pipeline.filter.type.scep')}}</option>
                 <option value="EST">{{$t('ca3SApp.pipeline.filter.type.est')}}</option>
+                <option value="MANUAL_UPLOAD">{{$t('ca3SApp.pipeline.filter.type.upload')}}</option>
+
             </select>
             <span v-text="$t('ca3SApp.pipeline.filter.state')"></span>
             <select float="left" class="smallSelector fa-1x" v-model="activeFilter"
@@ -105,7 +109,7 @@
                 <p id="jhi-delete-pipeline-heading" v-text="$t('ca3SApp.pipeline.delete.question', {'id': removeId})"></p>
             </div>
             <div slot="modal-footer">
-                <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()">Cancel</button>
+                <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()"></button>
                 <button type="button" class="btn btn-primary" id="jhi-confirm-delete-pipeline" v-text="$t('entity.action.delete')" v-on:click="removePipeline()"></button>
             </div>
         </b-modal>

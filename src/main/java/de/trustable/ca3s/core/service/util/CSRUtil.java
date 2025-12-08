@@ -16,6 +16,7 @@ import org.bouncycastle.asn1.*;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.AttributeTypeAndValue;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -172,8 +173,8 @@ public class CSRUtil {
 		/**
 		 * produce a readable form of algorithms
 		 */
-		String sigAlgName = OidNameMapper.lookupOid(p10ReqHolder.getSigningAlgorithm());
-        String keyAlgName = getKeyAlgoName(sigAlgName);
+        String sigAlgName = OidNameMapper.lookupOid(p10ReqHolder.getSigningAlgorithm());
+        String keyAlgName = OidNameMapper.lookupOid(p10ReqHolder.getPublicKeyAlgorithm());
 
         csr.setSigningAlgorithm(sigAlgName);
 
@@ -604,7 +605,33 @@ public class CSRUtil {
 		return generalNameSet;
 	}
 
-/**
+    public boolean isCNinSANSet(Pkcs10RequestHolder p10ReqHolder) {
+
+        Set<GeneralName> sanSet = getSANList(p10ReqHolder);
+
+        if(Arrays.stream(p10ReqHolder.getSubjectRDNs()).noneMatch(
+            rdn -> rdn.getFirst() != null && BCStyle.CN.equals(rdn.getFirst().getType())
+        )) {;
+            return true;
+        }
+
+        return Arrays.stream(p10ReqHolder.getSubjectRDNs()).filter(
+            rdn -> rdn.getFirst() != null && BCStyle.CN.equals(rdn.getFirst().getType())
+        ).anyMatch(
+            rdn -> {
+                String cn = rdn.getFirst().getValue().toString();
+                boolean cnInSan = sanSet.stream().anyMatch(
+                    gn -> {
+                        String sanValue = CertificateUtil.getTypedSAN(gn);
+                        return sanValue.equalsIgnoreCase("DNS:" + cn);
+                    }
+                );
+                return cnInSan;
+            }
+        );
+    }
+
+    /**
  *
  * @param gName
  * @return

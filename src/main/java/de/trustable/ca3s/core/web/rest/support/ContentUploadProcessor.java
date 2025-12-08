@@ -30,11 +30,15 @@ import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x509.*;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.jcajce.interfaces.EdDSAPrivateKey;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
+import org.bouncycastle.pkcs.PKCSException;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
 import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPrivateKey;
 import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPrivateKey;
@@ -169,7 +173,16 @@ public class ContentUploadProcessor {
 
     }
 
-	public ResponseEntity<PkcsXXData> buildCertificateFromCSR(UploadPrecheckData uploaded, String requestorName){
+    @PostMapping("/checkContent")
+    public ResponseEntity<BadKeysResult> checkContent(@Valid @RequestBody UploadPrecheckData uploaded) {
+
+        String content = uploaded.getContent();
+        BadKeysResult badKeysResult = badKeysService.checkContent(content);
+        return new ResponseEntity<>(badKeysResult, HttpStatus.OK);
+
+    }
+
+    public ResponseEntity<PkcsXXData> buildCertificateFromCSR(UploadPrecheckData uploaded, String requestorName){
 
         String content = uploaded.getContent();
         LOG.debug("Request to upload a PEM clob : {} by user {}", content, requestorName);
@@ -188,6 +201,7 @@ public class ContentUploadProcessor {
 
             // try to read the content as a PEM certificate
             X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
+
             List<Certificate> certList = findCertificateByIssuerSerial(certHolder);
             if(!certList.isEmpty()){
                 // certificate already present in db
@@ -238,7 +252,21 @@ public class ContentUploadProcessor {
                     pkcs10CertificationRequest = cryptoUtil.convertPemToPKCS10CertificationRequest(content);
                 }
 
+                List<String> messageList = new ArrayList<>();
                 Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(pkcs10CertificationRequest);
+
+                try {
+                    ContentVerifierProvider verifierProvider = new JcaContentVerifierProviderBuilder()
+                        .setProvider(BouncyCastleProvider.PROVIDER_NAME)
+                        .build(p10ReqHolder.getPublicSigningKey());
+                    if( !p10ReqHolder.getP10Req().isSignatureValid(verifierProvider)) {
+                        messageList.add("CSR signature invalid");
+                        p10ReqData.setWarnings(messageList.toArray(new String[0]));
+                    }
+                }catch(OperatorCreationException | PKCSException ex){
+                    messageList.add("CSR signature validation failed: " + ex.getMessage());
+                    p10ReqData.setWarnings(messageList.toArray(new String[0]));
+                }
 
                 Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
                 p10ReqData = new PkcsXXData(p10ReqHolderShallow);
@@ -255,11 +283,9 @@ public class ContentUploadProcessor {
 
                 boolean isPublicKeyApplicable;
 
-                List<String> messageList = new ArrayList<>();
                 Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
                 if( optPipeline.isPresent()) {
-                    isPublicKeyApplicable =
-                        pipelineUtil.isPublicKeyApplicable(optPipeline.get(), p10ReqHolder, messageList);
+                    isPublicKeyApplicable = pipelineUtil.isPublicKeyApplicable(optPipeline.get(), p10ReqHolder, messageList);
                     p10ReqData.setCsrPublicKeyPresentInDB(!isPublicKeyApplicable);
 
                     if (pipelineUtil.isPipelineRestrictionsResolved(optPipeline.get(), p10ReqHolder, uploaded.getArAttributes(), messageList)) {
@@ -268,6 +294,7 @@ public class ContentUploadProcessor {
                         p10ReqData.setWarnings(messageList.toArray(new String[0]));
                         return new ResponseEntity<>(p10ReqData, HttpStatus.BAD_REQUEST);
                     }
+
                 }else{
                     LOG.info("pipeline id '{}' not found", uploaded.getPipelineId());
                     isPublicKeyApplicable =
@@ -306,7 +333,7 @@ public class ContentUploadProcessor {
                 }
 
             } catch (IOException | GeneralSecurityException e2) {
-                LOG.debug("describeCSR : " + e2.getMessage());
+                LOG.debug("buildCertificateFromCSR : " + e2.getMessage());
                 LOG.debug("not a certificate, not a CSR, trying to parse it as a P12 container");
                 try {
 
@@ -502,8 +529,6 @@ public class ContentUploadProcessor {
             }else{
                 csBuilder = new JcaContentSignerBuilder(algo);
             }
-
-
 
 //            JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder(algo);
             ContentSigner signer = csBuilder.build(pk);

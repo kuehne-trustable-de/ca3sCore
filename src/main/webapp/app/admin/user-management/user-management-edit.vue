@@ -1,15 +1,6 @@
 <template>
     <div class="row justify-content-center">
 
-        <b-alert :show="dismissCountDown"
-                 dismissible
-                 :variant="alertType"
-                 @dismissed="dismissCountDown=0"
-                 @dismiss-count-down="countDownChanged">
-            {{alertMessage}}
-        </b-alert>
-        <br/>
-
         <div class="col-8">
             <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" v-if="userAccount">
                 <h2 id="myUserLabel" v-text="$t('userManagement.home.createOrEditLabel')"></h2>
@@ -27,18 +18,19 @@
                             name="login"
                             :class="{ valid: !$v.userAccount.login.$invalid, invalid: $v.userAccount.login.$invalid }"
                             v-model="$v.userAccount.login.$model"
+                            v-on:input="updateForm()"
                         />
 
                         <div v-if="$v.userAccount.login.$anyDirty && $v.userAccount.login.$invalid">
-                            <small class="form-text text-danger" v-if="!$v.userAccount.login.required"
+                            <small class="form-text text-danger"
+                                   v-if="$v.userAccount.login.required"
                                    v-text="$t('entity.validation.required')"></small>
-
                             <small
                                 class="form-text text-danger"
                                 v-if="!$v.userAccount.login.maxLength"
                                 v-text="$t('entity.validation.maxlength', { max: 50 })"></small>
 
-                            <small class="form-text text-danger" v-if="!$v.userAccount.login.pattern"
+                            <small class="form-text text-danger" v-if="$v.userAccount.login.pattern"
                                    v-text="$t('entity.validation.patternLogin')"></small>
                         </div>
                     </div>
@@ -103,15 +95,15 @@
                             :class="{ valid: !$v.userAccount.email.$invalid, invalid: $v.userAccount.email.$invalid }"
                             :disabled="userAccount.managedExternally"
                             v-model="$v.userAccount.email.$model"
-                            email
+                            v-on:input="updateForm()"
                             required
                         />
                         <div v-if="$v.userAccount.email.$anyDirty && $v.userAccount.email.$invalid">
                             <small
                                 class="form-text text-danger"
-                                v-if="!$v.userAccount.email.required"
+                                v-if="$v.userAccount.email.required"
                                 v-text="$t('global.messages.validate.email.required')"></small>
-                            <small class="form-text text-danger" v-if="!$v.userAccount.email.email"
+                            <small class="form-text text-danger" v-if="$v.userAccount.email.email"
                                    v-text="$t('global.messages.validate.email.invalid')"></small>
                             <small
                                 class="form-text text-danger"
@@ -145,7 +137,7 @@
                         </div>
                     </div>
 
-                    <div class="form-check">
+                    <div v-if="!userAccount.managedExternally" class="form-check">
                         <label class="form-check-label" for="activated">
                             <input
                                 class="form-check-input"
@@ -159,7 +151,7 @@
                         </label>
                     </div>
 
-                    <div class="form-check">
+                    <div v-if="!userAccount.managedExternally" class="form-check">
                         <label class="form-check-label" for="secondFactorRequired">
                             <input
                                 class="form-check-input"
@@ -240,7 +232,7 @@
 
                     <div class="form-group" v-if="userAccount.authorities.includes('ROLE_USER')">
                         <label v-text="$t('userManagement.tenant')"></label>
-                        <select class="form-control" name="selectedTenants" v-model="$v.userAccount.tenantId.$model">
+                        <select class="form-control" name="selectedTenants" v-model="userAccount.tenantId">
                             <option value="" key="0"></option>
                             <option v-for="tenant of tenants" :value="tenant.id" :key="tenant.id">{{
                                     tenant.longname
@@ -261,6 +253,10 @@
                     </button>
                 </div>
             </form>
+            <div>
+                <input type="hidden" class="form-control" name="updateCounter"
+                       v-model="updateCounter" />
+            </div>
         </div>
     </div>
 </template>

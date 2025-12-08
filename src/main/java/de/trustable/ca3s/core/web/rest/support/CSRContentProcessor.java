@@ -20,7 +20,12 @@ import de.trustable.ca3s.core.web.rest.data.*;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.ContentVerifierProvider;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.PKCSException;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.jose4j.base64url.Base64Url;
@@ -173,7 +178,6 @@ public class CSRContentProcessor {
                         badKeysResult.getResponse().getResults() != null &&
                         badKeysResult.getResponse().getResults().getResultType() != null ) {
                         messageList.add("ca3SApp.messages.badkeys." + badKeysResult.getResponse().getResults().getResultType());
-
                     }
                 }
                 p10ReqData.setWarnings(messageList.toArray(new String[0]));
@@ -184,7 +188,7 @@ public class CSRContentProcessor {
 
             LOG.debug("certificate parsed from uploaded PEM content : " + certHolder.getSubject());
 		} catch (org.bouncycastle.util.encoders.DecoderException de){
-			// no parseable ...
+			// not parseable ...
 			p10ReqData.setDataType(PKCSDataType.UNKNOWN);
 			LOG.debug("certificate parsing problem of uploaded content: " + de.getMessage());
 		} catch (GeneralSecurityException e) {
@@ -204,15 +208,28 @@ public class CSRContentProcessor {
                     }
                 }
 
-				Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(pkcs10CertificationRequest);
+                Pkcs10RequestHolder p10ReqHolder = cryptoUtil.parseCertificateRequest(pkcs10CertificationRequest);
+                Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
+                p10ReqData = new PkcsXXData(p10ReqHolderShallow);
+                List<String> messageList = new ArrayList<>();
 
-				Pkcs10RequestHolderShallow p10ReqHolderShallow = new Pkcs10RequestHolderShallow( p10ReqHolder);
+                try {
+                    ContentVerifierProvider verifierProvider = new JcaContentVerifierProviderBuilder()
+                        .setProvider(BouncyCastleProvider.PROVIDER_NAME)
+                        .build(p10ReqHolder.getPublicSigningKey());
 
-				p10ReqData = new PkcsXXData(p10ReqHolderShallow);
+                    if( !p10ReqHolder.getP10Req().isSignatureValid(verifierProvider)) {
+                        messageList.add("CSR signature invalid");
+                        p10ReqData.setWarnings(messageList.toArray(new String[0]));
+                    }
+                }catch(OperatorCreationException | PKCSException ex){
+                    messageList.add("CSR signature validation failed: " + ex.getMessage());
+                    p10ReqData.setWarnings(messageList.toArray(new String[0]));
+                }
+
 				// no information leakage to the outside: check authentication
 				if( auth.isAuthenticated()) {
 
-                    List<String> messageList = new ArrayList<>();
                     handleBadKeys(p10ReqData, pkcs10CertificationRequest, messageList);
 
                     algorithmRestrictionUtil.isAlgorithmRestrictionsResolved(p10ReqHolder, messageList);

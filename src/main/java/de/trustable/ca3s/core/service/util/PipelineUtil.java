@@ -44,6 +44,8 @@ import java.util.regex.PatternSyntaxException;
 import java.util.stream.Collectors;
 
 import static de.trustable.ca3s.core.domain.CsrAttribute.ATTRIBUTE_TYPED_SAN;
+import static de.trustable.ca3s.core.domain.enumeration.CnAsSanRestriction.CN_AS_SAN_IGNORE;
+import static de.trustable.ca3s.core.domain.enumeration.CnAsSanRestriction.CN_AS_SAN_REQUIRED;
 
 
 @Service
@@ -52,55 +54,65 @@ public class PipelineUtil {
 
     public static final String RESTR_C_CARDINALITY = "RESTR_C_CARDINALITY";
     public static final String RESTR_C_TEMPLATE = "RESTR_C_TEMPLATE";
+    public static final String RESTR_C_TEMPLATE_READ_ONLY = "RESTR_C_TEMPLATE_READ_ONLY";
     public static final String RESTR_C_REGEXMATCH = "RESTR_C_REGEXMATCH";
     public static final String RESTR_C_REGEX = "RESTR_C_REGEX";
 
     public static final String RESTR_CN_CARDINALITY = "RESTR_CN_CARDINALITY";
     public static final String RESTR_CN_TEMPLATE = "RESTR_CN_TEMPLATE";
+    public static final String RESTR_CN_TEMPLATE_READ_ONLY = "RESTR_CN_TEMPLATE_READ_ONLY";
     public static final String RESTR_CN_REGEXMATCH = "RESTR_CN_REGEXMATCH";
     public static final String RESTR_CN_REGEX = "RESTR_CN_REGEX";
 
     public static final String RESTR_O_CARDINALITY = "RESTR_O_CARDINALITY";
     public static final String RESTR_O_TEMPLATE = "RESTR_O_TEMPLATE";
+    public static final String RESTR_O_TEMPLATE_READ_ONLY = "RESTR_O_TEMPLATE_READ_ONLY";
     public static final String RESTR_O_REGEXMATCH = "RESTR_O_REGEXMATCH";
     public static final String RESTR_O_REGEX = "RESTR_O_REGEX";
 
     public static final String RESTR_OU_CARDINALITY = "RESTR_OU_CARDINALITY";
     public static final String RESTR_OU_TEMPLATE = "RESTR_OU_TEMPLATE";
+    public static final String RESTR_OU_TEMPLATE_READ_ONLY = "RESTR_OU_TEMPLATE_READ_ONLY";
     public static final String RESTR_OU_REGEXMATCH = "RESTR_OU_REGEXMATCH";
     public static final String RESTR_OU_REGEX = "RESTR_OU_REGEX";
 
     public static final String RESTR_L_CARDINALITY = "RESTR_L_CARDINALITY";
     public static final String RESTR_L_TEMPLATE = "RESTR_L_TEMPLATE";
+    public static final String RESTR_L_TEMPLATE_READ_ONLY = "RESTR_L_TEMPLATE_READ_ONLY";
     public static final String RESTR_L_REGEXMATCH = "RESTR_L_REGEXMATCH";
     public static final String RESTR_L_REGEX = "RESTR_L_REGEX";
 
     public static final String RESTR_S_CARDINALITY = "RESTR_S_CARDINALITY";
     public static final String RESTR_S_TEMPLATE = "RESTR_S_TEMPLATE";
+    public static final String RESTR_S_TEMPLATE_READ_ONLY = "RESTR_S_TEMPLATE_READ_ONLY";
     public static final String RESTR_S_REGEXMATCH = "RESTR_S_REGEXMATCH";
     public static final String RESTR_S_REGEX = "RESTR_S_REGEX";
 
     public static final String RESTR_E_CARDINALITY = "RESTR_E_CARDINALITY";
     public static final String RESTR_E_TEMPLATE = "RESTR_E_TEMPLATE";
+    public static final String RESTR_E_TEMPLATE_READ_ONLY = "RESTR_E_TEMPLATE_READ_ONLY";
     public static final String RESTR_E_REGEXMATCH = "RESTR_E_REGEXMATCH";
     public static final String RESTR_E_REGEX = "RESTR_E_REGEX";
 
     public static final String RESTR_SAN_CARDINALITY = "RESTR_SAN_CARDINALITY";
     public static final String RESTR_SAN_TEMPLATE = "RESTR_SAN_TEMPLATE";
+    public static final String RESTR_SAN_TEMPLATE_READ_ONLY = "RESTR_SAN_TEMPLATE_READ_ONLY";
     public static final String RESTR_SAN_REGEXMATCH = "RESTR_SAN_REGEXMATCH";
     public static final String RESTR_SAN_REGEX = "RESTR_SAN_REGEX";
 
     public static final String RESTR_ARA_PREFIX = "RESTR_ARA_";
-    public static final String RESTR_ARA_PATTERN = RESTR_ARA_PREFIX + "(.*)_(.*)";
+    public static final String RESTR_ARA_PATTERN = RESTR_ARA_PREFIX + "([0-9]*)_(.*)";
     public static final String RESTR_ARA_NAME = "NAME";
     //	public static final String RESTR_ARA_CARDINALITY = "CARDINALITY";
     public static final String RESTR_ARA_TEMPLATE = "TEMPLATE";
+    public static final String RESTR_ARA_TEMPLATE_READ_ONLY = "TEMPLATE_READ_ONLY";
     public static final String RESTR_ARA_REGEX = "REGEX";
     public static final String RESTR_ARA_REGEXMATCH = "REGEXMATCH";
     public static final String RESTR_ARA_REQUIRED = "REQUIRED";
     public static final String RESTR_ARA_COMMENT = "COMMENT";
     public static final String RESTR_ARA_CONTENT_TYPE = "ARAContentType";
 
+    public static final String CN_AS_SAN_RESTRICTION = "CN_AS_SAN_RESTRICTION";
     public static final String KEY_UNIQUENESS = "KEY_UNIQUENESS";
     public static final String TOS_AGREEMENT_REQUIRED = "TOS_AGREEMENT_REQUIRED";
     public static final String TOS_AGREEMENT_LINK = "TOS_AGREEMENT_LINK";
@@ -137,17 +149,11 @@ public class PipelineUtil {
 
     public static final String LIST_ORDER = "LIST_ORDER";
 
-    public static final String ACME_PROCESS_ACCOUNT_VALIDATION = "ACME_PROCESS_ACCOUNT_VALIDATION";
-    public static final String ACME_PROCESS_ORDER_VALIDATION = "ACME_PROCESS_ORDER_VALIDATION";
-    public static final String ACME_PROCESS_CHALLENGE_VALIDATION = "ACME_PROCESS_CHALLENGE_VALIDATION";
-
     public static final String ACME_ORDER_VALIDITY_SECONDS = "ACME_ORDER_VALIDITY_SECONDS";
     public static final String ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR = "ACME_NOTIFY_ACCOUNT_CONTACT_ON_ERROR";
 
     public static final String SCEP_CAPABILITY_RENEWAL = "SCEP_CAPABILITY_RENEWAL";
     public static final String SCEP_CAPABILITY_POST = "SCEP_CAPABILITY_POST";
-    public static final String SCEP_SECRET = "SCEP_SECRET";
-    public static final String SCEP_SECRET_VALID_TO = "SCEP_SECRET_VALID_TO";
     public static final String SCEP_SECRET_PC_ID = "SCEP_SECRET_PC_ID";
 
     public static final String SCEP_RECIPIENT_DN = "SCEP_RECIPIENT_DN";
@@ -155,6 +161,7 @@ public class PipelineUtil {
     public static final String SCEP_CA_CONNECTOR_RECIPIENT_NAME = "SCEP_CA_CONNECTOR_RECIPIENT_NAME";
     public static final String SCEP_PERIOD_DAYS_RENEWAL = "SCEP_PERIOD_DAYS_RENEWAL";
     public static final String SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL = "SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL";
+    private final CSRUtil cSRUtil;
 
 
     Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
@@ -201,7 +208,8 @@ public class PipelineUtil {
                         AuthorityRepository authorityRepository,
                         RequestProxyConfigRepository requestProxyConfigRepository,
                         @Value("${ca3s.keyspec.default:RSA_4096}") String defaultKeySpec,
-                        RandomUtil randomUtil) {
+                        RandomUtil randomUtil,
+                        @Lazy CSRUtil cSRUtil) {
 
         this.certRepository = certRepository;
         this.csrRepository = csrRepository;
@@ -224,6 +232,7 @@ public class PipelineUtil {
         // @ToDo check back with the list of valid algos
         this.defaultKeySpec = defaultKeySpec;
         this.randomUtil = randomUtil;
+        this.cSRUtil = cSRUtil;
     }
 
 
@@ -309,6 +318,34 @@ public class PipelineUtil {
                 pv.setNetworkAcceptArr(splitNetworks(plAtt.getValue()));
             } else if (NETWORK_REJECT.equals(plAtt.getName())) {
                 pv.setNetworkRejectArr(splitNetworks(plAtt.getValue()));
+
+            } else if (CN_AS_SAN_RESTRICTION.equals(plAtt.getName()))  {
+                if(plAtt.getValue() == null || plAtt.getValue().isEmpty()){
+                    pv.setCnAsSanRestriction(CN_AS_SAN_IGNORE);
+                }else {
+                    pv.setCnAsSanRestriction(CnAsSanRestriction.valueOf(plAtt.getValue()));
+                }
+            } else if (KEY_UNIQUENESS.equals(plAtt.getName())) {
+                if(plAtt.getValue() == null || plAtt.getValue().isEmpty()){
+                    pv.setKeyUniqueness(KeyUniqueness.KEY_UNIQUE);
+                }else {
+                    pv.setKeyUniqueness(KeyUniqueness.valueOf(plAtt.getValue()));
+                }
+
+            } else if (TOS_AGREEMENT_REQUIRED.equals(plAtt.getName())) {
+                pv.setTosAgreementRequired(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (TOS_AGREEMENT_LINK.equals(plAtt.getName())) {
+                pv.setTosAgreementLink(plAtt.getValue());
+
+            } else if (WEBSITE_LINK.equals(plAtt.getName())) {
+                pv.setWebsite(plAtt.getValue());
+
+            } else if (CSR_USAGE.equals(plAtt.getName())) {
+                pv.setCsrUsage(CsrUsage.valueOf(plAtt.getValue()));
+
+            } else if (LIST_ORDER.equals(plAtt.getName())) {
+                pv.setListOrder(Integer.parseInt(plAtt.getValue()));
+
             } else if (CAN_ISSUE_2_FACTOR_CLIENT_CERTS.equals(plAtt.getName())) {
                 webConfigItems.setIssuesSecondFactorClientCert(Boolean.parseBoolean(plAtt.getValue()));
             } else if (SCEP_RECIPIENT_DN.equals(plAtt.getName())) {
@@ -452,6 +489,8 @@ public class PipelineUtil {
                 pv.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             } else if (RESTR_C_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_C().setContentTemplate(plAtt.getValue());
+            } else if (RESTR_C_TEMPLATE_READ_ONLY.equals(plAtt.getName())) {
+                pv.getRestriction_C().setTemplateReadOnly(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_C_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_C().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_C_REGEX.equals(plAtt.getName())) {
@@ -461,6 +500,8 @@ public class PipelineUtil {
                 pv.getRestriction_CN().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             } else if (RESTR_CN_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_CN().setContentTemplate(plAtt.getValue());
+            } else if (RESTR_CN_TEMPLATE_READ_ONLY.equals(plAtt.getName())) {
+                pv.getRestriction_CN().setTemplateReadOnly(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_CN_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_CN().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_CN_REGEX.equals(plAtt.getName())) {
@@ -470,6 +511,8 @@ public class PipelineUtil {
                 pv.getRestriction_O().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             } else if (RESTR_O_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_O().setContentTemplate(plAtt.getValue());
+            } else if (RESTR_O_TEMPLATE_READ_ONLY.equals(plAtt.getName())) {
+                pv.getRestriction_O().setTemplateReadOnly(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_O_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_O().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_O_REGEX.equals(plAtt.getName())) {
@@ -479,6 +522,8 @@ public class PipelineUtil {
                 pv.getRestriction_OU().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             } else if (RESTR_OU_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_OU().setContentTemplate(plAtt.getValue());
+            } else if (RESTR_OU_TEMPLATE_READ_ONLY.equals(plAtt.getName())) {
+                pv.getRestriction_OU().setTemplateReadOnly(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_OU_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_OU().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_OU_REGEX.equals(plAtt.getName())) {
@@ -488,6 +533,8 @@ public class PipelineUtil {
                 pv.getRestriction_L().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             } else if (RESTR_L_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_L().setContentTemplate(plAtt.getValue());
+            } else if (RESTR_L_TEMPLATE_READ_ONLY.equals(plAtt.getName())) {
+                pv.getRestriction_L().setTemplateReadOnly(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_L_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_L().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_L_REGEX.equals(plAtt.getName())) {
@@ -497,6 +544,8 @@ public class PipelineUtil {
                 pv.getRestriction_S().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             } else if (RESTR_S_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_S().setContentTemplate(plAtt.getValue());
+            } else if (RESTR_S_TEMPLATE_READ_ONLY.equals(plAtt.getName())) {
+                pv.getRestriction_S().setTemplateReadOnly(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_S_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_S().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_S_REGEX.equals(plAtt.getName())) {
@@ -506,6 +555,8 @@ public class PipelineUtil {
                 pv.getRestriction_E().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             } else if (RESTR_E_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_E().setContentTemplate(plAtt.getValue());
+            } else if (RESTR_E_TEMPLATE_READ_ONLY.equals(plAtt.getName())) {
+                pv.getRestriction_E().setTemplateReadOnly(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_E_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_E().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_E_REGEX.equals(plAtt.getName())) {
@@ -515,31 +566,12 @@ public class PipelineUtil {
                 pv.getRestriction_SAN().setCardinalityRestriction(RDNCardinalityRestriction.valueOf(plAtt.getValue()));
             } else if (RESTR_SAN_TEMPLATE.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setContentTemplate(plAtt.getValue());
+            } else if (RESTR_SAN_TEMPLATE_READ_ONLY.equals(plAtt.getName())) {
+                pv.getRestriction_SAN().setTemplateReadOnly(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_SAN_REGEXMATCH.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setRegExMatch(Boolean.parseBoolean(plAtt.getValue()));
             } else if (RESTR_SAN_REGEX.equals(plAtt.getName())) {
                 pv.getRestriction_SAN().setRegEx(plAtt.getValue());
-
-            } else if (KEY_UNIQUENESS.equals(plAtt.getName())) {
-                if(plAtt.getValue() == null || plAtt.getValue().isEmpty()){
-                    pv.setKeyUniqueness(KeyUniqueness.KEY_UNIQUE);
-                }else {
-                    pv.setKeyUniqueness(KeyUniqueness.valueOf(plAtt.getValue()));
-                }
-
-            } else if (TOS_AGREEMENT_REQUIRED.equals(plAtt.getName())) {
-                pv.setTosAgreementRequired(Boolean.parseBoolean(plAtt.getValue()));
-            } else if (TOS_AGREEMENT_LINK.equals(plAtt.getName())) {
-                pv.setTosAgreementLink(plAtt.getValue());
-
-            } else if (WEBSITE_LINK.equals(plAtt.getName())) {
-                pv.setWebsite(plAtt.getValue());
-
-            } else if (CSR_USAGE.equals(plAtt.getName())) {
-                pv.setCsrUsage(CsrUsage.valueOf(plAtt.getValue()));
-
-            } else if (LIST_ORDER.equals(plAtt.getName())) {
-                pv.setListOrder(Integer.parseInt(plAtt.getValue()));
 
             } else if (TO_PENDIND_ON_FAILED_RESTRICTIONS.equals(plAtt.getName())) {
                 pv.setToPendingOnFailedRestrictions(Boolean.parseBoolean(plAtt.getValue()));
@@ -595,6 +627,8 @@ public class PipelineUtil {
                         araRestriction.setRequired(Boolean.parseBoolean(plAtt.getValue()));
                     } else if (RESTR_ARA_TEMPLATE.equals(namePart)) {
                         araRestriction.setContentTemplate(plAtt.getValue());
+                    } else if (RESTR_ARA_TEMPLATE_READ_ONLY.equals(namePart)) {
+                        araRestriction.setTemplateReadOnly(Boolean.parseBoolean(plAtt.getValue()));
                     } else if (RESTR_ARA_COMMENT.equals(namePart)) {
                         araRestriction.setComment(plAtt.getValue());
                     } else if (RESTR_ARA_REGEXMATCH.equals(namePart)) {
@@ -674,8 +708,8 @@ public class PipelineUtil {
             p.setType(pv.getType());
         }
 
-        if(pv.getType() == PipelineType.WEB){
-            pv.setUrlPart(""); // not url part for web pipelines
+        if(pv.getType() == PipelineType.WEB || pv.getType() == PipelineType.MANUAL_UPLOAD){
+            pv.setUrlPart(""); // no url part for web pipelines
         }
         if (!Objects.equals(pv.getUrlPart(), p.getUrlPart())) {
             auditList.add(auditService.createAuditTracePipeline(AuditService.AUDIT_PIPELINE_URLPART_CHANGED, p.getUrlPart(), pv.getUrlPart(), p));
@@ -856,48 +890,56 @@ public class PipelineUtil {
         if (pv.getRestriction_C() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_CARDINALITY, pv.getRestriction_C().getCardinalityRestriction().name());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_TEMPLATE, pv.getRestriction_C().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_TEMPLATE_READ_ONLY, pv.getRestriction_C().isTemplateReadOnly());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_REGEXMATCH, pv.getRestriction_C().isRegExMatch());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_C_REGEX, pv.getRestriction_C().getRegEx());
         }
         if (pv.getRestriction_CN() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_CARDINALITY, pv.getRestriction_CN().getCardinalityRestriction().name());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_TEMPLATE, pv.getRestriction_CN().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_TEMPLATE_READ_ONLY, pv.getRestriction_CN().isTemplateReadOnly());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_REGEXMATCH, pv.getRestriction_CN().isRegExMatch());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_CN_REGEX, pv.getRestriction_CN().getRegEx());
         }
         if (pv.getRestriction_O() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_CARDINALITY, pv.getRestriction_O().getCardinalityRestriction().name());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_TEMPLATE, pv.getRestriction_O().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_TEMPLATE_READ_ONLY, pv.getRestriction_O().isTemplateReadOnly());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_REGEXMATCH, pv.getRestriction_O().isRegExMatch());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_O_REGEX, pv.getRestriction_O().getRegEx());
         }
         if (pv.getRestriction_OU() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_CARDINALITY, pv.getRestriction_OU().getCardinalityRestriction().name());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_TEMPLATE, pv.getRestriction_OU().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_TEMPLATE_READ_ONLY, pv.getRestriction_OU().isTemplateReadOnly());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_REGEXMATCH, pv.getRestriction_OU().isRegExMatch());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_OU_REGEX, pv.getRestriction_OU().getRegEx());
         }
         if (pv.getRestriction_L() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_CARDINALITY, pv.getRestriction_L().getCardinalityRestriction().name());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_TEMPLATE, pv.getRestriction_L().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_TEMPLATE_READ_ONLY, pv.getRestriction_L().isTemplateReadOnly());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_REGEXMATCH, pv.getRestriction_L().isRegExMatch());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_L_REGEX, pv.getRestriction_L().getRegEx());
         }
         if (pv.getRestriction_S() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_CARDINALITY, pv.getRestriction_S().getCardinalityRestriction().name());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_TEMPLATE, pv.getRestriction_S().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_TEMPLATE_READ_ONLY, pv.getRestriction_S().isTemplateReadOnly());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEXMATCH, pv.getRestriction_S().isRegExMatch());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_S_REGEX, pv.getRestriction_S().getRegEx());
         }
         if (pv.getRestriction_E() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_CARDINALITY, pv.getRestriction_E().getCardinalityRestriction().name());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_TEMPLATE, pv.getRestriction_E().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_TEMPLATE_READ_ONLY, pv.getRestriction_E().isTemplateReadOnly());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEXMATCH, pv.getRestriction_E().isRegExMatch());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEX, pv.getRestriction_E().getRegEx());
         }
         if (pv.getRestriction_SAN() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_CARDINALITY, pv.getRestriction_SAN().getCardinalityRestriction().name());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_TEMPLATE, pv.getRestriction_SAN().getContentTemplate());
+            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_TEMPLATE_READ_ONLY, pv.getRestriction_SAN().isTemplateReadOnly());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_REGEXMATCH, pv.getRestriction_SAN().isRegExMatch());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_REGEX, pv.getRestriction_SAN().getRegEx());
         }
@@ -937,6 +979,12 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, KEY_UNIQUENESS, pv.getKeyUniqueness().toString());
         }
 
+        if( pv.getCnAsSanRestriction() == null){
+            addPipelineAttribute(pipelineAttributes, p, auditList, CN_AS_SAN_RESTRICTION, CN_AS_SAN_IGNORE.toString());
+        }else {
+            addPipelineAttribute(pipelineAttributes, p, auditList, CN_AS_SAN_RESTRICTION, pv.getCnAsSanRestriction().toString());
+        }
+
         addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_REQUIRED, pv.isTosAgreementRequired());
         addPipelineAttribute(pipelineAttributes, p, auditList, TOS_AGREEMENT_LINK, pv.getTosAgreementLink());
         addPipelineAttribute(pipelineAttributes, p, auditList, WEBSITE_LINK, pv.getWebsite());
@@ -945,7 +993,7 @@ public class PipelineUtil {
         addPipelineAttribute(pipelineAttributes, p, auditList, NETWORK_REJECT, concatNetworks(pv.getNetworkRejectArr()));
 
         addPipelineAttribute(pipelineAttributes, p, auditList, CSR_USAGE, pv.getCsrUsage().toString());
-        if (PipelineType.WEB.equals(pv.getType())) {
+        if (PipelineType.WEB.equals(pv.getType()) || PipelineType.MANUAL_UPLOAD.equals(pv.getType())) {
             addPipelineAttribute(pipelineAttributes, p, auditList, LIST_ORDER, "" + pv.getListOrder());
         }
 
@@ -1004,8 +1052,11 @@ public class PipelineUtil {
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_NAME, araName.trim());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REQUIRED, araRestriction.isRequired());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_TEMPLATE, araRestriction.getContentTemplate());
+                    addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_TEMPLATE_READ_ONLY, araRestriction.isTemplateReadOnly());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_COMMENT, araRestriction.getComment());
-                    addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_CONTENT_TYPE, araRestriction.getContentType().toString());
+                    if(araRestriction.getContentType() != null) {
+                        addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_CONTENT_TYPE, araRestriction.getContentType().toString());
+                    }
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEX, araRestriction.getRegEx());
                     addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_ARA_PREFIX + j + "_" + RESTR_ARA_REGEXMATCH, araRestriction.isRegExMatch());
                     j++;
@@ -1238,10 +1289,15 @@ public class PipelineUtil {
             return true;
         }
 
+        boolean cnSanMatch = isCnAndSanApplicable( p, p10ReqHolder, messageList);
+
         if (!isPipelineAdditionalRestrictionsResolved(initAraRestrictions(p), nvARArr, messageList)) {
             return false;
         }
-        return isPipelineRestrictionsResolved(p, p10ReqHolder, messageList);
+
+        boolean prSolved = isPipelineRestrictionsResolved(p, p10ReqHolder, messageList);
+
+        return cnSanMatch && prSolved;
     }
 
     public boolean isPipelineRestrictionsResolved(Pipeline p, Pkcs10RequestHolder p10ReqHolder, List<String> messageList) {
@@ -1806,7 +1862,7 @@ public class PipelineUtil {
 
         String scepRecipientKeyLength = getPipelineAttribute(pipeline, SCEP_RECIPIENT_KEY_TYPE_LEN, defaultKeySpec);
         KeyAlgoLengthOrSpec kal = KeyAlgoLengthOrSpec.from(scepRecipientKeyLength);
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getKeyFactoryAlgo());
         keyPairGenerator.initialize(kal.getKeyLength(), randomUtil.getSecureRandom());
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
 
@@ -1868,6 +1924,39 @@ public class PipelineUtil {
         return false;
     }
 
+    public boolean isCnAndSanApplicable(Pipeline pipeline,
+                                         Pkcs10RequestHolder p10ReqHolder,
+                                         List<String> messageList) {
+        CnAsSanRestriction cnAsSanRestriction = CnAsSanRestriction.valueOf(
+            getPipelineAttribute(pipeline, CN_AS_SAN_RESTRICTION, CN_AS_SAN_IGNORE.toString()));
+
+        if( CN_AS_SAN_IGNORE.equals(cnAsSanRestriction)) {
+            LOG.debug("CN / SAN matching not requested.");
+            return true;
+        }
+
+        boolean cnInSan = cSRUtil.isCNinSANSet(p10ReqHolder);
+
+        if(  CN_AS_SAN_REQUIRED.equals(cnAsSanRestriction)) {
+            if( !cnInSan){
+                LOG.debug("CN / SAN mismatch: CN must be present in SANs.");
+                messageList.add("CN / SAN mismatch: CN must be present in SANs.");
+                return false;
+            }
+            LOG.debug("CN / SAN matching successful.");
+            return true;
+        } else { // CN_AS_SAN_MUST_NOT_MATCH
+            if( cnInSan){
+                LOG.debug("CN / SAN matching successful.");
+            }else {
+                LOG.debug("CN / SAN mismatch: CN recommended be present in SANs.");
+                messageList.add("CN / SAN mismatch: CN recommended be present in SANs.");
+            }
+            return true;
+        }
+    }
+
+
     public boolean isPublicKeyApplicable(Pipeline pipeline, Pkcs10RequestHolder p10ReqHolder,
                                          List<String> messageList) {
         KeyUniqueness keyUniqueness = KeyUniqueness.valueOf(
@@ -1918,7 +2007,7 @@ public class PipelineUtil {
                 notificationService.notifyAccountHolderOnKeyReuse(acmeOrder);
                 return true;
             case KEY_UNIQUE:
-                messageList.add("Public key already used. Create am n new key pair.");
+                messageList.add("Public key already used. Create a new key pair.");
                 return false;
             case DOMAIN_REUSE_WARN_ONLY:
                 if( acmeOrder == null){

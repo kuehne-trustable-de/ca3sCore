@@ -152,7 +152,7 @@ public class CSRResourceIT {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        final CSRResource cSRResource = new CSRResource(cSRService, csrUtil, pipelineUtil, userRepository, userUtil,
+        final CSRResource cSRResource = new CSRResource(cSRService, csrUtil, pipelineUtil, userUtil,
             "none", false);
         this.restCSRMockMvc = MockMvcBuilders.standaloneSetup(cSRResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)

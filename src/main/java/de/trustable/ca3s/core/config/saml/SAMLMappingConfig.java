@@ -28,7 +28,7 @@ public class SAMLMappingConfig {
         @Value("${ca3s.saml.roles.domainra:}") String[] rolesDomainRAArr,
         @Value("${ca3s.saml.roles.ra:}") String[] rolesRAArr,
         @Value("${ca3s.saml.roles.admin:}") String[] rolesAdminArr,
-        @Value("${ca3s.saml.roles.other}") String[] rolesOtherArr,
+        @Value("${ca3s.saml.roles.other:}") String[] rolesOtherArr,
         @Value("${ca3s.saml.attributes.firstName:firstName}") String[] attributesFirstName,
         @Value("${ca3s.saml.attributes.lastName:lastName}") String[] attributesLastName,
         @Value("${ca3s.saml.attributes.email:email}") String[] attributesEmail,

@@ -166,17 +166,17 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     readerBase64.readAsText(blob);
   }
 
-  public showProblemWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
-    if (this.showRequiredWarning(rr.required, value)) {
+  public showProblemWarning(rr: IPipelineRestriction, valueIndex: number, typedValue: ITypedValue): boolean {
+    if (this.showRequiredWarning(rr.required, typedValue.value)) {
       return true;
     }
-    if (this.showContentWarning(rr, valueIndex, value)) {
+    if (this.showContentWarning(rr, valueIndex, typedValue.value)) {
       return true;
     }
-    if (this.showRegExpWarning(rr, valueIndex, value)) {
+    if (this.showRegExpWarningTV(rr, valueIndex, typedValue)) {
       return true;
     }
-    if (this.showContentOrSANWarning(rr, valueIndex, value)) {
+    if (this.showContentOrSANWarning(rr, valueIndex, typedValue.value)) {
       return true;
     }
     return false;
@@ -201,6 +201,39 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return false;
   }
 
+  public showCNAndSANRestrictionWarning(): boolean {
+    console.log('showCNAndSANRestrictionWarning');
+
+    if (!this.selectPipelineView.cnAsSanRestriction || this.selectPipelineView.cnAsSanRestriction === 'CN_AS_SAN_IGNORE') {
+      return false;
+    }
+
+    let cn = '';
+    let i: number = 0;
+    for (i = 0; i < this.rdnRestrictions.length; i++) {
+      if (this.rdnRestrictions[i].name === 'CN') {
+        cn = this.upload.certificateAttributes[i].values[0].value;
+      }
+    }
+
+    if (cn.trim().length === 0) {
+      console.log('showCNAndSANRestrictionWarning: cn empty');
+      return false;
+    }
+
+    for (const namedValue of this.upload.certificateAttributes) {
+      if (namedValue.name === 'SAN') {
+        for (const typedValue of namedValue.values) {
+          if (typedValue.type && typedValue.type === 'DNS' && typedValue.value.toUpperCase() === cn.toUpperCase()) {
+            console.log('showCNAndSANRestrictionWarning: cn matches SAN');
+            return false;
+          }
+        }
+      }
+    }
+    return true;
+  }
+
   public showContentOrSANWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
     console.log('showContentOrSANWarning( ' + rr.required + ', ' + valueIndex + ', "' + value + '")');
     if (rr.cardinality === 'ONE_OR_SAN' && valueIndex === 0 && value.trim().length === 0) {
@@ -214,6 +247,17 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       return true;
     }
     return false;
+  }
+
+  public showRegExpWarningTV(rr: IPipelineRestriction, valueIndex: number, typedValue: ITypedValue): boolean {
+    if (!typedValue.value || typedValue.value.trim().length === 0) {
+      return false;
+    }
+    if (rr.name === 'SAN') {
+      return this.showRegExpWarning(rr, valueIndex, typedValue.type + ':' + typedValue.value);
+    } else {
+      return this.showRegExpWarning(rr, valueIndex, typedValue.value);
+    }
   }
 
   public showRegExpWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
@@ -357,7 +401,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
           // ignore this
         } else {
           this.rdnRestrictions.push(
-            new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, '', rr.regExMatch, rr.regEx)
+            new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.templateReadOnly, '', '', rr.regExMatch, rr.regEx)
           );
         }
       }
@@ -384,11 +428,16 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     for (const rr of this.rdnRestrictions) {
       const nv: INamedValues = {};
       nv.name = rr.name;
+      nv.values = [{value: this.replacePlaceholder(rr.template)}];
+
+      /*
       if (rr.readOnly) {
         nv.values = [{ value: rr.template }];
       } else {
         nv.values = [{ value: '' }];
       }
+      */
+
       if (nv.name === 'SAN') {
         nv.values[0].type = 'DNS';
       }
@@ -402,7 +451,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       for (const rr of pipeline.araRestrictions) {
         const cardinalityRestriction = rr.required ? 'ONE' : 'ZERO_OR_ONE';
         this.araRestrictions.push(
-          new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.comment, rr.regExMatch, rr.regEx)
+          new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.templateReadOnly, rr.contentType, rr.comment, rr.regExMatch, rr.regEx)
         );
       }
     }
@@ -410,11 +459,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     for (const rr of this.araRestrictions) {
       const nv: INamedValues = {};
       nv.name = rr.name;
-      if (rr.readOnly) {
-        nv.values = [{ value: rr.template }];
-      } else {
-        nv.values = [{ value: '' }];
-      }
+
+      nv.values = [{value: this.replacePlaceholder(rr.template)}];
+
       this.upload.arAttributes.push(nv);
     }
 
@@ -425,6 +472,19 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     this.updateForm();
 
     window.console.info('end of updatePipelineRestrictionsByPipelineInfo');
+  }
+
+  public replacePlaceholder(valueIn: string): string {
+
+    const account = this.$store.getters.account;
+    let value = valueIn;
+    if (account) {
+      return value.replace('{{user.firstName}}', account.firstName)
+        .replace('{{user.lastName}}', account.lastName)
+        .replace('{{user.login}}', account.login)
+        .replace('{{user.email}}', account.email);
+    }
+    return value;
   }
 
   public buildCommandLine(): string {
@@ -512,7 +572,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     } else if (this.keyAlgoLength.startsWith('ecdsa')) {
       algo = 'ECDSA';
       algoKeyTool = 'EC';
-    } else if (this.keyAlgoLength.startsWith('ed25519')) {
+    } else if (this.keyAlgoLength.startsWith('Ed25519')) {
       algo = 'ED25519';
       algoKeyTool = 'EdDSA';
     }
@@ -855,16 +915,21 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public notifyFileChange(evt: any): void {
     const self = this;
     const selectedFile = evt.target.files[0];
+    window.console.info('notifyFileChange: ' + selectedFile);
+
     const readerBase64 = new FileReader();
     readerBase64.onload = function (_result) {
       const base64Text = readerBase64.result.toString();
+      window.console.info('notifyFileChange: uploaded text :' + base64Text);
 
       // check, whether this is base64 encoded content
       if (/^[\x00-\x7F]*$/.test(base64Text)) {
         self.upload.content = base64Text;
         self.contentCall(precheckUrl);
+        window.console.info('notifyFileChange: base64Test found');
       } else {
-        // binary, start re-reading it as base64-encoded comntent
+        // binary, start re-reading it as base64-encoded content
+        window.console.info('notifyFileChange: binary data, reread as base64');
         const readerBinary = new FileReader();
         readerBinary.onload = function (__result) {
           self.upload.content = readerBinary.result.toString().split(',')[1];
@@ -874,6 +939,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       }
     };
     readerBase64.readAsText(selectedFile);
+    window.console.info('notifyFileChange: readerBase64.readAsText');
   }
 
   // handle any changes affecting the plain content
@@ -1043,8 +1109,16 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public disableCertificateRequest(): boolean {
     window.console.info('in disableCertificateRequest()');
 
+    if (this.selectPipelineView.cnAsSanRestriction === 'CN_AS_SAN_REQUIRED') {
+      if (this.showCNAndSANRestrictionWarning()) {
+        window.console.info('CN / SAN do not match, but it is required');
+        return true;
+      }
+    }
+
     // check tos agreement, if required
-    if( this.selectPipelineView.tosAgreementRequired && !this.upload.tosAgreed ){
+    if (this.selectPipelineView.tosAgreementRequired && !this.upload.tosAgreed) {
+      window.console.info('TOS NOT agreed');
       return true;
     }
 
@@ -1081,10 +1155,10 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
               valueIndex,
               this.upload.certificateAttributes[rdnIndex].values[valueIndex].value
             ) ||
-            this.showRegExpWarning(
+            this.showRegExpWarningTV(
               this.rdnRestrictions[rdnIndex],
               valueIndex,
-              this.upload.certificateAttributes[rdnIndex].values[valueIndex].value
+              this.upload.certificateAttributes[rdnIndex].values[valueIndex]
             )
           ) {
             window.console.info('attribute "' + this.rdnRestrictions[rdnIndex].name + '" does not match requirements!');
@@ -1097,7 +1171,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     for (let araIndex = 0; araIndex < this.araRestrictions.length; araIndex++) {
       if (
         this.showContentWarning(this.araRestrictions[araIndex], 0, this.upload.arAttributes[araIndex].values[0].value) ||
-        this.showRegExpWarning(this.araRestrictions[araIndex], 0, this.upload.arAttributes[araIndex].values[0].value)
+        this.showRegExpWarningTV(this.araRestrictions[araIndex], 0, this.upload.arAttributes[araIndex].values[0])
       ) {
         window.console.info('attribute "' + this.araRestrictions[araIndex].name + '" does not match requirements!');
         return true;
@@ -1111,12 +1185,34 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     return false;
   }
 
-  public isSelectPipeline() {
+  public isPipelineSelected() {
     return this.authenticated && this.allWebPipelines && this.allWebPipelines.length > 0;
   }
 
-  public isPipelineChoosen() {
-    return this.upload.pipelineId >= 0;
+  public isWebPipelineChoosen() {
+    const pipelineId = this.upload.pipelineId;
+    if (pipelineId < 0) {
+      return false;
+    }
+    for (const pipeline of this.allWebPipelines) {
+      if (pipeline.id === pipelineId && (pipeline.type === 'WEB' || pipeline.type === 'MANUAL_UPLOAD')) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public isUploadPipelineChoosen() {
+    const pipelineId = this.upload.pipelineId;
+    if (pipelineId < 0) {
+      return false;
+    }
+    for (const pipeline of this.allWebPipelines) {
+      if (pipeline.id === pipelineId && pipeline.type === 'MANUAL_UPLOAD') {
+        return true;
+      }
+    }
+    return false;
   }
 
   public isRAOfficer() {

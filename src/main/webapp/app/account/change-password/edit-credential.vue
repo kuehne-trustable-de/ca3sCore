@@ -223,7 +223,7 @@
                                for="pipeline"></label>
                     </div>
 
-                    <div class="col-6">
+                    <div v-if="pipelineViewArr && pipelineViewArr.length > 0" class="col-6">
                       <select
                         class="form-control form-check-inline w-50"
                         id="pipeline" name="pipeline"
@@ -235,10 +235,15 @@
                       </select>
                     </div>
 
+                    <div v-else class="col-6">
+                      <small class="form-text text-danger"
+                             v-text="$t('ca3SApp.form.client.token.eab.no.pipeline')"></small>
+                    </div>
+
                     <div class="col"></div>
                   </div>
 
-                  <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'API_TOKEN' || credentialChange.credentialUpdateType === 'SCEP_TOKEN' || credentialChange.credentialUpdateType === 'EST_TOKEN' || credentialChange.credentialUpdateType === 'EAB_PASSWORD'">
+                  <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'API_TOKEN' || credentialChange.credentialUpdateType === 'SCEP_TOKEN' || credentialChange.credentialUpdateType === 'EST_TOKEN'">
 
                         <div class="col-sm">
                             <label class="form-control-label" v-text="$t('ca3SApp.form.client.api.token.value')"
@@ -256,20 +261,55 @@
 
                         </div>
 
-                        <div class="col" v-if="credentialChange.credentialUpdateType === 'EAB_PASSWORD'">
+                        <div class="col">
+                        </div>
+                    </div>
+
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'EAB_PASSWORD'">
+
+                        <div class="col-sm">
+                            <label class="form-control-label" v-text="$t('ca3SApp.form.client.api.kid.value')"
+                                   for="api-kid-value"></label>
+                        </div>
+
+                        <div class="col-6">
                             <input type="text"
-                                   class="form-control form-check-inline w-50"
-                                   name="eab-kid"
-                                   id="eab-kid"
+                                   class="form-control form-check-inline w-100"
+                                   name="api-kid-value"
+                                   id="api-kid-value"
                                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                                    readonly
                                    v-model="credentialChange.eabKid" />
                             <CopyClipboardButton contentElementId="eab-kid"/>
                         </div>
 
-                        <div class="col"  v-if="credentialChange.credentialUpdateType !== 'EAB_PASSWORD'">
+                        <div class="col">
                         </div>
                     </div>
+
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'EAB_PASSWORD'">
+
+                        <div class="col-sm">
+                            <label class="form-control-label" v-text="$t('ca3SApp.form.client.api.hmac.key')"
+                                   for="api-token-value"></label>
+                        </div>
+
+                        <div class="col-6">
+                            <input type="text"
+                                   class="form-control form-check-inline w-100"
+                                   name="api-token-value"
+                                   id="api-token-value"
+                                   autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                   readonly
+                                   v-model="credentialChange.apiTokenValue" />
+                            <CopyClipboardButton contentElementId="credentialChange.apiTokenValue"/>
+                        </div>
+
+
+                        <div class="col">
+                        </div>
+                    </div>
+
 
                     <div>
                         <button type="submit"

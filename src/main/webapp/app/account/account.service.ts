@@ -19,7 +19,6 @@ export default class AccountService {
     window.console.info('++++++++ AccountService.init : ');
 
     this.router.beforeEach((to, from, next) => {
-      window.console.info('++++++++++++++++++ to.query.bearer : ' + to.query.bearer);
       const bearer = to.query.bearer;
       if (bearer) {
         window.console.info('setting bearer token to local storage : ' + bearer);
@@ -38,8 +37,8 @@ export default class AccountService {
             }
           }
         }
-        window.console.info('++++++++++++++++++ access_token : ' + access_token);
         if (access_token) {
+          window.console.info('++++++++++++++++++ access_token : ' + access_token);
           this.forwardToken(access_token);
         }
       }

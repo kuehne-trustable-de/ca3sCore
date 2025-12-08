@@ -20,7 +20,7 @@ import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.TotpService;
 import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.*;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.web.rest.data.OTPDetailsResponse;
 import de.trustable.ca3s.core.web.rest.errors.AccountResourceException;
 import de.trustable.ca3s.core.web.rest.errors.EmailAlreadyUsedException;
@@ -73,25 +73,24 @@ public class AccountResource {
     private final TenantRepository tenantRepository;
     private final ProtectedContentRepository protectedContentRepository;
     private final CertificateRepository certificateRepository;
-    private final CertificateUtil certificateUtil;
+    private final UserUtil userUtil;
     private final TotpService totpService;
     private final MailService mailService;
     private final de.trustable.ca3s.core.service.util.RandomUtil randomUtil;
 
 
     public AccountResource(UserRepository userRepository, UserService userService, TenantRepository tenantRepository,
-                           ProtectedContentRepository protectedContentRepository,
+                           ProtectedContentRepository protectedContentRepository, UserUtil userUtil,
                            MailService mailService,
                            CertificateRepository certificateRepository,
-                           CertificateUtil certificateUtil,
                            TotpService totpService, de.trustable.ca3s.core.service.util.RandomUtil randomUtil) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.tenantRepository = tenantRepository;
         this.protectedContentRepository = protectedContentRepository;
+        this.userUtil = userUtil;
         this.mailService = mailService;
         this.certificateRepository = certificateRepository;
-        this.certificateUtil = certificateUtil;
         this.totpService = totpService;
         this.randomUtil = randomUtil;
     }
@@ -125,7 +124,7 @@ public class AccountResource {
     @GetMapping("/activate")
     public void activateAccount(@RequestParam(value = "key") String key) {
         Optional<User> user = userService.activateRegistration(key);
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             throw new AccountResourceException("No user was found for this activation key");
         }
     }
@@ -165,9 +164,7 @@ public class AccountResource {
                 user.setLangKey(languages.alignLanguage(user.getLangKey()));
             }
 
-            UserDTO userDTO = new UserDTO(user, tenantRepository);
-
-            return userDTO;
+            return new UserDTO(user, tenantRepository);
         }
 
         throw new AccountResourceException("User could not be found");
@@ -184,26 +181,36 @@ public class AccountResource {
     @PostMapping("/account")
     public void saveAccount(@Valid @RequestBody UserDTO userDTO) {
 
-        String userLogin = findCurrentUser().getLogin();
+        String currentUser = findCurrentUser().getLogin();
 
-        Optional<User> existingUser = userRepository.findOneByEmailIgnoreCase(userDTO.getEmail());
-        if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
-            throw new EmailAlreadyUsedException();
+        if( userUtil.isAdministrativeUser() ){
+            // an administrator may update any user
+            log.info("REST request to update an arbitrary user '{}' by an administrative user '{}'",
+                userDTO.getLogin(), currentUser);
+            userService.updateUser(userDTO);
+
+        }else {
+
+            Optional<User> existingUser = userRepository.findOneByLogin(userDTO.getLogin());
+//        if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
+//            throw new EmailAlreadyUsedException();
+//        }
+
+            userService.updateUser(userDTO.getFirstName(),
+                userDTO.getLastName(),
+                userDTO.getEmail(),
+                userDTO.getPhone(),
+                userDTO.isSecondFactorRequired(),
+                userDTO.getLangKey(),
+                userDTO.getImageUrl(),
+                userDTO.getTenantId());
         }
-        userService.updateUser(userDTO.getFirstName(),
-            userDTO.getLastName(),
-            userDTO.getEmail(),
-            userDTO.getPhone(),
-            userDTO.isSecondFactorRequired(),
-            userDTO.getLangKey(),
-            userDTO.getImageUrl(),
-            userDTO.getTenantId());
     }
 
     private User findCurrentUser() {
         String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccountResourceException("Current user login not found"));
         Optional<User> userOpt = userRepository.findOneByLogin(userLogin);
-        if (!userOpt.isPresent()) {
+        if (userOpt.isEmpty()) {
             throw new AccountResourceException("User could not be found");
         }
         return userOpt.get();
@@ -368,7 +375,7 @@ public class AccountResource {
         Optional<User> user =
             userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
-        if (!user.isPresent()) {
+        if (user.isEmpty()) {
             throw new AccountResourceException("No user was found for this reset key");
         }
     }

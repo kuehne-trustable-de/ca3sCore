@@ -24,7 +24,6 @@ import {
 } from '@/shared/model/transfer-object.model';
 
 import CAConnectorConfigService from '../../entities/ca-connector-config/ca-connector-config.service';
-import { ICAConnectorConfig } from '@/shared/model/ca-connector-config.model';
 import { IUser } from '@/shared/model/user.model';
 import { ITenant } from '@/shared/model/tenant.model';
 
@@ -39,7 +38,7 @@ import AuditTag from '@/core/audit/audit-tag.vue';
 import { mixins } from 'vue-class-component';
 import UserManagementService from '@/admin/user-management/user-management.service';
 import TenantService from '../../admin/tenant/tenant.service';
-import {IAuthority} from "../../../../../../target/generated-sources/typescript/transfer-object.model";
+import { IAuthority } from '../../../../../../target/generated-sources/typescript/transfer-object.model';
 
 const subnetRegEx = helpers.regex(
   'subnet',
@@ -204,10 +203,9 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (to.params.pipelineId) {
-        window.console.info('++++++++++++++++++ in beforeRouteEnter for ' + to.params.pipelineId);
         vm.retrievePipeline(to.params.pipelineId, to.params.mode);
-      }else{
-        vm.pipeline.selectedRolesList = [{ name: "ROLE_USER" }];
+      } else {
+        vm.pipeline.selectedRolesList = [{ name: 'ROLE_USER' }];
       }
     });
   }
@@ -271,7 +269,17 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     this.mode = mode;
 
     this.fillData();
+  }
 
+  public alignSettingForType(event): void {
+    this.pipeline.caConnectorName = 'internal';
+    this.pipeline.selectedRolesList = [{ name: 'ROLE_ADMIN' }];
+    this.pipeline.selectedTenantList = [];
+    this.requestProxyConfigs = [];
+  }
+
+  public isWebPipelineType(): boolean {
+    return this.pipeline.type === 'WEB' || this.pipeline.type === 'MANUAL_UPLOAD';
   }
 
   public previousState(): void {
@@ -333,40 +341,46 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
           .find(self.pipelineId)
           .then(res => {
             self.pipeline = res;
-
-            if (self.mode === 'copy') {
-              self.pipeline.name = 'Copy of ' + self.pipeline.name;
-              self.pipeline.id = null;
-            }
-
-            if (!self.pipeline.acmeConfigItems.allowChallengeDNS) {
-              self.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
-              self.pipeline.acmeConfigItems.allowWildcards = false;
-            }
-            if (self.pipeline.araRestrictions && self.pipeline.araRestrictions.length > 0) {
-              window.console.info('pipeline.araRestrictions.length' + self.pipeline.araRestrictions.length);
-            } else {
-              window.console.info('pipeline.araRestrictions undefined');
-              self.pipeline.araRestrictions = [];
-              self.pipeline.araRestrictions.push({});
-            }
-            if (!self.pipeline.networkAcceptArr) {
-              self.pipeline.networkAcceptArr = [];
-            }
-            if (self.pipeline.networkAcceptArr.length === 0) {
-              self.pipeline.networkAcceptArr.push('');
-            }
-            if (!self.pipeline.networkRejectArr) {
-              self.pipeline.networkRejectArr = [];
-            }
-            if (self.pipeline.networkRejectArr.length === 0) {
-              self.pipeline.networkRejectArr.push('');
-            }
+            self.initializePipeline(self.pipeline);
           });
+      } else {
+        self.initializePipeline(self.pipeline);
       }
     });
     this.retrieveAllTenants();
     this.retrieveAllAuthorities();
+  }
+
+  initializePipeline(pipeline: PipelineView) {
+    if (this.mode === 'copy') {
+      pipeline.name = 'Copy of ' + pipeline.name;
+      pipeline.id = null;
+    }
+
+    if (!pipeline.acmeConfigItems.allowChallengeDNS) {
+      pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
+      pipeline.acmeConfigItems.allowWildcards = false;
+    }
+    if (pipeline.araRestrictions && pipeline.araRestrictions.length > 0) {
+      window.console.info('pipeline.araRestrictions.length' + pipeline.araRestrictions.length);
+    } else {
+      window.console.info('pipeline.araRestrictions undefined');
+      pipeline.araRestrictions = [];
+      pipeline.araRestrictions.push({});
+    }
+
+    if (!pipeline.networkAcceptArr) {
+      pipeline.networkAcceptArr = [];
+    }
+    if (pipeline.networkAcceptArr.length === 0) {
+      pipeline.networkAcceptArr.push('');
+    }
+    if (!pipeline.networkRejectArr) {
+      pipeline.networkRejectArr = [];
+    }
+    if (pipeline.networkRejectArr.length === 0) {
+      pipeline.networkRejectArr.push('');
+    }
   }
 
   public retrieveAllTenants(): void {
@@ -388,7 +402,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
 
     axios({
       method: 'get',
-      url: '/api/users/authorityList'
+      url: '/api/users/authorityList',
     }).then(function (response) {
       window.console.info('retrieveAllAuthorities returns ' + response.data);
       self.authorities = response.data;
@@ -519,9 +533,11 @@ export class RDNRestriction implements IRDNRestriction {
     public rdnName?: string,
     public cardinalityRestriction?: IRDNCardinalityRestriction,
     public contentTemplate?: string,
+    public templateReadOnly?: boolean,
     public regEx?: string,
     public regExMatch?: boolean
   ) {
+    this.templateReadOnly = this.templateReadOnly || false;
     this.regExMatch = this.regExMatch || false;
     this.cardinalityRestriction = this.cardinalityRestriction || 'ZERO_OR_ONE';
   }

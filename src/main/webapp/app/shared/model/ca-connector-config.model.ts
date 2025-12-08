@@ -1,5 +1,7 @@
 import { IProtectedContent } from '@/shared/model/protected-content.model';
+import { ICAConnectorConfig, ICAConnectorConfigAttribute, ICAConnectorType, ICertificate } from '@/shared/model/transfer-object.model';
 
+/*
 export const enum CAConnectorType {
   INTERNAL = 'INTERNAL',
   CMP = 'CMP',
@@ -30,12 +32,13 @@ export interface ICAConnectorConfig {
   plainSecret?: string;
   secret?: IProtectedContent;
 }
+*/
 
 export class CAConnectorConfig implements ICAConnectorConfig {
   constructor(
     public id?: number,
     public name?: string,
-    public caConnectorType?: CAConnectorType,
+    public caConnectorType?: ICAConnectorType,
     public caUrl?: string,
     public pollingOffset?: number,
     public defaultCA?: boolean,
@@ -44,10 +47,17 @@ export class CAConnectorConfig implements ICAConnectorConfig {
     public selector?: string,
     public interval?: Interval,
     public plainSecret?: string,
-    public secret?: IProtectedContent
+    public secret?: IProtectedContent,
+    public lastUpdate?: Date,
+    public checkActive?: boolean,
+    public caConnectorAttributes?: ICAConnectorConfigAttribute[],
+    public tlsAuthentication?: ICertificate,
+    public messageProtection?: ICertificate,
+    public expiryDate?: Date
   ) {
     this.defaultCA = this.defaultCA || false;
     this.trustSelfsignedCertificates = this.trustSelfsignedCertificates || false;
     this.active = this.active || false;
+    this.checkActive = this.checkActive || false;
   }
 }

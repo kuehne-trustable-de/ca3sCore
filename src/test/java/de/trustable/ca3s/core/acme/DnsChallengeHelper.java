@@ -52,6 +52,7 @@ public class DnsChallengeHelper {
     public int getRequestCount() {
         return requestCount;
     }
+
     private void serve() throws IOException {
         DatagramSocket socket = new DatagramSocket(port);
         while (running) {
@@ -75,6 +76,7 @@ public class DnsChallengeHelper {
 
         final Name nameOfIdentifier = fromString(identifier, root);
         final Name nameToLookup = concatenate(ChallengeController.ACME_CHALLENGE_PREFIX, nameOfIdentifier);
+//        final Name nameToLookup = concatenate(ChallengeController.ACME_CHALLENGE_PREFIX, nameOfIdentifier);
 
         // Add answers as needed
         response.addRecord(org.xbill.DNS.Record.fromString(Name.root, Type.A, DClass.IN, 86400, "1.2.3.4", Name.root), Section.ANSWER);
@@ -96,8 +98,8 @@ public class DnsChallengeHelper {
         socket.send(outdp);
     }
 
-    public void setChallengeDetails(String token, String authorization) {
+    public void setChallengeDetails(String token, String identifier) {
         this.token = token;
-        this.identifier = authorization;
+        this.identifier = identifier;
     }
 }

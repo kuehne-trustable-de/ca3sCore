@@ -14,12 +14,10 @@ public class StartupApplicationListener implements
 
 	Logger LOG = LoggerFactory.getLogger(StartupApplicationListener.class);
 
-    private final SchemaUpdateScheduler schemaUpdateScheduler;
     private final AuditService auditService;
 
     @Autowired
-    public StartupApplicationListener(SchemaUpdateScheduler schemaUpdateScheduler, AuditService auditService) {
-        this.schemaUpdateScheduler = schemaUpdateScheduler;
+    public StartupApplicationListener(AuditService auditService) {
         this.auditService = auditService;
     }
 
@@ -31,6 +29,5 @@ public class StartupApplicationListener implements
 
         auditService.saveAuditTrace(auditService.createAuditTraceStarted());
 
-        schemaUpdateScheduler.updatePipeline();
     }
 }

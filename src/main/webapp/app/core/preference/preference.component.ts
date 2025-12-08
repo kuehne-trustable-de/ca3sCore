@@ -103,9 +103,10 @@ export default class Preference extends mixins(AlertMixin, JhiDataUtils) {
 
   public save(): void {
     this.isSaving = true;
+    const self = this;
     this.update(1, this.preferences).then(param => {
-      this.isSaving = false;
-      const message = this.$t('ca3SApp.preference.updated', { param: 1 });
+      self.isSaving = false;
+      const message = self.$t('ca3SApp.preference.updated', { param: 1 });
       this.alertService().showAlert(message, 'info');
 
       self.$store.state.uiConfigStore.config.infoMsg = self.preferences.infoMsg;

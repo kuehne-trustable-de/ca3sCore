@@ -7,8 +7,10 @@ public class RDNRestriction {
 	String rdnName;
 	RDNCardinalityRestriction cardinalityRestriction;
     String contentTemplate;
+    boolean templateReadOnly = false;
     String regEx;
 	boolean regExMatch = false;
+
 
 	public RDNRestriction() {
 
@@ -30,7 +32,15 @@ public class RDNRestriction {
 		return contentTemplate;
 	}
 
-	public boolean isRegExMatch() {
+    public boolean isTemplateReadOnly() {
+        return templateReadOnly;
+    }
+
+    public void setTemplateReadOnly(boolean templateReadOnly) {
+        this.templateReadOnly = templateReadOnly;
+    }
+
+    public boolean isRegExMatch() {
 		return regExMatch;
 	}
 

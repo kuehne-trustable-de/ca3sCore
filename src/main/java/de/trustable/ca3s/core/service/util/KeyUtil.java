@@ -41,7 +41,7 @@ public class KeyUtil {
     }
     public KeyPair createKeyPair(final String keySpec) throws NoSuchAlgorithmException {
         KeyAlgoLengthOrSpec kal = KeyAlgoLengthOrSpec.from(keySpec);
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getAlgoName());
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(kal.getKeyFactoryAlgo());
         keyPairGenerator.initialize(kal.getKeyLength(), randomUtil.getSecureRandom());
         return keyPairGenerator.generateKeyPair();
     }

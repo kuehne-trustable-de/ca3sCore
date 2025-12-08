@@ -49,15 +49,13 @@
                                    required="true"
                                    :readOnly="interactionMode == 'TEST'"
                                    v-model="bpmnUploadedVersion" />
-                            <small class="form-text text-danger" v-if="showSemVerRegExpFieldWarning(bpmnUploadedVersion)" v-text="$t('ca3SApp.messages.semver.requirement')">
-                                version must match RegEx!
-                            </small>
+                            <small class="form-text text-danger" v-if="showSemVerRegExpFieldWarning(bpmnUploadedVersion)" v-text="$t('ca3SApp.messages.semver.requirement')"></small>
                         </div>
 
                         <div v-if="!bpmnFileUploaded" class="col colContent">
                             <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.version')"></label>
                             <span>{{bPNMProcessInfo.version}}</span>&nbsp;
-                            <span v-if="bPNMProcessInfo.lastChange" v-text="$t('ca3SApp.bPNMProcessInfo.createdOn')">created on</span>&nbsp;
+                            <span v-if="bPNMProcessInfo.lastChange" v-text="$t('ca3SApp.bPNMProcessInfo.createdOn')"></span>&nbsp;
                             <span v-if="bPNMProcessInfo.lastChange">{{$d(Date.parse(bPNMProcessInfo.lastChange), 'long') }}</span>
                         </div>
 
@@ -162,50 +160,46 @@
                 </div>
 
                 <div v-if="bpmnCheckResult.status && (interactionMode == 'TEST')">
-                    <h3 v-text="$t('pkcsxx.upload.result.label')"></h3>
-                    <h4 v-text="$t('ca3SApp.notification.message.details')"></h4>
+                  <h3 v-text="$t('pkcsxx.upload.result.label')"></h3>
 
-                    <dl class="row jh-entity-details">
-                        <dt>
-                            <span v-text="$t('ca3SApp.bPNMProcessInfo.result.status')"></span>
-                        </dt>
-                        <dd>
-                            <span>{{bpmnCheckResult.status}}</span>
-                        </dd>
-                    </dl>
-                    <dl class="row jh-entity-details">
-                        <dt>
-                            <span v-text="$t('ca3SApp.bPNMProcessInfo.result.failureReason')"></span>
-                        </dt>
-                        <dd>
-                            <span>{{bpmnCheckResult.failureReason}}</span>
-                        </dd>
-                    </dl>
+                  <table class="table">
 
-                    <dl class="row jh-entity-details">
-                        <div v-for="(val, valueIndex) in bpmnCheckResult.responseAttributes" :key="valueIndex">
-                            <dt>
-                                <span>{{Object.keys(bpmnCheckResult.responseAttributes[valueIndex])[0]}}</span>
-                            </dt>
-                            <dd>
-                                <span>{{bpmnCheckResult.responseAttributes[valueIndex][Object.keys(bpmnCheckResult.responseAttributes[valueIndex])[0]]}}</span>
-                            </dd>
-                        </div>
-                    </dl>
+                    <!--thead class="thead-light">
+                    <tr>
+                      <th>
+                      </th>
+                      <th>
+                      </th>
+                    </tr>
+                    </thead-->
 
-                    <dl class="row jh-entity-details">
-                        <div v-for="(val, valueIndex) in bpmnCheckResult.csrAttributes" :key="valueIndex">
-                            <dt>
-                                <span>{{Object.keys(bpmnCheckResult.csrAttributes[valueIndex])[0]}}</span>
-                            </dt>
-                            <dd>
-                                <span>{{bpmnCheckResult.csrAttributes[valueIndex][Object.keys(bpmnCheckResult.csrAttributes[valueIndex])[0]]}}</span>
-                            </dd>
-                        </div>
-                    </dl>
+                    <tbody>
+                    <tr>
+                      <td><span v-text="$t('ca3SApp.bPNMProcessInfo.result.status')"></span></td>
+                      <td>{{ bpmnCheckResult.status }}</td>
+                    </tr>
 
+                    <tr v-if="bpmnCheckResult.status !== 'Success'">
+                      <td><span v-text="$t('ca3SApp.bPNMProcessInfo.result.failureReason')"></span></td>
+                      <td>{{ bpmnCheckResult.failureReason }}</td>
+                    </tr>
+
+                    <tr v-for="(val, valueIndex) in bpmnCheckResult.responseAttributes" :key="valueIndex">
+                      <td><span>{{ Object.keys(bpmnCheckResult.responseAttributes[valueIndex])[0] }}</span></td>
+                      <td>
+                        {{ bpmnCheckResult.responseAttributes[valueIndex][Object.keys(bpmnCheckResult.responseAttributes[valueIndex])[0]] }}
+                      </td>
+                    </tr>
+
+                    <tr v-for="(val, valueIndex) in bpmnCheckResult.csrAttributes" :key="valueIndex">
+                      <td><span>{{ Object.keys(bpmnCheckResult.csrAttributes[valueIndex])[0] }}</span></td>
+                      <td>
+                        {{ bpmnCheckResult.csrAttributes[valueIndex][Object.keys(bpmnCheckResult.csrAttributes[valueIndex])[0]] }}
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
                 </div>
-
 
                 <form name="editForm" role="form" novalidate>
 

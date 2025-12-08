@@ -48,6 +48,7 @@ public class PipelineTestConfiguration {
     private static final String PIPELINE_NAME_ACME_KEY_UNIQUE_WARN= "acmeKeyUniqueWarn";
     private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
     private static final String PIPELINE_NAME_ACME_EAB = "acmeEab";
+    private static final String PIPELINE_NAME_ACME_DNS = "acmeDNS";
     private static final String PIPELINE_NAME_ACME_REJECT_127_0_0_X = "acmeReject127_0_0_x";
     private static final String PIPELINE_NAME_ACME_ACCEPT_10_10_X_X = "acmeAccept10_10_x_x";
 
@@ -62,6 +63,7 @@ public class PipelineTestConfiguration {
 
     public static final String ACME1CN_REALM = "acmeTest1CN";
     public static final String ACME_EAB_REALM = "acmeTestEab";
+    public static final String ACME_DNS_REALM = "acmeTestDNS";
     public static final String ACME_REJECT_127_0_0_X_REALM = "acmeTestReject_127_0_0_X";
     public static final String ACME_ACCEPT_10_10_X_X_REALM = "acmeTestAccept_10_10_X_X";
     public static final String ACME1CNNOIP_REALM = "acmeTest1CNNoIP";
@@ -363,6 +365,7 @@ public class PipelineTestConfiguration {
 
         LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_ACME);
 
+
         PipelineView pv_LaxRestrictions = new PipelineView();
         pv_LaxRestrictions.setRestriction_C(new RDNRestriction());
         pv_LaxRestrictions.getRestriction_C().setCardinalityRestriction(RDNCardinalityRestriction.ZERO_OR_ONE);
@@ -501,6 +504,34 @@ public class PipelineTestConfiguration {
         pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_EAB);
         pv_LaxDomainReuseWarn.setUrlPart(ACME_EAB_REALM);
         pv_LaxDomainReuseWarn.getAcmeConfigItems().setExternalAccountRequired(true);
+
+        Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipelineLaxEab);
+        return pipelineLaxEab;
+    }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineDNSLaxRestrictions() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_DNS);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_KEY_UNIQUE_WARN);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_DNS);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_DNS_REALM);
+
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeDNS(true);
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeHTTP01(false);
 
         Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
         pipelineRepo.save(pipelineLaxEab);
@@ -710,6 +741,11 @@ public class PipelineTestConfiguration {
         addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_REQUIRED, "true");
         addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_LINK, "http://trustable.eu/tos.html");
 
+        addPipelineAttribute(pipelineWeb, CN_AS_SAN_RESTRICTION, CnAsSanRestriction.CN_AS_SAN_WARN_ONLY.toString());
+
+        addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE, "{{user.email}}");
+        addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE_READ_ONLY, "true");
+
         pipelineWeb.setProcessInfoNotify(getSimpleBPMNProcessInfo());
 
         pipelineAttributeRepository.saveAll(pipelineWeb.getPipelineAttributes());
@@ -815,6 +851,12 @@ public class PipelineTestConfiguration {
         attType.setName(RESTR_ARA_PREFIX + "0" + RESTR_ARA_CONTENT_TYPE);
         attType.setValue(EMAIL_ADDRESS.toString());
         attrs.add(attType);
+
+        PipelineAttribute attNotifyRA = new PipelineAttribute();
+        attNotifyRA.setPipeline(pipelineWeb);
+        attNotifyRA.setName(PipelineUtil.NOTIFY_RA_OFFICER_ON_PENDING);
+        attNotifyRA.setValue(Boolean.TRUE.toString());
+        attrs.add(attNotifyRA);
 
         pipelineAttributeRepository.saveAll(attrs);
         pipelineWeb.setPipelineAttributes(attrs);

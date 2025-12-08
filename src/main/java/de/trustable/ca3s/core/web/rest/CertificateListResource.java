@@ -9,6 +9,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import de.trustable.ca3s.core.repository.CertificateViewRepository;
 import de.trustable.ca3s.core.service.dto.CertificateView;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.web.util.PaginationUtil;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +62,7 @@ public class CertificateListResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificates in body.
      */
     @GetMapping("/certificateList")
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_UNCOMMITTED)
     public ResponseEntity<List<CertificateView>> getAllCertificates(Pageable pageable, HttpServletRequest request) {
         log.debug("REST request to get a page of CertificateViews");
 
@@ -81,9 +82,9 @@ public class CertificateListResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of certificates in body.
      */
     @GetMapping("/certificateListCSV")
-    @Transactional
+    @Transactional(readOnly = true, isolation = Isolation.READ_UNCOMMITTED)
     public ResponseEntity<String> getAllCertificatesAsCSV(Pageable pageable, HttpServletRequest request) {
-        log.debug("REST request to get a page of CertificateViews");
+        log.debug("REST request to get the CSV list of all CertificateViews");
 
         Map<String, String[]> paramMap = new HashMap<>();
         for( String key: request.getParameterMap().keySet()){
@@ -137,5 +138,4 @@ public class CertificateListResource {
         }
         return cvList;
     }
-
 }

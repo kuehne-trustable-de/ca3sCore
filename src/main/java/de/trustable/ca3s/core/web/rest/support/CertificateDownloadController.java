@@ -467,7 +467,7 @@ public class CertificateDownloadController {
             return;
         }
 
-        if( !userUtil.isAdministrativeUser() ){
+        if( !userUtil.isRaRoleUser() ){
             User currentUser = userUtil.getCurrentUser();
             Tenant tenant = currentUser.getTenant();
             if( tenant == null ) {

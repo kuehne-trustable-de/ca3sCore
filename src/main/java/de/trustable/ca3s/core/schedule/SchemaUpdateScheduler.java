@@ -86,6 +86,10 @@ public class SchemaUpdateScheduler {
     public void performSchemaUpdates() {
 
         Instant now = Instant.now();
+        updatePipeline();
+        LOG.info("updatePipeline took {} ms", Duration.between(now, Instant.now()));
+
+        now = Instant.now();
         updateCertificateAttributes();
         LOG.info("updateCertificateAttributes took {} ms", Duration.between(now, Instant.now()));
 
@@ -105,9 +109,6 @@ public class SchemaUpdateScheduler {
         updateProtectedContent();
         LOG.info("updateProtectedContent took {} ms", Duration.between(now, Instant.now()));
 
-        now = Instant.now();
-        updatePipeline();
-        LOG.info("updatePipeline took {} ms", Duration.between(now, Instant.now()));
 
     }
 

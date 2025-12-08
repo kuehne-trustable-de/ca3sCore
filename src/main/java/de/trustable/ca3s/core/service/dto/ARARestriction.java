@@ -4,6 +4,7 @@ public class ARARestriction {
 
 	String name;
     String contentTemplate;
+    boolean templateReadOnly = false;
     String regEx;
     String comment;
     ARAContentType contentType;
@@ -27,7 +28,15 @@ public class ARARestriction {
 		this.contentTemplate = contentTemplate;
 	}
 
-	public void setRegExMatch(boolean regExMatch) {
+    public boolean isTemplateReadOnly() {
+        return templateReadOnly;
+    }
+
+    public void setTemplateReadOnly(boolean templateReadOnly) {
+        this.templateReadOnly = templateReadOnly;
+    }
+
+    public void setRegExMatch(boolean regExMatch) {
 		this.regExMatch = regExMatch;
 	}
 

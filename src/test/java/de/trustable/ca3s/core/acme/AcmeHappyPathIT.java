@@ -56,6 +56,7 @@ import java.security.Security;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
@@ -375,7 +376,7 @@ public class AcmeHappyPathIT {
                 .create(session);
             Assertions.fail("Account creation expected to fail using an unrecognized kid");
         }catch(AcmeException e) {
-            Assertions.assertEquals("External account binding attributes not parseable: User with login 'user-' not found",
+            Assertions.assertEquals("External account binding attributes not parseable: User with login 'null' not found",
                 e.getMessage());
         }
 
@@ -394,12 +395,13 @@ public class AcmeHappyPathIT {
 
         try {
             // use tweaked key
-            char[] charArray = tokenResponse.getTokenValue().toCharArray();
-            charArray[8] = (char)(charArray[8] ^ 3);
+            byte[] hmacKey = Base64.getUrlDecoder().decode(tokenResponse.getTokenValue());
+            hmacKey[8] = (byte)(hmacKey[8] ^ 3);
+
             new AccountBuilder()
                 .addContact("mailto:acmeTest@ca3s.org")
                 .useKeyPair(accountKeyPair)
-                .withKeyIdentifier(tokenResponse.getEabKid(), new String(charArray))
+                .withKeyIdentifier(tokenResponse.getEabKid(), Base64.getUrlEncoder().encodeToString(hmacKey))
                 .create(session);
             Assertions.fail("Account creation expected to fail using the wrong key");
         }catch(AcmeException e) {
@@ -422,7 +424,7 @@ public class AcmeHappyPathIT {
         Optional<AcmeAccount> accountOptional = acmeAccountRepository.findByAccountId(Long.parseLong(account.getJSON().get("id").asString()));
         Assertions.assertTrue(accountOptional.isPresent());
         AcmeAccount acmeAccount = accountOptional.get();
-        Assertions.assertEquals("ca3s:user", acmeAccount.getEabKid());
+        Assertions.assertTrue( acmeAccount.getEabKid().startsWith("ca3s:user:"));
         Assertions.assertEquals(user.getId(), acmeAccount.getEabUser().getId());
         Assertions.assertEquals(2, acmeAccount.getContacts().size());
         Assertions.assertTrue(acmeAccount.getContacts().stream().anyMatch(con -> con.getContactUrl().equals("mailto:acmeTest@ca3s.org")));
@@ -923,9 +925,7 @@ public class AcmeHappyPathIT {
 
             order.execute(csrb.getEncoded());
             Assertions.assertEquals(Status.VALID, order.getStatus(), "Expecting the finalize request to succeed, policy allows key reuse");
-
         }
-
     }
 
     private void resolveAuthorizations(Order order) throws IOException, InterruptedException, AcmeException {

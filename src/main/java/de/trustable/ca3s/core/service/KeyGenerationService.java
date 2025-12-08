@@ -48,9 +48,9 @@ public class KeyGenerationService {
             kpg = KeyPairGenerator.getInstance(algoLengthOrSpec.getContentBuilderName(), algoLengthOrSpec.getProviderName());
         }else{
             if( algoLengthOrSpec.getProviderName() != null) {
-                kpg = KeyPairGenerator.getInstance( algoLengthOrSpec.getAlgoName(), algoLengthOrSpec.getProviderName());
+                kpg = KeyPairGenerator.getInstance( algoLengthOrSpec.getKeyFactoryAlgo(), algoLengthOrSpec.getProviderName());
             }else{
-                kpg = KeyPairGenerator.getInstance(algoLengthOrSpec.getAlgoName());
+                kpg = KeyPairGenerator.getInstance(algoLengthOrSpec.getKeyFactoryAlgo());
             }
         }
 

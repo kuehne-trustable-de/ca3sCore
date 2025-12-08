@@ -19,8 +19,6 @@ import org.thymeleaf.context.Context;
 
 import javax.mail.MessagingException;
 import javax.transaction.Transactional;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -50,6 +48,7 @@ public class NotificationService {
     private final int nDaysPending;
     private final List<Integer> notificationDayList;
     private final boolean notifyUserOnly;
+    private final List<String> notifyExpiryCCList;
 
     private final boolean doNotifyAdminOnConnectorExpiry;
     private final boolean doNotifyRAOfficerHolderOnExpiry;
@@ -76,6 +75,7 @@ public class NotificationService {
                                @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending,
                                @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays, ProtectedContentUtil protectedContentUtil,
                                @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly,
+                               @Value("${ca3s.schedule.requestor.notification.cc:}") String[] notifyExpiryCCArr,
                                @Value("${ca3s.notify.adminOnConnectorExpiry:true}") boolean doNotifyAdminOnConnectorExpiry,
                                @Value("${ca3s.notify.raOfficerHolderOnExpiry:true}") boolean doNotifyRAOfficerHolderOnExpiry,
                                @Value("${ca3s.notify.requestorOnExpiry:true}") boolean doNotifyRequestorOnExpiry,
@@ -122,6 +122,8 @@ public class NotificationService {
                 LOG.info("Unexpected value '{}' in 'ca3s.schedule.requestor.notification.days': {}", part, nfe.getMessage());
             }
         }
+
+        this.notifyExpiryCCList = Arrays.asList(notifyExpiryCCArr);
     }
 
 
@@ -313,7 +315,13 @@ public class NotificationService {
         List<Certificate> expiringCAList = certificateRepo.findNonRevokedByTypeAndValidTo(false, now, beforeCA);
 
         Instant beforeEE = now.plus(nDaysExpiryEE, ChronoUnit.DAYS);
-        List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE);
+        List<Certificate> expiringEECertList =
+            certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE)
+                .stream()
+                .filter(c -> c.getCsr() != null &&
+                    c.getCsr().getPipeline() != null &&
+                    c.getCsr().getPipeline().getType() == PipelineType.WEB)
+                .collect(Collectors.toList());
 
         Instant relevantPendingStart = now.minus(nDaysPending, ChronoUnit.DAYS);
         List<CSR> pendingCsrList = csrRepo.findPendingByDay(relevantPendingStart, now);
@@ -342,9 +350,21 @@ public class NotificationService {
                     }
                 }
             }
+            if(logNotification) {
+                auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationSent(expiringEECertList.size()));
+            }
 
             // Process subset of CSRs for domain officers
             for( User domainOfficer: domainOfficerList) {
+
+                List<Certificate> expiringDomainEEList = new ArrayList<>();
+                for( Certificate cert: expiringEECertList){
+                    if( cert.getCsr() != null && cert.getCsr().getPipeline() != null) {
+                        if (pipelineUtil.isUserValidAsRA(cert.getCsr().getPipeline(), domainOfficer)) {
+                            expiringDomainEEList.add(cert);
+                        }
+                    }
+                }
 
                 List<CSR> pendingDomainCsrList = new ArrayList<>();
                 for( CSR csr: pendingCsrList){
@@ -353,11 +373,16 @@ public class NotificationService {
                     }
                 }
 
+                if( expiringDomainEEList.isEmpty() && pendingDomainCsrList.isEmpty()){
+                    LOG.debug("No relevant certificate / CSR information available for domain ra officer {}", domainOfficer.getLogin());
+                    continue;
+                }
+
                 Locale locale = getUserLocale(domainOfficer);
                 Context context = new Context(locale);
                 context.setVariable("expiringCAList", expiringCAList);
-                context.setVariable("expiringEECertList", expiringEECertList);
-                context.setVariable("pendingCsrList", pendingCsrList);
+                context.setVariable("expiringEECertList", expiringDomainEEList);
+                context.setVariable("pendingCsrList", pendingDomainCsrList);
                 context.setVariable("nDaysPending", nDaysPending);
                 context.setVariable("nDaysExpiryEE", nDaysExpiryEE);
                 context.setVariable("nDaysExpiryCA", nDaysExpiryCA);
@@ -370,9 +395,7 @@ public class NotificationService {
                     }
                 }
             }
-            if(logNotification) {
-                auditService.saveAuditTrace(auditService.createAuditTraceExpiryNotificationSent(expiringEECertList.size()));
-            }
+
         }
 
         return expiringEECertList.size();
@@ -421,7 +444,7 @@ public class NotificationService {
             .collect(Collectors.joining(",")));
 
         if( expiringEECertList.isEmpty()) {
-            LOG.info("No expiring certificates in the next {} days / no pending requests requested in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiryEE, nDaysPending);
+            LOG.info("No expiring certificates in the next {} days / no pending requests initiated in the last {} days. No need to send a notification eMail to RA officers", nDaysExpiryEE, nDaysPending);
         }else {
             LOG.info("#{} expiring certificate in the next {} days.", expiringEECertList.size(), maxExpiry);
 
@@ -517,7 +540,7 @@ public class NotificationService {
         for( Certificate cert : certListGroupedByUser.get(requestor)) {
             LOG.info("sending notification for expiring certificate {} to requestor {}.", cert.getId(), requestor.getId());
 
-            List<String> ccList = new ArrayList<>();
+            Set<String> ccList = new HashSet<>();
             if( cert.getCsr() != null &&
                 cert.getCsr().getPipeline() != null ){
                 Pipeline pipeline = cert.getCsr().getPipeline();
@@ -529,6 +552,8 @@ public class NotificationService {
 
                 ccList.addAll(findARAEmailRecipients(pipelineView, cert));
             }
+
+            ccList.addAll(notifyExpiryCCList);
 
             context.setVariable("expiringCertList", Collections.singletonList(cert));
             try {
@@ -615,11 +640,9 @@ public class NotificationService {
                 mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/userRevokedCertificateEmail", "email.userRevokedCertificateEmail.subject");
             }catch (Throwable throwable){
                 LOG.warn("Problem occurred while sending a notification eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
-/*
                 if(logNotification) {
                     auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(raOfficer.getEmail()));
                 }
- */
             }
         }
 
@@ -637,7 +660,7 @@ public class NotificationService {
                     context.setVariable("cert", certificate);
                     context.setVariable("revokedByUser", revokedByUser);
                     try {
-                        mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
+                        mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/userRevokedCertificateEmail", "email.userRevokedCertificateEmail.subject");
                     } catch (Throwable throwable) {
                         LOG.warn("Problem occurred while sending a notification eMail to domain officer address '" + domainOfficer.getEmail() + "'", throwable);
                         if (logNotification) {
@@ -721,25 +744,7 @@ public class NotificationService {
                 }
             }
         }
-/*
-        // Process subset of CSRs for domain officers
-        for( User domainOfficer: domainOfficerList) {
 
-            if( pipelineUtil.isUserValidAsRA(csr.getPipeline(), domainOfficer) ){
-                Locale locale = getUserLocale(domainOfficer);
-                Context context = new Context(locale);
-                context.setVariable("newCsrList", newCsrList);
-                try {
-                    mailService.sendEmailFromTemplate(context, domainOfficer, null, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
-                }catch (Throwable throwable){
-                    LOG.warn("Problem occurred while sending a notification eMail to domain officer address '" + domainOfficer.getEmail() + "'", throwable);
-                    if(logNotification) {
-                        auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(domainOfficer.getEmail()));
-                    }
-                }
-            }
-        }
- */
     }
 
     @Transactional
@@ -754,9 +759,11 @@ public class NotificationService {
         Context context = new Context(locale);
 
         context.setVariable("certId", cert.getId());
+
+        String skiBase64 = certificateUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI);
         context.setVariable("certSKI",
-            URLEncoder.encode(certificateUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI),
-            StandardCharsets.UTF_8));
+            skiBase64.replace('+', '-').replace('/', '_'));
+
         context.setVariable("subject", cert.getSubject());
         context.setVariable("sans", cert.getSans());
 
@@ -890,17 +897,24 @@ public class NotificationService {
     }
 
 
-    private List<String> findARAEmailRecipients(final PipelineView pipelineView, final CSR csr){
+    private List<String> findARAEmailRecipients(final PipelineView pipelineView, final CSR csr) {
 
         List<String> emailAttributeList = new ArrayList<>();
-        for( ARARestriction araRestriction : pipelineView.getAraRestrictions()){
-            if( ARAContentType.EMAIL_ADDRESS == araRestriction.getContentType()){
+        List<String> recipientList = new ArrayList<>();
+
+        for (ARARestriction araRestriction : pipelineView.getAraRestrictions()) {
+            if (ARAContentType.EMAIL_ADDRESS == araRestriction.getContentType()) {
                 emailAttributeList.add(araRestriction.getName());
             }
         }
 
-        List<String> recipientList = new ArrayList<>();
-        for( String araAttribute: emailAttributeList) {
+        String additionalEmailRecipients = pipelineView.getWebConfigItems().getAdditionalEMailRecipients();
+        if (!additionalEmailRecipients.trim().isEmpty()) {
+            addSplittedEMailAddress(recipientList, additionalEmailRecipients);
+        }
+
+
+        for (String araAttribute : emailAttributeList) {
             String emailAttribute = csrUtil.getCSRAttribute(csr, CsrAttribute.ARA_PREFIX + araAttribute);
             addSplittedEMailAddress(recipientList, emailAttribute);
         }

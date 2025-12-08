@@ -2,11 +2,15 @@ package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -15,9 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_CERTIFICATE_NOTIFICATION;
 import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_CERTIFICATE_NOTIFICATION_COUNTER;
@@ -88,6 +90,14 @@ public class BPMNAsyncUtil {
 
         LOG.info("******************  processChange({}, {})", certificate.getId(), (auth == null ? null:auth.getName()));
 
+        Authentication effectiveAuth;
+        if( auth == null){
+            effectiveAuth = createAnonAuthentication();
+            LOG.info("running processChange as fallback user '{}'", effectiveAuth);
+        }else{
+            effectiveAuth = auth;
+        }
+
         executeAfterTransactionCompletes(certificate);
 
         String processName = certificateUtil.getCertAttribute(certificate, ATTRIBUTE_CERTIFICATE_NOTIFICATION);
@@ -108,9 +118,9 @@ public class BPMNAsyncUtil {
         Authentication currentAuth = securityContext.getAuthentication();
 
         try {
-            if( auth != null){
-                LOG.info("Setting authentication to : {}", auth.getName());
-                securityContext.setAuthentication(auth);
+            if( effectiveAuth != null){
+                LOG.info("Setting authentication to : {}", effectiveAuth.getName());
+                securityContext.setAuthentication(effectiveAuth);
             }
 
             variables.put("currentAuth", securityContext.getAuthentication());
@@ -132,6 +142,12 @@ public class BPMNAsyncUtil {
             LOG.info("Restoring authentication to : {}", currentAuthName);
             securityContext.setAuthentication(currentAuth);
         }
+    }
+
+    private Authentication createAnonAuthentication() {
+        Collection<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ANONYMOUS));
+        return new UsernamePasswordAuthenticationToken("anonymous", "anonymous", authorities);
     }
 
 }

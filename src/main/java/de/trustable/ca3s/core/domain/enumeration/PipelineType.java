@@ -10,4 +10,5 @@ public enum PipelineType {
     WEB,
     INTERNAL,
     MANUAL_REQUEST,
+    MANUAL_UPLOAD
 }

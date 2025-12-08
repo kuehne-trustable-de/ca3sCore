@@ -95,9 +95,20 @@ public class PreferenceUtil {
     	}
     	return "5544";
     }
+
+    public String[] getKeyAlgos() {
+
+        Optional<UserPreference> optPref = userPreferenceService.findPreferenceForUserId(PreferenceUtil.SELECTED_SIGNING_ALGOS, SYSTEM_PREFERENCE_ID);
+        if(optPref.isPresent()) {
+            return optPref.get().getContent().split(LIST_DELIMITER);
+        }
+        return new String[0];
+
+    }
+
     public boolean isAuthClientCert() {
-        Optional<UserPreference> optBoolean = userPreferenceService.findPreferenceForUserId(AUTH_CLIENT_CERT, SYSTEM_PREFERENCE_ID);
-        return optBoolean.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
+        Optional<UserPreference> optPref = userPreferenceService.findPreferenceForUserId(AUTH_CLIENT_CERT, SYSTEM_PREFERENCE_ID);
+        return optPref.filter(userPreference -> Boolean.parseBoolean(userPreference.getContent())).isPresent();
     }
 
     public boolean isAuthOtp() {

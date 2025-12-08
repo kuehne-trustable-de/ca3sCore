@@ -2,7 +2,7 @@
 
 ## Mission
 
-ca3s is a CA support system with a flexible RA part using BPM aiming to automate as much as possible.
+ca3s is a CA support system with a flexible RA part using BPM aiming to automate as much as possible to offer a full certificate management system.
 Therefore providing ACME and SCEP interfaces in addition to the usual web form. Aggregating certificate sets
 from different sources and using CMP-connected CAs or ADCS instances for certificate creation.
 
@@ -34,7 +34,7 @@ For professional support please contact <a href="mailto:info@trustable.de">trust
 ## Installation
 
 For a quick start there are ready-build package available at [maven central](https://mvnrepository.com/artifact/de.trustable.ca3s.core/ca-3-s). Just download the latest version.
-Install a recent version of the Java runtime (Version >= 11) and run
+Install a recent version of the Java runtime (Version >= 17) and run
 
     java -jar .\target\ca-3-s-{version}.jar
 
@@ -115,7 +115,20 @@ To package your application as a war in order to deploy it to an application ser
 ## Testing
 
 To launch your application's tests, run:
+
+```
 ./mvnw verify
+```
+
+### Tested and supported Certification Authorites
+
+ca3s was tested and supports the following Certification Authorities:
+
+- EJBCA (via CMP)
+- ADCS - Windows CA (via [ADCSproxy](https://github.com/kuehne-trustable-de/adcsCert/tree/master/adcsProxy))
+- xipki (via CMP)
+
+In general all Certification Authorities are supported that proviedes a CMP endpoint.
 
 ### Client tests
 

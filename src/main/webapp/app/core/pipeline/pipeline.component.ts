@@ -140,7 +140,6 @@ export default class Pipeline extends mixins(Vue2Filters.mixin, AlertMixin) {
     axios({
       method: 'get',
       url: 'api/userProperties/filterList/PipelineList',
-      responseType: 'stream',
     }).then(function (response) {
       //      window.console.debug('getUsersFilterList returns ' + response.data );
       if (response.status === 200) {
@@ -183,7 +182,6 @@ export default class Pipeline extends mixins(Vue2Filters.mixin, AlertMixin) {
           method: 'put',
           url: 'api/userProperties/filterList/PipelineList',
           data: self.filters,
-          responseType: 'stream',
         }).then(function (response) {
           //        window.console.debug('putUsersFilterList returns ' + response.status);
           if (response.status === 204) {
