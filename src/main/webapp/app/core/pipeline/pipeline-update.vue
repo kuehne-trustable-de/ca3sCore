@@ -32,19 +32,16 @@
 
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.type')" for="pipeline-type"></label>  <help-tag role="Admin" target="pipeline.type"/>
-                        <select class="form-control" name="type" :class="{'valid': !$v.pipeline.type.$invalid, 'invalid': $v.pipeline.type.$invalid }" v-model="$v.pipeline.type.$model" id="pipeline-type"  required>
-                            <option value="WEB" v-bind:label="$t('ca3SApp.PipelineType.WEB')"></option>
-                            <option value="ACME" v-bind:label="$t('ca3SApp.PipelineType.ACME')"></option>
-                            <option value="SCEP" v-bind:label="$t('ca3SApp.PipelineType.SCEP')"></option>
-                            <option value="EST" v-bind:label="$t('ca3SApp.PipelineType.EST')"></option>
-                        <select class="form-control" name="pipeline-type" id="pipeline-type" :class="{'valid': !$v.pipeline.type.$invalid, 'invalid': $v.pipeline.type.$invalid }"
+                        <select class="form-control" name="pipeline-type" id="pipeline-type"
+                                :class="{'valid': !$v.pipeline.type.$invalid, 'invalid': $v.pipeline.type.$invalid }"
                           v-model="$v.pipeline.type.$model"
                           v-on:change="alignSettingForType()"
                           required>
                             <option value="ACME" v-bind:label="$t('ca3SApp.PipelineType.ACME')"></option>
                             <option value="SCEP" v-bind:label="$t('ca3SApp.PipelineType.SCEP')"></option>
                             <option value="WEB" v-bind:label="$t('ca3SApp.PipelineType.WEB')"></option>
-                            <!--option value="MANUAL_UPLOAD" v-bind:label="$t('ca3SApp.PipelineType.MANUAL_UPLOAD')"></option-->
+                            <option value="EST" v-bind:label="$t('ca3SApp.PipelineType.EST')"></option>
+                            <option value="MANUAL_UPLOAD" v-bind:label="$t('ca3SApp.PipelineType.MANUAL_UPLOAD')"></option>
                         </select>
                         <div v-if="$v.pipeline.type.$anyDirty && $v.pipeline.type.$invalid">
                             <small class="form-text text-danger" v-if="$v.pipeline.type.required" v-text="$t('entity.validation.required')"></small>

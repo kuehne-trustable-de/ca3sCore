@@ -26,8 +26,6 @@
                     v-on:change="filterPipelines">
                 <option value="all">{{$t('ca3SApp.pipeline.filter.type.all')}}</option>
                 <option value="WEB">{{$t('ca3SApp.pipeline.filter.type.web')}}</option>
-                <option value="SCEP">{{$t('ca3SApp.pipeline.filter.type.scep')}}</option>
-                <!--option value="EST">{{$t('ca3SApp.pipeline.filter.type.est')}}</option-->
                 <option value="ACME">{{$t('ca3SApp.pipeline.filter.type.acme')}}</option>
                 <option value="SCEP">{{$t('ca3SApp.pipeline.filter.type.scep')}}</option>
                 <option value="EST">{{$t('ca3SApp.pipeline.filter.type.est')}}</option>
