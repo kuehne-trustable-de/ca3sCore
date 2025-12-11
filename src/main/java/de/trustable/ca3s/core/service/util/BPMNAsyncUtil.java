@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.service.util;
 
+import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
@@ -73,9 +74,7 @@ public class BPMNAsyncUtil {
                 LOG.info( "in afterCompletion:  {}", status);
                 if( status == TransactionSynchronization.STATUS_COMMITTED){
                     LOG.debug( "in afterCompletion:  drop notification attributes");
-                    certificateUtil.deleteCertAttribute(certificate, ATTRIBUTE_CERTIFICATE_NOTIFICATION);
-                    certificateUtil.deleteCertAttribute(certificate, ATTRIBUTE_CERTIFICATE_NOTIFICATION_COUNTER);
-                    certificateRepository.save(certificate);
+                    certificateAsyncUtil.deleteNotificationCounter(certificate);
                 }else{
                     LOG.info( "in afterCompletion:  increment notification counter");
                     certificateAsyncUtil.incrementNotificationCounter(certificate);
@@ -92,8 +91,15 @@ public class BPMNAsyncUtil {
 
         Authentication effectiveAuth;
         if( auth == null){
-            effectiveAuth = createAnonAuthentication();
-            LOG.info("running processChange as fallback user '{}'", effectiveAuth);
+
+            if( certificate.getCsr() != null &&
+                certificate.getCsr().getRequestedBy() != null ){
+                effectiveAuth = createUserAuthentication(certificate.getCsr().getRequestedBy());
+                LOG.info("running processChange as requestedBy user '{}'", effectiveAuth);
+            }else {
+                effectiveAuth = createUserAuthentication(Constants.SYSTEM_ACCOUNT);
+                LOG.info("running processChange as fallback user '{}'", effectiveAuth);
+            }
         }else{
             effectiveAuth = auth;
         }
@@ -118,10 +124,8 @@ public class BPMNAsyncUtil {
         Authentication currentAuth = securityContext.getAuthentication();
 
         try {
-            if( effectiveAuth != null){
-                LOG.info("Setting authentication to : {}", effectiveAuth.getName());
-                securityContext.setAuthentication(effectiveAuth);
-            }
+            LOG.info("Setting authentication to : {}", effectiveAuth.getName());
+            securityContext.setAuthentication(effectiveAuth);
 
             variables.put("currentAuth", securityContext.getAuthentication());
 
@@ -144,10 +148,10 @@ public class BPMNAsyncUtil {
         }
     }
 
-    private Authentication createAnonAuthentication() {
+    private Authentication createUserAuthentication(String userName) {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
-        authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ANONYMOUS));
-        return new UsernamePasswordAuthenticationToken("anonymous", "anonymous", authorities);
+        authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.USER));
+        return new UsernamePasswordAuthenticationToken(userName, "anonymous", authorities);
     }
 
 }

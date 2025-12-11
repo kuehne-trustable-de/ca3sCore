@@ -8,7 +8,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.19</version>
+    <version>1.2.18.1</version>
 
     <packaging>jar</packaging>
 
@@ -180,7 +180,7 @@
         <keycloak.version>26.0.6</keycloak.version>
         <keycloak.adapter.version>25.0.3</keycloak.adapter.version>
 
-        <bouncyCastleVersion>1.82</bouncyCastleVersion>
+        <bouncyCastleVersion>1.83</bouncyCastleVersion>
 
         <spring-vault.version>2.3.4</spring-vault.version>
 

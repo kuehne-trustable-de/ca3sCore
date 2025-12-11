@@ -214,9 +214,9 @@ public class OrderController extends AcmeController {
 
         // check for existence of a pipeline for the realm
         Pipeline pipeline = getPipelineForRealm(realm);
-        AcmeAccount acctDao = null;
+        AcmeAccount acctDao;
         AcmeOrder orderDao = null;
-        Pkcs10RequestHolder p10Holder = null;
+        Pkcs10RequestHolder p10Holder;
 
         try {
             JwtContext context = jwtUtil.processFlattenedJWT(requestBody);
@@ -527,7 +527,7 @@ public class OrderController extends AcmeController {
         List<String> messageList = new ArrayList<>();
         NamedValues[] nvArr = new NamedValues[0];
 
-        CSR csr = null;
+        CSR csr;
         try {
             csr = cpUtil.buildCSR(csrAsPem, requestorName,
                 AuditService.AUDIT_ACME_CERTIFICATE_REQUESTED, "",
@@ -539,6 +539,9 @@ public class OrderController extends AcmeController {
             String msg = "Key usage scope not applicable. Hint: create a new keypair for each request";
             orderDao.setError(msg);
             orderRepository.save(orderDao);
+
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceAcmeOrderInvalid(orderDao.getAccount(), orderDao, null, msg));
 
             final ProblemDetail problem = new ProblemDetail(AcmeUtil.BAD_CSR,
                 msg,
@@ -605,7 +608,7 @@ public class OrderController extends AcmeController {
     private String getASN1ValueAsString(ASN1Encodable[] asn1EncArr) {
         String value = "";
         for (ASN1Encodable asn1Enc : asn1EncArr) {
-            if (value.length() > 0) {
+            if (!value.isEmpty()) {
                 value += ", ";
             }
             value += asn1Enc.toString();

@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_CERTIFICATE_NOTIFICATION;
 import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_CERTIFICATE_NOTIFICATION_COUNTER;
 
 @Service
@@ -58,4 +59,12 @@ public class CertificateAsyncUtil {
         LOG.info("increment notification counter for cert #{} to {}", certificate.getId(), retryCount);
 
     }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void deleteNotificationCounter(Certificate certificate) {
+        certUtil.deleteCertAttribute(certificate, ATTRIBUTE_CERTIFICATE_NOTIFICATION);
+        certUtil.deleteCertAttribute(certificate, ATTRIBUTE_CERTIFICATE_NOTIFICATION_COUNTER);
+    }
+
+
 }
