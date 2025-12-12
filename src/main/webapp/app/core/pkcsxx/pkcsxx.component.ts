@@ -400,9 +400,18 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         if (rr.cardinalityRestriction === 'NOT_ALLOWED') {
           // ignore this
         } else {
-          this.rdnRestrictions.push(
-            new PipelineRestriction(rr.rdnName, rr.cardinalityRestriction, rr.contentTemplate, rr.templateReadOnly, '', '', rr.regExMatch, rr.regEx)
+          const pr = new PipelineRestriction(
+            rr.rdnName,
+            rr.cardinalityRestriction,
+            rr.contentTemplate,
+            rr.templateReadOnly,
+            '',
+            '',
+            rr.regEx,
+            rr.regExMatch
           );
+          pr.alignContent();
+          this.rdnRestrictions.push(pr);
         }
       }
     }
@@ -426,18 +435,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     this.upload.arAttributes = new Array<INamedValues>();
 
     for (const rr of this.rdnRestrictions) {
-      const nv: INamedValues = {};
-      nv.name = rr.name;
-      nv.values = [{value: this.replacePlaceholder(rr.template)}];
-
-      /*
-      if (rr.readOnly) {
-        nv.values = [{ value: rr.template }];
-      } else {
-        nv.values = [{ value: '' }];
-      }
-      */
-
+      const nv: INamedValues = this.getNV(rr);
       if (nv.name === 'SAN') {
         nv.values[0].type = 'DNS';
       }
@@ -451,18 +449,22 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       for (const rr of pipeline.araRestrictions) {
         const cardinalityRestriction = rr.required ? 'ONE' : 'ZERO_OR_ONE';
         this.araRestrictions.push(
-          new PipelineRestriction(rr.name, cardinalityRestriction, rr.contentTemplate, rr.templateReadOnly, rr.contentType, rr.comment, rr.regExMatch, rr.regEx)
+          new PipelineRestriction(
+            rr.name,
+            cardinalityRestriction,
+            rr.contentTemplate,
+            rr.templateReadOnly,
+            rr.contentType,
+            rr.comment,
+            rr.regEx,
+            rr.regExMatch
+          )
         );
       }
     }
 
     for (const rr of this.araRestrictions) {
-      const nv: INamedValues = {};
-      nv.name = rr.name;
-
-      nv.values = [{value: this.replacePlaceholder(rr.template)}];
-
-      this.upload.arAttributes.push(nv);
+      this.upload.arAttributes.push(this.getNV(rr));
     }
 
     //    this.creationMode = 'CSR_AVAILABLE';
@@ -474,17 +476,15 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     window.console.info('end of updatePipelineRestrictionsByPipelineInfo');
   }
 
-  public replacePlaceholder(valueIn: string): string {
-
-    const account = this.$store.getters.account;
-    let value = valueIn;
-    if (account) {
-      return value.replace('{{user.firstName}}', account.firstName)
-        .replace('{{user.lastName}}', account.lastName)
-        .replace('{{user.login}}', account.login)
-        .replace('{{user.email}}', account.email);
+  public getNV(rr: IPipelineRestriction): INamedValues {
+    const nv: INamedValues = {};
+    nv.name = rr.name;
+    let value = '';
+    if (rr.template && rr.template.length > 0) {
+      value = rr.template;
     }
-    return value;
+    nv.values = [{ value: value }];
+    return nv;
   }
 
   public buildCommandLine(): string {
@@ -915,21 +915,16 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public notifyFileChange(evt: any): void {
     const self = this;
     const selectedFile = evt.target.files[0];
-    window.console.info('notifyFileChange: ' + selectedFile);
-
     const readerBase64 = new FileReader();
     readerBase64.onload = function (_result) {
       const base64Text = readerBase64.result.toString();
-      window.console.info('notifyFileChange: uploaded text :' + base64Text);
 
       // check, whether this is base64 encoded content
       if (/^[\x00-\x7F]*$/.test(base64Text)) {
         self.upload.content = base64Text;
         self.contentCall(precheckUrl);
-        window.console.info('notifyFileChange: base64Test found');
       } else {
-        // binary, start re-reading it as base64-encoded content
-        window.console.info('notifyFileChange: binary data, reread as base64');
+        // binary, start re-reading it as base64-encoded comntent
         const readerBinary = new FileReader();
         readerBinary.onload = function (__result) {
           self.upload.content = readerBinary.result.toString().split(',')[1];
@@ -939,7 +934,6 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       }
     };
     readerBase64.readAsText(selectedFile);
-    window.console.info('notifyFileChange: readerBase64.readAsText');
   }
 
   // handle any changes affecting the plain content

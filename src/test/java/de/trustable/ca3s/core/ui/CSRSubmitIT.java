@@ -47,6 +47,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static de.trustable.ca3s.core.PipelineTestConfiguration.PREFILLED_O;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -494,7 +495,7 @@ public class CSRSubmitIT extends WebTestBase {
     }
 
 
-//    @Test
+    @Test
     public void testSubmitAllAlgosServersideDirect() throws Exception {
 
         for( String algoName: preferenceUtil.getKeyAlgos()){
@@ -543,9 +544,15 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_SEL_KEY_LENGTH_CHOICE);
         selectOptionByText(LOC_SEL_KEY_LENGTH_CHOICE, algoName);
 
-        setText(LOC_INP_C_VALUE, c);
+        Assertions.assertTrue(isReadOnly(LOC_INP_C_VALUE));
+        Assertions.assertEquals(c, getText(LOC_INP_C_VALUE));
+
         setText(LOC_INP_CN_VALUE, cn);
+
+        Assertions.assertFalse(isReadOnly(LOC_INP_O_VALUE));
+        Assertions.assertEquals(PREFILLED_O, getText(LOC_INP_O_VALUE));
         setText(LOC_INP_O_VALUE, o);
+
         setText(LOC_INP_SAN_VALUE, san);
 
         validatePresent(LOC_SMALL_WARNING_CN_SAN_RESTRICTION);

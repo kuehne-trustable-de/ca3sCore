@@ -1468,13 +1468,12 @@ public class PipelineUtil {
         }
 
         int n = 0;
-
         for (GeneralName gn : gNameSet) {
             n++;
             if (hasRegEx) {
                 String value = CertificateUtil.getTypedSAN(gn);
 
-                if (restriction.isRegExMatch()) {
+//                if (restriction.isRegExMatch()) {
                     boolean evalResult = false;
                     try {
                         evalResult = value.matches(regEx);
@@ -1487,6 +1486,7 @@ public class PipelineUtil {
                         LOG.debug(msg);
                         outcome = false;
                     }
+/*
                 } else {
                     if (!regEx.equalsIgnoreCase(value)) {
                         String msg = "restriction mismatch: SAN '" + value + "' does not match expected value '" + regEx + "' !";
@@ -1495,6 +1495,7 @@ public class PipelineUtil {
                         outcome = false;
                     }
                 }
+*/
             }
 
         }
@@ -1701,7 +1702,7 @@ public class PipelineUtil {
         boolean outcome = true;
         String regEx = araRestriction.getRegEx().trim();
 
-        if (araRestriction.isRegExMatch()) {
+        if (!regEx.isEmpty()) {
             boolean evalResult = false;
             try {
                 evalResult = value.matches(regEx);
@@ -1714,6 +1715,7 @@ public class PipelineUtil {
                 LOG.debug(msg);
                 outcome = false;
             }
+/*
         } else {
             if (!regEx.equalsIgnoreCase(value)) {
                 String msg = "restriction mismatch: '" + value + "' does not match expected value '" + regEx + "' !";
@@ -1721,6 +1723,7 @@ public class PipelineUtil {
                 LOG.debug(msg);
                 outcome = false;
             }
+ */
         }
         return outcome;
     }

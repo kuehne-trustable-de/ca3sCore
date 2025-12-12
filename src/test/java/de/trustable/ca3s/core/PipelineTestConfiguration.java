@@ -28,6 +28,7 @@ import java.util.Set;
 
 import static de.trustable.ca3s.core.service.dto.ARAContentType.EMAIL_ADDRESS;
 import static de.trustable.ca3s.core.service.util.PipelineUtil.*;
+import static de.trustable.ca3s.core.service.util.PipelineUtil.RESTR_C_REGEXMATCH;
 
 
 @Service
@@ -77,6 +78,8 @@ public class PipelineTestConfiguration {
     public static final String EST_DEFAULT_REALM = "default";
     public static final String EST_REALM = "estTest";
     public static final String EST_PASSWORD = "S3cr3t!S";
+
+    public static final String  PREFILLED_O = "prefilled organisation";
 
     @Autowired
     CAConnectorConfigRepository cacRepo;
@@ -742,6 +745,19 @@ public class PipelineTestConfiguration {
         addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_LINK, "http://trustable.eu/tos.html");
 
         addPipelineAttribute(pipelineWeb, CN_AS_SAN_RESTRICTION, CnAsSanRestriction.CN_AS_SAN_WARN_ONLY.toString());
+
+        addPipelineAttribute(pipelineWeb, RESTR_O_CARDINALITY, RDNCardinalityRestriction.ZERO_OR_ONE.toString());
+        addPipelineAttribute(pipelineWeb, RESTR_O_TEMPLATE, "prefilled organisation");
+        addPipelineAttribute(pipelineWeb, RESTR_O_TEMPLATE_READ_ONLY, "false");
+        addPipelineAttribute(pipelineWeb, RESTR_O_REGEX, "");
+        addPipelineAttribute(pipelineWeb, RESTR_O_REGEXMATCH, "false");
+
+        addPipelineAttribute(pipelineWeb, RESTR_C_CARDINALITY, RDNCardinalityRestriction.ZERO_OR_ONE.toString());
+        addPipelineAttribute(pipelineWeb, RESTR_C_TEMPLATE, "DE");
+        addPipelineAttribute(pipelineWeb, RESTR_C_TEMPLATE_READ_ONLY, "true");
+        addPipelineAttribute(pipelineWeb, RESTR_C_REGEX, "");
+        addPipelineAttribute(pipelineWeb, RESTR_C_REGEXMATCH, "false");
+
 
         addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE, "{{user.email}}");
         addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE_READ_ONLY, "true");
