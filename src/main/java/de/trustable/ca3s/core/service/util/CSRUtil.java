@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.*;
@@ -658,7 +659,26 @@ public class CSRUtil {
 		}
 	}
 
-	public static String getGeneralNameDescription(GeneralName gName) {
+    public static String getCnOrFirstSan(final CSR csr) {
+
+        for( RDN rdn : csr.getRdns()){
+            for( RDNAttribute rdnAttribute :rdn.getRdnAttributes()){
+                if(X509ObjectIdentifiers.commonName.toString().equals(rdnAttribute.getAttributeType())){
+                    return rdnAttribute.getAttributeValue();
+                }
+            }
+        }
+
+        for (CsrAttribute csrAttribute : csr.getCsrAttributes()) {
+
+            if (CertificateAttribute.ATTRIBUTE_SAN.equals(csrAttribute.getName())) {
+                return csrAttribute.getValue();
+            }
+        }
+        return "(noCommonName)";
+    }
+
+    public static String getGeneralNameDescription(GeneralName gName) {
 /*
         LOG.info("gName.getName() is a " + gName.getName().getClass().getName());
         if( gName.getName() instanceof DERIA5String){
