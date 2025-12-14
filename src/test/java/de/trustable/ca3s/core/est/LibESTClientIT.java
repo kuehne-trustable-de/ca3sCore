@@ -135,7 +135,7 @@ public class LibESTClientIT {
 
         defaultParamsList = new ArrayList<String>();
 
-        defaultParamsList.add("-v");
+ //       defaultParamsList.add("-v");
 
         defaultParamsList.add("-s");
         defaultParamsList.add(hostFQDN);
@@ -220,7 +220,7 @@ public class LibESTClientIT {
     }
 
     @Test
-    public void testEnrollWithBasicAuth() throws Exception {
+    public void testEnrollWithBasicAuthAndReenroll() throws Exception {
 
         X500Principal enrollingPrincipal = new X500Principal("CN=SCEPRequested_" + System.currentTimeMillis() + ",O=trustable solutions,C=DE");
 
