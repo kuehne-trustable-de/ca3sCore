@@ -386,7 +386,7 @@ public class ChallengeController extends AcmeController {
 		String portList = preferenceUtil.getAcmeHTTP01CallbackPorts();
 
 		if(portList != null && !portList.trim().isEmpty()) {
-			String[] parts = portList.split(", ");
+			String[] parts = portList.split(",");
 			ports = new int[parts.length];
 		    for( int i = 0; i < parts.length; i++) {
 		    	ports[i] = -1;
