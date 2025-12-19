@@ -172,7 +172,7 @@
     "vue-loader": "15.10.0",
     "vue-template-compiler": "2.7.5",
     "wait-on": "6.0.1",
-    "webpack": "5.76.0",
+    "webpack": "5.95.0",
     "webpack-bundle-analyzer": "4.6.1",
     "webpack-cli": "4.10.0",
     "webpack-dev-server": "4.10.1",
