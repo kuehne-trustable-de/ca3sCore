@@ -768,7 +768,7 @@
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
                 <!--version>5.1.4</version-->
-                <version>5.4.4</version>
+                <version>5.5.1</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
             <dependency>
