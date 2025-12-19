@@ -187,7 +187,7 @@
         <cryptoUtilVersion>1.3.37</cryptoUtilVersion>
         <certBundleVersion>1.1.4</certBundleVersion>
         <cmpClientVersion>3.2.0</cmpClientVersion>
-        <adcsUtilVersion>1.2.9</adcsUtilVersion>
+        <adcsUtilVersion>1.2.16</adcsUtilVersion>
         <adcsProxyClientVersion>1.2.9</adcsProxyClientVersion>
 
         <nimbus-jose-jwt-version>10.4.1</nimbus-jose-jwt-version>
