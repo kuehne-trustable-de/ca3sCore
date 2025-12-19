@@ -699,7 +699,7 @@
             <dependency>
                 <groupId>org.jboss.xnio</groupId>
                 <artifactId>xnio-nio</artifactId>
-                <version>3.8.16.Final</version>
+                <version>3.8.17.Final</version>
             </dependency>
 
             <dependency>
