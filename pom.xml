@@ -630,7 +630,7 @@
             <dependency>
                 <groupId>org.jetbrains</groupId>
                 <artifactId>annotations</artifactId>
-                <version>20.1.0</version>
+                <version>26.0.2-1</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.apache.pdfbox/pdfbox -->
