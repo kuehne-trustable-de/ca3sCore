@@ -1,7 +1,6 @@
 package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.*;

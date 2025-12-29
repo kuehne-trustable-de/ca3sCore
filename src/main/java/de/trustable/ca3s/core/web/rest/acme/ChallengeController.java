@@ -516,7 +516,7 @@ public class ChallengeController extends AcmeController {
     private String readChallengeResponse(InputStream is) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
         String inputLine;
-        StringBuffer response = new StringBuffer();
+        StringBuilder response = new StringBuilder();
 
         while ((inputLine = in.readLine()) != null) {
             response.append(inputLine);
