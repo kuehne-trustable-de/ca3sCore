@@ -483,10 +483,22 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     if (rr.template && rr.template.length > 0) {
       value = rr.template;
     }
-    nv.values = [{ value: value }];
+    nv.values = [{ value: this.replacePlaceholder(value) }];
     return nv;
   }
 
+  public replacePlaceholder(valueIn: string): string {
+    const account = this.$store.getters.account;
+    let value = valueIn;
+    if (account) {
+      return value
+        .replace('{{user.firstName}}', account.firstName)
+        .replace('{{user.lastName}}', account.lastName)
+        .replace('{{user.login}}', account.login)
+        .replace('{{user.email}}', account.email);
+    }
+    return value;
+  }
   public buildCommandLine(): string {
     let cmdline = '';
     let reqConf = '';

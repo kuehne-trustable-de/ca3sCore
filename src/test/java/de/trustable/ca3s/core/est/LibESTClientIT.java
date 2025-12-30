@@ -97,8 +97,10 @@ public class LibESTClientIT {
     static int serverPort; // random port for EST endpoint
 
     static File outDirFile;
+    static File outDirRefreshFile;
 
-    List<String> defaultParamsList = new ArrayList<String>();
+    List<String> defaultParamsList = new ArrayList<>();
+    List<String> defaultParamsOutputList = new ArrayList<>();
 
     static ESTClientWrapper estClientWrapper;
 
@@ -110,6 +112,8 @@ public class LibESTClientIT {
 
     @Autowired
     KeyUtil keyUtil;
+
+    static boolean verbose = false;
 
     @BeforeEach
     void init() throws IOException {
@@ -133,9 +137,11 @@ public class LibESTClientIT {
             Arrays.stream(outDirFile.listFiles()).anyMatch(f -> f.delete());
         }
 
-        defaultParamsList = new ArrayList<String>();
+        defaultParamsList = new ArrayList<>();
 
- //       defaultParamsList.add("-v");
+        if(verbose) {
+            defaultParamsList.add("-v");
+        }
 
         defaultParamsList.add("-s");
         defaultParamsList.add(hostFQDN);
@@ -143,8 +149,9 @@ public class LibESTClientIT {
         defaultParamsList.add("-p");
         defaultParamsList.add("" + serverPort);
 
-        defaultParamsList.add("-o");
-        defaultParamsList.add(outDirFile.getAbsolutePath());
+        defaultParamsOutputList = new ArrayList<>(defaultParamsList);
+        defaultParamsOutputList.add("-o");
+        defaultParamsOutputList.add(outDirFile.getAbsolutePath());
 
 
     }
@@ -162,14 +169,19 @@ public class LibESTClientIT {
         estClientWrapper.setVerbose(true);
 
         outDirFile = Files.createTempDirectory("outdir_tmp").toFile();
-        outDirFile.deleteOnExit();
+
+        outDirRefreshFile = Files.createTempDirectory("outdir_refresh_tmp").toFile();
+        if( !verbose) {
+            outDirFile.deleteOnExit();
+            outDirRefreshFile.deleteOnExit();
+        }
 
     }
 
     @Test
     public void testGetCaCerts() throws Exception {
 
-        List<String> argList = new ArrayList<String>(defaultParamsList);
+        List<String> argList = new ArrayList<>(defaultParamsOutputList);
 
         argList.add("-g");
 
@@ -182,7 +194,9 @@ public class LibESTClientIT {
 
         Assertions.assertEquals(0, outcomeInfo.getExitCode());
 
-        Assertions.assertFalse(outcomeInfo.getOut().toLowerCase().contains("error"));
+        if( !verbose) {
+            Assertions.assertFalse(outcomeInfo.getOut().toLowerCase().contains("error"));
+        }
         Assertions.assertFalse(outcomeInfo.getErr().toLowerCase().contains("error"));
 
         Assertions.assertEquals(1, outDirFile.list().length);
@@ -196,7 +210,7 @@ public class LibESTClientIT {
     @Test
     public void testGetCsrAttributes() throws Exception {
 
-        List<String> argList = new ArrayList<String>(defaultParamsList);
+        List<String> argList = new ArrayList<>(defaultParamsOutputList);
 
         argList.add("-a");
 
@@ -209,7 +223,9 @@ public class LibESTClientIT {
 
         Assertions.assertEquals(0, outcomeInfo.getExitCode());
 
-        Assertions.assertFalse(outcomeInfo.getOut().toLowerCase().contains("error"));
+        if( !verbose) {
+            Assertions.assertFalse(outcomeInfo.getOut().toLowerCase().contains("error"));
+        }
         Assertions.assertFalse(outcomeInfo.getErr().toLowerCase().contains("error"));
 
         Assertions.assertEquals(1, outDirFile.list().length);
@@ -239,7 +255,7 @@ public class LibESTClientIT {
 
 
         // request a new certificate
-        List<String> argList = new ArrayList<String>(defaultParamsList);
+        List<String> argList = new ArrayList<String>(defaultParamsOutputList);
 
         argList.add("-e"); // enroll
 
@@ -263,7 +279,9 @@ public class LibESTClientIT {
 
         Assertions.assertEquals(0, outcomeInfo.getExitCode());
 
-//        Assertions.assertFalse(outcomeInfo.getOut().toLowerCase().contains("error"));
+        if( !verbose) {
+            Assertions.assertFalse(outcomeInfo.getOut().toLowerCase().contains("error"));
+        }
         Assertions.assertFalse(outcomeInfo.getErr().toLowerCase().contains("error"));
 
         Assertions.assertEquals(1, outDirFile.list().length);
@@ -282,7 +300,7 @@ public class LibESTClientIT {
 
         privateKeyToPem(keyPair.getPrivate(), privateKeyFile);
 
-        List<String> argReenrollList = new ArrayList<String>(defaultParamsList);
+        List<String> argReenrollList = new ArrayList<>(defaultParamsList);
 
         argReenrollList.add("-r"); // reenroll
 
@@ -292,6 +310,9 @@ public class LibESTClientIT {
         argReenrollList.add("-k"); // authentication key file
         argReenrollList.add(privateKeyFile.getAbsolutePath());
 
+        argReenrollList.add("-o");
+        argReenrollList.add(outDirRefreshFile.getAbsolutePath());
+
         argReenrollList.add("--pem-output");
 
         OutcomeInfo outcomeInfoReenroll = estClientWrapper.execute(argReenrollList);
@@ -300,15 +321,18 @@ public class LibESTClientIT {
         LOG.info("err: {}", outcomeInfoReenroll.getErr());
 
         Assertions.assertEquals(0, outcomeInfoReenroll.getExitCode());
-
-//        Assertions.assertFalse(outcomeInfoReenroll.getOut().toLowerCase().contains("error"));
+/*
+        if( !verbose){
+            Assertions.assertFalse(outcomeInfoReenroll.getOut().toLowerCase().contains("error"));
+        }
+ */
         Assertions.assertFalse(outcomeInfoReenroll.getErr().toLowerCase().contains("error"));
 
-        Assertions.assertEquals(1, outDirFile.list().length);
+        Assertions.assertEquals(1, outDirRefreshFile.list().length);
 
-        LOG.info("renewed certificate in file {}", outDirFile.listFiles()[0].getAbsolutePath());
+        LOG.info("renewed certificate in file {}", outDirRefreshFile.listFiles()[0].getAbsolutePath());
 
-        X509Certificate x509CertRenewed = CryptoService.convertPemToCertificate(Files.readString(outDirFile.listFiles()[0].toPath()));
+        X509Certificate x509CertRenewed = CryptoService.convertPemToCertificate(Files.readString(outDirRefreshFile.listFiles()[0].toPath()));
         Assertions.assertNotNull(x509CertRenewed);
 
         LOG.info("renewed certificate CN: {}, serial {}", x509CertRenewed.getSubjectX500Principal().getName(), x509CertRenewed.getSerialNumber().toString());

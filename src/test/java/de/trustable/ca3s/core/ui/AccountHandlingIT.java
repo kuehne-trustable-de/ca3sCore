@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.ui;
 
-import com.sun.mail.imap.IMAPStore;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
@@ -8,6 +7,10 @@ import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.JCAManager;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import jakarta.mail.Folder;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import org.eclipse.angus.mail.imap.IMAPStore;
 import org.jboss.aerogear.security.otp.Totp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -17,12 +20,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -119,7 +118,7 @@ public class AccountHandlingIT extends WebTestBase {
     }
 
     @Test
-    public void testCreateNewAccount() throws MessagingException, IOException {
+    public void testCreateNewAccount() throws MessagingException, IOException, javax.mail.MessagingException {
 
         byte[] loginBytes = new byte[6];
         rand.nextBytes(loginBytes);
@@ -262,12 +261,12 @@ public class AccountHandlingIT extends WebTestBase {
                                   String emailPassword,
                                   String loginName,
                                   String loginPassword,
-                                  String newPassword) throws MessagingException, IOException {
+                                  String newPassword) throws IOException, jakarta.mail.MessagingException, javax.mail.MessagingException {
 
         IMAPStore imapStore = greenMailSMTPIMAP.getImap().createStore();
         imapStore.connect(emailAddress, emailPassword);
 
-        Folder inbox = imapStore.getFolder("INBOX");
+        jakarta.mail.Folder inbox = imapStore.getFolder("INBOX");
         inbox.open(Folder.READ_WRITE);
 
         dropMessagesFromInbox(inbox);

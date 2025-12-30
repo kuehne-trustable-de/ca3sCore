@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.mail.MessagingException;
 import java.io.File;
 import java.io.IOException;
 import java.util.Optional;
@@ -46,7 +45,7 @@ public class TutorialIT extends CSRSubmitIT {
     }
 
     @BeforeAll
-    public static void setUpBeforeAll() throws IOException, MessagingException {
+    public static void setUpBeforeAll() throws IOException, jakarta.mail.MessagingException {
         obsClient = new OBSClient("localhost", 4455, "S3cr3t!S");
 
         targetDirectory = new File(targetDirectoryPrefix, "Run_" + System.currentTimeMillis());

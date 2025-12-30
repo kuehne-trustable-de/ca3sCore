@@ -13,10 +13,9 @@
 package de.trustable.ca3s.core.service.dto.ejbca;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.gson.annotations.SerializedName;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.threeten.bp.OffsetDateTime;
 
+import java.time.OffsetDateTime;
 import java.util.Objects;
 /**
  * CaInfoRestResponse

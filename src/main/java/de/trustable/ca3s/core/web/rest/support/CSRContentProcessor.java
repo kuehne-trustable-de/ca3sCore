@@ -109,7 +109,7 @@ public class CSRContentProcessor {
 
 
     /**
-     * {@code POST  /csrContent} : Process a PKCSXX-object encoded as PEM.
+     * {@code POST  /describeContent} : Process a PKCSXX-object encoded as PEM.
      *
      * @param uploaded a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
      * @return the {@link ResponseEntity} .

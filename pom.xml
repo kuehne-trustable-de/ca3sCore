@@ -227,7 +227,7 @@
 
         <selenium.version>4.39.0</selenium.version>
 
-        <kerby.version>2.1.1</kerby.version>
+        <kerby.version>2.1.0</kerby.version>
         <embedded-ldap.version>0.9.0</embedded-ldap.version>
         <greenmail.version>2.1.8</greenmail.version>
 
@@ -235,7 +235,7 @@
         <xml.maven.plugin.version>1.2.0</xml.maven.plugin.version>
 
         <dependencyCheck.version>12.1.9</dependencyCheck.version>
-        <dependencyCheck.skip>true</dependencyCheck.skip>
+        <dependencyCheck.skip>false</dependencyCheck.skip>
 
     </properties>
 
@@ -332,10 +332,16 @@
                 <version>3.5.1</version>
             </dependency-->
 
-            <dependency>
+            <!--dependency>
                 <groupId>com.mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>8.2.0</version>
+            </dependency-->
+            <!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
+            <dependency>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
+                <version>9.5.0</version>
             </dependency>
             <dependency>
                 <groupId>org.mybatis</groupId>
@@ -768,7 +774,7 @@
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
                 <!--version>5.1.4</version-->
-                <version>5.5.1</version>
+                <version>5.4.4</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
             <dependency>
@@ -781,6 +787,14 @@
                 <groupId>org.apache.httpcomponents.core5</groupId>
                 <artifactId>httpcore5-h2</artifactId>
                 <version>5.4</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
+            <dependency>
+                <groupId>com.microsoft.sqlserver</groupId>
+                <artifactId>mssql-jdbc</artifactId>
+                <version>12.10.2.jre11</version>
+                <scope>compile</scope>
             </dependency>
 
         </dependencies>
@@ -818,17 +832,11 @@
             <version>2.7.1</version>
         </dependency-->
 
-        <dependency>
+        <!--dependency>
             <groupId>ch.qos.logback.access</groupId>
             <artifactId>logback-access-common</artifactId>
             <version>2.0.7</version>
-        </dependency>
-
-        <dependency>
-            <groupId>ch.qos.logback.access</groupId>
-            <artifactId>logback-access-common</artifactId>
-            <version>2.0.7</version>
-        </dependency>
+        </dependency-->
 
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
@@ -975,10 +983,12 @@
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
         </dependency>
+
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
@@ -1592,11 +1602,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-client</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.github.stephenc.monte/monte-screen-recorder -->
         <dependency>

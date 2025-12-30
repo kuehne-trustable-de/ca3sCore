@@ -1322,7 +1322,7 @@ public class PipelineUtil {
             Optional<NamedValues> optionalNamedValues = findNVSByName(nvARArr, restriction.getName());
             if(optionalNamedValues.isPresent()){
                 NamedValues nvs = optionalNamedValues.get();
-                if(restriction.isRegExMatch()) {
+                if(restriction.isRegExMatch() && (restriction.getRegEx() != null) ){
                     Pattern pattern = Pattern.compile(restriction.getRegEx());
                     for (TypedValue typedValue : nvs.getValues()) {
                         if (!pattern.matcher(typedValue.getValue()).matches()) {

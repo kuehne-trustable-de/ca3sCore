@@ -71,9 +71,11 @@ public class AlgorithmRestrictionUtil {
         return true;
     }
 
-    private boolean matchesAlgo(String a, String signingAlgo, int keyLength) {
+    private boolean matchesAlgo(String algoName, String signingAlgo, int keyLength) {
 
-        String algoNameLC = a.toLowerCase();
+        LOG.debug("matchesAlgo( algo '{}', signingAlgo '{}', keyLength {})", algoName, signingAlgo, keyLength);
+
+        String algoNameLC = algoName.toLowerCase();
         if( algoNameLC.startsWith("dilithium") ||
             algoNameLC.startsWith("falcon")) {
 
@@ -90,10 +92,10 @@ public class AlgorithmRestrictionUtil {
             }
         }
 
-        if( signingAlgo.equalsIgnoreCase(KeyAlgoLengthOrSpec.Ed25519.getAlgoName() )){
+        if( algoNameLC.equalsIgnoreCase(KeyAlgoLengthOrSpec.Ed25519.getAlgoName() )){
             return true;
         }
-        if( signingAlgo.startsWith("brainpool")) {
+        if( algoNameLC.startsWith("brainpool")) {
             if (algoNameLC.startsWith(KeyAlgoLengthOrSpec.Brainpool_P256r1.getAlgoName().toLowerCase(Locale.ROOT))) {
                 return true;
             }else if (algoNameLC.startsWith(KeyAlgoLengthOrSpec.Brainpool_P384r1.getAlgoName().toLowerCase(Locale.ROOT))) {
@@ -103,9 +105,9 @@ public class AlgorithmRestrictionUtil {
             }
         }
 
-        String[] parts = a.split("-");
+        String[] parts = algoName.split("-");
         if (parts.length != 2) {
-            LOG.warn("unexpected keyLength / type descriptor: '{}'", a);
+            LOG.warn("unexpected keyLength / type descriptor: '{}'", algoName);
             return false;
         }
 
@@ -118,7 +120,7 @@ public class AlgorithmRestrictionUtil {
             int keyLengthRestriction = Integer.parseInt(parts[1]);
             return keyLengthRestriction <= keyLength;
         } catch (NumberFormatException nfe) {
-            LOG.warn("unexpected number in keyLengthdescriptor: '" + a + "'", nfe);
+            LOG.warn("unexpected number in keyLengthdescriptor: '" + algoName + "'", nfe);
         }
         return false;
     }

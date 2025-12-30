@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.ui;
 
-import com.sun.mail.imap.IMAPStore;
+import org.eclipse.angus.mail.imap.IMAPStore;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
@@ -12,6 +12,8 @@ import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 import io.github.bonigarcia.wdm.WebDriverManager;
+import jakarta.mail.Folder;
+import jakarta.mail.MessagingException;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -33,10 +35,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
-import javax.mail.Folder;
-import javax.mail.Message;
-import javax.mail.MessagingException;
 import javax.security.auth.x500.X500Principal;
+import jakarta.mail.Message;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -294,7 +295,10 @@ public class CSRSubmitIT extends WebTestBase {
         selectOptionByText(LOC_SEL_KEY_LENGTH_CHOICE, "rsa-2048");
         explain("csr.submit.7");
 
-        setText(LOC_INP_C_VALUE, c);
+//        setText(LOC_INP_C_VALUE, c);
+        assertTrue(isReadOnly(LOC_INP_C_VALUE));
+        assertEquals(c, getText(LOC_INP_C_VALUE));
+
         setText(LOC_INP_CN_VALUE, cn);
         setText(LOC_INP_O_VALUE, o);
         setText(LOC_INP_OU_VALUE, ou);
@@ -1171,7 +1175,7 @@ public class CSRSubmitIT extends WebTestBase {
 
 
     @Test
-    public void testCSRSubmitRACheck() throws GeneralSecurityException, IOException, MessagingException {
+    public void testCSRSubmitRACheck() throws GeneralSecurityException, IOException, MessagingException, javax.mail.MessagingException {
 
         EMailInfo userEmailInfo = getInboxForUser(USER_NAME_USER, USER_PASSWORD_USER);
         EMailInfo raEmailInfo = getInboxForUser(USER_NAME_RA, USER_PASSWORD_RA);
@@ -1397,7 +1401,7 @@ public class CSRSubmitIT extends WebTestBase {
 
     }
 
-    private @NotNull EMailInfo getInboxForUser(String username, String accountPassword) throws MessagingException {
+    private @NotNull EMailInfo getInboxForUser(String username, String accountPassword) throws MessagingException, javax.mail.MessagingException {
         IMAPStore imapStore;
         Folder inbox;
         byte[] emailBytes = new byte[6];

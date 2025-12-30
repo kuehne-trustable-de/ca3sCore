@@ -114,7 +114,7 @@
     "zingchart-vue": "^1.1.0"
   },
   "devDependencies": {
-    "@cyclonedx/webpack-plugin": "^5.0.0",
+    "@cyclonedx/webpack-plugin": "^3.7.0",
     "@types/jest": "28.1.8",
     "@types/node": "16.11.56",
     "@types/sinon": "10.0.13",

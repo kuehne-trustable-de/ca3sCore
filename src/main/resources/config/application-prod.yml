@@ -303,8 +303,8 @@ ca3s:
     port: 8442
     external:
       port: 8442
-      host: ca3s.test.de
-  #     host: laptop-2iguatf5
+      #    host: ca3s.test.de
+      host: laptop-2iguatf5
 
   # settings for ra user access
   #  raAccess:
