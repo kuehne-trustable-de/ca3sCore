@@ -398,7 +398,7 @@
   "ca3SApp.cSR.updated": "CSR aktualisiert mit ID {{ param }}",
   "ca3SApp.cSR.x509KeySpec": "X 509 Key Spec",
 
-  "ca3SApp.cSR.requestor.details": "{{ login }}, {{fistName}} {{lastName}}",
+  "ca3SApp.cSR.requestor.details": "{{fistName}} {{lastName}}",
   "ca3SApp.cSR.requestor.tenant": "Mandant {{ tenant }}",
 
   "ca3SApp.certificate.subtitle.cert.list": "Zertifikatsliste",
@@ -442,6 +442,7 @@
   "ca3SApp.certificate.issuingCertificate": "Ausstellendes Zertifikat",
   "ca3SApp.certificate.keyAlgorithm": "Schlüsselalgorithmus",
   "ca3SApp.certificate.keyDetails": "Schlüsseldetails",
+  "ca3SApp.certificate.altKeyDetails": "Details des alternativen Schlüssels",
   "ca3SApp.certificate.keyLength": "Schlüssellänge",
   "ca3SApp.certificate.key.availableUntil": "Schlüssel nutzbar bis",
   "ca3SApp.certificate.key.leftUsages": "Schlüsselnutzungen übrig",
@@ -1418,6 +1419,7 @@
   "revocationReason": "Rückrufgrund",
   "length": "Länge",
   "keyLength": "Schlüssellänge",
+  "keyInfo": "Schlüssel Info",
   "keyAlgorithm": "Schlüsselalg.",
   "hashAlgorithm": "Hash Alg.",
   "x509KeySpec": "Schlüssel Spec",

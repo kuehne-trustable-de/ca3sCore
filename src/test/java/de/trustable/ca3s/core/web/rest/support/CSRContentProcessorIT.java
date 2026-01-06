@@ -37,7 +37,8 @@ public class CSRContentProcessorIT {
             PkcsXXData pkcsXXData = checkCSR(csrTestResource.getInputStream());
             checkPkcsxxDataOK(pkcsXXData);
             assertEquals(160, pkcsXXData.getP10Holder().getKeyLength());
-            assertEquals("ecdsa", pkcsXXData.getP10Holder().getKeyAlgName());
+            assertEquals("" +
+                "ecdsa", pkcsXXData.getP10Holder().getKeyAlgName());
         }
         {
             ClassPathResource csrTestResource = new ClassPathResource("csr/test_brainpoolP256r1.csr");

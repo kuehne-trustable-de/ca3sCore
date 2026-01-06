@@ -401,7 +401,7 @@
   "ca3SApp.cSR.updated": "A CSR is updated with identifier {{ param }}",
   "ca3SApp.cSR.x509KeySpec": "X 509 Key Spec",
 
-  "ca3SApp.cSR.requestor.details": "{{ login }}, {{fistName}} {{lastName}}",
+  "ca3SApp.cSR.requestor.details": "{{fistName}} {{lastName}}",
   "ca3SApp.cSR.requestor.tenant": "Tenant {{ tenant }}",
 
   "ca3SApp.certificate.subtitle.cert.list": "Certificate List",
@@ -445,6 +445,7 @@
   "ca3SApp.certificate.issuingCertificate": "Issuing Certificate",
   "ca3SApp.certificate.keyAlgorithm": "Key Algorithm",
   "ca3SApp.certificate.keyDetails": "Key Details",
+  "ca3SApp.certificate.altKeyDetails": "Alternative Key Details",
   "ca3SApp.certificate.keyLength": "Key Length",
   "ca3SApp.certificate.key.availableUntil": "Key available until",
   "ca3SApp.certificate.key.leftUsages": "Key usages left",
@@ -1425,6 +1426,7 @@
   "revocationReason": "Reason",
   "length": "Length",
   "keyLength": "Key Length",
+  "keyInfo": "Key Info",
   "keyAlgorithm": "Key Algo",
   "x509KeySpec": "Key Spec",
   "signingAlgorithm": "Signing Algo",

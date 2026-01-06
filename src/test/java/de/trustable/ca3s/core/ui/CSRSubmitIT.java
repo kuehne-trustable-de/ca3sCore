@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.ui;
 
-import org.eclipse.angus.mail.imap.IMAPStore;
+import com.sun.mail.imap.IMAPStore;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
@@ -12,8 +12,6 @@ import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import jakarta.mail.Folder;
-import jakarta.mail.MessagingException;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -35,8 +33,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
+import javax.mail.Folder;
+import javax.mail.Message;
+import javax.mail.MessagingException;
 import javax.security.auth.x500.X500Principal;
-import jakarta.mail.Message;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -1106,14 +1106,7 @@ public class CSRSubmitIT extends WebTestBase {
         String pkcs12FileName = getText(LOC_LNK_DOWNLOAD_PKCS12);
         Assertions.assertEquals(cn + ".p12", pkcs12FileName, "Expect an informing name of the link");
 
-/*
-        try {
-            System.out.println("... waiting ...");
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-*/
+
         click(LOC_LNK_DOWNLOAD_PKCS12);
 
 /*
@@ -1175,7 +1168,7 @@ public class CSRSubmitIT extends WebTestBase {
 
 
     @Test
-    public void testCSRSubmitRACheck() throws GeneralSecurityException, IOException, MessagingException, javax.mail.MessagingException {
+    public void testCSRSubmitRACheck() throws GeneralSecurityException, IOException, MessagingException {
 
         EMailInfo userEmailInfo = getInboxForUser(USER_NAME_USER, USER_PASSWORD_USER);
         EMailInfo raEmailInfo = getInboxForUser(USER_NAME_RA, USER_PASSWORD_RA);

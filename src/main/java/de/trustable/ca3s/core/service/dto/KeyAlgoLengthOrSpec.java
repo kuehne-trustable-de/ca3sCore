@@ -30,7 +30,7 @@ public class KeyAlgoLengthOrSpec {
     public static final KeyAlgoLengthOrSpec ECDSA_384 = new KeyAlgoLengthOrSpec("ECDSA","ecdsa-384","ecdsa-384", "BC", 384, ECNamedCurveTable.getParameterSpec("secp384r1"));
     public static final KeyAlgoLengthOrSpec ECDSA_512 = new KeyAlgoLengthOrSpec("ECDSA","ecdsa-512","ecdsa-512", "BC", 512, ECNamedCurveTable.getParameterSpec("secp512r1"));
 
-    public static final KeyAlgoLengthOrSpec Ed25519	= new KeyAlgoLengthOrSpec("Ed25519", "Ed25519","Ed25519", "BC", 256, NamedParameterSpec.ED25519);
+    public static final KeyAlgoLengthOrSpec Ed25519	= new KeyAlgoLengthOrSpec("Ed25519", "ed25519","ed25519", "BC", 256, NamedParameterSpec.ED25519);
 
     public static final KeyAlgoLengthOrSpec Brainpool_P256r1 = new KeyAlgoLengthOrSpec("Brainpool", "brainpoolP256r1","brainpoolP256r1", "BC", 256, ECNamedCurveTable.getParameterSpec("brainpoolP256r1"));
     public static final KeyAlgoLengthOrSpec Brainpool_P384r1 = new KeyAlgoLengthOrSpec("Brainpool", "brainpoolP384r1","brainpoolP384r1", "BC", 384, ECNamedCurveTable.getParameterSpec("brainpoolP384r1"));

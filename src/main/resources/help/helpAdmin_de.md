@@ -1,259 +1,478 @@
 # ![Hilfe](../../images/ca3s-72x72.png) Hilfe
 
-[Download as Markdown](./help-de.md)
+# Admin Help
 
 ## **C**ertificate **A**utomation, **A**uthorization and **A**dministration **S**ervice (_ca3s_)
 
-ca3s ist ein CA Unterstützungssystem mit einem flexiblen RA-Modul, welches BPMN mit dem Ziel benutzt, möglichst viel zu automatisieren. Zu diesem Zweck, werden zusätzlich zur normalen Web-Variante, ACME und SCEP Schnittstellen bereitgestellt. Außerdem werden Zertifikatsbestände aus verschiedenen Quellen aggregiert und es werden CMP-angebundene CAs oder ADCS-Instanzen für die Zertifikatserstellung benutzt.
+This certificate management system has a number of basic options within the application.yml file. Once configured and with the application up and running, the majority of options can be administered using the web UI and an administrator account. This document gives an idea of the building blocks and their configuration.
 
-- Verwaltet verschiedene CA Instanzen (CMP und ADCS)
-- Erlaubt den Überblick über die Ablaufdaten aller relevanten Zertifikate aus allen Quellen.
-- Analysiert die Schlüssel-Algorithmen, Schlüssellänge, Hash and Padding-Algorithmen in Nutzung
-- Ein nutzerfreundliches Webinterface für Antragsteller und Registrierungsbeauftragten (auch als 'RA-Officer' bezeichnet).
+## Help content for the administration forms
 
-Die wichtigsten Punkte für eine zuverlässige PKI Infrastruktur:
+### General Preferences
 
-- Weitgehende Automatisierung des Ausstellens und Erneuerns
-- Die Nutzung von BPMN um organisations-spezifische Regeln aufzustellen
-- Bietet gut etablierte Schnittstellen an (ACME und SCEP) für eine erleichterte Automatisierung
+#### <a id="preference.check-crl"></a> Check CRL
 
-Das Projekt steht unter einer Open-Source-Lizenz [EUPL](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12) und kann bei [github](https://github.com/kuehne-trustable-de/ca3sCore) heruntergeladen werden.
+Enable the proactive CRL retrieval for all active certificates. Ths ensures the revocation information of the certificate set is up-to-date.
 
-### Baustein-Übersicht
+#### <a id="preference.max-next-update-crl"></a> Max time until next check
 
-Die folgende Abbildung gibt einen groben Überblick über die ca3s Architektur. Oben sind die verschiedenen Typen von Clients, die sich mit dem ca3s-Server verbinden, abgebildet. Unten sind die externen Dienste, mit denen sich ca3s verbindet, gezeigt.
+This numeric input field allows to set a maximum number of hours before an update of a CRL will be performed. This value limits the 'next update' property of the CRL.
 
-![Architekturübersicht](../../images/birds_view.jpg)
+#### <a id="preference.server-side-allowed"></a> Enable server side key creation
 
-Architekturübersicht
+Enable the option to create a key pair in the ca3s instance and instantly build a certificate request. Ths option eases the process of certificate creation for inexperienced users.
+A notable downside of this option is that the private key is available within ca3s. It is stored in the database as an encrypted blob. Also, the private key needs to be transported to the target system (as a PKCS#12 container).
+The user must provide a passphrase for the container during the request. No one will be able to retrieve this key later on (neither users nor RA officer nor admins). No other user will be able to download the PKCS#12 container.
 
-#### Anfragen Adapter (Oberer Bereich)
+Nevertheless: The best approach in terms of security is to NOT store the private key on ANY other system and to NOT transfer it over ANY network! Please consider possible risks when enableing this option.
 
-Zertifikatsanfragen können gemäß ACME- und SCEP-Protokoll oder mittels einer Web-Oberfläche übermittelt werden. Zusätzliche Protokolle können einfach hinzugefügt werden.
+#### <a id="preference.delete-key-after-days"></a><a id="preference.delete-key-after-usess"></a> server side key limits
 
-#### CA Adapter (Unterer Bereich)
+To mitigate the risk for keys created on the server on behalf of a user the keys will be dropped after a configurable time (in days) and downloads
 
-Verschiedene CA-Instanzen können mit ca3s verbunden werden. Ein weit verbreitetes Protokoll für CAs ist CMP, unterstützt von z.B. ejbca und vielen Weiteren. Zusätzlich dazu existiert ein separates Projekt (adcsCert) um sich mit dem Microsoft ADCS CA zu verbinden.
+#### <a id="preference.http-01-callback-timeout"></a> ACME HTTP01 callback timeout
 
-#### Zertifikatsdatenbank
+This numeric input field allows to set a timeout of ACME http requests (in millisecs).
 
-Ein zentraler Zertifikatsspeicher enthält ausgegebene und anderweitig abgerufene Zertifikate, um so eine zentrale Anlaufstelle für den Zertifikatsstatus und die Berichterstellung, z.B. für eine Ablaufübersicht, zu erhalten.
+#### <a id="preference.http-01-callback-ports"></a> ACME HTTP01 callback ports
 
-#### Ausstellungsworkflow
+This numeric input fields allow the ports checked for the ACME HTTP01 challenge. The ACME standard defines port 80 as a callback port, only. But in some environments it may be handy to define port beyond port 1000. Please consider possible security risks when allowing additional / unprivileged ports.
 
-Abhängig von der Konfiguration können Zertifikatsanforderungen von einem menschlichen Registrierungsbeauftragten zugelassen werden. Ergänzende automatisierte Workflows können so konfiguriert werden, dass der Registrierungsbeauftragte (auch RA-Officer genannt) von ermüdenden Aufgaben entlastet wird und selbst komplexe Prozesse automatisiert ausgeführt werden. Die Prozesse können in BPMN definiert und bestimmten Verarbeitungspipelines flexibel zugewiesen werden.
+#### <a id="preference.hash"></a> Allowed hash algorithms
 
-## Erklärungen der Optionen
+This listbox allows the selection of hash (digest) algorithms. Please consider your security requirements to select an appropriate set of algorithms. Establish a reminder (e.g. once a year) to re-evaluate the set.
+Use Ctrl-Click to select multiple entries.
 
-### <a id="pkcsxx.upload.pipeline"></a> Verarbeitungs-Pipeline
+#### <a id="preference.algo"></a> Allowed encryption algorithms
 
-Zertifikate können für eine Vielzahl von Anwendungsfällen ausgestellt werden. Diese Anwendungsfälle erfordern möglicherweise unterschiedliche ausstellende Zertifizierungsstellen, unterschiedliche Vertrauensstufen, unterschiedliche Verwendung und Gültigkeit sowie Ausstellungsanforderungen. Im folgenden Auswahlfeld werden verschiedene Verarbeitungspipelines angeboten. Zusätzliche Informationen werden möglicherweise unter der Auswahl angezeigt. Bitte stellen Sie sicher, dass Sie die richtige Pipeline für Ihre Bedürfnisse und Anforderungen auswählen, denn eine falsche Auswahl führt zur Ablehnung Ihrer Anfrage. Bei Fragen kontaktieren Sie den Registrierungsbeauftragten.
+This listbox allows the selection of encryption algorithms. Please consider your security requirements to select an appropriate set of algorithms. Establish a reminder (e.g. once a year) to re-evaluate the set.
+Use Ctrl-Click to select multiple entries.
 
-### <a id="pkcsxx.upload.creationMode.selection"></a> Erzeugungsmodus
+#### <a id="preference.infoMsg"></a> General information mesage
 
-- CSR available  
-  Die einfachste Methode des Zertifikatsanforderungsprozesses besteht darin, eine CSR hochzuladen. Wählen Sie diese Option, wenn bereits ein CSR verfügbar ist, und fügen Sie ihn in den Textbereich unten ein. Alternativ können Sie auf Ihrem Computer nach einer CSR-Datei suchen.
-- Serverside key creation  
-   Wenn Ihre Sicherheitsrichtlinie diese Option zulässt, können Sie festlegen, dass der Server ein Schlüsselpaar für Sie erstellt. Sie können einen Schlüsseltyp und eine Schlüssellänge auswählen und die Details des Betreffs des Zertifikats definieren. Der Server erstellt einen Schlüssel- und Zertifikats-Container, der Ihren privaten Schlüssel schützt. Um Zugriff auf den privaten Schlüssel zu erhalten, müssen Sie ein Passwort für den Container angeben. Bewahren Sie dieses Passwort an einem sicheren Ort auf! Wenn das Passwort verloren geht, ist der geheime Schlüssel nicht mehr verfügbar. Es gibt keine Möglichkeit, das Passwort vom ca3s-Server abzurufen. Eine Kompromittierung des Passworts wirkt sich auf den privaten Schlüssel und das Zertifikat aus! Verwenden Sie keinen kompromittierten Schlüssel! Widerrufen Sie das Zertifikat in diesem Fall sofort!
-  **Es wird dringend empfohlen, CSRs oder ein automatisiertes Zertifikatsverwaltungsprotokoll zu verwenden, z.B. ACME! Der private Schlüssel sollte das nutzende System nicht verlassen!**
+This text area allows to define a html (or just plain text) message that will be displayed in a text block at the top of any page.
+It may be useful to inform the users about e.g. new features, addítional restrictions or planned outages.
+The length of the message is limited to 250 characters.
 
-### CSR-Erzeugung auf der Kommandozeile
+### Administration of CA connectors
 
-Mit der Befehlszeilenoption können Sie die verschiedenen verfügbaren Tools für die CSR-Erstellung je nach Betriebssystem und Zielanwendung verwenden.
+#### <a id="ca-connector.name"></a> Connector Name
 
-### <a id="pkcsxx.upload.creationTool.selection"></a> Tool-Auswahl
+Provide a descriptive name of this connector. It is recommended to provide relevant information as to what type of certificate will be processed by this connector.
 
-- Java keytool  
-  Das Schlüssel- und Zertifikatsverwaltungstool von Java ist in der Java-Laufzeitverteilung unter Windows und Linux enthalten.
-- OpenSSL > 1.1.0  
-  Eine relativ neue Version des weit verbreiteten OpenSSL-Tools. Wenn Sie sich nicht sicher sind, überprüfen Sie Ihre Version mit 'openssl version'.
-- OpenSSL  
-  Eine Befehlszeilen-Skript-Version, die mit allen OpenSSL-Tools kompatibel ist.
+#### <a id="ca-connector.type"></a> Connector Type
 
-### <a id="ca3SApp.help.subtitle.commandline"></a> CSR Erzeugung auf der Kommandozeile
+Select a type of connector. Depending on the connector type the set of optional and required settings for the connector will vary. The different types are
 
-Unter Sicherheitsgesichtspunkten empfiehlt es sich, das Schlüsselpaar auf dem Zielsystem (z. B. einem Webserver) zu erstellen und eine Zertifikats-Signierungs-Anforderung (certificate signing request, abgekürzt CSR) zu erstellen. Ein CSR enthält öffentliche Informationen (z.B. den Domänennamen des Webservers) und den öffentlichen Schlüssel. Der private Schlüssel verlässt das Zielsystem nicht, wenn das Zertifikat von der Zertifizierungsstelle angefordert wird. Um eine CSR zu erstellen, öffnen Sie bitte eine Eingabeaufforderung in Ihrem System:
+- 'CMP' identifies a connection to a CA based on the CMP standard well established in the as a certificate management interface. It is defined in [RFC4210](https://tools.ietf.org/html/rfc4210) .
+- 'ADCS' selects a connection to the popular Windows CA. This ADCS connector expects an instance of the ADCSProxy to be installed on the target server.
+- 'ADCS certificate inventory' offers a way to import certificates issued by an ADCS instance. This ensures that certificates requested by other means than ca3s can be imported too.
+- 'Directory' import certificates from a given directory or website, recursively.
+- 'Internal CA' uses a simple CA embedded with ca3s. Intended for testing purposes and MUST NOT be used for production environments.
 
-- Windows: Command Prompt ('cmd.exe') or PowerShell
-- Linux: Shell
+#### <a id="ca-connector.ca-url"></a> CA Url
 
-Füllen Sie die erforderlichen Felder im ca3s-Webformular aus (Betreff, Organisation, SAN, ...). Wechseln Sie in das Verzeichnis, in dem der Schlüssel erstellt werden soll. In der Produktdokumentation Ihrer Anwendung finden Sie das entsprechende Verzeichnis.
+Provide a location of the CA or a webserver. For certificate import this field accepts a directory path.
 
-![Zertifikatsparameter](../../images/sslold3_de.png)
+#### <a id="ca-connector.default-ca"></a> Default CA
 
-Zertifikatsparameter
+Check this checkbox with the CA that is intended to provide certificate for ca3s. Only one CA can be selected as default.
 
-Überprüfen Sie anhand Ihrer Dokumentation, welche Art von "store" erwartet wird. Java-Anwendungen erwarten normalerweise einen PKCS12-Keystore. Apache-Webserver verarbeiten möglicherweise separate PEM-Dateien.
+#### <a id="ca-connector.active"></a> Active
 
-Mit Hilfe 'Werkzeugauswahl' wählen Sie zwischen den verschiedenen Werkzeuge aus:
+Activate or deactivate this connector.
 
-- Java 'keytool'
-  Für das Keytool von Java sind zwei Befehle erforderlich, um den Schlüssel und die CSR zu erstellen.
-- OpenSSL > 1.1.0
-  Diese aktuelle Version erstellt alle erforderlichen Dateien in einem Befehl.
-- OpenSSL
-  Die alten Versionen von OpenSSL erfordern eine Konfigurationsdatei und einen Shell-Befehl.
-- Windows 'certreq'
-  Für die Nutzung des 'certreq'-Tools ist eine Konfigurationsdatei und ein Kommandozeilenbefehl notwendig.
+#### CMP specific settings
 
-Kopieren Sie den generierten Wert aus dem Textfeld in Ihre Kommandozeile:
+##### <a id="ca-connector.selector"></a> Selector
 
-#### Linux
+Provide the identifier of the CMP endpoint. In the ejbca administration UI its called 'CMP Alias'.
+If a CMP connector does not use this term you may leave it blank.
 
-![Zertifikatsparameter](../../images/sslnew4.png)
+##### <a id="ca-connector.cmp.tls-client-id"></a> TLS client certificate
 
-Aufruf-Beispiel
+A CA may require a TLS client authentication to establish a connection with its CMP endpoint. Provide the certificate id of the client certificate. Leave this field if TLS client authentication is not required.
 
-#### Windows
+##### <a id="ca-connector.cmp.message-protection-by-passphrase"></a> Message protection by passphrase
 
-![Zertifikatsparameter](../../images/java4shell.png)
+A CA may require a passphrase or a certificate authentication to authorize requests at its CMP endpoint. By selecting this checkbox the passphrase mode is choosen.
 
-Aufruf-Beispiel
+#### <a id="ca-connector.cmp.message-protection-passphrase"></a> Message protection passphrase
 
-#### Kopieren
+If the target CA expects a passphrase to authorize incoming request at its CMP endpoint, this is the field to enter it. It will be stored in encrypted form in the ca3s database.
 
-Die Felder mit den generierten Kommandozeilen haben einen 'Copy'-Button. Alternativ kann der Text selektiert und kopiert werden.
+##### <a id="ca-connector.cmp.message-protection-certificate-id"></a> Message protection certificate id
 
-![Copy](../../images/java_3_5.png)
+If the target CA requires a certificate authentication at its CMP endpoint, this is the field to enter its id. Consult the documentation of the CA's CMP endpoint for details on the certificate creation or registration.
 
-Copy-Button
+##### <a id="ca-connector.cmp.issuer-name"></a> Issuer name
 
-#### <a id="pkcsxx.upload.creationTool.cn.as.san"></a> Common Name als SAN anfügen
+If the target CA requires an issuer name to be included in the CMP message, this is the filed to provide it. Consult the documentation of the CA's CMP endpoint for details regarding appropriate values.
 
-Für einige Anwendungsfälle (TLS Server) kann es sinnvoll sein, den Common Name zusätzlich als SAN anzugeben. Falls die aktuelle Pipeline die Nutzung von SANs erlaubt, ist diese Option verfügbar.
-Ist der Common Name bereits als SAN vorhanden, hat diese Option keine Auswirkung.
+##### <a id="ca-connector.cmp.multiple-messages"></a> Multiple messages
 
-#### <a id="pkcsxx.upload.machine.key.set"></a> Auswahl des Windows 'Machine Key Set' (bei certreq)
+CAs may offer the option the process multiple requests contained within a single CMP message. ca3s does not support multiple requests. Nevertheless the message structure differs and the checkbox must be sett according the CA's CMP expectations.
 
-Diese Option erlaubt die Auswahl des zu nutzenden Keystores. Bitte konsultieren Sie die Dokumentation Ihrer Anwendung, welcher Store-Typ zu verwenden ist.
-Falls aktiviert, wird durch diese Option der 'Machine Key Set' ausgewählt und der Nuzer, der das 'certreq'-Kommando ausführt, muss Administrator-Berechtigungen besitzen.
+##### <a id="ca-connector.cmp.implicit-confirm"></a> Implicit confirm
 
-#### Dateinamen und FriendlyName (bei certreq)
+CAs may require the 'implicit confirm' flag to be set to process a CMP request.
 
-Die in den Kommandozeilen erzeugte oder genutzte Dateien bestehen aus dem Common Name, dem aktuellen Datum und der Endung gemäss des Dateityps. So wird ein unbeabsichtigtes Überschreiben relevanter Dateien anderer Requests verhindert. Selbstverständlich können die Dateinamen gemäß der jeweiligen Anforderungen angepasst werden.
+##### <a id="ca-connector.cmp.message-content-type"></a> Message content type
 
-#### <a id="pkcsxx.upload.creationTool.cmdline"></a> Kommandozeilen-Beispiele
+CAs may require a specific message content type value provided as HTTP header with the CMP request. Consult the documentation of the CA's CMP endpoint whether this header is required and wht the appropriate values are.
 
-### Java keytool
+##### <a id="ca-connector.cmp.server-name-indication"></a> Server Name Indication
 
-Die generierte Java-Keytool-Befehlszeile besteht aus zwei Teilen:
+This entry field offers the option to provide a specific SNI value to support the routing to the correct CA instance. May only be required in complex network setups.
 
-Der erste Befehl generiert ein neues Schlüsselpaar mit der ausgewählten Schlüssellänge in einem PKCS12-Schlüsselspeicher (endet auf '.p12') mit dem Alias 'keyAlias'.
+##### <a id="ca-connector.cmp.disable-host-name-verifier"></a> Disable HostNameVerifier
 
-![](../../images/java4shell.png)
+This flag offers the option to disable the host name validation. This option disables a relevant security feature of TLS and allows Man-in-the-middle attacks. May only be required in complex network setups.
 
-Informationen zum erforderlichen Keystore-Dateinamen und zum erwarteten Alias finden Sie in Ihrer Anwendungsdokumentation. Stellen Sie sicher, dass vorhandene Dateien nicht überschrieben werden.
+##### <a id="ca-connector.cmp.ignore-response-message-verification"></a> Ignore Response Message Verification
 
-Der zweite Befehl erstellt den CSR (Certificate Signing Request).
-![](../../images/java5shell.png)
+Ignoring the validation of the response message integrity is a dangerous option! It maybe acceptable in test / dev environments.
 
-Der CSR liegt nun in der Dateiendung '.csr' vor.
-Wechseln Sie nun in der Auswahlbox 'Erzeugungsmodus' auf 'CSR verfügbar' und laden Sie diese Datei hoch, um sie von der Zertifizierungsstelle bearbeiten zu lassen.
+##### <a id="ca-connector.cmp.fill-empty-subject-with-san"></a> Fill Empty Subject with SAN
 
-#### openSSL Version (< 1.1.1)
+Some CAs may require a subject. But especially TLS request do not include a subject but SANs. This option fills the subject with the first SAN entry if the subject is empty.
 
-Die Information, welche Version von 'openSSL' auf Ihrem System installiert ist, lässt sich mit 'openssl version' schnell ermitteln.
+#### ADCS specific settings
 
-![](../../images/sslold version.png)
+##### <a id="ca-connector.template"></a> Template
 
-##### <a id="pkcsxx.upload.creationTool.req.conf"></a> OpenSSL Konfigurationsdatei
+Provide the name of the template the ADCS server should use. Check the list of available certificate templates in your certsrv UI.
 
-Öffnen Sie einen Texteditor (in diesem Beispiel 'vi') auf Ihrem System. Kopieren Sie den generierten Wert aus dem Textfeld in Ihren Editor. Speichern Sie die Datei in dem Verzeichnis, in dem der Schlüssel erstellt werden soll.
+##### <a id="ca-connector.passphrase"></a> Passphrase
 
-![](../../images/sslold4.5.png)
+The ADCS Proxy instance installed on your ADCS server uses this passphrase to authorize incoming requests. It is specific to the ADCS Proxy instance, not the template.
 
-#### OpenSSL Schlüssel- und CSR-Erzeugungesbefehl
+#### Importing connectors
 
-Kopieren Sie den erzeugten Befehl aus dem Formularfeld (mittels Copy-Button oder Strg-C) in die Kommandozeile (Strg-V oder rechte / mittlere Maustaste) und führen Sie ihn aus.
+The following connector import certificates created elsewhere into the ca3s database.
 
-Der CSR liegt nun in der Datei endend auf '.csr' vor.
-Wechseln Sie nun in der Auswahlbox 'Erzeugungsmodus' auf 'CSR verfügbar' und laden Sie diese Datei hoch, um sie von der Zertifizierungsstelle bearbeiten zu lassen.
+##### <a id="ca-connector.interval"></a> Interval
 
-#### openSSL Version (>= 1.1.1)
+Select a polling interval for certificate retrieval.
 
-Bei den neueren Versionen von 'openSSL' kann auf eine zusätzliche 'request.conf'-Datei verzichtet werden, ale relevanten Parameter werden als Parameter des openSSL-Aufrufs übergeben.
+#### Directory specific settings
 
-Kopieren Sie den erzeugten Befehl in ihre Kommandozeile und führen Sie sie aus.
-![](../../images/sslold5.png)
+##### <a id="ca-connector.trust-self-signed-certificates"></a> Trust self-signed certificates
 
-Der CSR liegt nun in der Datei endend auf '.csr' vor.
-Wechseln Sie nun in der Auswahlbox 'Erzeugungsmodus' auf 'CSR verfügbar' und laden Sie diese Datei hoch, um sie von der Zertifizierungsstelle bearbeiten zu lassen.
+All self-signed certificates imported by this connector will be marked as 'trusted'. This is a critical option. Use it for tightly controlled set of trust anchors.
 
-#### Windows 'certreq'
+#### ADCS certificate inventory
 
-Auf Windows-Systemen ist das Kommandozeilen-Tool 'certreq' vorhanden, mit dem einfach Zertifikatsanforderungen für den lokalen Rechner erzeugt werden können. Der private Schlüssel wird dabei im Windows-eignem Speicher abgelegt.
+##### <a id="ca-connector.polling-offset"></a> Polling Offset
 
-##### <a id="pkcsxx.upload.creationTool.req.inf"></a> certreq Konfigurationsdatei (requestconfig.inf)
+The certificate import job maintains a polling offset. It refers to the numeric identifier of the certificates created by the ADCS. On every import schedule all certificates with an internal id bigger than the current offset.
+Resetting the polling offset to zero forces a complete reimport of all issued certificates. This does not cause any harm to already known certificates.
 
-Die Konfigurationsdatei definiert neben den Zertifikatsparametern auch den 'Friendly Name' (aus Common Name und dem aktuellen Datum), unter dem der private Schlüssel im Windows-Store abgelegt wird. Dieser Name kann problemlos gemäß der Anforderungen des nutzenden Systems angepasst werden.
-Öffnen Sie einen Texteditor (z. B. 'Editor') auf Ihrem System. Kopieren Sie die erzeugte Konfiguration aus dem Textfeld in Ihren Editor. Speichern Sie die Datei in dem Verzeichnis, in dem das certreq-Kommando ausgeführt und die CSR-Datei erzeugt werden soll.
+### Administration of Pipelines
 
-![](../../images/editrequestconfig.inf.png)
+#### <a id="pipeline.name"></a> Pipeline Name
 
-##### certreq Schlüssel- und CSR-Erzeugungsbefehl
+Provide a descriptive name of this pipeline. It is recommended to provide relevant information what type of certificate will be processed by this pipeline.
 
-Kopieren Sie den erzeugten Befehl aus dem Formularfeld (mittels Copy-Button oder Strg-C) in die Kommandozeile (Strg-V oder rechte / mittlere Maustaste) und führen Sie ihn aus.
+#### <a id="pipeline.active"></a> Active
 
-Der CSR liegt nun in der Datei mit der Endung '.csr' vor. Wechseln Sie nun in der Auswahlbox 'Erzeugungsmodus' auf 'CSR verfügbar' und laden Sie diese Datei hoch, um sie von der Zertifizierungsstelle bearbeiten zu lassen.
+Activate or deactivate this pipeline.
 
-##### 'certreq -accept' Importieren des Zertifikats
+#### <a id="pipeline.approval-required"></a> Approval required
 
-Mit der Option '-accept' und dem Dateinamen des erzeugten Zertifikats wird das Zertifikat zum Schlüssel in den entsprechenden Windows-Store eingefügt und kann genutzt werden.
+Activate this checkbox if an approval required by an RA officer for issuing a certificate requested by this pipeline.
+An approval is quite common for web based requests, deactivate it only e.g. for testing environments, where an authorization is not required.
+On the other hand it is unusual to request an approval for auto-enrollment protocols like ACME and SCEP.
 
-### Zertifikats-Anforderung
+#### <a id="pipeline.issuesSecondFactorClientCert"></a> Pipeline producing client certificates
 
-Wurde ein CSR hochgeladen oder eine serverseitige Schlüsselerzeugung angefordert, so befindet sich Ihre Anfrage in der internen Prüfung, im Erfolgsfall mit anschließender Erzeugung des angeforderten Zertifikats. Dieser Prozess kann automatisiert erfolgen oder eine manuelle Freigabe erfordern.
-Entweder Sie werden sofort zum Zertifikats-Download weitergeleitet oder Sie werden durch eine eMail über die Zertifikatsaustellung informiert. Das Zertifikat wird in verschiedenen Formaten zum Download angeboten:
+Using the option 'client certificate' for second factor authentication requires a pipeline for producing the certificate.
+This option can be selected at one pipeline, only.
 
-Konsultieren Sie die Dokumentation der Anwendung, die das Zertifikat nutzen soll. Befolgen Sie die dort angegeben Empfehlungen bzgl. Zertifikats-Format und -Dateinamen.
-Ggf.muss das erzeugte Zertifikat auch in die oben per Kommandozeile erzeugte Container eingefügt werden.
+#### <a id="pipeline.type"></a> Request type
 
-#### <a id="ca3SApp.certificate.download.PKCS12"></a> PKCS12 Container
+Select a mode of certificate request. Depending on the request type the set of optional and required settings for the pipeline will vary. The different types are
 
-Falls Sie 'serverseitige Schlüsselerzeugung' ausgewählt haben, ist zusätzlich die Download-Option 'PKCS12-Container' vorhanden.
+- 'WEB' activates a web interface for the requestor to enter a request in different ways .
+- 'ACME' selects the ACME certificate enrollment protocol defined in [RFC 8555](https://datatracker.ietf.org/doc/html/rfc8555).
+- 'SCEP' selects the SCEP certificate enrollment protocol based on [RFC 8894](https://datatracker.ietf.org/doc/html/rfc8894). The protocol definition is a veteran of auto enrollment specification and many variants are implemented.
 
-Ein PKCS12 Container enthält sowohl Zertifikate als auch private Schlüssel. Um Ihr erzeugtes Zertifikat auszuwählen, müssen Sie hier im Eingabefeld eine Bezeichnung ('Alias') eingeben. Abhängig von Ihrer Anwendung können Sie die Bezeichnung frei wählen oder müssen einen vordefinierten Wert angeben. Mit dem Link rechts können Sie den PKCS12 Container herunterladen. Der Dateiname muss ggf. an Applikationsvorgaben angepasst werden. Um auf den privaten Schlüssel innerhalb des Containers zugreifen zu können, müssen Sie das Passwort angeben, das Sie bei der Zertifikats-Anforderungen festgelegt haben. Es gibt keine Möglichkeit, das Passwort wieder anzuzeigen. Sollten Sie es vergessen haben, rufen Sie das aktuelle Zertifikat zurück und fordern Sie ein Neues an.
+#### <a id="pipeline.url-part"></a> URL part
 
-#### <a id="ca3SApp.certificate.download.PKIX"></a> Download eines Zertifikats im Binärformat
+To support a specific protocol in different variants ( defined by pipeline) ca3s offers different endpoints. This input field offers the suffix for the protocols URLS:
 
-Download des angeforderten Zertifikats im Binärformat (aka PKIX / DER form). Schauen Sie in die Dokumentation ihrer Anwendung, ob dieses Format unterstützt wird.
+- ACME: https://{host}:{port}/acme/{url-part}/directory
+- SCEP: http://{host}:{port}/scep/{url-part}
+- WEB: The web interface does not use this field. All web-style pipelines are accessible thru the start page.
 
-#### <a id="ca3SApp.certificate.download.PEM"></a> Download eines Zertifikats im PEM-Format
+#### <a id="pipeline.description"></a> Pipeline Description
 
-Download des erzeugten Zertifikats im Textformat (PEM). Schauen Sie in die Dokumentation ihrer Anwendung, ob dieses Format unterstützt wird.
+This multiline input field offers a way to provide the web user with detailed information about this pipeline. It will be shown on the certificate request page.
+For auto enrollment pipelines this field is a documentation for the administrator.
 
-#### <a id="ca3SApp.certificate.download.revocationReason"></a> Rückrufgründe
+#### <a id="pipeline.list-order"></a> List order
 
-Falls ein Zertifikat zurückgerufen werden muss, wählen Sie hier den passenden Grund.
+If there is a long list of 'WEB' typed pipelines, for users the retrieval of the appropriate entry maybe be tricky. This numeric field allows to change the order of the web UI selection list. The ordering is ascending, a low number means a top position.
 
-#### <a id="ca3SApp.certificate.comment"></a> Rückrufkommentar
+#### <a id="pipeline.ca-connector"></a> CA Connector
 
-Geben Sie hier zusätzlich Informationen zum Zertifikatsrückruf an. Das kann nützlich für den RA Officer sein und / oder bei einer späteren Analyse helfen.
+This listbox allows the selection of the appropriate CA for request processing.
 
-### ACME Clients
+#### <a id="pipeline.key.unique"></a> Key requirements
 
-#### certbot
+There are different options for key reuse:
 
-CertBot ist ein wichtiger -lient, deshalb wird ca3s mit certbot getestet. Für einen schnellen Test mi certBot reichen die beiden folgenden Zeilen:
+- Reuse key: Already used keys can be reused for new requests without restrictions
+- Domain reuse: Already used keys can be used in requests for the same domain
+- Key must be unique: No reuse of keys under any circumstances
 
-> sudo certbot certonly -n -v --debug --agree-tos --server https://<acme-server:port>/acme/acmeTest/directory --standalone --force-renewal --email <your@email.com> --preferred-challenges http --webroot-path test -d <test-domain>
-> sudo certbot revoke -n -v --debug --server https://<acme-server:port>/acme/acmeTest/directory --cert-name <test-domain>
+#### <a id="pipeline.dn-cardinality"></a> DN part's cardinalities
 
-Der erste Befehl fordert ein Zertifikat vom eignen ACME-Server <acme-server:port> für die Adresse <test-domain> an. Dabei wird die HTTP01-Challenge genutzt, für die certbot einen eignen WebServer startet. Der zweite Befehl ruft das eben ausgetsellte Zertifikat wieder zurück.
+This listbox allows to define the cardinality of the parts of the distinguished name:
 
-#### acme.sh
+- NOT_ALLOWED: This element MUST not appear in the request.
+- ZERO_OR_ONE: This element may be present once or not all.
+- ONE_OR_SAN: This element is specific for the 'common name' element. A common name or at least one SAN element must present in the request.
+- ONE: This element MUST appear exactly once in the request.
+- ZERO_OR_MANY: This element may appear in any number, including none.
+- ONE_OR_MANY: This element may appear at least once or more.
 
-Für seinen minimalistischen Ansatz bewundert wird acme.sh, mit dem man sogar die ALPN-Challenge testen kann:
+#### <a id="pipeline.template"></a> DN part's template
 
-> acme.sh --issue -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
+Define a preselected value for this part of the distinguished name. This may be a constant text value or values of the requesting user in moustache notation:
 
-Mit diesem Befehl fordert acme.sh ein Zertifikat für die Adresse <test-domain> an. Hierbei wird die ALPN-Challenge genutzt, die zwar nicht von letsEncrypt angeboten wird, aber den großen Vorteil hat, dass zum HTTPS-Port nicht zusätzlich noch ein HTTP-Port erreichbar sein muss. Z.B. für Cloud-Anwendungen recht praktisch!
-Damit in diesem Beispiel der User acme.sh kein previlegierter Nutzer sein muss, nutzen wir hier den Port 8443 für HTTPS.
+- {{user.firstName}} : the first name of the requestor
+- {{user.lastName}} : the last name of the requestor
+- {{user.login}} : the user identification of the requestor
+- {{user.email}} : the email address of the requestor
 
-> acme.sh --renew --force -d <test-domain> --standalone --alpn --tlsport 8443 --server https://<acme-server:port>/acme/acmeTest/directory
+The checkbox decides whether the field is presented to the requestor in read-only mode.
 
-Um einen Test beliebig häufig laufen zu lassen, biten sich die beiden optionen '--renew' und '--force' an.
+#### <a id="pipeline.regex"></a> DN part's regular expression
 
-### <a id="ca3SApp.badkeys.integration"></a> Badkeys Integration
+Define a regular expression that the value of this part of the distinguished name must match.
 
-Mit dem [badkeys](https://badkeys.info/) Werkzeug können Schlüssel gegen bekannte Schwächen geprüft werden. Lediglich badkeys auf dem gleichen Server wie ca3s installieren und den Installationspfad in ca3s-Konfiguration angeben.
+#### <a id="pipeline.san.restrictions"></a> SAN restrictions
+
+Define restriction on the subject alternative names (SAN) of the request analog to the distinguished name.
+
+#### <a id="pipeline.ara.restrictions"></a> Additional request attribute
+
+Define additional attribute required for processing of this pipeline. The aspects defined here are:
+
+- Name: Define a name identifying this information chunk.
+- Template: A preselected value.
+- Regular Expression: A regular expression that this attribute name must match.
+- Type: Select the type of content. Values of the type 'EMAIL_ADDRESS' will be used as targets for notification email delivery.
+- Attribute Required: Is this attribute required or just informative.
+- Attribute Comment: A hint for the user to provide the expected value.
+
+#### <a id="pipeline.ara.template"></a> Additional request attribute
+
+Define a preselected value for this part of the additional request attributes. This may be a constant text value or values of the requesting user in moustache notation:
+
+- {{user.firstName}} : the first name of the requestor
+- {{user.lastName}} : the last name of the requestor
+- {{user.login}} : the user identification of the requestor
+- {{user.email}} : the email address of the requestor
+
+The checkbox decides whether the field is presented to the requestor in read-only mode.
+
+#### <a id="pipeline.tosAgreed"></a> Terms of Service agreed
+
+Require the user to agree to the terms of service. If selected, provide a link to the service document.
+This option is available for ACME and Web protocol, only.
+
+#### <a id="pipeline.pending-on-failure"></a> Pending on failure
+
+This checkbox allows the option for auto enrollment requests to enter the 'PENDING' state instead of 'FAILED'. This may allow the RA officer to confirm the request manually.
+
+#### <a id="pipeline.ip-as-subject"></a> Allow an IP address as subject
+
+This checkbox allows the request's 'common name' to be an IP address.
+
+#### <a id="pipeline.ip-as-san"></a> Allow an IP address as Subject Alternative Name (SAN)
+
+This checkbox allows the request's SANs to include IP address.
+
+#### <a id="pipeline.csr-usage"></a> Key usages (server side creation, only)
+
+This listbox allows the selection of key usages and extended key usages for certificate requests. It applies for the 'serverside key creation', only. It does not apply to incoming CSRs and does not apply tonthe rules the CA applies to the requests.
+
+#### <a id="pipeline.domain-ra"></a> Domain RA
+
+This listbox allows the selection of users to assign the role of a domain specific RA officer. The user can act as an RA officer for requests processed by this pipeline. The assignements are useful for web type pipelines, especially.
+
+#### <a id="pipeline.notify-ra-on-pending-request"></a> Notify RA officers on pending request
+
+This checkbox enables an email notification to be sent for incoming requests that require re officer interaction. It may be useful for time critical requests but may cause a flooding of the ra officer's inbox.
+
+#### <a id="pipeline.additional-email-recipients"></a> Define additional email recipients
+
+This input field allows the definition of additional email recipients that will be notified on certificate creation or revocation by this pipeline. Multiple values may be separated by commas.
+
+#### <a id="pipeline.process.create"></a> BPMN process 'Request Authorization'
+
+This listbox allows the selection of a BPMN process that will be invoked for certificate creation by this pipeline.
+
+#### <a id="pipeline.process.revoke"></a> BPMN process 'Revoke'
+
+This listbox allows the selection of a BPMN process that will be invoked for certificate revocation by this pipeline.
+
+#### <a id="pipeline.process.create"></a> BPMN process 'Notify'
+
+This listbox allows the selection of a BPMN process that will be invoked after successful certificate creation by this pipeline. As the certificate is already created this BPMN process has no option to veto on it. This is useful to forward the certificate ( and / or certificate information) to e.g. resource management systems.
+The process is also invoked on revocations.
+
+#### <a id="pipeline.process.notify"></a> BPMN process 'Revoke'
+
+This listbox allows the selection of a BPMN process that will be invoked for certificate state change (creation or revocation) by this pipeline.
+
+#### <a id="pipeline.roles"></a> Roles list
+
+This multi-selection listbox assigns this pipeline to different roles. If no role is selected, no user is able to use this pipeline.
+
+#### <a id="pipeline.tenants"></a> Tenants list
+
+This multi-selection listbox assigns this pipeline to different tenants. If no tenant is selected, no user is able to use this pipeline.
+
+#### SCEP specific settings
+
+##### <a id="pipeline.scep.secret"></a> SCEP secret
+
+This password entry field allows the definition of the client secret required for an initial enrollment.
+
+##### <a id="pipeline.scep.secret-valid-to"></a> SCEP secret 'valid to'
+
+This date entry field defines the end of the validity period of the SCEP secret.
+
+##### <a id="pipeline.scep.recipient-dn"></a> SCEP's recipient certificate DN
+
+Current SCEP implementations doe NOT use the CA certificate for transport encryption but a dedicated 'recipient' certificate.
+This entry field allows the definition of the distinguished name of the recipient certificate.
+
+##### <a id="pipeline.scep.ca-connector-recipient"></a> Connector for issuing the recipient certificate
+
+This listbox allows the selection of the appropriate CA connector for issuing the recipient certificate.This must not be identical to the connector issuing the certificates requested by the SCEP client.
+
+#### ACME specific settings
+
+##### <a id="pipeline.acme.allow-challenge-http01"></a> Allow HTTP-01 Challenge
+
+This checkbox allows the use of the most common HTTP-01 challenge. The client is required to allow incoming validation requests to port 80 and the path '/.wellknown/acme-challenge/\*'. Make sure that the usual 'redirect to HTTPS'-rule does not apply to this path.
+The details of this challenge are available at [RFC 8555-8.3](https://datatracker.ietf.org/doc/html/rfc8555#section-8.3).
+
+##### <a id="pipeline.acme.allow-challenge-alpn"></a> Allow ALPN Challenge
+
+This checkbox allows the use of the ALPN challenge. The distinct advantage of this challenge is that it does not required an additional port for incoming validation requests. But it requires to present a specifically crafted certificate as the response to the challenge. This isn't a problem on the initial setup but may lead to irritations for users as it may cause security warnings while performing the renewal process. The details of this challenge are available at [RFC 8737](https://www.rfc-editor.org/rfc/rfc8737.html).
+
+##### <a id="pipeline.acme.allow-challenge-dns"></a> Allow DNS-01 Challenge
+
+This checkbox allows the use of the DNS challenge. This challenge type has the outstanding feature of validating wildcard certificate requests. In some environments in may be difficult to grant selective DNS update rights to the requesting client.
+The client has no requirements to open any ports but requires write access to the relevant DNS server.
+The details of this challenge are available at [RFC 8555-8.4](https://datatracker.ietf.org/doc/html/rfc8555#section-8.4) .
+
+##### <a id="pipeline.acme.allow-wildcards"></a> Allow wildcards
+
+This checkbox allows requesting wildcard certificate. It can only be used with the DNS Challenge.
+The major use case of this checkbox is to prohibit wildcards when DNS Challenge is allowed.
+
+##### <a id="pipeline.acme.accountEmailRegex"></a> Check Account Email Address
+
+Define regular expressions to accept or reject account email addresses. This is a simple way to validate the account's contact email address. A more sophisticated approach is to use an external account binding.
+
+##### <a id="pipeline.acme.notify-contacts-on-error"></a> Notify Account Contacts On Errors
+
+This checkbox enables sending problem notifications to the related account's email addresses.
+
+##### <a id="pipeline.acme.eabRequired"></a> External Account Binding Required
+
+To ensure a higher level of security the ACME protocol offers the option of 'External Account Binding' (EAB). This requires the client to prove its identity by using a pre-shared key. The key is specific to the account and must be obtained out-of-band.
+An existing ca3s account may retrieve the EAB information from its credentials page. For bindings to other accounts a specific BPMN process is required.
+
+##### <a id="pipeline.acme.check-caa"></a> Check CAA record
+
+This checkbox allows requesting the check the 'DNS Certification Authority Authorization (CAA)' record for allowed CAs.
+If this CA is not included in the CAA record the request will be rejected.
+The details of this record are available at [RFC 6488](https://datatracker.ietf.org/doc/html/rfc6844) .
+
+##### <a id="pipeline.acme.ca-name-caa"></a> CAA record name
+
+This entry field defines the ca name that MUST be included in the CAA if the 'Check CAA record' flag is active.
+
+##### <a id="pipeline.acme.request-proxies"></a> ACME request proxies
+
+This listbox allows the selection of ACME request proxies that should be serving this pipeline. Use Ctrl-Click to select multiple entries.
+
+### ACME Request Proxy settings
+
+ACME was designed with the internet in mind, where every resource is directly accessible. In an intranet this is usually not the case as there can be several more or less strictly separated network segments.
+Nevertheless, the use of ACME offers big advantages. With ACME enabled, ca3s can take advantage of 'request proxies'. These are separate units that reside in network segments and enable the required communication with ca3s to provide the ACME protocol. The request proxy forwards the ACME calls to ca3s (like a usual HTTP would do) and signs the requests. But the important task is the resolution of the challenges. The network segmentation prohibits these calls so the request proxy polls for pending challenges and resolves in the intended target network.
+
+The ACME request proxy can be downloaded as an executable jar from [maven central](https://mvnrepository.com/artifact/de.trustable.ca3s.acmeproxy/ca-3-s-acme-proxy), the source code is available at [github](https://github.com/kuehne-trustable-de/acmeProxy) .
+
+#### <a id="requestProxyConfig.id"></a> Request proxy ID
+
+This is a unique id serving as an identifier for this request proxy. It is required in the configuration of the request proxy to identify it.
+
+#### <a id="requestProxyConfig.name"></a> Request proxy name
+
+Provide a descriptive name of this proxy. It is recommended to provide relevant information about its location / network segment it is supposed to support. These names occur in the pipeline configuration form, see [Pipeline section](#pipeline.acme.request-proxies) .
+
+#### <a id="requestProxyConfig.proxy-url"></a> Request proxy url
+
+This entry field defines the URL where ca3s is able to access the request proxy.
+
+#### <a id="requestProxyConfig.active"></a> Active
+
+Activate or deactivate this request proxy.
+
+#### <a id="requestProxyConfig.secret"></a> Secret passphrase
+
+This password field requires the secret passphrase. This is used by the request proxy to authenticate itself and to sign the transferred data.
+
+### BPMN Process Info
+
+The certificate creation and management task needs integration into the existing environment, either to check with information sources to validate a request or e.g. to forward certificate information to management systems.
+ca3s is designed to support the major CA systems. Nevertheless, there may be the need to adapt to a CA that does not support CMP (or the license for such an option is too expensive).
+In this the BPMN process may serve as a adaptor to SOAP or REST endpoints. Alternatively, it may invoke a Java library or simply execute a command line program.
+
+Internally ca3s uses the [camunda engine](https://docs.camunda.io/) and we recommend the [camunda modeler](https://camunda.com/de/download/modeler/).
+
+#### <a id="bpmn.name"></a> Secret passphrase
+
+Provide a descriptive name of this process. It is recommended to provide relevant information about its performed task and its prerequisites. These names occur in the pipeline configuration form, see [Pipeline section](#pipeline.process.create) and the two following selections.
+
+#### <a id="bpmn.type"></a> BPMN process type
+
+The internal workflow expect several occasions where BPN process can be inserted. The different types are:
+
+- Certificate notification: A process called after a certificate is issued or revoked.
+- Certificate creation: A process performing the certificate creation.
+- Certificate revocation: A process performing the certificate revocation.
+- Request authorization: A validation step in the ACME protocol to ensure only valid accounts will be registered.
+
+Choose the appropriate type for your BPMN process. The types ensures that the registered BPMN processes can only be used at places they are intended for.
+
+#### <a id="bpmn.upload"></a> Upload of a BPMN process file
+
+Select a BPMN process file to be uploaded into the ca3s database.
+
+#### <a id="bpmn.checkBpmn"></a> Check a BPMN process
+
+This button starts the test run of this BPMN process. Depending on the process type, a certificate or csr id must be provided in the input fields. Especially for the revocation processes make your you are in a test environment or select non-productive certificates!
+
+### EMail Notifications
+
+Despite the success of automatic certificate management protocols (e.g. ACME) the notifications emails regarding the certificate lifecycle are still an important issue.
+Different lifecycle events may cause a notifications:
+
+| event                                    | requestor | additional email addresses in the request | ra officers | additional email addresses in the pipeline | email template                    |
+| ---------------------------------------- | --------- | ----------------------------------------- | ----------- | ------------------------------------------ | --------------------------------- |
+| new request                              | X         | X                                         | X           | X                                          | newPendingRequestEmail.html       |
+| accepted request, new certificate issued | X         | X                                         |             | X                                          | acceptedRequestEmail.html         |
+| rejected request, no certificate issued  | X         | X                                         |             | X                                          | rejectedRequestEmail.html         |
+| ra officer revoked certificate           | X         | X                                         |             | X                                          | revokedCertificateEmail.html      |
+| user revoked certificate                 | X         | X                                         |             | X                                          | userRevokedCertificateEmail.html  |
+| certificate issued                       | X         | X                                         |             | X                                          | userRevokedCertificateEmail.html  |
+| certificate expires soon                 | X         | X                                         |             | X                                          | expiringUserCertificateEmail.html |
