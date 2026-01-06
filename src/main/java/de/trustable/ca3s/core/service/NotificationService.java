@@ -411,7 +411,7 @@ public class NotificationService {
 
         Instant now = Instant.now();
 
-        int maxExpiry = notificationDayList.stream().max(Integer::compareTo).orElse(40);
+        int maxExpiry = notificationDayList.stream().max(Integer::compareTo).orElse(40) + 1;
         Instant beforeEE = now.plus(maxExpiry, ChronoUnit.DAYS);
         List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE);
 
@@ -451,7 +451,10 @@ public class NotificationService {
             Map<User, List<Certificate>> certListGroupedByUser = new HashMap<>();
             for( Certificate cert: expiringEECertList){
                 // check for relevant expiry time slots
+                int diffSeconds = (int)ChronoUnit.SECONDS.between(now, cert.getValidTo());
                 int diffDays = (int)ChronoUnit.DAYS.between(now, cert.getValidTo());
+                LOG.info("certificate {} expiring in {} / {} days.", cert.getId(), ((float)diffSeconds)/(24*3600), diffDays);
+
                 if( notificationDayList.contains(diffDays) || forceSendAnyday){
                     LOG.debug("#{} days until expiry are in the list of notification days.", diffDays);
                 }else{

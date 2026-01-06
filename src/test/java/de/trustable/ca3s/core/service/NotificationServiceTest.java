@@ -48,4 +48,17 @@ class NotificationServiceTest {
         assertEquals(2, testList.size());
 
     }
+
+    @Test
+    void getMaxListEntry() {
+        List<Integer> notificationDayList = new ArrayList<>();
+        notificationDayList.add(42);
+        notificationDayList.add(28);
+        notificationDayList.add(14);
+        notificationDayList.add(7);
+        int maxExpiry = notificationDayList.stream().max(Integer::compareTo).orElse(40);
+
+
+        assertEquals(42, maxExpiry);
+    }
 }

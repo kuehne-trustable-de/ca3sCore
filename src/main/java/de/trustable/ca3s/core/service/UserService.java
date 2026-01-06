@@ -350,6 +350,7 @@ public class UserService {
 
                 this.clearUserCaches(user);
                 log.debug("Changed Information for User: {}", user);
+                userRepository.save(user);
                 return user;
             })
             .map(UserDTO::new);
