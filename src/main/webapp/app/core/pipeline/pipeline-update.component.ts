@@ -215,7 +215,6 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     this.initRelationships();
   }
 
-
   public readableUserName(user: IUser): string {
     let result = user.login;
     if (user.firstName && user.firstName.length > 0 && user.lastName && user.lastName.length > 0) {
@@ -283,12 +282,10 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   }
 
   public previousState(): void {
-    //          this.$router.go(-1);
     this.$router.push('/confPipeline');
   }
 
   public initRelationships(): void {
-
     window.console.info('++++++++++++++++++ in initRelationships ');
     const self = this;
 

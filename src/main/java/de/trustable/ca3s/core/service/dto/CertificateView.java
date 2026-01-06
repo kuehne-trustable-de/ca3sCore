@@ -95,9 +95,15 @@ public class CertificateView implements Serializable {
     private String keyLength;
     @CsvBindByName
     private String keyAlgorithm;
+    @CsvBindByName
+    private String curveName;
 
+    @CsvBindByName
+    private String altKeyLength;
     @CsvIgnore
     private String altKeyAlgorithm;
+    @CsvBindByName
+    private String altCurveName;
 
     @CsvIgnore
     private String signingAlgorithm;
@@ -274,9 +280,12 @@ public class CertificateView implements Serializable {
     	this.sans = cert.getSans();
         this.issuer = cert.getIssuer();
         this.type = cert.getType();
+
    		this.keyLength = "" + cert.getKeyLength();
    		this.keyAlgorithm = cert.getKeyAlgorithm();
-		this.signingAlgorithm = cert.getSigningAlgorithm();
+        this.curveName = cert.getCurveName();
+
+        this.signingAlgorithm = cert.getSigningAlgorithm();
 		this.paddingAlgorithm = cert.getPaddingAlgorithm();
 		this.hashAlgorithm = cert.getHashingAlgorithm();
     	this.description = cert.getDescription();
@@ -651,6 +660,30 @@ public class CertificateView implements Serializable {
 
     public void setAltKeyAlgorithm(String altKeyAlgorithm) {
         this.altKeyAlgorithm = altKeyAlgorithm;
+    }
+
+    public String getCurveName() {
+        return curveName;
+    }
+
+    public void setCurveName(String curveName) {
+        this.curveName = curveName;
+    }
+
+    public String getAltKeyLength() {
+        return altKeyLength;
+    }
+
+    public void setAltKeyLength(String altKeyLength) {
+        this.altKeyLength = altKeyLength;
+    }
+
+    public String getAltCurveName() {
+        return altCurveName;
+    }
+
+    public void setAltCurveName(String altCurveName) {
+        this.altCurveName = altCurveName;
     }
 
     public Boolean getSelfsigned() {

@@ -20,6 +20,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.security.auth.x500.X500Principal;
@@ -207,16 +208,6 @@ public class WebTestBase extends LocomotiveBase {
         return Base64.getEncoder().encodeToString(bytes).replace("+", "A").replace("=", "B").replace("/", "C");
     }
 
-    protected static void dropMessagesFromInbox(jakarta.mail.Folder inbox) throws MessagingException, jakarta.mail.MessagingException {
-        int msgCount = inbox.getMessageCount();
-        System.out.println("inbox contains " + msgCount + " messages.");
-        for( int i = 1 ; i <= msgCount; i++) {
-            System.out.println("deleting message ...");
-            inbox.getMessage(i).setFlag(jakarta.mail.Flags.Flag.DELETED, true);
-        }
-        System.out.println("inbox contains " + inbox.getMessageCount() + " messages after delete.");
-    }
-
     protected static void dropMessagesFromInbox(Folder inbox) throws MessagingException {
         int msgCount = inbox.getMessageCount();
         System.out.println("inbox contains " + msgCount + " messages.");
@@ -227,11 +218,11 @@ public class WebTestBase extends LocomotiveBase {
         System.out.println("inbox contains " + inbox.getMessageCount() + " messages after delete.");
     }
 
-    protected static void waitForNewMessage(jakarta.mail.Folder inbox, int nMsgCurrent) throws MessagingException, jakarta.mail.MessagingException {
+    protected static void waitForNewMessage(Folder inbox, int nMsgCurrent) throws MessagingException{
 
         waitForNewMessage(inbox, nMsgCurrent, 60);
     }
-    protected static void waitForNewMessage(jakarta.mail.Folder inbox, int nMsgCurrent, int maxWaitSec) throws MessagingException, jakarta.mail.MessagingException {
+    protected static void waitForNewMessage(Folder inbox, int nMsgCurrent, int maxWaitSec) throws MessagingException{
 
         int waitCounter = 0;
         while( inbox.getMessageCount() == nMsgCurrent) {
@@ -248,26 +239,6 @@ public class WebTestBase extends LocomotiveBase {
         }
     }
 
-    protected static void waitForNewMessage(Folder inbox, int nMsgCurrent) throws MessagingException {
-
-        waitForNewMessage(inbox, nMsgCurrent, 60);
-    }
-    protected static void waitForNewMessage(Folder inbox, int nMsgCurrent, int maxWaitSec) throws MessagingException {
-
-        int waitCounter = 0;
-        while( inbox.getMessageCount() == nMsgCurrent) {
-            System.out.println( "#" + inbox.getMessageCount() + " messages present, waiting for new message ...");
-            try {
-                Thread.sleep(1000); // sleep for 1 second.
-            } catch (Exception x) {
-                fail("Failed due to an exception during Thread.sleep!");
-                x.printStackTrace();
-            }
-            if( waitCounter ++ > maxWaitSec){
-                throw new MessagingException("no message received");
-            }
-        }
-    }
 
     private DocumentBuilderFactory newSecureDocumentBuilderFactory() {
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
