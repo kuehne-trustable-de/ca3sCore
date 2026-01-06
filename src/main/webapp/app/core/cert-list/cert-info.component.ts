@@ -227,7 +227,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
 
   public previousState() {
-    this.$router.go(-1);
+    this.$router.push('/cert-list');
   }
 
   public get roles(): string {

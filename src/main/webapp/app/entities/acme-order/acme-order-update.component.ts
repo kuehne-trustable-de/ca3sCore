@@ -29,22 +29,22 @@ const validations: any = {
   acmeOrder: {
     orderId: {
       required,
-      numeric
+      numeric,
     },
     status: {
-      required
+      required,
     },
     expires: {},
     notBefore: {},
     notAfter: {},
     error: {},
     finalizeUrl: {},
-    certificateUrl: {}
-  }
+    certificateUrl: {},
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class AcmeOrderUpdate extends Vue {
   @Inject('alertService') private alertService: () => AlertService;
@@ -139,7 +139,7 @@ export default class AcmeOrderUpdate extends Vue {
   }
 
   public previousState(): void {
-    this.$router.go(-1);
+    this.$router.push('/acme-order-list');
   }
 
   public initRelationships(): void {

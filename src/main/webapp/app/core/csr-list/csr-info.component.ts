@@ -58,7 +58,7 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
   }
 
   public previousState() {
-    this.$router.go(-1);
+    this.$router.push('/csr-list');
   }
 
   public mounted(): void {

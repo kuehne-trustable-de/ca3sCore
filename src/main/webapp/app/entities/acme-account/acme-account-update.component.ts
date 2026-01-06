@@ -19,26 +19,26 @@ const validations: any = {
   aCMEAccount: {
     accountId: {
       required,
-      numeric
+      numeric,
     },
     realm: {
-      required
+      required,
     },
     status: {},
     termsOfServiceAgreed: {
-      required
+      required,
     },
     publicKeyHash: {
-      required
+      required,
     },
     publicKey: {
-      required
-    }
-  }
+      required,
+    },
+  },
 };
 
 @Component({
-  validations
+  validations,
 })
 export default class AcmeAccountUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
@@ -96,7 +96,7 @@ export default class AcmeAccountUpdate extends mixins(JhiDataUtils) {
   }
 
   public previousState(): void {
-    this.$router.go(-1);
+    this.$router.push('/acme-account-list');
   }
 
   public initRelationships(): void {

@@ -78,7 +78,7 @@ export default class RequestProxyConfigUpdate extends Vue {
   }
 
   public previousState(): void {
-    this.$router.go(-1);
+    this.$router.push('/request-proxy-config');
   }
 
   public initRelationships(): void {}

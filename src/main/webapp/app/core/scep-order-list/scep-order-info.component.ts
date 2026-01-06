@@ -15,8 +15,8 @@ import { IScepOrderView } from '@/shared/model/transfer-object.model';
   components: {
     Fragment,
     CopyClipboardButton,
-    HelpTag
-  }
+    HelpTag,
+  },
 })
 export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
@@ -32,7 +32,7 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
   }
 
   public previousState() {
-    this.$router.go(-1);
+    this.$router.push('/scep-order-list');
   }
 
   public mounted(): void {
@@ -80,8 +80,8 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
     axios({
       method: 'get',
       url: 'api/scepOrderViews/' + encodeURIComponent(orderId),
-      responseType: 'stream'
-    }).then(function(response) {
+      responseType: 'stream',
+    }).then(function (response) {
       self.scepOrderView = response.data;
       window.console.info('scepOrderView :' + self.scepOrderView);
     });

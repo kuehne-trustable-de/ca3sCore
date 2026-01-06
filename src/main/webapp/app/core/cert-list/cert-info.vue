@@ -90,16 +90,19 @@
                         </dt>
                         <dd>
                             <span>{{certificateView.keyAlgorithm}}</span>
+                            <span v-if="certificateView.curveName && certificateView.curveName.length > 0">{{certificateView.curveName}}</span>
                             <span v-if="certificateView.keyLength && certificateView.keyLength.length > 0 && certificateView.keyLength !== '-1'"> / {{certificateView.keyLength}} bits</span>
-                            <span v-if="certificateView.altKeyAlgorithm"> alt: {{certificateView.altKeyAlgorithm}}</span>
                         </dd>
 
-                        <dt v-if="certificateView.curveName && certificateView.curveName.length > 0">
-                            <span v-text="$t('ca3SApp.certificate.curveName')"></span>
+                        <dt v-if="certificateView.altKeyAlgorithm">
+                            <span v-text="$t('ca3SApp.certificate.altKeyDetails')"></span>
                         </dt>
-                        <dd v-if="certificateView.curveName && certificateView.curveName.length > 0">
-                            <span>{{certificateView.curveName}}</span>
+                        <dd v-if="certificateView.altKeyAlgorithm">
+                            <span>{{certificateView.altKeyAlgorithm}}</span>
+                            <span v-if="certificateView.altCurveName && certificateView.altCurveName.length > 0">{{certificateView.altCurveName}}</span>
+                            <span v-if="certificateView.altKeyLength && certificateView.altKeyLength.length > 0 && certificateView.altKeyLength !== '-1'"> / {{certificateView.keyLength}} bits</span>
                         </dd>
+
                         <dt>
                             <span v-text="$t('ca3SApp.certificate.signingAlgorithm')"></span>
                         </dt>
@@ -185,8 +188,8 @@
                         </dt>
                         <dd v-if="certificateView.requestedBy">
 
-                            <span v-if="(certificateView.firstName || certificateView.lastName) && certificateView.email"><a :href="'mailto:' + certificateView.email">{{$t('ca3SApp.cSR.requestor.details', {login: certificateView.login, fistName: certificateView.firstName, lastName: certificateView.lastName})}}</a></span>
-                            <span v-if="(certificateView.firstName || certificateView.lastName) && !certificateView.email">{{$t('ca3SApp.cSR.requestor.details', {login: certificateView.login, fistName: certificateView.firstName, lastName: certificateView.lastName})}}</span>
+                            <span v-if="(certificateView.firstName || certificateView.lastName) && certificateView.email"><a :href="'mailto:' + certificateView.email">{{$t('ca3SApp.cSR.requestor.details', {fistName: certificateView.firstName, lastName: certificateView.lastName})}}</a></span>
+                            <span v-if="(certificateView.firstName || certificateView.lastName) && !certificateView.email">{{$t('ca3SApp.cSR.requestor.details', {fistName: certificateView.firstName, lastName: certificateView.lastName})}}</span>
                             <span v-if="certificateView.tenantName">{{$t('ca3SApp.cSR.requestor.tenant', {tenant: certificateView.tenantName})}}</span>
 
                             <span>{{certificateView.requestedBy}}</span>

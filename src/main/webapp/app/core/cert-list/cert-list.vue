@@ -54,7 +54,7 @@
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" :style="getSubjectStyle(row.ca, row.selfsigned, row.revoked, row.validTo)">{{ row.subject }}</td>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.issuer }}</td>
 							<!--td><router-link :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ row.type }}</router-link></td-->
-							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.keyLength }}</td>
+							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ row.keyAlgorithm }} {{ row.curveName }} {{ row.keyLength }}</td>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{(row.serialHex.length > 12) ? row.serialHex.substring(0, 6).concat('...', row.serialHex.substring(row.serialHex.length - 4, row.serialHex.length )) : row.serialHex}}</td>
 							<td @click="$router.push({name: 'CertInfo', params: {certificateId: row.id}})" >{{ toLocalDate(row.validFrom)}}</td>
 							<td ><router-link :style="getValidToStyle(row.validFrom, row.validTo, row.revoked)" :to="{name: 'CertInfo', params: {certificateId: row.id}}" >{{ toLocalDate(row.validTo) }}</router-link></td>

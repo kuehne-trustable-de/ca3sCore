@@ -47,7 +47,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   };
 
   public previousState() {
-    this.$router.go(-1);
+    this.$router.push('/bpmn-list');
   }
 
   public mounted(): void {

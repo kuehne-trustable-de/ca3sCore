@@ -355,7 +355,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
         { label: this.$t('type'), field: 'type', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         //        { label: this.$t('ca'), field: 'ca', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
         //        { label: this.$t('selfsigned'), field: 'selfSigned', headerClass: 'hiddenColumn', class: 'hiddenColumn' },
-        { label: this.$t('length'), field: 'keyLength', align: 'right' },
+        { label: this.$t('keyInfo'), field: 'keyLength', align: 'right' },
         {
           label: this.$t('serial'),
           field: 'serialHex',
