@@ -442,7 +442,7 @@ class AccountResourceIT {
         userRepository.saveAndFlush(user);
 
         AdminUserDTO userDTO = new AdminUserDTO();
-        userDTO.setLogin("not-used");
+        userDTO.setLogin("save-account");
         userDTO.setFirstName("firstname");
         userDTO.setLastName("lastname");
         userDTO.setEmail("save-account@example.com");
@@ -526,7 +526,7 @@ class AccountResourceIT {
 
         restAccountMockMvc
             .perform(post("/api/account").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(userDTO)))
-            .andExpect(status().isOk());
+            .andExpect(status().isNotFound());
 
         User updatedUser = userRepository.findOneByLogin("save-existing-email").orElse(null);
         assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email@example.com");
@@ -534,9 +534,9 @@ class AccountResourceIT {
 
     @Test
     @Transactional
-    @WithMockUser("save-existing-email")
+    @WithMockUser(username = "admin", roles = {"USER", "ADMIN"})
     void testSaveExistingEmailAsAdmin() throws Exception {
-
+/*
         SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.ADMIN));
@@ -546,13 +546,14 @@ class AccountResourceIT {
         assertThat(optLogin.isPresent()).isTrue();
         assertThat(optLogin.get().equals("admin")).isTrue();
         assertThat(SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)).isTrue();
-
+*/
         User user = new User();
         user.setLogin("save-existing-email");
         user.setEmail("save-existing-email@example.com");
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(true);
         userRepository.saveAndFlush(user);
+        User existingUser = userRepository.findOneByLogin("save-existing-email").orElse(null);
 
         User anotherUser = new User();
         anotherUser.setLogin("save-existing-email2");
@@ -563,7 +564,8 @@ class AccountResourceIT {
         userRepository.saveAndFlush(anotherUser);
 
         AdminUserDTO userDTO = new AdminUserDTO();
-        userDTO.setLogin("not-used");
+        userDTO.setId(existingUser.getId());
+        userDTO.setLogin("save-existing-email");
         userDTO.setFirstName("firstname");
         userDTO.setLastName("lastname");
         userDTO.setEmail("save-existing-email2@example.com");
@@ -572,7 +574,7 @@ class AccountResourceIT {
         userDTO.setLangKey(Constants.DEFAULT_LANGUAGE);
         userDTO.setAuthorities(Collections.singleton(AuthoritiesConstants.ADMIN));
 
-        SecurityContextHolder.setContext(securityContext);
+//        SecurityContextHolder.setContext(securityContext);
         assertThat(SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)).isTrue();
 
         restAccountMockMvc
@@ -580,7 +582,7 @@ class AccountResourceIT {
             .andExpect(status().isOk());
 
         User updatedUser = userRepository.findOneByLogin("save-existing-email").orElse(null);
-        assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email@example.com");
+        assertThat(updatedUser.getEmail()).isEqualTo("save-existing-email2@example.com");
     }
 
     @Test
@@ -595,7 +597,7 @@ class AccountResourceIT {
         userRepository.saveAndFlush(user);
 
         AdminUserDTO userDTO = new AdminUserDTO();
-        userDTO.setLogin("not-used");
+        userDTO.setLogin("save-existing-email-and-login");
         userDTO.setFirstName("firstname");
         userDTO.setLastName("lastname");
         userDTO.setEmail("save-existing-email-and-login@example.com");

@@ -192,9 +192,12 @@ public class AccountResource {
         }else {
 
             Optional<User> existingUser = userRepository.findOneByLogin(userDTO.getLogin());
-//        if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
-//            throw new EmailAlreadyUsedException();
-//        }
+            if (existingUser.isEmpty()) {
+                throw new AccountResourceException("User does not exist");
+            }
+            if (!existingUser.get().getLogin().equalsIgnoreCase(currentUser)) {
+                throw new AccountResourceException("User mismatch");
+            }
 
             userService.updateUser(userDTO.getFirstName(),
                 userDTO.getLastName(),
