@@ -27,8 +27,11 @@ public class PkcsXXData {
 	@JsonProperty("p10Holder")
 	private Pkcs10RequestHolderShallow p10Holder;
 
-	@JsonProperty("certificates")
-	private X509CertificateHolderShallow[] certsHolder;
+    @JsonProperty("certificates")
+    private X509CertificateHolderShallow[] certsHolder;
+
+    @JsonProperty("certificateView")
+    private CertificateView certificateView;
 
 	private boolean csrPublicKeyPresentInDB = false;
 
@@ -199,4 +202,11 @@ public class PkcsXXData {
 		}
 	}
 
+    public CertificateView getCertificateView() {
+        return certificateView;
+    }
+
+    public void setCertificateView(CertificateView certificateView) {
+        this.certificateView = certificateView;
+    }
 }
