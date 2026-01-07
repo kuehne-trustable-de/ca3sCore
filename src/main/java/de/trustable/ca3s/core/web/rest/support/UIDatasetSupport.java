@@ -76,7 +76,6 @@ public class UIDatasetSupport {
                             CertificateSelectionUtil certificateSelectionAttributeList,
                             CryptoConfiguration cryptoConfiguration,
                             UserUtil userUtil,
-                            ClientAuthConfig clientAuthConfig,
                             BPMNProcessInfoRepository bpmnProcessInfoRepository,
                             @Value("${ca3s.app.name:ca3s}") String appName,
                             @Value("${ca3s.ui.sso.autologin:false}") boolean autoSSOLogin,
@@ -192,8 +191,7 @@ public class UIDatasetSupport {
         pipelineTypes.add(PipelineType.WEB);
         pipelineTypes.add(PipelineType.MANUAL_UPLOAD);
 
-        List<PipelineView> pvList = activeByPipelineType(pipelineTypes);
-        return pvList.stream()
+        return activeByPipelineType(pipelineTypes).stream()
             .filter(pv -> Arrays.stream(pv.getSelectedRolesList())
                 .anyMatch( authority -> currentUser.getAuthorities().contains(authority)))
             .collect(Collectors.toList());
@@ -356,7 +354,7 @@ public class UIDatasetSupport {
 
     	LOG.debug("checking status for {}", cAConnectorConfig);
 
-        if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().length() == 0))  {
+        if((cAConnectorConfig.getPlainSecret() == null) || (cAConnectorConfig.getPlainSecret().trim().isEmpty()))  {
 	        cAConnectorConfig.setSecret(null);
         }else if(ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER.equals(cAConnectorConfig.getPlainSecret().trim())) {
         	// no passphrase change received from the UI, use the existing 'secret' object
