@@ -20,8 +20,6 @@ class KeyAlgoLengthTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(KeyAlgoLengthTest.class);
 
-    CryptoUtil cryptoUtil = new CryptoUtil();
-
     @BeforeAll
     public static void setUpBeforeClass() {
         JCAManager.getInstance();
@@ -90,7 +88,7 @@ class KeyAlgoLengthTest {
 
         keyAlgoLength = KeyAlgoLengthOrSpec.from( "Ed25519");
         assertEquals(256, keyAlgoLength.getKeyLength());
-        assertEquals("Ed25519", keyAlgoLength.getAlgoName());
+        assertEquals("ed25519", keyAlgoLength.getAlgoName());
         assertNotNull(keyAlgoLength.buildJcaContentSignerBuilder());
 
         keyAlgoLength = KeyAlgoLengthOrSpec.from( "ecdsa-224");
@@ -142,7 +140,7 @@ class KeyAlgoLengthTest {
                 if( file.getName().toLowerCase(Locale.ROOT).endsWith("crt")){
                     cert = (X509Certificate) factory.generateCertificate(new FileInputStream(file));
                 }else{
-                    cert =cryptoUtil.convertPemToCertificate(Files.readString(file.toPath()));
+                    cert = CryptoUtil.convertPemToCertificate(Files.readString(file.toPath()));
                 }
 
                 String algoName = KeyAlgoLengthOrSpec.getAlgorithmName(cert.getPublicKey());
