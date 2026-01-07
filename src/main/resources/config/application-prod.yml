@@ -602,6 +602,8 @@ ca3s:
     # The roles are mapped from different role elements into the key
     # 'Roles'
 
+
+
     expression:
       tenant: "get('PreferredUsername').get(0).substring(0,2).toUpperCase()"
 
