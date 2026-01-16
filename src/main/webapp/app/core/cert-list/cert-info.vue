@@ -319,6 +319,12 @@
                         </div>
 
                         <div v-if="isRevocable()" class="form-group">
+                            <label class="form-control-label" v-text="$t('ca3SApp.notification.blocked')" for="certificate-notification-blocked"></label>
+                            <input type="checkbox" class="form-check-inline" name="trusted" id="certificate-notification-blocked" v-model="certificateView.notificationBlocked"
+                                   v-b-modal.blockNotificationForCertificate/>
+                        </div>
+
+                        <div v-if="isRevocable()" class="form-group">
                             <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="cert-revocationReason"></label> <help-tag target="ca3SApp.certificate.download.revocationReason"/>
                             <select class="form-control" id="cert-revocationReason" name="revocationReason"  v-model="certificateAdminData.revocationReason">
                                 <option v-bind:value="'certificateHold'">certificateHold</option>
@@ -400,6 +406,7 @@
 
             </div>
         </div>
+
         <b-modal ref="revokeCertificate" id="revokeCertificate" >
             <span slot="modal-title"><span id="ca3SApp.certificate.revoke.question" v-text="$t('entity.revoke.title')"></span></span>
             <div class="modal-body">
@@ -416,6 +423,28 @@
                 <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="closeDialog()"></button>
                 <button v-if="!certificateView.issuingActiveCertificates"
                         type="button" class="btn btn-primary" id="confirm-revoke-certificate" v-text="$t('entity.action.revoke')" v-on:click="revokeCertificateAndClose()"></button>
+            </div>
+        </b-modal>
+
+        <b-modal ref="blockNotificationForCertificate" id="blockNotificationForCertificate" >
+            <span slot="modal-title"><span id="ca3SApp.certificate.block.notification.question" v-text="$t('entity.block.notification.title')"></span></span>
+            <div class="modal-body">
+
+                <div v-if="certificateView.notificationBlocked" class="alert alert-warning" role="alert">
+                    <p v-text="$t('ca3SApp.certificate.block.notification.hint')"></p>
+                </div>
+                <p v-if="certificateView.notificationBlocked" id="jhi-revoke-certificate-heading" v-text="$t('ca3SApp.certificate.block.notification.question', {'id': certificateView.id})"></p>
+
+                <p v-if="!certificateView.notificationBlocked" id="jhi-revoke-certificate-heading" v-text="$t('ca3SApp.certificate.unblock.notification.question', {'id': certificateView.id})"></p>
+
+            </div>
+            <div v-if="certificateView.notificationBlocked" slot="modal-footer">
+                <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="certificateView.notificationBlocked = false;certificateAdminData.notificationBlocked = false;closeDialogNotificationBlock()"></button>
+                <button type="button" class="btn btn-primary" id="confirm-block-notification-certificate" v-text="$t('entity.action.block.notification')" v-on:click="certificateView.notificationBlocked = true;certificateAdminData.notificationBlocked = true;closeDialogNotificationBlock()"></button>
+            </div>
+            <div v-if="!certificateView.notificationBlocked" slot="modal-footer">
+                <button type="button" class="btn btn-secondary" v-text="$t('entity.action.cancel')" v-on:click="certificateView.notificationBlocked = true;certificateAdminData.notificationBlocked = true;closeDialogNotificationBlock()"></button>
+                <button type="button" class="btn btn-primary" id="confirm-unblock-notification-certificate" v-text="$t('entity.action.unblock.notification')" v-on:click="certificateView.notificationBlocked = false;certificateAdminData.notificationBlocked = false;closeDialogNotificationBlock()"></button>
             </div>
         </b-modal>
 

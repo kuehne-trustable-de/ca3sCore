@@ -218,6 +218,8 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         }
         self.certificateAdminData.arAttributes = this.certificateView.arArr;
         self.certificateAdminData.comment = this.certificateView.comment;
+        self.certificateAdminData.notificationBlocked = self.certificateView.notificationBlocked;
+
         self.comment = this.certificateView.comment;
         self.trusted = this.certificateView.trusted;
         self.certificateAdminData.trusted = this.certificateView.trusted;
@@ -248,9 +250,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
 
   public isRevocable() {
     return (
-      !this.certificateView.revoked &&
-      this.certificateView.validTo &&
-      //      ( this.certificate.validTo.getMilliseconds() < Date.now()) &&
+      this.certificateView.active &&
       (this.isRAOfficer() || this.isOwnCertificate())
     );
   }
@@ -306,7 +306,9 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
       }
     }
 
-    return this.comment !== this.certificateView.comment || this.trusted !== this.certificateView.trusted;
+    return this.comment !== this.certificateView.comment ||
+      this.trusted !== this.certificateView.trusted ||
+      this.certificateView.notificationBlocked !== this.certificateAdminData.notificationBlocked;
   }
 
   copyCertificateDataToAdminData() {
@@ -362,6 +364,10 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
 
   public closeDialog(): void {
     (<any>this.$refs.revokeCertificate).hide();
+  }
+
+  public closeDialogNotificationBlock(): void {
+    (<any>this.$refs.blockNotificationForCertificate).hide();
   }
 
   public selfAdministerCertificate() {

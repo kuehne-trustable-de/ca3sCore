@@ -133,6 +133,7 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_CA3S_ROOT = "CA3S:ROOT";
 	public static final String ATTRIBUTE_CA3S_INTERMEDIATE = "CA3S:INTERMEDIATE";
 	public static final String ATTRIBUTE_END_ENTITY = "CA3S:END_ENTITY";
+    public static final String ATTRIBUTE_NOTIFICATION_BLOCKED = "CA3S:NOTIFICATION_BLOCKED";
 	public static final String ATTRIBUTE_CHAIN_LENGTH = "CA3S:CHAIN_LENGTH";
 
     public static final String ATTRIBUTE_SUBJECT = "SUBJECT";

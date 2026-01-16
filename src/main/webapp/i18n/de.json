@@ -877,6 +877,15 @@
   "entity.delete.title": "Löschen bestätigen",
   "entity.detail.field": "Feld",
   "entity.detail.value": "Wert",
+
+  "ca3SApp.notification.blocked": "Ablaufwarnung blockieren",
+  "entity.block.notification.title": "Blockieren der Ablaufwarnung",
+  "ca3SApp.certificate.block.notification.hint": "Das Zertifikat läuft ohne weiteren Hinweis ab! Systeme könnten ausfallen!",
+  "ca3SApp.certificate.block.notification.question": "Sind Sie sicher, dass Sie Ablaufwarnung blockieren wollen?",
+  "ca3SApp.certificate.unblock.notification.question": "Sind Sie sicher, dass Sie Ablaufwarnung aktivieren wollen?",
+  "entity.action.block.notification": "Blockieren",
+  "entity.action.unblock.notification": "Aktivieren",
+
   "entity.validation.datetimelocal": "Dieses Feld muss eine Datums- und Zeitangabe enthalten.",
   "entity.validation.max": "Dieses Feld muss kleiner als {{max}} sein.",
   "entity.validation.maxbytes": "Dieses Feld sollte nicht mehr als {{max}} bytes haben.",

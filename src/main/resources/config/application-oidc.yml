@@ -1,0 +1,649 @@
+# ===================================================================
+# Spring Boot configuration for the "prod" profile.
+#
+# This configuration overrides the application.yml file.
+#
+# More information on profiles: https://www.jhipster.tech/profiles/
+# More information on configuration properties: https://www.jhipster.tech/common-application-properties/
+#
+# !!! This file contains sensitive data !!!
+# !!! Make sure this configuration file is readable for the application / administrators ONLY !!!
+#
+# ===================================================================
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+logback:
+  access:
+    enabled: false
+
+logging:
+  level:
+    ROOT: INFO
+    io.github.jhipster: INFO
+    de.trustable.ca3s.core: INFO
+    de.trustable.ca3s.core.Ca3SApp: DEBUG
+    de.trustable.ca3s.core.config.oidc: DEBUG
+    de.trustable.ca3s.core.PropertiesLogger: INFO
+    de.trustable.ca3s.core.schedule.RequestProxyScheduler: WARN
+    de.trustable.ca3s.core.schedule.CertExpiryScheduler: DEBUG
+    de.trustable.ca3s.core.schedule.CertificateImportScheduler: DEBUG
+    de.trustable.ca3s.core.service.NotificationService: DEBUG
+    de.trustable.ca3s.core.service.MailService: DEBUG
+    de.trustable.ca3s.core.service.util.CaConnectorAdapter: WARN
+    de.trustable.ca3s.core.service.adcs: INFO
+    de.trustable.ca3s.core.service.ejbca: DEBUG
+    de.trustable.ca3s.core.service.cmp: DEBUG
+    de.trustable.ca3s.core.service.est: DEBUG
+    de.trustable.ca3s.core.service.vault: DEBUG
+    de.trustable.ca3s.core.service.dir: WARN
+    de.trustable.ca3s.core.service.util.CertificateUtil: DEBUG
+    de.trustable.ca3s.core.service.util.CRLUtil: DEBUG
+    de.trustable.ca3s.core.security.provider: DEBUG
+    de.trustable.ca3s.core.repository.CSRSpecifications: WARN
+    de.trustable.ca3s.core.repository.CertificateSpecifications: WARN
+    de.trustable.ca3s.core.repository.UserSpecifications: DEBUG
+    de.trustable.ca3s.core.web.rest.support.UIDatasetSupport: DEBUG
+    de.trustable.util.CryptoUtil: DEBUG
+    de.trustable.cmp.client.cmpClient.CMPClientImpl: DEBUG
+    org.keycloak.adapters: WARN
+    org.springframework.security.web.authentication: DEBUG
+    org.springframework.security: DEBUG
+    net.ttddyy.dsproxy.listener: INFO
+    org.springframework.web.filter.CommonsRequestLoggingFilter: WARN
+
+# enable or disable the metrics support as required
+management:
+  metrics:
+    export:
+      prometheus:
+        enabled: false
+
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+spring:
+  # devtools should NOT be enabled for productive use
+  devtools:
+    restart:
+      enabled: false
+    livereload:
+      enabled: false
+
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    # a sample configuration for a mysql connection
+    #    url: jdbc:mysql://localhost:3306/ca3s_jh_dev?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    #    username: ca3s_jh_dev
+    #    password: nYbA4Jm4rnQJ
+
+    #    url: jdbc:mysql://localhost:3306/int_test?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    #    username: ca3s_test
+    #    password: s3cr3t
+
+    url: jdbc:mysql://localhost:3306/test_schema?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ca3s_test
+    password: s3cr3t
+
+    # mssql connection sample
+    # url: jdbc:sqlserver://127.0.0.1:1433;database=ca3s;trustServerCertificate=true;
+    # username: SA
+    # password: S3cr3t#S
+
+    # recommended configuration for production:
+    # Separate the database rights between the application and liquibase. The application does not need any schema alteration or dump privileges.
+    # grant admin rights to liquibase to create / alter the DB scheme (see below at liquibase.user / .password)
+    #    url: jdbc:mysql://localhost:3306/ca3s_sep_roles?useUnicode=true&characterEncoding=utf8&useSSL=false&useLegacyDatetimeCode=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    #    username: ca3s_sr_user
+    #    password: o2Z3je8twZ5W
+
+    # configuration of the hikari database cache
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+
+  #
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    database: MYSQL
+
+    # database-platform: org.hibernate.dialect.SQLServerDialect
+    # database: sqlserver
+
+    show-sql: false
+    properties:
+      hibernate:
+        id:
+          new_generator_mappings: true
+        connection:
+          provider_disables_autocommit: true
+        cache:
+          use_second_level_cache: false
+          use_query_cache: false
+        generate_statistics: false
+        session:
+          events:
+            log:
+              LOG_QUERIES_SLOWER_THAN_MS: 250
+
+  # Replace by 'prod, faker' to add the faker context and have sample data loaded in production
+  liquibase:
+    contexts: prod
+  #  change-log: classpath:config/liquibase-mssql/master.xml
+
+  # in case of separated acces roles, liquibase requires to connect to the database with admin privileges
+  #    default-schema: ca3s_sep_roles
+  #    user: ca3s_sr_admin
+  #    password: MLQ738PdLpio
+
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  # 2023: the spring SAML support requires these settings
+  # validate the need after a spring security update
+  main:
+    allow-bean-definition-overriding: true
+    allow-circular-references: true
+
+  # The basic settings for outbound email support
+  #additioanl email-related setting are located at 'jhipster.mail'
+  mail:
+    host: smtp.freesmtpservers.com
+    port: 25
+    username:
+    password:
+
+  # define the location of the email templates
+  messages:
+    basename: i18n/messages
+  thymeleaf:
+    cache: true
+
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
+
+
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: ca3s-oauth2
+            client-secret: *******************
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+          google:
+            client-id: *******************.apps.googleusercontent.com
+            client-secret: *******************
+          github:
+            client-id: *******************
+            client-secret: *******************
+        provider:
+          keycloak:
+            issuer-uri:  http://10.152.183.139/realms/master
+#            authorization-uri: http://10.152.183.139/realms/master/protocol/openid-connect/auth
+#            token-uri: http://10.152.183.139/realms/master/protocol/openid-connect/token
+#            user-info-uri: http://10.152.183.139/realms/master/protocol/openid-connect/userinfo
+#            user-name-attribute: sub
+#            jwk-set-uri: http://10.152.183.139/realms/master/protocol/openid-connect/certs
+
+# ===================================================================
+# To enable TLS in production, generate a certificate using:
+# keytool -genkey -alias ca3s_jh -storetype PKCS12 -keyalg RSA -keysize 2048 -keystore keystore.p12 -validity 3650
+#
+# You can also use Let's Encrypt:
+# https://maximilian-boehm.com/hp2121/Create-a-Java-Keystore-JKS-from-Let-s-Encrypt-Certificates.htm
+#
+# Then, modify the server.ssl properties so your "server" configuration looks like:
+#
+# server:
+#    port: 443
+#    ssl:
+#        key-store: classpath:config/tls/keystore.p12
+#        key-store-password: password
+#        key-store-type: PKCS12
+#        key-alias: ca3s_jh
+#        # The ciphers suite enforce the security by deactivating some old and deprecated SSL cipher, this list was tested against SSL Labs (https://www.ssllabs.com/ssltest/)
+#        ciphers: TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 ,TLS_DHE_RSA_WITH_AES_128_GCM_SHA256 ,TLS_DHE_RSA_WITH_AES_256_GCM_SHA384 ,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384,TLS_DHE_RSA_WITH_AES_128_CBC_SHA256,TLS_DHE_RSA_WITH_AES_128_CBC_SHA,TLS_DHE_RSA_WITH_AES_256_CBC_SHA256,TLS_DHE_RSA_WITH_AES_256_CBC_SHA,TLS_RSA_WITH_AES_128_GCM_SHA256,TLS_RSA_WITH_AES_256_GCM_SHA384,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA,TLS_RSA_WITH_CAMELLIA_256_CBC_SHA,TLS_DHE_RSA_WITH_CAMELLIA_128_CBC_SHA,TLS_RSA_WITH_CAMELLIA_128_CBC_SHA
+# ===================================================================
+server:
+  #  port: 8443
+  port: 18080
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
+    min-response-size: 1024
+  max-http-header-size: 8KB
+
+# ===================================================================
+# JHipster specific properties
+#
+# Full reference is available at: https://www.jhipster.tech/common-application-properties/
+# ===================================================================
+
+jhipster:
+  http:
+    cache: # Used by the CachingHttpHeadersFilter
+      timeToLiveInDays: 1461
+  cache: # Cache configuration
+    ehcache: # Ehcache configuration
+      time-to-live-seconds: 3600 # By default objects stay 1 hour in the cache
+      max-entries: 1000 # Number of objects in each cache entry
+
+  security:
+    authentication:
+      jwt:
+        # This token must be encoded using Base64 and be at least 512 bits long (you can type `openssl rand -base64 128` on your command line to generate one)
+        # As this is the PRODUCTION configuration, you MUST change the default key, and store it securely:
+        # - In the JHipster Registry (which includes a Spring Cloud Config server)
+        # - In a separate `application-prod.yml` file, in the same folder as your executable JAR file
+        # - In the `JHIPSTER_SECURITY_AUTHENTICATION_JWT_BASE64_SECRET` environment variable
+        # make sure you don't share the secret across different environments!
+        base64-secret: Mjk3NjM4OWI4NWU3ZjE3NjQ3OWRiZjI3OWYwYmZiNWY1NzA2YjAzZTY2ODJhNWM5MjFjYzZmZTZlMDE4YWRhNDg0MjJlNDYzNThhODBjNmU0ZGFjMGY3MTc5OTVlNmEyZWFiZmIwMDIxYTExYzkxNGM3YmM2YmVmMmNlZWE2YmQ=
+        # Token is valid 24 hours
+        token-validity-in-seconds: 86400
+        token-validity-in-seconds-for-remember-me: 2592000
+  mail: # specific JHipster mail property, for standard properties see MailProperties
+    base-url: http://localhost:8080 # Modify according to your server's URL
+    from: ca3s@localhost
+
+  # enable additional email options
+  logging:
+    use-json-format: false # By default, logs are not in Json format
+    logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
+      enabled: false
+      host: localhost
+      port: 5000
+      queue-size: 512
+  audit-events:
+    retention-period: 30 # Number of days before audit events are deleted.orsConfiguration
+
+  cors:
+    allowed-origins: '*'
+    allowed-methods: HEAD, GET, POST, PUT, DELETE
+    allow-credentials: true
+
+
+# the application provides an OAS endpoint to access the APIs metadata
+springdoc:
+  #  packagesToScan: de.trustable.ca3s.core.web.rest,de.trustable.ca3s.core.web.rest.support,de.trustable.ca3s.core.web.rest.acme,de.trustable.ca3s.core.web.rest.vm
+  #  pathsToMatch: /v1, /api/**, /publicapi/**
+  show-actuator: true
+  model-and-view-allowed: true
+  remove-broken-reference-definitions: false
+  show-login-endpoint: true
+
+# deprecated, use ca3s.protectionSecret
+# protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl
+
+camunda:
+  bpm:
+    job-execution:
+      enabled: true
+
+ca3s:
+  app:
+    name: ca3sDev
+
+  internalCa:
+    rootValidityDays: 3600
+    intermediateValidityDays: 3000
+
+  bpmn:
+    # create a process instance per default
+    use-default-process: false
+
+  # set a grace period for process data after its completion
+  historicProcess:
+    retention:
+      days: 180
+
+  # if required separate protocols and ra & admin access to specific ports
+  # the default port is 8443
+  # the default binding host is 0.0.0.0
+  # the use of https is default
+  # overwrite any of the settings if required
+  scepAccess:
+    port: 9090
+    https: false
+
+    # settings for ACME
+    #  acmeAccess:
+    #    port: 9091
+    #    https: true
+
+    # settings for users default access
+    #  tlsAccess:
+    #    port: 8443
+    #    https: true
+
+    # settings for client certificate authentication
+  tlsClientAuth:
+    port: 8442
+    external:
+      port: 8442
+      #    host: ca3s.test.de
+      host: laptop-2iguatf5
+
+  # settings for ra user access
+  #  raAccess:
+  #    port: 8444
+  #    https: true
+
+  # settings for admin user access, binding to a specific subnet, only
+  #   adminAccess:
+  #     port: 8444
+  #     https: true
+  #     bindingHost: 192.168.32.0
+
+  # allow the confirmation of self-issued requests
+  # useful for test environments, unusual for production
+  issuance:
+    ra:
+      self-issuance-allowed: false
+    limit:
+      notify:
+        active-parallel-certificates: 20
+      reject:
+        active-parallel-certificates: 100
+
+  batch:
+    maxRecordsPerTransaction: 1000
+
+  schedule:
+    # define the periods of scheduled task (in millisec)
+    rate:
+      caConnectorStatus: 600000
+      protectedContentCleanup: 3600000
+      acmeOrderExpiry: 3600000
+      certBundleCheck: 600000
+      certRetrieval: 3600000
+      revocationCheck: 3600000
+
+    # define a cron pattern for regular tasks
+    cron:
+      # send notification emails regarding expirations
+      expiryNotificationCron: 0 57 17 * * ?
+      # drop user information as soon as no relevant certificate is active anymore
+      dropUnrelatedUsersCron: 0 20 02 * * ?
+      # drop historic process information after process completion and a grace period
+      dropHistoricProcessesCron: 0 22 22 * * ?
+
+    # time limit (in days) for notifications
+    ra-officer-notification:
+      days-before-expiry:
+        ee: 30
+        ca: 90
+      days-pending: 30
+
+    requestor:
+      notification:
+        days: 30,14,7,6,5,4,3,2,1,0
+        user-only: false
+        cc: foo@test.com
+
+  catalog:
+    algos:
+      hash:
+        available: sha-256,sha-384,sha-512
+        selected: sha-256,sha-384,sha-512
+      sign:
+        available: rsa-2048,rsa-3072,rsa-4096,rsa-6144,rsa-8192,ecdsa-224, ecdsa-256, ecdsa-384, ecdsa-512, Ed25519, brainpoolP256r1, dilithium2/20224, dilithium3/32000, dilithium5/38912, falcon-512/7176, falcon-1024/14344
+        selected: Ed25519, brainpoolP256r1, rsa-2048,rsa-3072,rsa-4096,rsa-8192
+
+  # enable the creation of the PKCS12 download container with specific algorithms
+  pkcs12:
+    # the restriction on the input 'secret' protecting the PKCS12 container
+    secret:
+      description: min6NumberUpperLower
+      regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
+    # the list of algorithm selectable for the PKCS12 encryption
+    pbe:
+      algos: PBEWithHmacSHA256AndAES_256, pbeWithSHAAnd3_KeyTripleDES_CBC
+
+  # define an alternative location for the email templates
+  # the default location is the internal reference within the jar
+  #  template:
+  #    email:
+  #      filePrefix: file://\Users\kuehn\tmp\templates\
+  # what's the extension of the template files. See the thymeleaf docs for supported types
+  #      filePostfix: .html
+
+  template:
+    email:
+      useTitleAsMailSubject: false
+      all:
+        bcc: foo@ca3s.org, bar@ca3s.org
+
+  ui:
+    user:
+
+    # limit certificate and request visibility isolation:
+    # none: every user sees every (end entity) certificate
+    # tenant: users sees all end entity certificates of the users tenant
+    #
+    # CA certificates are visible in any isolation mode
+    certificate-store:
+      isolation: none
+
+    download:
+      rows:
+        max: 65535
+      pkcs12:
+        log:
+          download: true
+
+    # limit the set of selectable languages, available languages are de, en, pl
+
+    # if only one language is selected, the user form for selection is disabled / hidden.
+    #    languages: de
+
+    # provide a custom image for the upper left corner of the user interface
+    # Remark: PNG format, only
+    #    logo: custom_logo.
+    password:
+      check:
+        #        description: min6NumberUpperLower
+        #        regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
+        description: min8NumberUpperLowerSpecial
+        regexp: ^(?:(?=.*\d)(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[^A-Za-z0-9])(?=.*[a-z])|(?=.*[^A-Za-z0-9])(?=.*[A-Z])(?=.*[a-z])|(?=.*\d)(?=.*[A-Z])(?=.*[^A-Za-z0-9]))(?!.*(.)\1{2,})[A-Za-z0-9!~<>,;:_=?*+#.”&§%°()\|\[\]\-\$\^\@\/]{8,32}$
+
+    login:
+      allowEmailAddress: false
+
+    csr:
+      # enable the DNS lookup feature for the CSR view. It may provide relevant information to the ra officer
+      dnslookup: true
+
+    sso:
+      # enable / disable autologin via SSO
+      autologin: false
+
+      # define a SSO provider: oidc / saml / spnego
+      provider: oidc
+
+      # per default use a secure cookie to transport auth token
+      secureCookie: false
+
+  acme:
+    # an apache plugin for ACME support requires a specific header not mentioned in RFC 8555
+    finalizelocationBackwardCompat: true
+
+    alpn:
+      ports: 443
+
+    # define some rate limits for ACME access
+    ratelimit:
+      second: 0
+      minute: 20
+      hour: 0
+
+    # expiry period for orders
+    order:
+      validity:
+        seconds: 600
+
+    # determine the status of an Authentication or an Order by proving the status of the challenges.
+    # this may trigger a challenge validation call to the client
+    iterate:
+      authentications: true
+      challenges: true
+
+  # define a specific DNS server to be used with ACME DNS challenges
+  dns:
+    #    server: 8.8.8.8
+    server: 213.133.106.251
+    port: 53
+
+  # ca3s requests its own certificate automatically. Define the details of the certificate
+  https:
+    certificate:
+      dnSuffix: O=Trustable Solutions,OU=CA3S Instance,C=DE
+      sans: ca3s.org, www.ca3s.org, ca3s.test.de
+      persist: DB
+
+  #  certificateSelectionAttributes: Foo,Bar,Baz
+
+  # ca3s requests the SCEP recipeint certificate automatically. Define the details of the certificate
+  scep:
+    recipient:
+      certificate:
+        cnSuffix: .trustable.de
+
+  # provide a random password for the derivation of an encryption key to encrypt sensitive data in the database
+  # if this value is lost the content of the related database instance becomes useless. There is no way to recover this key.
+  # !!! Make sure this configuration file is readable for the application / administrators ONLY !!!
+  protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl
+
+  # define some key derivation parameter wihich are applied to derive a key from the given protectionSecret
+  connection:
+    salt: ca3sSalt
+    iterations: 4567
+    pbeAlgo: PBKDF2WithHmacSHA256
+
+  #
+  # SSO section
+  #
+  auth:
+    api-key:
+      enabled: true
+      auth-token-header-name: X-API-KEY
+      auth-token-admin: gTYvGKIfzLpWQSSIMT1XBaRfzdSLZmvFMNlfo6zeddYyg3FYmq7BH6qqB4dy75uYbLb0KXOU7jV50a360R4CB4UXriX085usWJnto5CMpOu34rxx0b5v2Xd97hpzDQdJ
+
+    kerberos:
+      service-principal: HTTP/ca3sService@TRUSTABLE.DEMO
+      keytab-location: ca3sService.keytab
+
+    ad-domain: foo
+    ldap:
+      url: ldap://testLDAP.eu:123
+      baseDN: dc=testLDAP,dc=eu
+      principal: cn=alice,ou=people,dc=testLDAP,dc=eu
+      password: s3cr3t
+
+  saml:
+    activate: false
+
+    # define the location of the SAML IDP+-
+    idp: http://10.152.183.139/realms/master
+
+    # provide the configured service provider name of ca3s
+    sp: saml-client
+
+    # provide the endpoint for the assertion callback
+    entity:
+      base-url: http://akuehne-ThinkPad-E16-Gen-1:18080
+
+    roles:
+      user: '*'
+      domainra:
+      ra:
+      admin:
+      other: ROLE_1, ROLE_2
+
+    # extract relevant information from the saml token by attribute name
+    attributes:
+      firstname: firstName
+      lastName: lastName
+      email: email
+    #      tenant: userName
+
+    # process information of the saml attribute by applying SPeL on a HashMap of name / value list.
+    # sample: get('user').get(0).substring(0,2).toUpperCase()
+    # get first value of name 'user', only the first two characters and convert to upperCase
+    expression:
+      #      firstName:
+      #      lastName:
+      #      email:
+      tenant: "get('user').get(0).substring(0,2).toUpperCase()"
+
+    # provide the metadata of the SAML IDP
+    metadata:
+      # provide the location of the metadata file or remote location of the identity provider
+      location: sample/saml/metadata/keycloak_saml.metadata.xml
+
+      # do we require a signature to be present in the metadata ?
+      # not necessary if the metadata are provided in a secure manner
+      requires:
+        signature: false
+
+      # in case there is a metadata signature do we check it and what are the trusted entries in the keystore
+      trust:
+        check: false
+        key:
+          aliases: trustedAlias1, trustedAlias2
+
+    # provide the keystore location
+    keystore:
+      location: sample/saml/samlKeystore.p12
+      password: s3cr3t
+
+      # the alias of the key / certificate to sign the requests
+      alias: saml-client
+
+  # check your configuration with e.g.
+  # http://keycloak-server/auth/realms/ca3sRealm/.well-known/openid-configuration
+  oidc:
+    # list comma separated list of oidc roles applicable for given authorities
+    # a (quoted) asterik matches with any role
+    roles:
+      user: 'ROLE_ca3s-oidc_ca3s user'
+      domainra:
+      ra:
+      admin:
+      other: ROLE_ca3s-oidc_someOtherRole
+
+    # The expressions operate on a map with some normalized items:
+    #
+    # 'Name'
+    # 'FamilyName'
+    # 'PreferredUsername'
+    # 'Email'
+    # 'Sub'
+    #
+    # The roles are mapped from different role elements into the key
+    # 'Roles'
+
+
+#    expression:
+#      firstname: "get('name').split(' ')[0]"
+#      lastName: "get('name').split(' ')[1]"
+
+    client-name: google
+#    client-name: github
+#    client-name: keycloak
+
+

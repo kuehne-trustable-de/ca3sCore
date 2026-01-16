@@ -24,6 +24,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_NOTIFICATION_BLOCKED;
+
 /**
  * Handling notification
  */
@@ -470,6 +472,11 @@ public class NotificationService {
                         LOG.debug("Web Pipelines will be processed for notification.");
                     }else{
                         LOG.debug("Non-Web Pipelines will be ignored for notification.");
+                        continue;
+                    }
+
+                    if( Boolean.parseBoolean(certificateUtil.getCertAttribute(cert, ATTRIBUTE_NOTIFICATION_BLOCKED))){
+                        LOG.debug("Expiry Notification blocked for certificate #{}.", cert.getId());
                         continue;
                     }
 

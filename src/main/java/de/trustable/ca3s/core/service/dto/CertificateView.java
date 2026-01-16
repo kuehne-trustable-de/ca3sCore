@@ -129,12 +129,18 @@ public class CertificateView implements Serializable {
     private String serialHex;
 
     @CsvBindByName
+    private Boolean active;
+
+    @CsvBindByName
     private Instant validFrom;
 
     @CsvBindByName
     private Instant validTo;
 
     private Instant contentAddedAt;
+
+    @CsvBindByName
+    private Boolean notificationBlocked;
 
     @CsvBindByName
     private Instant revokedSince;
@@ -296,6 +302,7 @@ public class CertificateView implements Serializable {
         }catch(NumberFormatException nfe){
             this.serialHex ="";
         }
+        this.active = cert.isActive();
         this.validFrom = cert.getValidFrom();
     	this.validTo = cert.getValidTo();
     	this.contentAddedAt = cert.getContentAddedAt();
@@ -373,6 +380,8 @@ public class CertificateView implements Serializable {
 
         this.altKeyAlgorithm = null;
 
+        this.notificationBlocked = false;
+
         for (CertificateAttribute certAttr : cert.getCertificateAttributes()) {
            try {
                 if (CertificateAttribute.ATTRIBUTE_CA_CONNECTOR_ID.equalsIgnoreCase(certAttr.getName())) {
@@ -431,6 +440,8 @@ public class CertificateView implements Serializable {
                     this.intermediate = true;
                 } else if (CertificateAttribute.ATTRIBUTE_END_ENTITY.equalsIgnoreCase(certAttr.getName())) {
                     this.endEntity = Boolean.valueOf(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_NOTIFICATION_BLOCKED.equalsIgnoreCase(certAttr.getName())) {
+                    this.notificationBlocked = Boolean.valueOf(certAttr.getValue());
                 } else if (CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH.equalsIgnoreCase(certAttr.getName())) {
                     this.chainLength = Long.parseLong(certAttr.getValue());
                 } else if (CertificateAttribute.ATTRIBUTE_USAGE.equalsIgnoreCase(certAttr.getName())) {
@@ -524,7 +535,11 @@ public class CertificateView implements Serializable {
 		return serial;
 	}
 
-	public Instant getValidFrom() {
+    public Boolean getActive() {
+        return active;
+    }
+
+    public Instant getValidFrom() {
 		return validFrom;
 	}
 
@@ -536,7 +551,11 @@ public class CertificateView implements Serializable {
 		return contentAddedAt;
 	}
 
-	public Instant getRevokedSince() {
+    public Boolean getNotificationBlocked() {
+        return notificationBlocked;
+    }
+
+    public Instant getRevokedSince() {
 		return revokedSince;
 	}
 
@@ -582,7 +601,11 @@ public class CertificateView implements Serializable {
         }
     }
 
-	public void setValidFrom(Instant validFrom) {
+    public void setActive(Boolean active) {
+        this.active = active;
+    }
+
+    public void setValidFrom(Instant validFrom) {
 		this.validFrom = validFrom;
 	}
 
@@ -594,7 +617,11 @@ public class CertificateView implements Serializable {
 		this.contentAddedAt = contentAddedAt;
 	}
 
-	public void setRevokedSince(Instant revokedSince) {
+    public void setNotificationBlocked(Boolean notificationBlocked) {
+        this.notificationBlocked = notificationBlocked;
+    }
+
+    public void setRevokedSince(Instant revokedSince) {
 		this.revokedSince = revokedSince;
 	}
 
@@ -1239,9 +1266,11 @@ public class CertificateView implements Serializable {
             ", csrComment='" + csrComment + '\'' +
             ", serial='" + serial + '\'' +
             ", serialHex='" + serialHex + '\'' +
+            ", active=" + active +
             ", validFrom=" + validFrom +
             ", validTo=" + validTo +
             ", contentAddedAt=" + contentAddedAt +
+            ", notificationBlocked=" + notificationBlocked +
             ", revokedSince=" + revokedSince +
             ", revocationReason='" + revocationReason + '\'' +
             ", revoked=" + revoked +

@@ -32,6 +32,10 @@ public class CertificateAdministrationData implements Serializable {
     @JsonProperty("trusted")
     private Boolean trusted;
 
+    @NotNull
+    @JsonProperty("notificationBlocked")
+    private Boolean notificationBlocked;
+
     @JsonProperty("arAttributes")
     private NamedValue[] arAttributeArr;
 
@@ -77,6 +81,14 @@ public class CertificateAdministrationData implements Serializable {
 
     public void setTrusted(Boolean trusted) {
         this.trusted = trusted;
+    }
+
+    public Boolean getNotificationBlocked() {
+        return notificationBlocked;
+    }
+
+    public void setNotificationBlocked(Boolean notificationBlocked) {
+        this.notificationBlocked = notificationBlocked;
     }
 
     public NamedValue[] getArAttributeArr() {

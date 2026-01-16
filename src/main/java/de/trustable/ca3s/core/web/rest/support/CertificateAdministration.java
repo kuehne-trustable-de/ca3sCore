@@ -36,6 +36,8 @@ import java.security.GeneralSecurityException;
 import java.time.Instant;
 import java.util.*;
 
+import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_NOTIFICATION_BLOCKED;
+
 /**
  * REST controller for processing PKCS10 requests and Certificates.
  */
@@ -133,6 +135,7 @@ public class CertificateAdministration {
                     updateComment(adminData, cert);
                     updateARAttributes(adminData, cert);
                     updateTrustedFlag(adminData, cert);
+                    updateNotificationBlockFlag(adminData, cert);
                 } else if(AdministrationType.UPDATE_CRL.equals(adminData.getAdministrationType())){
 
                     CRLUpdateInfo crlInfo = certUtil.checkAllCRLsForCertificate( cert,
@@ -196,6 +199,39 @@ public class CertificateAdministration {
         }
     }
 
+
+    private void updateNotificationBlockFlag(CertificateAdministrationData adminData, Certificate cert) {
+
+        Boolean notificationBlocked = Boolean.valueOf(certUtil.getCertAttribute(cert, ATTRIBUTE_NOTIFICATION_BLOCKED));
+
+        if( adminData.getNotificationBlocked() && notificationBlocked){
+            LOG.debug("Notifications for certificate id {} already blocked", cert.getId() );
+        }else if( adminData.getNotificationBlocked() && !notificationBlocked){
+            LOG.debug("Blocking expiry notifications for certificate id {}", cert.getId() );
+            if(cert.isRevoked()){
+                LOG.error("No need to block expiry notifications, certificate id {} already revoked!", cert.getId() );
+                return;
+            }
+            if(!cert.isActive()){
+                LOG.error("No need to block expiry notifications, certificate id {} already expireded!", cert.getId() );
+                return;
+            }
+
+            if(!cert.isEndEntity()){
+                LOG.error("Blocking expiry notifications allowed for end entity certificates, only. Leaving notification active for certificate id {}!", cert.getId() );
+                return;
+            }
+
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_SET_NOTIFICATION_BLOCKED, cert));
+            certUtil.setCertAttribute(cert, ATTRIBUTE_NOTIFICATION_BLOCKED,"true", false);
+            certificateRepository.save(cert);
+        }else if( !adminData.getNotificationBlocked() && notificationBlocked){
+            LOG.debug("Re-enabling expiry notifications for certificate id {}", cert.getId() );
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_UNSET_NOTIFICATION_BLOCKED, cert));
+            certUtil.setCertAttribute(cert, ATTRIBUTE_NOTIFICATION_BLOCKED,"false", false);
+            certificateRepository.save(cert);
+        }
+    }
 
     /**
      * {@code POST  /withdrawOwnCertificate} : Withdraw own certificate.

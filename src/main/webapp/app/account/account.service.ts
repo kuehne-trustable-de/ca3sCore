@@ -112,6 +112,8 @@ export default class AccountService {
         this.translationService.refreshTranslation(this.store.getters.currentLanguage);
       })
       .catch(() => {
+        localStorage.removeItem('jhi-authenticationToken');
+        sessionStorage.removeItem('jhi-authenticationToken');
         this.store.commit('logout');
         this.router.push('/');
       });

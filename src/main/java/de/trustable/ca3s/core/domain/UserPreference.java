@@ -38,7 +38,6 @@ public class UserPreference implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    public static final String USER_PREFERENCE_KEYCLOAK_ID = "KEYCLOAK_ID";
     public static final String USER_PREFERENCE_SAML_ID = "SAML_ID";
 
     @Id

@@ -448,8 +448,12 @@ public final class CertificateSpecifications {
                 cv.setSerial((String) objArr[i]);
             }else if( "serialHex".equalsIgnoreCase(attribute)) {
                 cv.setSerial((String) objArr[i]);
-		    }else if( "validFrom".equalsIgnoreCase(attribute)) {
-		    	cv.setValidFrom((Instant) objArr[i]);
+            }else if( "active".equalsIgnoreCase(attribute)) {
+                cv.setActive(Boolean.parseBoolean((String)objArr[i]));
+            }else if( "notificationBlocked".equalsIgnoreCase(attribute)) {
+                cv.setNotificationBlocked(Boolean.parseBoolean((String)objArr[i]));
+            }else if( "validFrom".equalsIgnoreCase(attribute)) {
+                cv.setValidFrom((Instant) objArr[i]);
 		    }else if( "validTo".equalsIgnoreCase(attribute)) {
 		    	cv.setValidTo((Instant) objArr[i]);
 		    }else if( "contentAddedAt".equalsIgnoreCase(attribute)) {

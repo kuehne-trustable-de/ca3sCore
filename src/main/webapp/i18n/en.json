@@ -906,6 +906,15 @@
   "entity.delete.title": "Confirm delete operation",
   "entity.detail.field": "Field",
   "entity.detail.value": "Value",
+
+  "ca3SApp.notification.blocked": "Expiry notifications blocked",
+  "entity.block.notification.title": "Block expiry notifications",
+  "ca3SApp.certificate.block.notification.hint": "The certificate will expire without any notification. Systems may fail unexpectedly!",
+  "ca3SApp.certificate.block.notification.question": "Are you sure to block the expiry notification?",
+  "ca3SApp.certificate.unblock.notification.question": "Are you sure to enable the expiry notification?",
+  "entity.action.block.notification": "Block",
+  "entity.action.unblock.notification": "Unblock",
+
   "entity.validation.datetimelocal": "This field should be a date and time.",
   "entity.validation.max": "This field cannot be more than {{ max }}.",
   "entity.validation.maxbytes": "This field cannot be more than {{ max }} bytes.",
