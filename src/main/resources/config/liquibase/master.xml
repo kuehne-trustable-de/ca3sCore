@@ -169,5 +169,6 @@
     <include file="config/liquibase/changelog/20250830165300_added_columns_AcmeAccount.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20250909184500_added_relation_pipeline_authorities.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/2026010918000000_modify_columns_user.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

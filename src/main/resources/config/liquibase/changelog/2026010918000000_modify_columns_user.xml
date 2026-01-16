@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet id="2026010918000000-1" author="ak">
+
+        <modifyDataType
+            columnName="login"
+            newDataType="varchar(254)"
+            tableName="jhi_user"/>
+
+        <modifyDataType
+            columnName="password_hash"
+            newDataType="varchar(254)"
+            tableName="jhi_user"/>
+
+        <modifyDataType
+            columnName="first_name"
+            newDataType="varchar(254)"
+            tableName="jhi_user"/>
+
+        <modifyDataType
+            columnName="last_name"
+            newDataType="varchar(254)"
+            tableName="jhi_user"/>
+
+    </changeSet>
+
+    <changeSet id="2026010918000000-2" author="ak">
+        <dropIndex indexName="idx_persistent_audit_event"
+                     tableName="jhi_persistent_audit_event"/>
+    </changeSet>
+
+    <changeSet id="2026010918000000-3" author="ak">
+
+    <modifyDataType
+        columnName="principal"
+        newDataType="varchar(254)"
+        tableName="jhi_persistent_audit_event"/>
+
+        <createIndex indexName="idx_persistent_audit_event"
+                     tableName="jhi_persistent_audit_event"
+                     unique="false">
+            <column name="principal" type="varchar(254)"/>
+            <column name="event_date" type="timestamp"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

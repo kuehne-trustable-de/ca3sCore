@@ -8,7 +8,7 @@ from different sources and using CMP-connected CAs or ADCS instances for certifi
 
 ### The feature list
 
-- Manage all your CA instances (CMP and ADCS)
+- Manage all your CA instances (CMP, ADCS, Vault or ca-specific REST interface)
 
 - Keep track of expiration of all your relevant certificates from all sources
 

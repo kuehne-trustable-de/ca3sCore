@@ -158,8 +158,6 @@ export default class JhiNavbar extends mixins(AlertMixin) {
 
     if (ssoProviderName === 'oidc') {
       this.doOIDCLogin();
-    } else if (ssoProviderName === 'keycloak') {
-      this.doOIDCLogin();
     } else if (ssoProviderName === 'saml') {
       this.doSAMLLogin();
     } else if (ssoProviderName === 'spnego') {
@@ -182,8 +180,6 @@ export default class JhiNavbar extends mixins(AlertMixin) {
     window.console.info('forwarding to SSO Login: ' + ssoProviderName);
 
     if (ssoProviderName === 'oidc') {
-      this.doOIDCLogout();
-    } else if (ssoProviderName === 'keycloak') {
       this.doOIDCLogout();
     } else if (ssoProviderName === 'saml') {
       this.doSAMLLogout();
@@ -284,6 +280,16 @@ export default class JhiNavbar extends mixins(AlertMixin) {
     return '#8fffff';
   }
   public get username(): string {
+    return this.$store.getters.account ? this.$store.getters.account.login : '';
+  }
+
+  public get friendlyName(): string {
+    if( !this.$store.getters.account ) {
+      return '';
+    }
+    if( this.$store.getters.account.firstName || this.$store.getters.account.lastName ) {
+      return this.$store.getters.account.firstName + ' ' + this.$store.getters.account.lastName;
+    }
     return this.$store.getters.account ? this.$store.getters.account.login : '';
   }
 

@@ -8,9 +8,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.stereotype.Component;
 
-// @Component
+
 public class Ca3sAuthenticationManager implements AuthenticationManager {
 
     private final static Logger LOG = LoggerFactory.getLogger(Ca3sAuthenticationManager.class);
@@ -34,7 +33,6 @@ public class Ca3sAuthenticationManager implements AuthenticationManager {
                 // (for example, if the first and last name might change, this is where we would
                 // update the local user entry)
                 //
-
                 return new UsernamePasswordAuthenticationToken( authentication.getPrincipal().toString(),
                 		authentication.getCredentials().toString(),
                 		authentication.getAuthorities());

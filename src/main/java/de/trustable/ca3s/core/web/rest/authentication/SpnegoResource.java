@@ -57,34 +57,4 @@ public class SpnegoResource {
         }
     }
 
-/*
-    public void setJWTHeader(){
-        SecurityContext securityContext = SecurityContextHolder.getContext();
-        log.info("Current authentication in SecurityContext: " + securityContext.getAuthentication());
-
-        List<OpenIDAttribute> attributes = new ArrayList<>();
-
-        OpenIDAuthenticationToken authentication = new OpenIDAuthenticationToken(
-            oidcRestService.retrieveUserName(keycloakUserDetails),
-            oidcRestService.getAuthorities(keycloakUserDetails),
-            "identityUrl",
-            attributes);
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        securityContext.setAuthentication(authentication);
-        String jwt = tokenProvider.createToken(authentication, false);
-
-        HttpHeaders httpHeaders = new HttpHeaders();
-        UriComponentsBuilder builder = servletUriComponentsBuilder.path("/../..");
-
-        builder.queryParam("bearer", jwt);
-        String startUri = builder.build().normalize().toString();
-        log.debug("startUri : '{}'", startUri);
-
-        httpHeaders.add("Location", startUri);
-        httpHeaders.add(JWTFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
-    }
-
- */
 }

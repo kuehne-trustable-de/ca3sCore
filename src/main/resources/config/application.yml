@@ -335,7 +335,7 @@ ca3s:
 
     client-id: ca3s
     client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
-    scope: openid, profile
+#    scope: openid profile
     authorization-grant-type: password
 
     auth-server-url: http://keycloak.trustable.eu:50080/auth

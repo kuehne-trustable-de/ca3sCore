@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.config;
 
+import de.trustable.ca3s.core.config.oidc.CustomOAuth2AuthenticationSuccessHandler;
+import de.trustable.ca3s.core.config.oidc.CustomOAuth2LoginAuthenticationProvider;
 import de.trustable.ca3s.core.config.saml.CustomSAMLBootstrap;
 import de.trustable.ca3s.core.security.AuthenticationProviderWrapper;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
@@ -17,9 +19,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.source.InvalidConfigurationPropertyValueException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.FileSystemResource;
@@ -42,6 +44,14 @@ import org.springframework.security.kerberos.authentication.KerberosServiceAuthe
 import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosClient;
 import org.springframework.security.kerberos.authentication.sun.SunJaasKerberosTicketValidator;
 import org.springframework.security.kerberos.web.authentication.SpnegoAuthenticationProcessingFilter;
+import org.springframework.security.oauth2.client.endpoint.DefaultAuthorizationCodeTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AccessTokenResponseClient;
+import org.springframework.security.oauth2.client.endpoint.OAuth2AuthorizationCodeGrantRequest;
+import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableOAuth2Client;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.saml.*;
 import org.springframework.security.saml.key.KeyManager;
 import org.springframework.security.saml.metadata.ExtendedMetadata;
@@ -62,7 +72,6 @@ import org.springframework.security.web.util.matcher.AndRequestMatcher;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.filter.CorsFilter;
-import org.zalando.problem.spring.web.advice.security.SecurityProblemSupport;
 
 import javax.annotation.Nonnull;
 import javax.servlet.http.HttpServletRequest;
@@ -73,8 +82,8 @@ import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableOAuth2Client
 @EnableGlobalMethodSecurity(prePostEnabled = true, securedEnabled = true)
-@Import(SecurityProblemSupport.class)
 @Order(2)
 public class SecurityConfiguration{
 
@@ -101,6 +110,9 @@ public class SecurityConfiguration{
     @Value("${ca3s.estAccess.port:0}")
     int estPort;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+
     @Value("${ca3s.saml.activate:true}")
     private boolean samlActivate;
 
@@ -115,6 +127,18 @@ public class SecurityConfiguration{
 
     @Value("${ca3s.auth.kerberos.keytab-location:#{null}}")
     private String keytabLocation;
+
+    /*
+    @Autowired
+    @Lazy
+    private OpenIdConnectConfig openIdConnectConfig;
+*/
+
+    @Autowired
+    CustomOAuth2LoginAuthenticationProvider oAuth2LoginAuthenticationProvider;
+
+    @Autowired
+    CustomOAuth2AuthenticationSuccessHandler oauthSuccessHandler;
 
     @Autowired
     @Qualifier("saml")
@@ -152,7 +176,6 @@ public class SecurityConfiguration{
     private final TokenProvider tokenProvider;
 
     private final CorsFilter corsFilter;
-    private final SecurityProblemSupport problemSupport;
     private final DomainUserDetailsService userDetailsService;
 
     private final ClientAuthConfig clientAuthConfig;
@@ -163,15 +186,14 @@ public class SecurityConfiguration{
 
     public SecurityConfiguration(TokenProvider tokenProvider,
                                  CorsFilter corsFilter,
-                                 SecurityProblemSupport problemSupport,
                                  DomainUserDetailsService userDetailsService,
-                                 ClientAuthConfig clientAuthConfig, @Value("${ca3s.auth.api-key.enabled:false}") boolean apiKeyEnabled,
+                                 ClientAuthConfig clientAuthConfig,
+                                 @Value("${ca3s.auth.api-key.enabled:false}") boolean apiKeyEnabled,
                                  @Value("${ca3s.auth.api-key.auth-token-header-name:X-API-KEY}")String apiKeyRequestHeader,
                                  @Value("${ca3s.auth.api-key.auth-token-admin:}") String apiKeyAdminValue) {
 
         this.tokenProvider = tokenProvider;
         this.corsFilter = corsFilter;
-        this.problemSupport = problemSupport;
         this.userDetailsService = userDetailsService;
         this.clientAuthConfig = clientAuthConfig;
         this.apiKeyEnabled = apiKeyEnabled;
@@ -189,8 +211,7 @@ public class SecurityConfiguration{
 
     @Bean
     public SAMLDiscovery samlDiscovery() {
-        SAMLDiscovery idpDiscovery = new SAMLDiscovery();
-        return idpDiscovery;
+        return new SAMLDiscovery();
     }
 
     public MetadataGenerator metadataGenerator() {
@@ -249,11 +270,18 @@ public class SecurityConfiguration{
             .authenticationProvider(samlAuthenticationProvider)
             .authenticationProvider(daoAuthenticationProvider());
 
+        if( isOAuthProviderRegistered()) {
+            authenticationManagerBuilder
+                .authenticationProvider(oAuth2LoginAuthenticationProvider);
+            LOG.info("registered oAuth2LoginAuthenticationProvider");
+        }
+
         if (keytabLocation != null && !keytabLocation.isEmpty() &&
             servicePrincipal != null && !servicePrincipal.isEmpty()) {
             authenticationManagerBuilder
                 .authenticationProvider(kerberosAuthenticationProvider())
                 .authenticationProvider(kerberosServiceAuthenticationProvider());
+            LOG.info("registered kerberosAuthenticationProvider");
         }
         return authenticationManagerBuilder.build();
     }
@@ -367,7 +395,9 @@ public class SecurityConfiguration{
             http
             .cors(Customizer.withDefaults())
             .csrf().disable()
+
             .addFilterBefore(corsFilter, UsernamePasswordAuthenticationFilter.class)
+
             .addFilterBefore(apiKeyAuthFilter(), UsernamePasswordAuthenticationFilter.class)
 
             .addFilterBefore(metadataGeneratorFilter(), ChannelProcessingFilter.class)
@@ -378,9 +408,10 @@ public class SecurityConfiguration{
             LOG.debug("add Filter : spnegoAuthenticationProcessingFilter");
             httpSecurity = httpSecurity.addFilterBefore(spnegoAuthenticationProcessingFilter(authenticationManager), BasicAuthenticationFilter.class);
         }
+
         httpSecurity
             .exceptionHandling()
-            .accessDeniedHandler(problemSupport)
+//            .accessDeniedHandler(problemSupport)
             .and()
             .headers()
             .contentSecurityPolicy("default-src 'self';" +
@@ -389,7 +420,7 @@ public class SecurityConfiguration{
                 " style-src 'self' 'unsafe-inline';" +
                 " img-src 'self' data:;" +
                 " font-src 'self' data:;" +
-                " connect-src 'self' blob: data: " + clientAuthConfig.getClientAuthTarget())
+                " connect-src 'self' blob: data: https://accounts.google.com; " + clientAuthConfig.getClientAuthTarget())
         .and()
             .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
         .and()
@@ -433,6 +464,12 @@ public class SecurityConfiguration{
             .antMatchers("/management/health").permitAll()
             .antMatchers("/management/info").permitAll()
             .antMatchers("/management/prometheus").permitAll()
+
+
+            // @ToDo check relevance
+            .antMatchers("/login/oauth2/code/**").permitAll()
+            .antMatchers("/loginFailure").permitAll()
+
 
             .antMatchers("/api/userProperties/filterList/CertList").authenticated()
 
@@ -539,10 +576,39 @@ public class SecurityConfiguration{
 
             .antMatchers("/api/**").authenticated()
 
-            .and()
+
+        .and()
             .httpBasic()
+
+/*
+        .and()
+              .oauth2Login()
+              .authorizationEndpoint().baseUri("/oauth2/authorize-client")
+              .authorizationRequestRepository(authorizationRequestRepository())
+            .and()
+              .tokenEndpoint()
+              .accessTokenResponseClient(accessTokenResponseClient())
+            .and()
+              .successHandler(oauthSuccessHandler)
+              .failureUrl("/loginFailure")
+*/
         .and().authenticationManager(authenticationManager)
         .apply(securityConfigurerAdapter());
+
+        if( isOAuthProviderRegistered()){
+            httpSecurity
+                .oauth2Login()
+                .authorizationEndpoint().baseUri("/oauth2/authorize-client")
+                .authorizationRequestRepository(authorizationRequestRepository())
+                .and()
+                .tokenEndpoint()
+                .accessTokenResponseClient(accessTokenResponseClient())
+                .and()
+                .successHandler(oauthSuccessHandler)
+                .failureUrl("/loginFailure");
+            LOG.info("registered OAuth2 configuration ");
+        }
+
         // @formatter:on
 
         LOG.info("registered JWT-based configuration ");
@@ -551,6 +617,12 @@ public class SecurityConfiguration{
     }
 
 
+    public boolean isOAuthProviderRegistered() {
+
+        // check upfront whether the oauth registry is present
+        // if not, don't even try to establish the OAuth filter and handler
+        return !applicationContext.getBeansOfType( ClientRegistrationRepository.class ).isEmpty();
+    }
 
     private JWTConfigurer securityConfigurerAdapter() {
         return new JWTConfigurer(tokenProvider);
@@ -568,6 +640,7 @@ public class SecurityConfiguration{
             return new NullAuthFilter();
         }
     }
+
 
     /**
      * Creates a request matcher which only matches requests for a specific local port and path (using an
@@ -609,21 +682,6 @@ public class SecurityConfiguration{
     }
 
     /**
-     * Creates a request matcher which only matches requests for a specific local port, path and request method (using
-     * an {@link AntPathRequestMatcher} for the path part).
-     *
-     * @param   port         the port to match
-     * @param   pathPattern  the pattern for the path.
-     * @param   method       the HttpMethod to match. Requests for other methods will not be matched.
-     *
-     * @return  the new request matcher.
-     */
-//    private RequestMatcher forPortAndPath(final int port, @Nonnull final HttpMethod method,
-//            @Nonnull final String pathPattern) {
-//        return new AndRequestMatcher(forPort(port), new AntPathRequestMatcher(pathPattern, method.name()));
-//    }
-
-    /**
      * A request matcher which matches just a port.
      *
      * @param   port  the port to match.
@@ -656,6 +714,18 @@ public class SecurityConfiguration{
             }
             return false;
         };
+    }
+
+
+    @Bean
+    public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository() {
+        return new HttpSessionOAuth2AuthorizationRequestRepository();
+    }
+
+    @Bean
+    public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
+        DefaultAuthorizationCodeTokenResponseClient accessTokenResponseClient = new DefaultAuthorizationCodeTokenResponseClient();
+        return accessTokenResponseClient;
     }
 
 }

@@ -272,7 +272,7 @@ public class SamlSecurityConfig {
     @Bean
     @Qualifier("saml")
     public SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler() {
-        SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler = new CustomUrlAuthenticationSuccessHandler(tokenProvider, secureCookie);
+        SavedRequestAwareAuthenticationSuccessHandler successRedirectHandler = new CustomUrlAuthenticationSuccessHandler(tokenProvider);
         // successRedirectHandler.setDefaultTargetUrl("/");
         return successRedirectHandler;
     }
