@@ -157,7 +157,7 @@
         <maven-war-plugin.version>3.5.1</maven-war-plugin.version>
         <maven-checkstyle.version>3.6.0</maven-checkstyle.version>
         <maven-source.version>3.4.0</maven-source.version>
-        <checkstyle.version>12.3.0</checkstyle.version>
+        <checkstyle.version>12.3.1</checkstyle.version>
         <spring-nohttp-checkstyle.version>0.0.11</spring-nohttp-checkstyle.version>
         <frontend-maven-plugin.version>1.15.4</frontend-maven-plugin.version>
         <git-commit-id-plugin.version>9.0.2</git-commit-id-plugin.version>
