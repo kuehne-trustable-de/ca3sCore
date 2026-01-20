@@ -168,7 +168,7 @@
         <jib-maven-plugin.to.image>docker.io/ca3s/ca3s</jib-maven-plugin.to.image>
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-        <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
+        <properties-maven-plugin.version>1.3.0</properties-maven-plugin.version>
         <sonar-maven-plugin.version>5.5.0.6356</sonar-maven-plugin.version>
         <jacoco.utReportFolder>${project.build.directory}/jacoco/test</jacoco.utReportFolder>
         <jacoco.utReportFile>${jacoco.utReportFolder}/test.exec</jacoco.utReportFile>
