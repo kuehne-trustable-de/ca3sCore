@@ -203,7 +203,7 @@
         <log4j.version>2.25.3</log4j.version>
         <commons-logging.version>1.3.5</commons-logging.version>
 
-        <dnsjava.version>3.6.3</dnsjava.version>
+        <dnsjava.version>3.6.4</dnsjava.version>
 
         <opencsvVersion>5.12.0</opencsvVersion>
 
