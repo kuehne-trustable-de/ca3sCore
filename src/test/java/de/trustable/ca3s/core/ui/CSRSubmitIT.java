@@ -24,6 +24,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
@@ -473,14 +475,24 @@ public class CSRSubmitIT extends WebTestBase {
 
         // set the serial number, decimal
         validatePresent(LOC_INP_CERT_SERIAL_VALUE);
+        setText(LOC_INP_CERT_SERIAL_VALUE, "foo1234567890");
+
+        WebElement entryElement = waitForElement(LOC_INP_CERT_SERIAL_VALUE);
+        entryElement.sendKeys(Keys.RETURN);
+        validateNotPresent(byCertSubject);
+
+        // set the serial number, decimal
+        validatePresent(LOC_INP_CERT_SERIAL_VALUE);
         setText(LOC_INP_CERT_SERIAL_VALUE, newCert.getSerialNumber().toString());
 
+        entryElement.sendKeys(Keys.RETURN);
         validatePresent(byCertSubject);
 
         // set the serial number, decimal with leading zeros
         validatePresent(LOC_INP_CERT_SERIAL_VALUE);
         setText(LOC_INP_CERT_SERIAL_VALUE, "00" + newCert.getSerialNumber().toString());
 
+        entryElement.sendKeys(Keys.RETURN);
         validatePresent(byCertSubject);
 
         selectOptionByValue(LOC_SEL_CERT_CHOICE, "HEX");
@@ -489,6 +501,7 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_INP_CERT_SERIAL_VALUE);
         setText(LOC_INP_CERT_SERIAL_VALUE, "0x" + newCert.getSerialNumber().toString(16));
 
+        entryElement.sendKeys(Keys.RETURN);
         validatePresent(byCertSubject);
 
         click(byCertSubject);

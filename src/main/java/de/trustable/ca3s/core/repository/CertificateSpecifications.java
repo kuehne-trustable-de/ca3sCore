@@ -828,9 +828,12 @@ public final class CertificateSpecifications {
                 String decSerial = attributeValue;
 
                 if (Selector.HEX.toString().equalsIgnoreCase(attributeSelector)) {
+                    if(attributeValue.toLowerCase(Locale.ROOT).startsWith("0x") ){
+                        decSerial = attributeValue.substring(2);
+                    }
                     try {
-                        BigInteger serialBI = new BigInteger(attributeValue.replaceAll(" ", ""), 16);
-                        decSerial = serialBI.toString();
+                        BigInteger serialBI = new BigInteger(decSerial.replaceAll(" ", ""), 16);
+                        decSerial = serialBI.toString(10);
                     } catch (NumberFormatException nfe) {
                         // not a hex number, ignore the problem
                     }
