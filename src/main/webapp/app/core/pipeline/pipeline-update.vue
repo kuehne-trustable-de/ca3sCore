@@ -695,7 +695,7 @@
                            v-model="pipeline.acmeConfigItems.notifyContactsOnError" />
                   </div>
 
-                  <div class="form-group" v-if="isWebPipelineType() && tenants && (tenants.length > 0)">
+                  <div class="form-group" v-if="(isWebPipelineType() || pipeline.acmeConfigItems.externalAccountRequired) && tenants && (tenants.length > 0)">
                     <label v-text="$t('ca3SApp.pipeline.tenants')"></label>
                     <help-tag role="Admin" target="pipeline.tenants" />
                     <select class="form-control" multiple name="selectedTenants" id="pipeline-selectedTenants"

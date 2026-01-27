@@ -8,7 +8,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.21</version>
+    <version>1.2.22</version>
 
     <packaging>jar</packaging>
 
@@ -126,7 +126,8 @@
         <spring-security-oauth2-autoconfigure.version>2.6.8</spring-security-oauth2-autoconfigure.version>
 
         <saml2-core.spring.version>1.0.10.RELEASE</saml2-core.spring.version>
-        <open-saml.version>4.3.0</open-saml.version>
+
+        <open-saml.version>4.3.2</open-saml.version>
 
         <undertow.core.version>2.3.20.Final</undertow.core.version>
         <bucket4j.version>8.10.1</bucket4j.version>
@@ -236,7 +237,7 @@
         <xml.maven.saxon.version>12.9</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.2.0</xml.maven.plugin.version>
 
-        <dependencyCheck.version>12.1.9</dependencyCheck.version>
+        <dependencyCheck.version>12.2.0</dependencyCheck.version>
         <dependencyCheck.skip>false</dependencyCheck.skip>
 
     </properties>
@@ -286,26 +287,6 @@
                 <version>2.6.0</version>
             </dependency>
 
-            <!-- Fix for CVE-2021-31811 & CVE-2021-31812
-                https://mvnrepository.com/artifact/org.apache.pdfbox/xmpbox -->
-            <!--dependency>
-                <groupId>org.apache.pdfbox</groupId>
-                <artifactId>xmpbox</artifactId>
-                <version>2.0.25</version>
-            </dependency-->
-
-            <!--dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>1.4.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>1.4.3</version>
-            </dependency -->
-
             <!-- Fix for CVE-2021-22569
                 https://mvnrepository.com/artifact/com.google.protobuf/protobuf-java -->
             <dependency>
@@ -322,23 +303,6 @@
                 <version>2.2.41</version>
             </dependency>
 
-            <!-- check whether required after jhispter update ( > 7.5.1 ) -->
-            <!--dependency>
-                <groupId>com.github.docker-java</groupId>
-                <artifactId>docker-java-transport</artifactId>
-                <version>3.5.1</version>
-            </dependency>
-            <dependency>
-                <groupId>com.github.docker-java</groupId>
-                <artifactId>docker-java-api</artifactId>
-                <version>3.5.1</version>
-            </dependency-->
-
-            <!--dependency>
-                <groupId>com.mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>8.2.0</version>
-            </dependency-->
             <!-- https://mvnrepository.com/artifact/com.mysql/mysql-connector-j -->
             <dependency>
                 <groupId>com.mysql</groupId>
@@ -392,11 +356,6 @@
                 <artifactId>snakeyaml</artifactId>
                 <version>2.4</version>
             </dependency>
-            <!--dependency>
-                <groupId>org.hibernate</groupId>
-                <artifactId>hibernate-validator</artifactId>
-                <version>7.0.1.Final</version>
-            </dependency-->
 
             <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
             <dependency>
@@ -411,26 +370,6 @@
                 <version>${hibernate.version}</version>
             </dependency>
 
-            <!--dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-tx</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-aop</artifactId>
-                <version>${spring.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-beans</artifactId>
-                <version>${spring.version}</version>
-            </dependency-->
 
             <dependency>
                 <groupId>org.springframework.security</groupId>
@@ -455,6 +394,7 @@
                 <artifactId>undertow-core</artifactId>
                 <version>${undertow.core.version}</version>
             </dependency>
+
 
             <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-data -->
             <dependency>
@@ -799,6 +739,14 @@
                 <scope>compile</scope>
             </dependency>
 
+            <!-- Source: https://mvnrepository.com/artifact/org.assertj/assertj-core -->
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>3.27.7</version>
+                <scope>test</scope>
+            </dependency>
+
         </dependencies>
 
     </dependencyManagement>
@@ -828,28 +776,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-cache</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>net.rakugakibox.spring.boot</groupId>
-            <artifactId>logback-access-spring-boot-starter</artifactId>
-            <version>2.7.1</version>
-        </dependency-->
-
-        <!--dependency>
-            <groupId>ch.qos.logback.access</groupId>
-            <artifactId>logback-access-common</artifactId>
-            <version>2.0.7</version>
-        </dependency-->
 
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>2.2.41</version>
         </dependency>
-
-        <!--dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-spring-boot-starter</artifactId>
-        </dependency-->
 
         <!-- ToDo still relevant ?? -->
         <dependency>
@@ -864,39 +796,6 @@
             <version>${spring-vault.version}</version>
         </dependency>
 
-        <!--
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-core</artifactId>
-            <version>${keycloak.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-common</artifactId>
-            <version>${keycloak.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-adapter-core</artifactId>
-            <version>${keycloak.adapter.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcprov-jdk18on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcpkix-jdk18on</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.bouncycastle</groupId>
-                    <artifactId>bcutil-jdk18on</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
--->
 
         <dependency>
             <groupId>org.springframework.security.kerberos</groupId>
@@ -979,11 +878,7 @@
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
         </dependency>
-        <!--dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>mysql</artifactId>
-            <scope>test</scope>
-        </dependency-->
+
         <dependency>
             <groupId>javax.cache</groupId>
             <artifactId>cache-api</artifactId>
@@ -1159,27 +1054,6 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
-        <!-- Spring Security OAuth 2.0 -->
-        <!--dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-client</artifactId>
-        </dependency-->
-
-        <!--dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security.oauth</groupId>
-            <artifactId>spring-security-oauth2</artifactId>
-            <version>2.5.2.RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-jwt</artifactId>
-            <version>1.1.1.RELEASE</version>
-        </dependency-->
 
         <dependency>
             <groupId>org.springframework.security.oauth.boot</groupId>
@@ -1373,18 +1247,6 @@
             <version>2.10.0</version>
         </dependency>
 
-        <!--dependency>
-            <groupId>org.camunda.bpm.springboot</groupId>
-            <artifactId>camunda-bpm-spring-boot-starter-webapp</artifactId>
-            <version>${camunda.spring-boot.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency-->
-
         <dependency>
             <groupId>org.camunda.bpm.springboot</groupId>
             <artifactId>camunda-bpm-spring-boot-starter-rest</artifactId>
@@ -1529,12 +1391,6 @@
             <artifactId>unboundid-ldapsdk</artifactId>
         </dependency>
 
-        <!--dependency>
-            <groupId>edu.uci.ics</groupId>
-            <artifactId>crawler4j</artifactId>
-            <version>${crawler4jVersion}</version>
-        </dependency-->
-
         <dependency>
             <groupId>com.vladsch.flexmark</groupId>
             <artifactId>flexmark-all</artifactId>
@@ -1585,20 +1441,6 @@
             <version>${takesVersion}</version>
             <scope>test</scope>
         </dependency>
-
-        <!--dependency>
-            <groupId>org.junit.platform</groupId>
-            <artifactId>junit-platform-commons</artifactId>
-            <version>1.5.2</version>
-            <scope>test</scope>
-        </dependency-->
-
-        <!--dependency>
-            <groupId>io.ddavison</groupId>
-            <artifactId>conductor</artifactId>
-            <version>${conductorVersion}</version>
-            <scope>test</scope>
-        </dependency-->
 
         <dependency>
             <groupId>org.seleniumhq.selenium</groupId>

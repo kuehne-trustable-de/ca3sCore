@@ -55,25 +55,24 @@ public class PipelineView implements Serializable {
 
     private RDNRestriction restriction_SAN;
 
-    private RDNRestriction[] rdnRestrictions;
-
-    private ARARestriction[] araRestrictions;
+    private RDNRestriction[] rdnRestrictions = new RDNRestriction[0];
+    private ARARestriction[] araRestrictions = new ARARestriction[0];
 
     private boolean tosAgreementRequired;
     private String tosAgreementLink;
 
     private String website;
-    private String[] caaIdentitiyList;
-    private String[] selectedCaaIdentitiyList;
+    private String[] caaIdentitiyList = new String[0];
+    private String[] selectedCaaIdentitiyList = new String[0];
     private String eabMode;
 
-    private String[] domainRaOfficerList;
+    private String[] domainRaOfficerList = new String[0];
 
-    private Tenant[] allTenantList;
-    private Tenant[] selectedTenantList;
+    private Tenant[] allTenantList = new Tenant[0];
+    private Tenant[] selectedTenantList = new Tenant[0];
 
-    private Authority[] allRolesList;
-    private Authority[] selectedRolesList;
+    private Authority[] allRolesList = new Authority[0];
+    private Authority[] selectedRolesList = new Authority[0];
 
     private boolean toPendingOnFailedRestrictions = false;
 
@@ -86,10 +85,10 @@ public class PipelineView implements Serializable {
 
     private WebConfigItems webConfigItems;
 
-    private AuditView[] auditViewArr;
+    private AuditView[] auditViewArr = new AuditView[0];
 
-    private String[] networkAcceptArr;
-    private String[] networkRejectArr;
+    private String[] networkAcceptArr = new String[0];
+    private String[] networkRejectArr = new String[0];
 
     private CsrUsage csrUsage = CsrUsage.TLS_SERVER;
     private long[] requestProxyConfigIds = new long[0];
