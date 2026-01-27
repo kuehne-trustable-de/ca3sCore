@@ -86,22 +86,7 @@ public class DomainUserDetailsService implements UserDetailsService {
         log.info("user {}, isActive {}, failed logins {}, blocked until {}, credentials valid until {}",
             login, user.isActivated(), user.getFailedLogins(), user.getBlockedUntilDate(), user.getCredentialsValidToDate());
 
-        if (!user.isActivated()) {
-            throw new UserNotActivatedException("User " + login + " was not activated");
-        }
-
-        Instant now = Instant.now();
-        if (user.getBlockedUntilDate() != null &&
-            user.getBlockedUntilDate().isAfter(now)) {
-            userUtil.handleBadCredentials(login, AuthSecondFactor.NONE);
-
-            throw new BlockedCredentialsException("User '" + login + "' blocked until " + user.getBlockedUntilDate());
-        }
-
-        if (user.getCredentialsValidToDate() != null &&
-            user.getCredentialsValidToDate().isBefore(now)) {
-            throw new UserCredentialsExpiredException("User " + login + " credentials expired since " + user.getCredentialsValidToDate());
-        }
+        userUtil.preCheckUser(user);
 
         List<GrantedAuthority> grantedAuthorities = getGrantedAuthorities(user);
 

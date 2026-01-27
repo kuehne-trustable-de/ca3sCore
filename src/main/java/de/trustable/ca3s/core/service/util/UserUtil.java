@@ -8,6 +8,8 @@ import de.trustable.ca3s.core.exception.UserNotFoundException;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.IPBlockedException;
+import de.trustable.ca3s.core.security.UserCredentialsExpiredException;
+import de.trustable.ca3s.core.security.UserNotActivatedException;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CSRView;
@@ -208,6 +210,27 @@ public class UserUtil {
             auditService.saveAuditTrace( auditService.createAuditTraceLoginForIPBlocked(username, clientIP));
             throw ipBlockedException;
         }
+    }
+
+    public void preCheckUser(final User user){
+
+        if (!user.isActivated()) {
+            throw new UserNotActivatedException("User " + user.getLogin() + " was not activated");
+        }
+
+        Instant now = Instant.now();
+        if (user.getBlockedUntilDate() != null &&
+            user.getBlockedUntilDate().isAfter(now)) {
+            handleBadCredentials(user.getLogin(), AuthSecondFactor.NONE);
+
+            throw new BlockedCredentialsException("User '" + user.getLogin() + "' blocked until " + user.getBlockedUntilDate());
+        }
+
+        if (user.getCredentialsValidToDate() != null &&
+            user.getCredentialsValidToDate().isBefore(now)) {
+            throw new UserCredentialsExpiredException("User " + user.getLogin() + " credentials expired since " + user.getCredentialsValidToDate());
+        }
+
     }
 
     public void handleSuccesfulAuthentication(final String username) {

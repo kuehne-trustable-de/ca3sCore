@@ -193,9 +193,9 @@ public class AccountHandlingIT extends WebTestBase {
         }
         Totp wrongTotp = new Totp(wrongSeed);
 
-        signIn(loginName, newPassword, wrongTotp, null, 0, true);
+        signIn(loginName, newPassword, wrongTotp, null, 0, true, false);
 
-        signIn(loginName, wrongPassword, totp, null, 0, true);
+        signIn(loginName, wrongPassword, totp, null, 0, true,false);
 
         signIn(loginName, newPassword, totp);
 
@@ -254,6 +254,21 @@ public class AccountHandlingIT extends WebTestBase {
         Assertions.assertTrue(isEnabled(LOC_BTN_SAVE), "Expecting save button enabled");
 
         click(LOC_BTN_SAVE);
+
+
+        logOut();
+
+        signIn(loginName, newPassword, totp);
+
+        signIn(loginName, wrongPassword, totp, null, 0, true,false);
+        signIn(loginName, wrongPassword, totp, null, 0, true,false);
+        signIn(loginName, wrongPassword, totp, null, 0, true,false);
+        signIn(loginName, wrongPassword, totp, null, 0, true,false);
+        signIn(loginName, wrongPassword, totp, null, 0, true,false);
+
+        signIn(loginName, wrongPassword, totp, null, 0, true, true);
+
+        signIn(loginName, newPassword, totp, null, 0, true, true);
 
     }
 

@@ -98,6 +98,9 @@ public class UserJWTController {
         }
 
         try {
+            User user = handleCa3sInternalUser(loginData);
+            userUtil.preCheckUser(user);
+
             Authentication authentication = userCredentialService.validateUserPassword(loginData.getUsername(),
                 loginData.getPassword());
 
@@ -105,12 +108,14 @@ public class UserJWTController {
                 return buildProblemDetailForAuthenticationFailure(loginData, "authentication failed");
             }
 
-            User user = handleCa3sInternalUser(loginData);
             userUtil.handleSuccesfulAuthentication(user, loginData.getAuthSecondFactor());
 
             return getJwtTokenResponseEntity(authentication);
 
         } catch (AuthenticationException authenticationException) {
+            log.debug("authenticationException : ", authenticationException);
+            log.info("authenticationException at login of user '{}' with reason {}", loginData.getUsername(), authenticationException.getMessage());
+            userUtil.handleBadCredentials(loginData.getUsername(), loginData.getAuthSecondFactor());
             return buildProblemDetailForAuthenticationFailure(loginData, authenticationException.getMessage());
 
         } catch (Throwable th) {

@@ -550,6 +550,8 @@
   "ca3SApp.form.client.scep.token.value": "SCEP Secret",
   "ca3SApp.form.client.pipeline": "Processing Pipeline",
 
+  "ca3SApp.form.client.certbot": "Options for certbot & acme.sh",
+
   "ca3SApp.help.title": "Help",
   "ca3SApp.help.admin.title": "Admin Help",
   "ca3SApp.help.subtitle.commandline": "Command line",
@@ -978,7 +980,7 @@
   "global.item-count": "Showing {{first}} - {{second}} of {{total}} items.",
   "global.menu.about.main": "About",
   "global.menu.account.login": "Sign in",
-  "global.menu.account.SSOLogin": "SSO Login",
+  "global.menu.account.SSOLogin": "SSO Login by '{{providerName}}'",
   "global.menu.account.LdapLogin": "Login @ {{ldapLoginDomainName}}",
   "global.menu.account.logout": "Sign out",
   "global.menu.account.main": "Account",

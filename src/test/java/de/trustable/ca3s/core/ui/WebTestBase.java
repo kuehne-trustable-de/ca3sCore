@@ -66,6 +66,7 @@ public class WebTestBase extends LocomotiveBase {
     public static final By LOC_TXT_SPOKEN_TEXT = By.xpath("//div[@name='spokenTextBox']");
 
     public static final By LOC_LOGIN_FAILED_TEXT = By.xpath("//div/strong [text() = 'Failed to sign in!']");
+    public static final By LOC_LOGIN_BLOCKED_TEXT = By.xpath("//div/strong [text() = 'Too many failed login attempts!']");
 
     public static final By LOC_HELP_TARGET_LIST = By.xpath("//a [starts-with(@href,'/helpTargetAdmin')]");
 
@@ -575,13 +576,13 @@ public class WebTestBase extends LocomotiveBase {
     }
 
     void signIn(String user, String password, Totp totp) {
-        signIn ( user, password, totp, null, 0, false);
+        signIn ( user, password, totp, null, 0, false, false);
     }
 
     void signIn(final String user, final String password, String s, int waitMillis) {
-        signIn(user, password, null, s, waitMillis, false);
+        signIn(user, password, null, s, waitMillis, false, false);
     }
-    void signIn(final String user, final String password, Totp totp, String s, int waitMillis, boolean expectFailure) {
+    void signIn(final String user, final String password, Totp totp, String s, int waitMillis, boolean expectFailure, boolean expectBlocked) {
 
         if( isPresent(LOC_TXT_WEBPACK_ERROR) ) {
             System.err.println(
@@ -619,7 +620,12 @@ public class WebTestBase extends LocomotiveBase {
         wait(waitMillis);
         click(LOC_BTN_SIGNIN_SUBMIT);
 
-        if( expectFailure ) {
+        if(expectBlocked) {
+            wait(1000);
+            validatePresent(LOC_LOGIN_BLOCKED_TEXT);
+            driver.findElement(LOC_LNK_SIGNIN_PASSWORD).sendKeys(Keys.ESCAPE);
+
+        } else if( expectFailure ) {
             wait(1000);
             validatePresent(LOC_LOGIN_FAILED_TEXT);
             driver.findElement(LOC_LNK_SIGNIN_PASSWORD).sendKeys(Keys.ESCAPE);

@@ -542,6 +542,8 @@
   "ca3SApp.form.client.scep.token.value": "SCEP Secret",
   "ca3SApp.form.client.pipeline": "Nutzbar für Pipeline",
 
+  "ca3SApp.form.client.certbot": "Optionen für certbot & acme.sh",
+
   "ca3SApp.help.title": "Hilfe",
   "ca3SApp.help.admin.title": "Admin Hilfe",
   "ca3SApp.help.subtitle.commandline": "Kommandozeile",
@@ -949,7 +951,7 @@
   "global.item-count": "Ergebnis {{first}} - {{second}} von {{total}} Elemente.",
   "global.menu.about.main": "Über",
   "global.menu.account.login": "Anmelden",
-  "global.menu.account.SSOLogin": "Anmelden mit SSO",
+  "global.menu.account.SSOLogin": "Anmeldung mit '{{providerName}}'",
   "global.menu.account.LdapLogin": "Anmelden @ {{ldapLoginDomainName}}",
   "global.menu.account.logout": "Abmelden",
   "global.menu.account.main": "Zugang",

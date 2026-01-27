@@ -175,12 +175,7 @@ export default {
         },
         loadDataRequestsByMonth(){
             const self = this;
-/*
-            requestsYears: 3,
-                requestsAcme: true,
-                requestsScep: true,
-                requestsWeb: true,
-*/
+
             axios
                 .get('publicapi/requestsByMonth', {
                     params:
