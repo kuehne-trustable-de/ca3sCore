@@ -61,6 +61,7 @@ public class UIDatasetSupport {
     private final String certificateStoreIsolation;
 
     private final String[] ssoProvider;
+    private final String ssoProviderName;
     private final String ldapLoginDomainName;
     private final String samlEntityBaseUrl;
 
@@ -83,8 +84,10 @@ public class UIDatasetSupport {
                             @Value("${ca3s.auth.ad-domain:}")String ldapLoginDomainName,
                             @Value("${ca3s.ui.certificate-store.isolation:none}")String certificateStoreIsolation,
                             @Value("${ca3s.ui.sso.provider:}") String[] ssoProvider,
+                            @Value("${ca3s.oidc.provider-name:}") String oidcProviderName,
                             @Value("${ca3s.saml.entity.base-url:}") String samlEntityBaseUrl,
-                            @Value("${ca3s.ui.login.scnd-factor:CLIENT_CERT, TOTP, SMS}") String[] scndFactorTypes, CertificateAttributeRepository certificateAttributeRepository) {
+                            @Value("${ca3s.ui.login.scnd-factor:CLIENT_CERT, TOTP, SMS}") String[] scndFactorTypes,
+                            CertificateAttributeRepository certificateAttributeRepository) {
         this.caConnConfRepo = caConnConfRepo;
         this.caConnectorAdapter = caConnectorAdapter;
         this.pipelineRepo = pipelineRepo;
@@ -107,6 +110,18 @@ public class UIDatasetSupport {
         this.secondFactorList = new ArrayList<>();
         for( String factor: scndFactorTypes){
             secondFactorList.add(AuthSecondFactor.valueOf(factor));
+        }
+
+        if( ssoProvider != null && ssoProvider.length > 0 ){
+            if( ssoProvider[0].equalsIgnoreCase("oidc")) {
+                ssoProviderName = oidcProviderName;
+            }else if( ssoProvider[0].equalsIgnoreCase("saml")) {
+                ssoProviderName = "SAML";
+            }else{
+                ssoProviderName = ssoProvider[0];
+            }
+        }else{
+            ssoProviderName = "";
         }
     }
 
@@ -143,6 +158,7 @@ public class UIDatasetSupport {
             cryptoConfigView,
             autoSSOLogin,
             ssoProvider,
+            ssoProviderName,
             ldapLoginDomainName,
             samlEntityBaseUrl,
             effSecondFactorList.toArray(new AuthSecondFactor[0]),

@@ -2,10 +2,8 @@ package de.trustable.ca3s.core.security;
 
 import de.trustable.ca3s.core.config.LDAPConfig;
 import de.trustable.ca3s.core.domain.User;
-import de.trustable.ca3s.core.domain.enumeration.AuthSecondFactor;
 import de.trustable.ca3s.core.exception.UserNotAuthenticatedException;
 import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.service.exception.BlockedCredentialsException;
 import de.trustable.ca3s.core.service.mapper.LDAPUserProviderMapping;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.NamingException;
-import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 

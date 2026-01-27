@@ -255,8 +255,12 @@ public class CustomSAMLAuthenticationProvider extends SAMLAuthenticationProvider
         for( Authority authority: authorityRepository.findAll()){
             if( authority.getName().equalsIgnoreCase("ROLE_USER")) {
                 authoritySet.add(authority);
+
+               // @ToDo check RA, Domain RA and Admin roles
+
             }else if(Arrays.stream(samlMappingConfig.getRolesOtherArr()).anyMatch(
                 role -> role.equalsIgnoreCase(authority.getName()))){
+                // @ToDo check validation for arbitrary role names
                 LOG.debug("authority.getName() {} included in roles {}", authority.getName(), StringUtils.join(samlMappingConfig.getRolesOtherArr(), ","));
 
                 if( credential.getAttributes().stream().anyMatch(

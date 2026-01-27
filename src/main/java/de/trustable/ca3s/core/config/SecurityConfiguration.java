@@ -128,12 +128,6 @@ public class SecurityConfiguration{
     @Value("${ca3s.auth.kerberos.keytab-location:#{null}}")
     private String keytabLocation;
 
-    /*
-    @Autowired
-    @Lazy
-    private OpenIdConnectConfig openIdConnectConfig;
-*/
-
     @Autowired
     CustomOAuth2LoginAuthenticationProvider oAuth2LoginAuthenticationProvider;
 
@@ -580,18 +574,6 @@ public class SecurityConfiguration{
         .and()
             .httpBasic()
 
-/*
-        .and()
-              .oauth2Login()
-              .authorizationEndpoint().baseUri("/oauth2/authorize-client")
-              .authorizationRequestRepository(authorizationRequestRepository())
-            .and()
-              .tokenEndpoint()
-              .accessTokenResponseClient(accessTokenResponseClient())
-            .and()
-              .successHandler(oauthSuccessHandler)
-              .failureUrl("/loginFailure")
-*/
         .and().authenticationManager(authenticationManager)
         .apply(securityConfigurerAdapter());
 

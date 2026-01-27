@@ -440,7 +440,7 @@ ca3s:
       # enable / disable autologin via SSO
       autologin: false
       # define a SSO provider: oidc / saml / spnego
-      provider: oidc
+      provider: saml
       # per default use a secure cookie to transport auth token
       secureCookie: false
   acme:
@@ -520,7 +520,7 @@ ca3s:
       password: s3cr3t
 
   saml:
-    activate: false
+    activate: true
 
     # define the location of the SAML IDP+-
     idp: http://10.152.183.139/realms/master
@@ -591,29 +591,4 @@ ca3s:
       admin:
       other: ROLE_ca3s-oidc_someOtherRole
 
-    # The expressions operate on a map with some normalized items:
-    #
-    # 'Name'
-    # 'FamilyName'
-    # 'PreferredUsername'
-    # 'Email'
-    # 'Sub'
-    #
-    # The roles are mapped from different role elements into the key
-    # 'Roles'
-
-    expression:
-      tenant: "get('PreferredUsername').get(0).substring(0,2).toUpperCase()"
-
-    client-id: ca3s-oidc
-    client-secret: 197bc3b4-64b0-452f-9bdb-fcaea0988e90
-    scope: openid, profile
-    authorization-grant-type: password
-
-    auth-server-url: http://10.152.183.139
-    realm: master
-
-    authorization-uri: http://10.152.183.139/realms/master/protocol/openid-connect/auth
-    #    authorization-uri: http://keycloak.trustable.eu:50080/auth/realms/ca3sRealm/protocol/openid-connect/auth
-
-    use-post-logout-redirect-uri: true
+    provider-name: google

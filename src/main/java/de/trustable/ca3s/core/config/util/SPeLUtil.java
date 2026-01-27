@@ -9,8 +9,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class SPeLUtil {
@@ -25,8 +24,30 @@ public class SPeLUtil {
         try {
             return (String) expression.getValue(context);
         }catch(Exception exception){
-            LOG.info("SPeL evaluation of [{}]failed: {}", expressionString, exception.getMessage());
+            LOG.info("SPeL evaluation of [{}] failed: {}", expressionString, exception.getMessage());
             return "";
+        }
+    }
+    public Collection<String> evaluateListExpression(HashMap<String, List<String>> attributeMap, String expressionString) {
+        ExpressionParser expressionParser = new SpelExpressionParser();
+        Expression expression = expressionParser.parseExpression(expressionString);
+
+        EvaluationContext context = new StandardEvaluationContext(attributeMap);
+        try {
+            Object result = expression.getValue(context);
+            if( result == null){
+                return Collections.emptyList();
+            }else if( result instanceof String){
+                return Collections.singletonList((String)result);
+            }else if( result instanceof String[]){
+                return Arrays.asList( (String[])result);
+            }else if( result instanceof Collection){
+                return (Collection<String>)result;
+            }
+            return Collections.emptyList();
+        }catch(Exception exception){
+            LOG.info("SPeL evaluation of [{}] failed: {}", expressionString, exception.getMessage());
+            return Collections.emptyList();
         }
     }
 

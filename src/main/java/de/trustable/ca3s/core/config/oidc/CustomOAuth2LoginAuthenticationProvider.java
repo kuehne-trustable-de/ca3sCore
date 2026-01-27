@@ -36,6 +36,7 @@ import org.thymeleaf.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationProvider {
 
@@ -267,11 +268,35 @@ public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationPr
         Set<Authority> authoritySet = new HashSet<>();
 
         for( Authority authority: authorityRepository.findAll()){
-            if( authority.getName().equalsIgnoreCase("ROLE_USER")) {
+            if( authority.getName().equalsIgnoreCase(AuthoritiesConstants.USER)) {
                 authoritySet.add(authority);
+
+            } else if( authority.getName().equalsIgnoreCase(AuthoritiesConstants.RA_OFFICER)) {
+                for (GrantedAuthority grantedAuthority : oauth2User.getAuthorities()) {
+                    if( isAuthorityNamePresentInArray(grantedAuthority, oidcMappingConfig.getRolesRAArr())){
+                        authoritySet.add(authority);
+                        LOG.debug("OIDC authority '{}' valid as RA officer", grantedAuthority.getAuthority());
+                    }
+                }
+            } else if( authority.getName().equalsIgnoreCase(AuthoritiesConstants.DOMAIN_RA_OFFICER)) {
+                for (GrantedAuthority grantedAuthority : oauth2User.getAuthorities()) {
+                    if( isAuthorityNamePresentInArray(grantedAuthority, oidcMappingConfig.getRolesDomainRAArr())){
+                        authoritySet.add(authority);
+                        LOG.debug("OIDC authority '{}' valid as Domain RA officer", grantedAuthority.getAuthority());
+                    }
+                }
+            } else if( authority.getName().equalsIgnoreCase(AuthoritiesConstants.ADMIN)) {
+                for (GrantedAuthority grantedAuthority : oauth2User.getAuthorities()) {
+                    if( isAuthorityNamePresentInArray(grantedAuthority, oidcMappingConfig.getRolesAdminArr())){
+                        authoritySet.add(authority);
+                        LOG.debug("OIDC authority '{}' valid as Ddmin", grantedAuthority.getAuthority());
+                    }
+                }
             }else if(Arrays.stream(oidcMappingConfig.getRolesOtherArr()).anyMatch(
                 role -> role.equalsIgnoreCase(authority.getName()))){
                 LOG.debug("authority.getName() {} included in roles {}", authority.getName(), StringUtils.join(oidcMappingConfig.getRolesOtherArr(), ","));
+
+                // @ToDo check validation for arbitrary role names
 
                 if( oauth2User.getAuthorities().stream().anyMatch(
                     oidcAuthority-> oidcAuthority.getAuthority().equals(authority.getName()))) {
@@ -280,10 +305,27 @@ public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationPr
             }
         }
 
+        if (oidcMappingConfig.getExprRolesOther() != null && !oidcMappingConfig.getExprRolesOther().isEmpty()) {
+
+            List<String> otherRolesList = Arrays.asList(oidcMappingConfig.getRolesOtherArr());
+            Collection<String> otherRolesColl = sPeLUtil.evaluateListExpression(attributeMap, oidcMappingConfig.getExprLanguage());
+
+            for( String roleName: otherRolesColl) {
+
+                for (Authority auth : authorityRepository.findAll()) {
+                    if( auth.getName().equals(roleName) &&
+                        otherRolesList.contains(roleName) ){
+                        authoritySet.add(auth);
+                        LOG.debug("authority.getName() {} included in other roles, adding it to authority Set", auth.getName());
+                    }
+                }
+            }
+        }
+
         if( authoritySet.containsAll(user.getAuthorities()) && user.getAuthorities().containsAll(authoritySet)){
-            LOG.debug("Roles local / oidc are identical");
+            LOG.debug("Authorities local / oidc are identical");
         }else{
-            LOG.info("oidc roles '{}' != current roles '{}'", authoritySet, user.getAuthorities());
+            LOG.info("oidc rolesAuthorities '{}' != current roles '{}'", authoritySet, user.getAuthorities());
             user.setAuthorities(authoritySet);
             update = true;
         }
@@ -292,6 +334,16 @@ public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationPr
             user.setLastUserDetailsUpdate(Instant.now());
         }
         userRepository.save(user);
+    }
+
+    private boolean isAuthorityNamePresentInArray(GrantedAuthority grantedAuthority, String[] authorityNameArr){
+
+        for( String authName: authorityNameArr){
+            if( authName.equals(grantedAuthority.getAuthority())){
+                return true;
+            }
+        }
+        return false;
     }
 
     private Tenant findTenantByName(String tenantName) {

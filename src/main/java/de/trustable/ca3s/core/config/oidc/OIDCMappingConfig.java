@@ -22,6 +22,7 @@ public class OIDCMappingConfig {
     private final String exprEmail;
     private final String exprTenant;
     private final String exprLanguage;
+    private final String exprRolesOther;
 
     public OIDCMappingConfig(
         @Value("${ca3s.oidc.roles.user:USER}") String[] rolesUserArr,
@@ -38,7 +39,9 @@ public class OIDCMappingConfig {
         @Value("${ca3s.oidc.expression.lastName:}") String exprLastName,
         @Value("${ca3s.oidc.expression.email:}") String exprEmail,
         @Value("${ca3s.oidc.expression.tenant:}") String exprTenant,
-        @Value("${ca3s.oidc.expression.language:}") String exprLanguage) {
+        @Value("${ca3s.oidc.expression.language:}") String exprLanguage,
+        @Value("${ca3s.oidc.expression.roles.other:}") String exprRolesOther
+        ) {
 
         this.rolesUserArr = rolesUserArr;
         this.rolesDomainRAArr = rolesDomainRAArr;
@@ -55,6 +58,7 @@ public class OIDCMappingConfig {
         this.exprEmail = exprEmail;
         this.exprTenant = exprTenant;
         this.exprLanguage = exprLanguage;
+        this.exprRolesOther = exprRolesOther;
     }
 
     public String[] getRolesUserArr() {
@@ -94,19 +98,20 @@ public class OIDCMappingConfig {
     public String getExprFirstName() {
         return exprFirstName;
     }
-
     public String getExprLastName() {
         return exprLastName;
     }
-
     public String getExprEmail() {
         return exprEmail;
     }
-
     public String getExprTenant() {
         return exprTenant;
     }
     public String getExprLanguage() {
         return exprLanguage;
+    }
+
+    public String getExprRolesOther() {
+        return exprRolesOther;
     }
 }

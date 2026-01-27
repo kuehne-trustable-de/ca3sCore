@@ -23,12 +23,11 @@ public class OIDCAuthenticationResource {
 
     private final Logger log = LoggerFactory.getLogger(OIDCAuthenticationResource.class);
 
-    private final String clientName;
+    private final String providerName;
 
-    public OIDCAuthenticationResource( @Value("${ca3s.oidc.client-name:#{null}}") String clientName) {
-        this.clientName = clientName;
+    public OIDCAuthenticationResource( @Value("${ca3s.oidc.provider-name:#{null}}") String providerName) {
+        this.providerName = providerName;
     }
-
 
     /**
      * {@code GET  /authenticate} : check if the user is authenticated, and return its login.
@@ -44,7 +43,7 @@ public class OIDCAuthenticationResource {
         if (request.getUserPrincipal() == null) {
 
             ServletUriComponentsBuilder redirectUriBuilder = ServletUriComponentsBuilder.fromRequestUri(request);
-            String redirectCodeUri = redirectUriBuilder.replacePath("/oauth2/authorize-client/").path(clientName)
+            String redirectCodeUri = redirectUriBuilder.replacePath("/oauth2/authorize-client/").path(providerName)
                 .build().normalize().toString();
             log.info("redirectCodeUri : '{}'", redirectCodeUri);
 

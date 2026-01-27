@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-01-15 15:13:53.
+// Generated using typescript-generator version 3.2.1263 on 2026-01-18 14:23:13.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -308,6 +308,7 @@ export interface IUIConfigView extends ISerializable {
   cryptoConfigView?: ICryptoConfigView;
   autoSSOLogin?: boolean;
   ssoProvider?: string[];
+  ssoProviderName?: string;
   ldapLoginDomainName?: string;
   samlEntityBaseUrl?: string;
   spnegoEntityBaseUrl?: string;

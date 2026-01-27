@@ -182,15 +182,15 @@ spring:
         registration:
           keycloak:
             client-id: ca3s-oauth2
-            client-secret: *******************
-            authorization-grant-type: authorization_code
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            client-secret: VQ1ifmE5lq8mFdaHNme1eAyLB4W2MQkP
+#            authorization-grant-type: authorization_code
+#            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           google:
-            client-id: *******************.apps.googleusercontent.com
-            client-secret: *******************
+            client-id: 528678999149-90svlt60psv083eddmk6oi0ehpepgp70.apps.googleusercontent.com
+            client-secret: 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
           github:
-            client-id: *******************
-            client-secret: *******************
+            client-id: Ov23liNaHEzOhD0jLF01
+            client-secret: 7dd1ea6b69d174b36e8abb9d184c1b4dd7536d83
         provider:
           keycloak:
             issuer-uri:  http://10.152.183.139/realms/master
@@ -638,12 +638,14 @@ ca3s:
     # 'Roles'
 
 
-#    expression:
+    expression:
 #      firstname: "get('name').split(' ')[0]"
 #      lastName: "get('name').split(' ')[1]"
+      roles:
+        other:
 
-    client-name: google
-#    client-name: github
-#    client-name: keycloak
+#    provider-name: google
+    provider-name: github
+#    provider-name: keycloak
 
 
