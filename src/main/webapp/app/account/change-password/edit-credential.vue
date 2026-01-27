@@ -280,7 +280,7 @@
                                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                                    readonly
                                    v-model="credentialChange.eabKid" />
-                            <CopyClipboardButton contentElementId="eab-kid"/>
+                            <CopyClipboardButton contentElementId="api-kid-value"/>
                         </div>
 
                         <div class="col">
@@ -302,9 +302,23 @@
                                    autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                                    readonly
                                    v-model="credentialChange.apiTokenValue" />
-                            <CopyClipboardButton contentElementId="credentialChange.apiTokenValue"/>
+                            <CopyClipboardButton contentElementId="api-token-value"/>
                         </div>
 
+
+                        <div class="col">
+                        </div>
+                    </div>
+                    <p></p>
+                    <div class="row row-gap-3 justify-content-start" v-if="credentialChange.credentialUpdateType === 'EAB_PASSWORD'">
+
+                        <div class="col-sm">
+                            <label class="form-control-label" v-text="$t('ca3SApp.form.client.certbot')" for="certbot.info"></label>
+                        </div>
+
+                        <div class="col-6">
+                            <span id="certbot.info">--eab-kid {KID} --eab-hmac-key {Key}</span>
+                        </div>
 
                         <div class="col">
                         </div>

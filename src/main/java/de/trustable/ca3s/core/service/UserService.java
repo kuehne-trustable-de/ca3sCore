@@ -383,9 +383,11 @@ public class UserService {
             .flatMap(userRepository::findOneByLogin)
             .ifPresent(user -> {
 
-                String currentEncryptedPassword = user.getPassword();
-                if (!passwordEncoder.matches(passwordChangeDto.getCurrentPassword(), currentEncryptedPassword)) {
-                    throw new InvalidPasswordException();
+                if( !user.isManagedExternally()) {
+                    String currentEncryptedPassword = user.getPassword();
+                    if (!passwordEncoder.matches(passwordChangeDto.getCurrentPassword(), currentEncryptedPassword)) {
+                        throw new InvalidPasswordException();
+                    }
                 }
 
                 switch( passwordChangeDto.getCredentialUpdateType()){

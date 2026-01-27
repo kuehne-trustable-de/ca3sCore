@@ -510,6 +510,11 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
       console.log('canSubmit ' + this.credentialChange.credentialUpdateType + ': values OK');
     }
 
+    if(this.settingsAccount.managedExternally){
+      console.log('canSubmit: no password check, account managed externally');
+      return true;
+    }
+
     console.log('canSubmit: currentPassword.$invalid: ' + this.$v.resetPassword.currentPassword.$invalid);
     return !this.$v.resetPassword.currentPassword.$invalid;
   }
