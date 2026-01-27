@@ -175,7 +175,6 @@ spring:
     jcache:
       config: classpath:ehcache.xml
 
-
   security:
     oauth2:
       client:
