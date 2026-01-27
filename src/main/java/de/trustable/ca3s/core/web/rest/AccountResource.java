@@ -240,6 +240,7 @@ public class AccountResource {
             tokenView.setLeftUsages(protectedContent.getLeftUsages());
             tokenView.setCreatedOn(protectedContent.getCreatedOn());
             tokenView.setValidTo(protectedContent.getValidTo());
+            tokenView.setStatus(protectedContent.getStatus());
             switch( protectedContent.getRelationType()){
                 case API_TOKEN:
                     tokenView.setRelationType(AccountCredentialsType.API_TOKEN);
