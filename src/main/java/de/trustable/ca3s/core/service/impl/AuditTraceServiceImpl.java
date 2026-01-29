@@ -30,13 +30,16 @@ public class AuditTraceServiceImpl implements AuditTraceService {
     private final CAConnectorConfigRepository caConnectorConfigRepository;
     private final BPMNProcessInfoRepository bpmnProcessInfoRepository;
     private final AcmeOrderRepository acmeOrderRepository;
+    private final ScepOrderRepository scepOrderRepository;
 
     public AuditTraceServiceImpl(AuditTraceRepository auditTraceRepository,
                                  CertificateRepository certificateRepository,
                                  CSRRepository csrRepository,
                                  PipelineRepository pipelineRepository,
                                  CAConnectorConfigRepository caConnectorConfigRepository,
-                                 BPMNProcessInfoRepository bpmnProcessInfoRepository, AcmeOrderRepository acmeOrderRepository) {
+                                 BPMNProcessInfoRepository bpmnProcessInfoRepository,
+                                 AcmeOrderRepository acmeOrderRepository,
+                                 ScepOrderRepository scepOrderRepository) {
         this.auditTraceRepository = auditTraceRepository;
         this.certificateRepository = certificateRepository;
         this.csrRepository = csrRepository;
@@ -44,6 +47,7 @@ public class AuditTraceServiceImpl implements AuditTraceService {
         this.caConnectorConfigRepository = caConnectorConfigRepository;
         this.bpmnProcessInfoRepository = bpmnProcessInfoRepository;
         this.acmeOrderRepository = acmeOrderRepository;
+        this.scepOrderRepository = scepOrderRepository;
     }
 
     @Override
@@ -81,7 +85,8 @@ public class AuditTraceServiceImpl implements AuditTraceService {
                                    Long pipelineId,
                                    Long caConnectorId,
                                    Long processInfoId,
-                                   Long acmeOrderId){
+                                   Long acmeOrderId,
+                                   Long scepOrderId){
 
         if( (certificateId != -1 ) || (csrId != -1 )) {
             log.debug("Request to select AuditTrace by certificate id '{}' or csr id '{}'", certificateId, csrId);
@@ -126,6 +131,12 @@ public class AuditTraceServiceImpl implements AuditTraceService {
             Optional<AcmeOrder> optAcmeOrder = acmeOrderRepository.findById(acmeOrderId);
             if(optAcmeOrder.isPresent()){
                 return auditTraceRepository.findByAcmeOrder(pageable, optAcmeOrder.get());
+            }
+        } else if( scepOrderId != -1){
+            log.debug("Request to select AuditTrace by scepOrderId id '{}'", scepOrderId);
+            Optional<ScepOrder> optScepOrder = scepOrderRepository.findById(scepOrderId);
+            if(optScepOrder.isPresent()){
+                return auditTraceRepository.findByScepOrder(pageable, optScepOrder.get());
             }
         } else{
             log.warn("Request to select AuditTrace : non-null argument required!");

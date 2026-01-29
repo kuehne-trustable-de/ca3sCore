@@ -4,7 +4,6 @@ import de.trustable.ca3s.core.domain.AuditTrace;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -49,5 +48,6 @@ public interface AuditTraceService {
                             Long pipelineId,
                             Long caConnectorId,
                             Long processInfoId,
-                            Long acmeOrderId);
+                            Long acmeOrderId,
+                            Long scepOrderId);
 }

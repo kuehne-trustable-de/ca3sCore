@@ -51,7 +51,8 @@ public class AuditTraceViewResource {
         @RequestParam(value = "pipelineId", required = false) Long pipelineId,
         @RequestParam(value = "caConnectorId", required = false) Long caConnectorId,
         @RequestParam(value = "processInfoId", required = false) Long processInfoId,
-        @RequestParam(value = "acmeOrderId", required = false) Long acmeOrderId
+        @RequestParam(value = "acmeOrderId", required = false) Long acmeOrderId,
+        @RequestParam(value = "scepOrderId", required = false) Long scepOrderId
         ) {
         log.debug("REST request to get AuditTraceViews");
 
@@ -77,7 +78,8 @@ public class AuditTraceViewResource {
             pipelineId,
             caConnectorId,
             processInfoId,
-            acmeOrderId);
+            acmeOrderId,
+            scepOrderId);
 
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 

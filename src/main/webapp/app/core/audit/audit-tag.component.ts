@@ -3,7 +3,7 @@ import { Component, Vue, Prop } from 'vue-property-decorator';
 import { ITableContentParam, TColumnsDefinition, VuejsDatatableFactory } from 'vuejs-datatable';
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
 import axios from 'axios';
-import { IAuditTraceView, ICertificateFilter, ICertificateFilterList } from '@/shared/model/transfer-object.model';
+import { IAuditTraceView } from '@/shared/model/transfer-object.model';
 
 import { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
@@ -102,6 +102,9 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
 
   @Prop()
   public acmeOrderId: string;
+
+  @Prop()
+  public scepOrderId: string;
 
   @Prop()
   public title: string;
@@ -218,6 +221,7 @@ export default class AuditTag extends mixins(AlertMixin, Vue) {
     url += 'caConnectorId=' + this.processParamForURL(this.caConnectorId);
     url += 'processInfoId=' + this.processParamForURL(this.processInfoId);
     url += 'acmeOrderId=' + this.processParamForURL(this.acmeOrderId);
+    url += 'scepOrderId=' + this.processParamForURL(this.scepOrderId);
 
     window.console.info('buildContentAccessUrl: url : ' + url);
 

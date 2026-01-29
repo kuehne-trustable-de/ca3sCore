@@ -23,7 +23,7 @@ public class SCEPConfigItems implements Serializable {
     private String scepSecret = "******";
     private Instant scepSecretValidTo = Instant.now();
 
-    private KeyAlgoLengthOrSpec keyAlgoLength = KeyAlgoLengthOrSpec.RSA_2048;
+    private KeyAlgoLengthOrSpec keyAlgoLength = null;
     private String scepRecipientDN = "";
     private String caConnectorRecipientName = "";
 

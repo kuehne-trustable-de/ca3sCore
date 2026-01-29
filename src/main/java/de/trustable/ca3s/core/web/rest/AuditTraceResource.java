@@ -47,7 +47,7 @@ public class AuditTraceResource {
      * @param auditTrace the auditTrace to create.
      * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new auditTrace, or with status {@code 400 (Bad Request)} if the auditTrace has already an ID.
      * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
+     *
     @PostMapping("/audit-traces")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<AuditTrace> createAuditTrace(@Valid @RequestBody AuditTrace auditTrace) throws URISyntaxException {
@@ -60,7 +60,7 @@ public class AuditTraceResource {
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
-
+*/
     /**
      * {@code PUT  /audit-traces} : Updates an existing auditTrace.
      *
@@ -68,11 +68,10 @@ public class AuditTraceResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated auditTrace,
      * or with status {@code 400 (Bad Request)} if the auditTrace is not valid,
      * or with status {@code 500 (Internal Server Error)} if the auditTrace couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
-     */
+     *
     @PutMapping("/audit-traces")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<AuditTrace> updateAuditTrace(@Valid @RequestBody AuditTrace auditTrace) throws URISyntaxException {
+    public ResponseEntity<AuditTrace> updateAuditTrace(@Valid @RequestBody AuditTrace auditTrace) {
         log.debug("REST request to update AuditTrace : {}", auditTrace);
         if (auditTrace.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -82,6 +81,7 @@ public class AuditTraceResource {
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, auditTrace.getId().toString()))
             .body(result);
     }
+*/
 
     /**
      * {@code GET  /audit-traces} : get all the auditTraces.
@@ -97,10 +97,11 @@ public class AuditTraceResource {
         @RequestParam(value = "pipeline", required = false) Long pipelineId,
         @RequestParam(value = "caConnector", required = false) Long caConnectorId,
         @RequestParam(value = "processInfo", required = false) Long processInfoId,
-        @RequestParam(value = "acmeOrder", required = false) Long acmeOrderId
+        @RequestParam(value = "acmeOrder", required = false) Long acmeOrderId,
+        @RequestParam(value = "scepOrder", required = false) Long scepOrderId
         ) {
         log.debug("REST request to get AuditTraces");
-        return auditTraceService.findBy( pageable, certificateId, csrId, pipelineId, caConnectorId, processInfoId, acmeOrderId);
+        return auditTraceService.findBy( pageable, certificateId, csrId, pipelineId, caConnectorId, processInfoId, acmeOrderId, scepOrderId);
     }
 
 

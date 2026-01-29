@@ -8,6 +8,7 @@ import JhiDataUtils from '@/shared/data/data-utils.service';
 import AlertService from '@/shared/alert/alert.service';
 import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
+import AuditTag from '@/core/audit/audit-tag.vue';
 
 import { IScepOrderView } from '@/shared/model/transfer-object.model';
 
@@ -16,6 +17,7 @@ import { IScepOrderView } from '@/shared/model/transfer-object.model';
     Fragment,
     CopyClipboardButton,
     HelpTag,
+    AuditTag,
   },
 })
 export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {

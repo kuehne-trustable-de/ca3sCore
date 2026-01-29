@@ -1010,7 +1010,9 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL, Integer.toString(pv.getScepConfigItems().getPercentageOfValidtyBeforeRenewal()));
 
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_DN, pv.getScepConfigItems().getScepRecipientDN());
-            addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_KEY_TYPE_LEN, pv.getScepConfigItems().getKeyAlgoLength().toString());
+            if( pv.getScepConfigItems().getKeyAlgoLength() != null ) {
+                addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_RECIPIENT_KEY_TYPE_LEN, pv.getScepConfigItems().getKeyAlgoLength().toString());
+            }
             addPipelineAttribute(pipelineAttributes, p, auditList, SCEP_CA_CONNECTOR_RECIPIENT_NAME, pv.getScepConfigItems().getCaConnectorRecipientName());
         }
 

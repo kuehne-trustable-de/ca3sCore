@@ -245,6 +245,10 @@
   "ca3SApp.scepOrder.transId": "TransId",
   "ca3SApp.scepOrder.pipeline": "Pipeline",
 
+  "ca3SApp.scepOrderStatus.READY": "Ready",
+  "ca3SApp.scepOrderStatus.PENDING": "Pending",
+  "ca3SApp.scepOrderStatus.INVALID": "Invalid",
+
   "ca3SApp.authorization.authorizationId": "",
   "ca3SApp.authorization.challenges": "",
   "ca3SApp.authorization.created": "",
