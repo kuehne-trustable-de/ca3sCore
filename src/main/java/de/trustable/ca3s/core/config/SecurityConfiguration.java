@@ -414,7 +414,7 @@ public class SecurityConfiguration{
                 " style-src 'self' 'unsafe-inline';" +
                 " img-src 'self' data:;" +
                 " font-src 'self' data:;" +
-                " connect-src 'self' blob: data: https://accounts.google.com; " + clientAuthConfig.getClientAuthTarget())
+                " connect-src 'self' blob: data: " + clientAuthConfig.getClientAuthTarget())
         .and()
             .referrerPolicy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
         .and()

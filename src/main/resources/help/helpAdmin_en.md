@@ -238,6 +238,7 @@ This listbox allows to define the cardinality of the parts of the distinguished 
 #### <a id="pipeline.template"></a> DN part's template
 
 Define a preselected value for this part of the distinguished name. This may be a constant text value or values of the requesting user in moustache notation:
+
 - {{user.firstName}} : the first name of the requestor
 - {{user.lastName}} : the last name of the requestor
 - {{user.login}} : the user identification of the requestor
@@ -253,6 +254,10 @@ Define a regular expression that the value of this part of the distinguished nam
 
 Define restriction on the subject alternative names (SAN) of the request analog to the distinguished name.
 
+#### <a id="pipeline.cn-san.restriction"></a> CN / SAN restrictions
+
+Is the CN required to be present as a SAN, too? Require it, warn only or ignore this aspect at all.
+
 #### <a id="pipeline.ara.restrictions"></a> Additional request attribute
 
 Define additional attribute required for processing of this pipeline. The aspects defined here are:
@@ -267,6 +272,7 @@ Define additional attribute required for processing of this pipeline. The aspect
 #### <a id="pipeline.ara.template"></a> Additional request attribute
 
 Define a preselected value for this part of the additional request attributes. This may be a constant text value or values of the requesting user in moustache notation:
+
 - {{user.firstName}} : the first name of the requestor
 - {{user.lastName}} : the last name of the requestor
 - {{user.login}} : the user identification of the requestor
