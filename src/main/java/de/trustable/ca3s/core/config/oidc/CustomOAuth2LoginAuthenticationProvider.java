@@ -36,7 +36,6 @@ import org.thymeleaf.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationProvider {
 
@@ -289,7 +288,7 @@ public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationPr
                 for (GrantedAuthority grantedAuthority : oauth2User.getAuthorities()) {
                     if( isAuthorityNamePresentInArray(grantedAuthority, oidcMappingConfig.getRolesAdminArr())){
                         authoritySet.add(authority);
-                        LOG.debug("OIDC authority '{}' valid as Ddmin", grantedAuthority.getAuthority());
+                        LOG.debug("OIDC authority '{}' valid as Admin", grantedAuthority.getAuthority());
                     }
                 }
             }else if(Arrays.stream(oidcMappingConfig.getRolesOtherArr()).anyMatch(
@@ -308,7 +307,7 @@ public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationPr
         if (oidcMappingConfig.getExprRolesOther() != null && !oidcMappingConfig.getExprRolesOther().isEmpty()) {
 
             List<String> otherRolesList = Arrays.asList(oidcMappingConfig.getRolesOtherArr());
-            Collection<String> otherRolesColl = sPeLUtil.evaluateListExpression(attributeMap, oidcMappingConfig.getExprLanguage());
+            Collection<String> otherRolesColl = sPeLUtil.evaluateListExpression(attributeMap, oidcMappingConfig.getExprRolesOther());
 
             for( String roleName: otherRolesColl) {
 

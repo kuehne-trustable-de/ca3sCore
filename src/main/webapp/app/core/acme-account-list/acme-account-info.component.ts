@@ -41,7 +41,7 @@ export default class AcmeAccountInfo extends mixins(JhiDataUtils, Vue) {
   }
 
   public previousState() {
-    this.$router.go(-1);
+    this.$router.push('/acme-account-list');
   }
 
   public mounted(): void {
@@ -129,7 +129,7 @@ export default class AcmeAccountInfo extends mixins(JhiDataUtils, Vue) {
     this.acmeAccountStatusAdministration.status = accountStatus;
     try {
       document.body.style.cursor = 'wait';
-      const response = await axios.post(`${statusUpdateURL}`, this.acmeAccountStatusAdministration);
+      await axios.post(`${statusUpdateURL}`, this.acmeAccountStatusAdministration);
 
       this.fillAcmeAccountData(this.acmeAccountView.id);
       this.acmeAccountStatusAdministration.comment = '';
