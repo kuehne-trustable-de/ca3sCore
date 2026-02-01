@@ -46,7 +46,6 @@ import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
-import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -669,7 +668,7 @@ public class ContentUploadProcessor {
                         }
 
                     }
-
+/*
                     if( pipeline.getProcessInfoRequestAuthorization() != null ){
                         ProcessInstanceWithVariables processInstanceWithVariables =
                             bpmnUtil.checkCsrRequestAuthorization(
@@ -685,7 +684,7 @@ public class ContentUploadProcessor {
                             return null;
                         }
                     }
-
+*/
                     if (pipeline.isApprovalRequired()) {
                         LOG.debug("deferring certificate creation for csr #{}", csr.getId());
                         p10ReqData.setCsrPending(true);

@@ -17,9 +17,10 @@ import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.BPMNProcessInfoView;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
-import de.trustable.ca3s.core.service.dto.bpmn.AcmeAccountValidationInput;
+import de.trustable.ca3s.core.service.dto.bpmn.AcmeAccountAuthorizationInput;
 import de.trustable.ca3s.core.service.dto.bpmn.BpmnInput;
 import de.trustable.ca3s.core.service.dto.bpmn.BpmnOutput;
+import de.trustable.ca3s.core.service.dto.bpmn.RequestAuthorizationInput;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.camunda.bpm.engine.BadUserRequestException;
@@ -35,7 +36,6 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -258,7 +258,24 @@ public class BPMNUtil{
 		}else {
 			caConfig = csr.getPipeline().getCaConnector();
             pipeline = csr.getPipeline();
-		}
+
+            if( pipeline != null &&
+                pipeline.getProcessInfoRequestAuthorization() != null){
+                try {
+                    requestAuthorizationProcess(csr.getPipeline(), new RequestAuthorizationInput(csr));
+                } catch (GeneralSecurityException e) {
+                    LOG.warn("GeneralSecurityException when processing CSR #{} : {}", csr.getId(), e.getMessage());
+                    return null;
+                }
+
+                if( !csr.getStatus().equals(CsrStatus.PENDING)){
+                    LOG.info("Request status != 'pending', quit processing!");
+                    return null;
+                }
+            }else{
+                LOG.debug(" No RequestAuthorization process define in pipeline {}", pipeline);
+            }
+        }
 
 		return startCertificateCreationProcess(csr, caConfig, pipeline);
 	}
@@ -267,7 +284,7 @@ public class BPMNUtil{
      *
      * @param csr the given CSR object
      * @param caConfig the ca and its configuration
-     * @param pipeline the pipeline defining the BPMN processes to be excecuted
+     * @param pipeline the pipeline defining the BPMN processes to be executed
      * @return the created certificate
      */
 	public Certificate startCertificateCreationProcess(CSR csr, CAConnectorConfig caConfig, Pipeline pipeline)  {
@@ -578,10 +595,87 @@ public class BPMNUtil{
     /**
      *
      * @param pipeline
+     * @param requestAuthorizationInput
+     * @throws GeneralSecurityException
+     */
+    public void requestAuthorizationProcess(final Pipeline pipeline,
+                                            final RequestAuthorizationInput requestAuthorizationInput) throws GeneralSecurityException  {
+
+        if( requestAuthorizationInput == null) {
+            throw new GeneralSecurityException("requestAuthorizationInput MUST be provided");
+        }
+        if( requestAuthorizationInput.getCsr() == null) {
+            throw new GeneralSecurityException("requestAuthorizationInput.csr MUST be provided");
+        }
+
+        CSR csr = requestAuthorizationInput.getCsr();
+
+        if( pipeline == null) {
+            throw new GeneralSecurityException("pipeline for request authorization MUST be provided" );
+        }
+
+        BpmnOutput bpmnOutput;
+
+        BPMNProcessInfo bpmnProcessInfoRequestAuthorization = pipeline.getProcessInfoRequestAuthorization();
+        if( bpmnProcessInfoRequestAuthorization == null){
+            return;
+        }
+
+        // BPMN call
+        try {
+            if( csr.getStatus().equals(CsrStatus.PENDING)){
+                LOG.info("starting request authorization process");
+            }else if( csr.getStatus().equals(CsrStatus.AUTHORIZING)){
+                LOG.info("follow up request authorization process with status {}", csr.getStatus() );
+            }else{
+                LOG.info("unexpected status for request authorization: {}", csr.getStatus() );
+            }
+
+            ProcessInstanceWithVariables processInstance = bpmnExecutor.executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoRequestAuthorization,
+                requestAuthorizationInput.getVariables());
+
+            bpmnOutput = new BpmnOutput(processInstance);
+            LOG.info("requestAuthorizationProcess ProcessInstance: {} exited with status {}",
+                bpmnOutput.getProcessInstanceId(),
+                bpmnOutput.getStatus());
+
+            // catch all (runtime) Exception
+        } catch (Exception e) {
+            bpmnOutput = new BpmnOutput(e);
+            LOG.warn("execution of '" + bpmnProcessInfoRequestAuthorization.getName() + "' failed ", e);
+        }
+
+        if (BpmnInput.SUCCESS.equals(bpmnOutput.getStatus())) {
+            LOG.debug("Request authorized by BPMN process {}", bpmnOutput.getProcessInstanceId());
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceCSRBPMNProcessInfo(AuditService.AUDIT_REQUEST_AUTHENTICATION_SUCCEEDED, csr, bpmnProcessInfoRequestAuthorization));
+            csr.setStatus(CsrStatus.PENDING);
+
+        } else if (BpmnInput.FAILED.equals(bpmnOutput.getStatus())) {
+            LOG.debug("Request authorization rejected by BPMN process {}", bpmnOutput.getProcessInstanceId());
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceCSRBPMNProcessInfo(AuditService.AUDIT_REQUEST_AUTHENTICATION_FAILED, csr, bpmnProcessInfoRequestAuthorization));
+            csr.setStatus(CsrStatus.REJECTED);
+
+        } else if (BpmnInput.PENDING.equals(bpmnOutput.getStatus())) {
+            LOG.debug("Request authorization deferred by BPMN process {}", bpmnOutput.getProcessInstanceId());
+            csr.setStatus(CsrStatus.AUTHORIZING);
+        } else {
+            LOG.warn("Request authorization by BPMN process {} rejected with reason '{}' ", bpmnOutput.getProcessInstanceId(), bpmnOutput.getFailureReason());
+            csr.setStatus(CsrStatus.REJECTED);
+        }
+        csrRepository.save(csr);
+    }
+
+
+    /**
+     *
+     * @param pipeline
      * @param acmeAccountValidationInput
      * @throws GeneralSecurityException
      */
-    public void startACMEAccountAuthorizationProcess(final Pipeline pipeline, final AcmeAccountValidationInput acmeAccountValidationInput) throws GeneralSecurityException  {
+    public void startACMEAccountAuthorizationProcess(final Pipeline pipeline,
+                                                     final AcmeAccountAuthorizationInput acmeAccountValidationInput) throws GeneralSecurityException  {
 
         if( acmeAccountValidationInput == null) {
             throw new GeneralSecurityException("acmeAccountValidationInput for ACME account authorization MUST be provided");

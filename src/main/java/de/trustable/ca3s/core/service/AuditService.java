@@ -52,6 +52,8 @@ public class AuditService {
     public static final String AUDIT_ESTP_CERTIFICATE_CREATED = "EST_CERTIFICATE_CREATED";
     public static final String AUDIT_RA_CERTIFICATE_CREATED = "RA_CERTIFICATE_CREATED";
     public static final String AUDIT_REQUEST_RESTRICTIONS_FAILED = "REQUEST_RESTRICTIONS_FAILED";
+    public static final String AUDIT_REQUEST_AUTHENTICATION_SUCCEEDED = "REQUEST_AUTHENTICATION_SUCCEEDED";
+    public static final String AUDIT_REQUEST_AUTHENTICATION_FAILED = "REQUEST_AUTHENTICATION_FAILED";
     public static final String AUDIT_WEB_CERTIFICATE_CREATED = "WEB_CERTIFICATE_CREATED";
     public static final String AUDIT_CERTIFICATE_REVOKED = "CERTIFICATE_REVOKED";
     public static final String AUDIT_CERTIFICATE_REVOKED_BY_CRL = "CERTIFICATE_REVOKED_BY_CRL";
@@ -139,7 +141,7 @@ public class AuditService {
     public static final String AUDIT_BPMN_PROCESS_ID_CHANGED = "AUDIT_BPMN_PROCESS_ID_CHANGED";
     public static final String AUDIT_CA_CONNECTOR_SNI_CHANGED = "AUDIT_CA_CONNECTOR_SNI_CHANGED";
     public static final String AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED = "AUDIT_CA_CONNECTOR_DISABLE_HOST_NAME_VERIFIER_CHANGED";
-    public static final String  AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED = "AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED";
+    public static final String AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED = "AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED";
     public static final String AUDIT_CERTIFICATE_ADMINISTRATION_FAILED = "AUDIT_CERTIFICATE_ADMINISTRATION_FAILED";
     public static final String AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED = "AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED";
     public static final String AUDIT_BPMN_ATTRIBUTE_CHANGED = "AUDIT_BPMN_ATTRIBUTE_CHANGED";
@@ -568,6 +570,24 @@ public class AuditService {
             null);
     }
 
+    public AuditTrace createAuditTraceCSRBPMNProcessInfo(String template, CSR csr, BPMNProcessInfo bpmnProcessInfo) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            template,
+            null,
+            null,
+            null,
+            csr,
+            null,
+            null,
+            null,
+            bpmnProcessInfo,
+            null,
+            null,
+            null,
+            null);
+    }
+
     public AuditTrace createAuditTraceBPMNProcessInfo(String template, String oldVal, String newVal, BPMNProcessInfo bpmnProcessInfo) {
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
@@ -578,7 +598,7 @@ public class AuditService {
             null,
             null,
             null,
-            null,
+            bpmnProcessInfo,
             null,
             null,
             null,

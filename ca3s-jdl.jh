@@ -97,7 +97,7 @@ entity Certificate {
 }
 
 enum CsrStatus {
-    PROCESSING, ISSUED, REJECTED, PENDING
+    PROCESSING, ISSUED, REJECTED, PENDING, AUTHORIZING
 }
 
 @skipClient
@@ -258,6 +258,7 @@ entity PipelineAttribute{
 
 enum BPMNProcessType {
     CA_INVOCATION,
+    CERTIFICATE_VALIDATION,
     CERTIFICATE_CREATION,
     CERTIFICATE_REVOCATION,
     CERTIFICATE_NOTIFY,

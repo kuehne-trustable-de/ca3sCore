@@ -39,7 +39,7 @@ import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 import de.trustable.ca3s.core.service.dto.acme.AccountResponse;
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import de.trustable.ca3s.core.service.dto.bpmn.AcmeAccountValidationInput;
+import de.trustable.ca3s.core.service.dto.bpmn.AcmeAccountAuthorizationInput;
 import de.trustable.ca3s.core.service.util.*;
 import org.apache.commons.codec.binary.Base64;
 import org.jose4j.jwt.consumer.JwtContext;
@@ -268,7 +268,7 @@ public class NewAccountController extends AcmeController {
                     }
 
                     if (pipeline.getProcessInfoAccountAuthorization() != null) {
-                        AcmeAccountValidationInput acmeAccountValidationInput = new AcmeAccountValidationInput(newAcct,jwsObject, eabPresent, eabJwsNeedsValidation);
+                        AcmeAccountAuthorizationInput acmeAccountValidationInput = new AcmeAccountAuthorizationInput(newAcct,jwsObject, eabPresent, eabJwsNeedsValidation);
                         bpmnUtil.startACMEAccountAuthorizationProcess(pipeline,acmeAccountValidationInput);
                     }
 

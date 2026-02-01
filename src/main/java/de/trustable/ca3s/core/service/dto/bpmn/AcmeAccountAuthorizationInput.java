@@ -5,14 +5,14 @@ import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
 
 import java.util.Map;
 
-public class AcmeAccountValidationInput extends BpmnInput {
+public class AcmeAccountAuthorizationInput extends BpmnInput {
 
     final private AccountRequest accountRequest;
     final private boolean eabPresent;
     final private boolean eabJwsNeedsValidation;
     final private String jws;
 
-    public AcmeAccountValidationInput(AccountRequest accountRequest, JWSObject jwsObject, boolean eabPresent, boolean eabJwsNeedsValidation) {
+    public AcmeAccountAuthorizationInput(AccountRequest accountRequest, JWSObject jwsObject, boolean eabPresent, boolean eabJwsNeedsValidation) {
         super("ACMEAccountAuthorization");
         this.accountRequest = accountRequest;
         this.eabPresent = eabPresent;

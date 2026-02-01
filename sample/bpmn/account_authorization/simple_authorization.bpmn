@@ -5,7 +5,7 @@
       <bpmn:outgoing>Flow_12ab1ol</bpmn:outgoing>
     </bpmn:startEvent>
     <bpmn:sequenceFlow id="Flow_12ab1ol" sourceRef="StartEvent_1" targetRef="Activity_12ghldc" />
-    <bpmn:scriptTask id="Activity_12ghldc" name="TestActivity" camunda:asyncBefore="true" scriptFormat="groovy">
+    <bpmn:scriptTask id="Activity_12ghldc" name="TestActivity" scriptFormat="groovy">
       <bpmn:extensionElements>
         <camunda:inputOutput>
             <camunda:inputParameter name="accountRequest">${accountRequest}</camunda:inputParameter>

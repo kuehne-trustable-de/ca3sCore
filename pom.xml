@@ -8,7 +8,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.24</version>
+    <version>1.2.25</version>
 
     <packaging>jar</packaging>
 

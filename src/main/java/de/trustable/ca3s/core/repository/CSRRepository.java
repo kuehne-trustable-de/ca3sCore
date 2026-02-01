@@ -5,6 +5,7 @@ import de.trustable.ca3s.core.domain.CSR;
 import java.time.Instant;
 import java.util.List;
 
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.*;
@@ -45,5 +46,8 @@ public interface CSRRepository extends JpaRepository<CSR, Long> {
 
     @Query(name = "CSR.groupByRequestedMonth")
     List<Object[]> groupByTypeRequestedMonth(@Param("after") Instant after);
+
+    @Query(name = "CSR.findByStatus")
+    Page<CSR> findByStatus(Pageable pageable, @Param("csrStatus")CsrStatus csrStatus);
 
 }

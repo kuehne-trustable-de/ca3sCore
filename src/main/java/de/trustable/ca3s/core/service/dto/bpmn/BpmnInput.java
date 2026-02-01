@@ -7,6 +7,7 @@ public class BpmnInput {
 
     public static final String FAILED = "Failed";
     public static final String SUCCESS = "Success";
+    public static final String PENDING = "Pending";
 
     final private String action;
     final private String status;

@@ -1,59 +1,78 @@
 <template>
     <div class="row justify-content-center">
         <div class="col-8">
-            <form name="editForm" role="form" novalidate v-on:submit.prevent="save()" >
-                <h2 v-if="!pipeline.id" id="ca3SApp.pipeline.home.createOrEditLabel" v-text="$t('ca3SApp.pipeline.home.createLabel')"></h2>
-                <h2 v-if="pipeline.id" id="ca3SApp.pipeline.home.createOrEditLabel" v-text="$t('ca3SApp.pipeline.home.editLabel', {'id': pipeline.id})"></h2>
+            <form name="editForm" role="form" novalidate v-on:submit.prevent="save()">
+                <h2 v-if="!pipeline.id" id="ca3SApp.pipeline.home.createOrEditLabel"
+                    v-text="$t('ca3SApp.pipeline.home.createLabel')"></h2>
+                <h2 v-if="pipeline.id" id="ca3SApp.pipeline.home.createOrEditLabel"
+                    v-text="$t('ca3SApp.pipeline.home.editLabel', {'id': pipeline.id})"></h2>
 
                 <b-alert :show="dismissCountDown"
                          dismissible
                          :variant="alertType"
                          @dismissed="dismissCountDown=0"
                          @dismiss-count-down="countDownChanged">
-                    {{alertMessage}}
+                    {{ alertMessage }}
                 </b-alert>
                 <br/>
 
                 <div>
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.name')" for="pipeline-name"></label>  <help-tag role="Admin" target="pipeline.name"/>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.name')"
+                               for="pipeline-name"></label>
+                        <help-tag role="Admin" target="pipeline.name"/>
                         <input type="text" class="form-control" name="name" id="pipeline-name"
-                            :class="{'valid': !$v.pipeline.name.$invalid, 'invalid': $v.pipeline.name.$invalid }" v-model="$v.pipeline.name.$model" required/>
+                               :class="{'valid': !$v.pipeline.name.$invalid, 'invalid': $v.pipeline.name.$invalid }"
+                               v-model="$v.pipeline.name.$model" required/>
                         <div v-if="$v.pipeline.name.$anyDirty && $v.pipeline.name.$invalid">
-                            <small class="form-text text-danger" v-if="$v.pipeline.name.required" v-text="$t('entity.validation.required')"></small>
+                            <small class="form-text text-danger" v-if="$v.pipeline.name.required"
+                                   v-text="$t('entity.validation.required')"></small>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.active')" for="pipeline-active"></label>  <help-tag role="Admin" target="pipeline.active"/>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.active')"
+                               for="pipeline-active"></label>
+                        <help-tag role="Admin" target="pipeline.active"/>
                         <input type="checkbox" class="form-check-inline" name="active" id="pipeline-active"
-                               v-model="$v.pipeline.active.$model" />
+                               v-model="$v.pipeline.active.$model"/>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.type')" for="pipeline-type"></label>  <help-tag role="Admin" target="pipeline.type"/>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.type')"
+                               for="pipeline-type"></label>
+                        <help-tag role="Admin" target="pipeline.type"/>
                         <select class="form-control" name="pipeline-type" id="pipeline-type"
                                 :class="{'valid': !$v.pipeline.type.$invalid, 'invalid': $v.pipeline.type.$invalid }"
-                          v-model="$v.pipeline.type.$model"
-                          v-on:change="alignSettingForType()"
-                          required>
+                                v-model="$v.pipeline.type.$model"
+                                v-on:change="alignSettingForType()"
+                                required>
                             <option value="ACME" v-bind:label="$t('ca3SApp.PipelineType.ACME')"></option>
                             <option value="SCEP" v-bind:label="$t('ca3SApp.PipelineType.SCEP')"></option>
                             <option value="WEB" v-bind:label="$t('ca3SApp.PipelineType.WEB')"></option>
                             <option value="EST" v-bind:label="$t('ca3SApp.PipelineType.EST')"></option>
-                            <option value="MANUAL_UPLOAD" v-bind:label="$t('ca3SApp.PipelineType.MANUAL_UPLOAD')"></option>
+                            <option value="MANUAL_UPLOAD"
+                                    v-bind:label="$t('ca3SApp.PipelineType.MANUAL_UPLOAD')"></option>
                         </select>
                         <div v-if="$v.pipeline.type.$anyDirty && $v.pipeline.type.$invalid">
-                            <small class="form-text text-danger" v-if="$v.pipeline.type.required" v-text="$t('entity.validation.required')"></small>
+                            <small class="form-text text-danger" v-if="$v.pipeline.type.required"
+                                   v-text="$t('entity.validation.required')"></small>
                         </div>
                     </div>
                     <div class="form-group" v-if="!isWebPipelineType()">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.urlPart')" for="pipeline-urlPart"></label>  <help-tag role="Admin" target="pipeline.url-part"/>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.urlPart')"
+                               for="pipeline-urlPart"></label>
+                        <help-tag role="Admin" target="pipeline.url-part"/>
                         <input type="text" class="form-control" name="urlPart" id="pipeline-urlPart"
-                            :class="{'valid': !$v.pipeline.urlPart.$invalid, 'invalid': $v.pipeline.urlPart.$invalid }" v-model="$v.pipeline.urlPart.$model" />
+                               :class="{'valid': !$v.pipeline.urlPart.$invalid, 'invalid': $v.pipeline.urlPart.$invalid }"
+                               v-model="$v.pipeline.urlPart.$model"/>
 
-                        <label v-if="$v.pipeline.type.$model === 'ACME'" class="form-check-inline" id="pipeline-acme-url">ACME-URL: https://SERVER/acme/{{encodeURIComponent($v.pipeline.urlPart.$model)}}/directory</label>
-                        <label v-if="$v.pipeline.type.$model === 'SCEP'" class="form-check-inline" id="pipeline-scep-url">SCEP-URL: http://SERVER/scep/{{encodeURIComponent($v.pipeline.urlPart.$model)}}</label>
+                        <label v-if="$v.pipeline.type.$model === 'ACME'" class="form-check-inline"
+                               id="pipeline-acme-url">ACME-URL:
+                            https://SERVER/acme/{{ encodeURIComponent($v.pipeline.urlPart.$model) }}/directory</label>
+                        <label v-if="$v.pipeline.type.$model === 'SCEP'" class="form-check-inline"
+                               id="pipeline-scep-url">SCEP-URL:
+                            http://SERVER/scep/{{ encodeURIComponent($v.pipeline.urlPart.$model) }}</label>
 
                     </div>
 
@@ -78,101 +97,157 @@
 
 
                     <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.description')" for="pipeline-description"></label>  <help-tag role="Admin" target="pipeline.description"/>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.description')"
+                               for="pipeline-description"></label>
+                        <help-tag role="Admin" target="pipeline.description"/>
                         <textarea type="text" class="form-control" name="description" id="pipeline-description"
-                            :class="{'valid': !$v.pipeline.description.$invalid, 'invalid': $v.pipeline.description.$invalid }" v-model="$v.pipeline.description.$model" />
+                                  :class="{'valid': !$v.pipeline.description.$invalid, 'invalid': $v.pipeline.description.$invalid }"
+                                  v-model="$v.pipeline.description.$model"/>
                     </div>
 
                     <div class="form-group" v-if="isWebPipelineType()">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.listOrder')" for="pipeline-listOrder"></label>  <help-tag role="Admin" target="pipeline.list-order"/>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.listOrder')"
+                               for="pipeline-listOrder"></label>
+                        <help-tag role="Admin" target="pipeline.list-order"/>
                         <input type="number" class="form-control" name="listOrder" id="pipeline-listOrder"
-                               :class="{'valid': !$v.pipeline.listOrder.$invalid, 'invalid': $v.pipeline.listOrder.$invalid }" v-model="$v.pipeline.listOrder.$model" />
+                               :class="{'valid': !$v.pipeline.listOrder.$invalid, 'invalid': $v.pipeline.listOrder.$invalid }"
+                               v-model="$v.pipeline.listOrder.$model"/>
                     </div>
 
                     <div class="form-group" v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD'">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caConnector')" for="pipeline-caConnector"></label>  <help-tag role="Admin" target="pipeline.ca-connector"/> <a href="" >{{pipeline.caConnectorName}} </a>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caConnector')"
+                               for="pipeline-caConnector"></label>
+                        <help-tag role="Admin" target="pipeline.ca-connector"/>
+                        <a href="">{{ pipeline.caConnectorName }} </a>
                         <select class="form-control" id="pipeline-caConnector" name="caConnector"
                                 :class="{'valid': !$v.pipeline.caConnectorName.$invalid, 'invalid': $v.pipeline.caConnectorName.$invalid }"
                                 v-model="pipeline.caConnectorName">
-                          <option v-bind:value="null"></option>
-                          <!--option v-bind:value="pipeline.caConnectorName && cAConnectorConfigOption.name === pipeline.caConnectorName ? pipeline.caConnectorName : cAConnectorConfigOption.name" -->
-                          <option v-bind:value="cAConnectorConfigOption.name"
-                                  v-for="cAConnectorConfigOption in allCertGenerators"
-                                  :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.name}}</option>
+                            <option v-bind:value="null"></option>
+                            <!--option v-bind:value="pipeline.caConnectorName && cAConnectorConfigOption.name === pipeline.caConnectorName ? pipeline.caConnectorName : cAConnectorConfigOption.name" -->
+                            <option v-bind:value="cAConnectorConfigOption.name"
+                                    v-for="cAConnectorConfigOption in allCertGenerators"
+                                    :key="cAConnectorConfigOption.id">{{ cAConnectorConfigOption.name }}
+                            </option>
                         </select>
                         <div v-if="$v.pipeline.caConnectorName.$anyDirty && $v.pipeline.caConnectorName.$invalid">
-                            <small class="form-text text-danger" v-if="$v.pipeline.caConnectorName.required" v-text="$t('entity.validation.required')"></small>
+                            <small class="form-text text-danger" v-if="$v.pipeline.caConnectorName.required"
+                                   v-text="$t('entity.validation.required')"></small>
                         </div>
                     </div>
 
                     <div class="form-group" v-if="$v.pipeline.type.$model === 'SCEP'">
 
                         <div>
-                            <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRenewalAllowed')" for="pipeline-scepRenewalAllowed"></label>
-                            <input type="checkbox" class="form-check-inline" name="pipeline-scepRenewalAllowed" id="pipeline-scepRenewalAllowed" v-model="$v.pipeline.scepConfigItems.capabilityRenewal.$model" />
+                            <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRenewalAllowed')"
+                                   for="pipeline-scepRenewalAllowed"></label>
+                            <input type="checkbox" class="form-check-inline" name="pipeline-scepRenewalAllowed"
+                                   id="pipeline-scepRenewalAllowed"
+                                   v-model="$v.pipeline.scepConfigItems.capabilityRenewal.$model"/>
                         </div>
 
                         <div v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model">
-                            <label v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model" class="form-control-label" v-text="$t('ca3SApp.pipeline.periodDaysRenewal')" for="pipeline-periodDaysRenewal"></label>
-                            <input v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model" type="text" class="form-control" name="pipeline-periodDaysRenewal" id="pipeline-periodDaysRenewal"
+                            <label v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model"
+                                   class="form-control-label" v-text="$t('ca3SApp.pipeline.periodDaysRenewal')"
+                                   for="pipeline-periodDaysRenewal"></label>
+                            <input v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model" type="text"
+                                   class="form-control" name="pipeline-periodDaysRenewal"
+                                   id="pipeline-periodDaysRenewal"
                                    :class="{'valid': !$v.pipeline.scepConfigItems.periodDaysRenewal.$invalid, 'invalid': $v.pipeline.scepConfigItems.periodDaysRenewal.$invalid }"
-                                   v-model="$v.pipeline.scepConfigItems.periodDaysRenewal.$model" />
+                                   v-model="$v.pipeline.scepConfigItems.periodDaysRenewal.$model"/>
 
-                            <label v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model" class="form-control-label" v-text="$t('ca3SApp.pipeline.percentageOfValidtyBeforeRenewal')" for="pipeline-percentageOfValidtyBeforeRenewal"></label>
-                            <input v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model" type="text" class="form-control" name="pipeline-percentageOfValidtyBeforeRenewal" id="pipeline-percentageOfValidtyBeforeRenewal"
+                            <label v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model"
+                                   class="form-control-label"
+                                   v-text="$t('ca3SApp.pipeline.percentageOfValidtyBeforeRenewal')"
+                                   for="pipeline-percentageOfValidtyBeforeRenewal"></label>
+                            <input v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model" type="text"
+                                   class="form-control" name="pipeline-percentageOfValidtyBeforeRenewal"
+                                   id="pipeline-percentageOfValidtyBeforeRenewal"
                                    :class="{'valid': !$v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$invalid, 'invalid': $v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$invalid }"
-                                   v-model="$v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$model" />
+                                   v-model="$v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$model"/>
                         </div>
 
 
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepSecret')" for="pipeline-scepSecret"></label>  <help-tag role="Admin" target="pipeline.scep.secret"/>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepSecret')"
+                               for="pipeline-scepSecret"></label>
+                        <help-tag role="Admin" target="pipeline.scep.secret"/>
                         <input type="text" class="form-control" name="scepSecret" id="pipeline-scepSecret"
-                               :class="{'valid': !$v.pipeline.scepConfigItems.scepSecret.$invalid, 'invalid': $v.pipeline.scepConfigItems.scepSecret.$invalid }" v-model="$v.pipeline.scepConfigItems.scepSecret.$model" />
+                               :class="{'valid': !$v.pipeline.scepConfigItems.scepSecret.$invalid, 'invalid': $v.pipeline.scepConfigItems.scepSecret.$invalid }"
+                               v-model="$v.pipeline.scepConfigItems.scepSecret.$model"/>
 
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepSecretValidTo')" for="pipeline-scepSecretValidTo"></label>  <help-tag role="Admin" target="pipeline.scep.secret-valid-to"/>
-                        <datetime type="datetime" input-class="form-control" name="scepSecretValidTo" input-id="pipeline-scepSecretValidTo" id="pipeline-scepSecretValidTo"
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepSecretValidTo')"
+                               for="pipeline-scepSecretValidTo"></label>
+                        <help-tag role="Admin" target="pipeline.scep.secret-valid-to"/>
+                        <datetime type="datetime" input-class="form-control" name="scepSecretValidTo"
+                                  input-id="pipeline-scepSecretValidTo" id="pipeline-scepSecretValidTo"
                                   v-model="$v.pipeline.scepConfigItems.scepSecretValidTo.$model"/>
 
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRecipientDN')" for="pipeline-scepRecipientDN"></label>  <help-tag role="Admin" target="pipeline.scep.recipient-dn"/>
-                        <input type="text" class="form-control" name="scepRecipientDN" id="pipeline-scepRecipientDN" v-model="$v.pipeline.scepConfigItems.scepRecipientDN.$model" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.scepRecipientDN')"
+                               for="pipeline-scepRecipientDN"></label>
+                        <help-tag role="Admin" target="pipeline.scep.recipient-dn"/>
+                        <input type="text" class="form-control" name="scepRecipientDN" id="pipeline-scepRecipientDN"
+                               v-model="$v.pipeline.scepConfigItems.scepRecipientDN.$model"/>
 
                         <div class="form-group" v-if="$v.pipeline.type.$model === 'SCEP'">
-                            <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caConnectorScepRecipientName')" for="pipeline-caConnectorScepRecipientName"></label>  <help-tag role="Admin" target="pipeline.scep.ca-connector-recipient"/>
-                            <select class="form-control" id="pipeline-caConnectorScepRecipientName" name="caConnector" v-model="pipeline.scepConfigItems.caConnectorRecipientName">
-                                <option v-bind:value="pipeline.scepConfigItems.caConnectorRecipientName && cAConnectorConfigOption.name === pipeline.scepConfigItems.caConnectorRecipientName ? pipeline.scepConfigItems.caConnectorRecipientName : cAConnectorConfigOption.name"
-                                        v-for="cAConnectorConfigOption in allCertGenerators"
-                                        :key="cAConnectorConfigOption.id">{{cAConnectorConfigOption.name}}</option>
+                            <label class="form-control-label"
+                                   v-text="$t('ca3SApp.pipeline.caConnectorScepRecipientName')"
+                                   for="pipeline-caConnectorScepRecipientName"></label>
+                            <help-tag role="Admin" target="pipeline.scep.ca-connector-recipient"/>
+                            <select class="form-control" id="pipeline-caConnectorScepRecipientName" name="caConnector"
+                                    v-model="pipeline.scepConfigItems.caConnectorRecipientName">
+                                <option
+                                    v-bind:value="pipeline.scepConfigItems.caConnectorRecipientName && cAConnectorConfigOption.name === pipeline.scepConfigItems.caConnectorRecipientName ? pipeline.scepConfigItems.caConnectorRecipientName : cAConnectorConfigOption.name"
+                                    v-for="cAConnectorConfigOption in allCertGenerators"
+                                    :key="cAConnectorConfigOption.id">{{ cAConnectorConfigOption.name }}
+                                </option>
                             </select>
                         </div>
 
-                        <label v-if="$v.pipeline.type.$model === 'SCEP' && $v.pipeline.scepConfigItems.recepientCertId.$model"
-                               class="form-control-label"
-                               v-text="$t('ca3SApp.pipeline.scepRecipientCertificate')" for="pipeline-scepRecipientCertificate"></label>
+                        <label
+                            v-if="$v.pipeline.type.$model === 'SCEP' && $v.pipeline.scepConfigItems.recepientCertId.$model"
+                            class="form-control-label"
+                            v-text="$t('ca3SApp.pipeline.scepRecipientCertificate')"
+                            for="pipeline-scepRecipientCertificate"></label>
 
-                        <div v-if="$v.pipeline.type.$model === 'SCEP' && $v.pipeline.scepConfigItems.recepientCertId.$model">
+                        <div
+                            v-if="$v.pipeline.type.$model === 'SCEP' && $v.pipeline.scepConfigItems.recepientCertId.$model">
                             <router-link name="pipeline-scepRecipientCertificate"
                                          id="pipeline-scepRecipientCertificate"
-                                         :to="{name: 'CertInfo', params: {certificateId: $v.pipeline.scepConfigItems.recepientCertId.$model}}">{{$v.pipeline.scepConfigItems.recepientCertSubject.$model}}</router-link>
+                                         :to="{name: 'CertInfo', params: {certificateId: $v.pipeline.scepConfigItems.recepientCertId.$model}}">
+                                {{ $v.pipeline.scepConfigItems.recepientCertSubject.$model }}
+                            </router-link>
                         </div>
                     </div>
 
-                    <div  v-if="pipeline.type !== 'MANUAL_UPLOAD'" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.key.unique')" for="pipeline-key-unique"></label>  <help-tag role="Admin" target="pipeline.key.unique"/>
-                        <select class="form-control" id="pipeline-key-unique" name="pipeline-key-unique" v-model="pipeline.keyUniqueness">
+                    <div v-if="pipeline.type !== 'MANUAL_UPLOAD'" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.key.unique')"
+                               for="pipeline-key-unique"></label>
+                        <help-tag role="Admin" target="pipeline.key.unique"/>
+                        <select class="form-control" id="pipeline-key-unique" name="pipeline-key-unique"
+                                v-model="pipeline.keyUniqueness">
                             <option v-text="$t('ca3SApp.pipeline.key.reuse.unique')" value="KEY_UNIQUE"></option>
                             <option v-text="$t('ca3SApp.pipeline.key.reuse.domainReuse')" value="DOMAIN_REUSE"></option>
                             <option v-text="$t('ca3SApp.pipeline.key.reuse.reuse')" value="KEY_REUSE"></option>
-                            <option v-if="$v.pipeline.type.$model === 'ACME'" v-text="$t('ca3SApp.pipeline.key.reuse.domainReuseWithWarn')" value="DOMAIN_REUSE_WARN_ONLY"></option>
-                            <option v-if="$v.pipeline.type.$model === 'ACME'" v-text="$t('ca3SApp.pipeline.key.reuse.reuseWithWarn')" value="KEY_REUSE_WARN_ONLY"></option>
+                            <option v-if="$v.pipeline.type.$model === 'ACME'"
+                                    v-text="$t('ca3SApp.pipeline.key.reuse.domainReuseWithWarn')"
+                                    value="DOMAIN_REUSE_WARN_ONLY"></option>
+                            <option v-if="$v.pipeline.type.$model === 'ACME'"
+                                    v-text="$t('ca3SApp.pipeline.key.reuse.reuseWithWarn')"
+                                    value="KEY_REUSE_WARN_ONLY"></option>
                         </select>
                     </div>
 
-                    <div  v-if="pipeline.type === 'WEB'" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.cn-san.restriction')" for="pipeline-cn-san-restriction"></label>  <help-tag role="Admin" target="pipeline.cn-san.restriction"/>
-                        <select class="form-control" id="pipeline-cn-san-restriction" name="pipeline-cn-san-restriction" v-model="pipeline.cnAsSanRestriction">
-                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.ignore')" value="CN_AS_SAN_IGNORE"></option>
-                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.warn')" value="CN_AS_SAN_WARN_ONLY"></option>
-                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.required')" value="CN_AS_SAN_REQUIRED"></option>
+                    <div v-if="pipeline.type === 'WEB'" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.cn-san.restriction')"
+                               for="pipeline-cn-san-restriction"></label>
+                        <help-tag role="Admin" target="pipeline.cn-san.restriction"/>
+                        <select class="form-control" id="pipeline-cn-san-restriction" name="pipeline-cn-san-restriction"
+                                v-model="pipeline.cnAsSanRestriction">
+                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.ignore')"
+                                    value="CN_AS_SAN_IGNORE"></option>
+                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.warn')"
+                                    value="CN_AS_SAN_WARN_ONLY"></option>
+                            <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.required')"
+                                    value="CN_AS_SAN_REQUIRED"></option>
                         </select>
                     </div>
 
@@ -198,10 +273,12 @@
                         <tbody>
                         <tr>
                             <td>
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.cn')" for="pipeline-cn-cardinality"></label>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.cn')"
+                                       for="pipeline-cn-cardinality"></label>
                             </td>
                             <td>
-                                <select class="form-control" id="pipeline-cn-cardinality" name="pipeline-cn-cardinality" v-model="pipeline.restriction_CN.cardinalityRestriction">
+                                <select class="form-control" id="pipeline-cn-cardinality" name="pipeline-cn-cardinality"
+                                        v-model="pipeline.restriction_CN.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
                                     <option value="ONE_OR_SAN">ONE_OR_SAN</option>
@@ -211,20 +288,26 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-cn-template" id="pipeline-cn-template" v-model="pipeline.restriction_CN.contentTemplate" />
-                                <input type="checkbox" class="form-check-inline" name="pipeline-cn-template-readonly" id="pipeline-cn-template-readonly" v-model="pipeline.restriction_CN.templateReadOnly" />
+                                <input type="text" class="form-control" name="pipeline-cn-template"
+                                       id="pipeline-cn-template" v-model="pipeline.restriction_CN.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-cn-template-readonly"
+                                       id="pipeline-cn-template-readonly"
+                                       v-model="pipeline.restriction_CN.templateReadOnly"/>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-cn-regex" id="pipeline-cn-regex" v-model="pipeline.restriction_CN.regEx" />
+                                <input type="text" class="form-control" name="pipeline-cn-regex" id="pipeline-cn-regex"
+                                       v-model="pipeline.restriction_CN.regEx"/>
                             </td>
                         </tr>
 
                         <tr>
                             <td>
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.c')" for="pipeline-c-cardinality"></label>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.c')"
+                                       for="pipeline-c-cardinality"></label>
                             </td>
                             <td>
-                                <select class="form-control" id="pipeline-c-cardinality" name="pipeline-c-cardinality" v-model="pipeline.restriction_C.cardinalityRestriction">
+                                <select class="form-control" id="pipeline-c-cardinality" name="pipeline-c-cardinality"
+                                        v-model="pipeline.restriction_C.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
                                     <option value="ONE">ONE</option>
@@ -233,20 +316,26 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-c-template" id="pipeline-c-template" v-model="pipeline.restriction_C.contentTemplate" />
-                                <input type="checkbox" class="form-check-inline" name="pipeline-c-template-readonly" id="pipeline-c-template-readonly" v-model="pipeline.restriction_C.templateReadOnly" />
+                                <input type="text" class="form-control" name="pipeline-c-template"
+                                       id="pipeline-c-template" v-model="pipeline.restriction_C.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-c-template-readonly"
+                                       id="pipeline-c-template-readonly"
+                                       v-model="pipeline.restriction_C.templateReadOnly"/>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-c-regex" id="pipeline-c-regex" v-model="pipeline.restriction_C.regEx" />
+                                <input type="text" class="form-control" name="pipeline-c-regex" id="pipeline-c-regex"
+                                       v-model="pipeline.restriction_C.regEx"/>
                             </td>
                         </tr>
 
                         <tr>
                             <td>
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.o')" for="pipeline-o-cardinality"></label>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.o')"
+                                       for="pipeline-o-cardinality"></label>
                             </td>
                             <td>
-                                <select class="form-control" id="pipeline-o-cardinality" name="pipeline-o-cardinality" v-model="pipeline.restriction_O.cardinalityRestriction">
+                                <select class="form-control" id="pipeline-o-cardinality" name="pipeline-o-cardinality"
+                                        v-model="pipeline.restriction_O.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
                                     <option value="ONE">ONE</option>
@@ -255,20 +344,26 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-o-template" id="pipeline-o-template" v-model="pipeline.restriction_O.contentTemplate" />
-                                <input type="checkbox" class="form-check-inline" name="pipeline-o-template-readonly" id="pipeline-o-template-readonly" v-model="pipeline.restriction_O.templateReadOnly" />
+                                <input type="text" class="form-control" name="pipeline-o-template"
+                                       id="pipeline-o-template" v-model="pipeline.restriction_O.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-o-template-readonly"
+                                       id="pipeline-o-template-readonly"
+                                       v-model="pipeline.restriction_O.templateReadOnly"/>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-o-regex" id="pipeline-o-regex" v-model="pipeline.restriction_O.regEx" />
+                                <input type="text" class="form-control" name="pipeline-o-regex" id="pipeline-o-regex"
+                                       v-model="pipeline.restriction_O.regEx"/>
                             </td>
                         </tr>
 
                         <tr>
                             <td>
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ou')" for="pipeline-ou-cardinality"></label>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ou')"
+                                       for="pipeline-ou-cardinality"></label>
                             </td>
                             <td>
-                                <select class="form-control" id="pipeline-ou-cardinality" name="pipeline-ou-cardinality" v-model="pipeline.restriction_OU.cardinalityRestriction">
+                                <select class="form-control" id="pipeline-ou-cardinality" name="pipeline-ou-cardinality"
+                                        v-model="pipeline.restriction_OU.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
                                     <option value="ONE">ONE</option>
@@ -277,20 +372,26 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-cn-template" id="pipeline-cn-template" v-model="pipeline.restriction_CN.contentTemplate" />
-                                <input type="checkbox" class="form-check-inline" name="pipeline-ou-template-readonly" id="pipeline-ou-template-readonly" v-model="pipeline.restriction_OU.templateReadOnly" />
+                                <input type="text" class="form-control" name="pipeline-cn-template"
+                                       id="pipeline-cn-template" v-model="pipeline.restriction_CN.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-ou-template-readonly"
+                                       id="pipeline-ou-template-readonly"
+                                       v-model="pipeline.restriction_OU.templateReadOnly"/>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-ou-regex" id="pipeline-ou-regex" v-model="pipeline.restriction_OU.regEx" />
+                                <input type="text" class="form-control" name="pipeline-ou-regex" id="pipeline-ou-regex"
+                                       v-model="pipeline.restriction_OU.regEx"/>
                             </td>
                         </tr>
 
                         <tr>
                             <td>
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.s')" for="pipeline-s-cardinality"></label>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.s')"
+                                       for="pipeline-s-cardinality"></label>
                             </td>
                             <td>
-                                <select class="form-control" id="pipeline-s-cardinality" name="pipeline-s-cardinality" v-model="pipeline.restriction_S.cardinalityRestriction">
+                                <select class="form-control" id="pipeline-s-cardinality" name="pipeline-s-cardinality"
+                                        v-model="pipeline.restriction_S.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
                                     <option value="ONE">ONE</option>
@@ -299,20 +400,26 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-s-template" id="pipeline-s-template" v-model="pipeline.restriction_S.contentTemplate" />
-                                <input type="checkbox" class="form-check-inline" name="pipeline-s-template-readonly" id="pipeline-s-template-readonly" v-model="pipeline.restriction_S.templateReadOnly" />
+                                <input type="text" class="form-control" name="pipeline-s-template"
+                                       id="pipeline-s-template" v-model="pipeline.restriction_S.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-s-template-readonly"
+                                       id="pipeline-s-template-readonly"
+                                       v-model="pipeline.restriction_S.templateReadOnly"/>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-s-regex" id="pipeline-s-regex" v-model="pipeline.restriction_S.regEx" />
+                                <input type="text" class="form-control" name="pipeline-s-regex" id="pipeline-s-regex"
+                                       v-model="pipeline.restriction_S.regEx"/>
                             </td>
                         </tr>
 
                         <tr>
                             <td>
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.l')" for="pipeline-l-cardinality"></label>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.l')"
+                                       for="pipeline-l-cardinality"></label>
                             </td>
                             <td>
-                                <select class="form-control" id="pipeline-l-cardinality" name="pipeline-l-cardinality" v-model="pipeline.restriction_L.cardinalityRestriction">
+                                <select class="form-control" id="pipeline-l-cardinality" name="pipeline-l-cardinality"
+                                        v-model="pipeline.restriction_L.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
                                     <option value="ONE">ONE</option>
@@ -321,20 +428,26 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-l-template" id="pipeline-l-template" v-model="pipeline.restriction_L.contentTemplate" />
-                                <input type="checkbox" class="form-check-inline" name="pipeline-l-template-readonly" id="pipeline-l-template-readonly" v-model="pipeline.restriction_L.templateReadOnly" />
+                                <input type="text" class="form-control" name="pipeline-l-template"
+                                       id="pipeline-l-template" v-model="pipeline.restriction_L.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-l-template-readonly"
+                                       id="pipeline-l-template-readonly"
+                                       v-model="pipeline.restriction_L.templateReadOnly"/>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-l-regex" id="pipeline-l-regex" v-model="pipeline.restriction_L.regEx" />
+                                <input type="text" class="form-control" name="pipeline-l-regex" id="pipeline-l-regex"
+                                       v-model="pipeline.restriction_L.regEx"/>
                             </td>
                         </tr>
 
                         <tr>
                             <td>
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.e')" for="pipeline-e-cardinality"></label>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.e')"
+                                       for="pipeline-e-cardinality"></label>
                             </td>
                             <td>
-                                <select class="form-control" id="pipeline-e-cardinality" name="pipeline-e-cardinality" v-model="pipeline.restriction_E.cardinalityRestriction">
+                                <select class="form-control" id="pipeline-e-cardinality" name="pipeline-e-cardinality"
+                                        v-model="pipeline.restriction_E.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
                                     <option value="ONE">ONE</option>
@@ -343,20 +456,28 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-e-template" id="pipeline-e-template" v-model="pipeline.restriction_E.contentTemplate" />
-                                <input type="checkbox" class="form-check-inline" name="pipeline-e-template-readonly" id="pipeline-e-template-readonly" v-model="pipeline.restriction_E.templateReadOnly" />
+                                <input type="text" class="form-control" name="pipeline-e-template"
+                                       id="pipeline-e-template" v-model="pipeline.restriction_E.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-e-template-readonly"
+                                       id="pipeline-e-template-readonly"
+                                       v-model="pipeline.restriction_E.templateReadOnly"/>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-e-regex" id="pipeline-e-regex" v-model="pipeline.restriction_E.regEx" />
+                                <input type="text" class="form-control" name="pipeline-e-regex" id="pipeline-e-regex"
+                                       v-model="pipeline.restriction_E.regEx"/>
                             </td>
                         </tr>
 
                         <tr>
                             <td>
-                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.san')" for="pipeline-san-cardinality"></label>  <help-tag role="Admin" target="pipeline.san.restrictions"/>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.san')"
+                                       for="pipeline-san-cardinality"></label>
+                                <help-tag role="Admin" target="pipeline.san.restrictions"/>
                             </td>
                             <td>
-                                <select class="form-control" id="pipeline-san-cardinality" name="pipeline-san-cardinality" v-model="pipeline.restriction_SAN.cardinalityRestriction">
+                                <select class="form-control" id="pipeline-san-cardinality"
+                                        name="pipeline-san-cardinality"
+                                        v-model="pipeline.restriction_SAN.cardinalityRestriction">
                                     <option value="NOT_ALLOWED">NOT_ALLOWED</option>
                                     <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
                                     <option value="ONE">ONE</option>
@@ -365,414 +486,488 @@
                                 </select>
                             </td>
                             <td>
-                                <input type="text" class="form-control" name="pipeline-san-template" id="pipeline-san-template" v-model="pipeline.restriction_SAN.contentTemplate" />
-                                <input type="checkbox" class="form-check-inline" name="pipeline-san-template-readonly" id="pipeline-san-template-readonly" v-model="pipeline.restriction_SAN.templateReadOnly" />
+                                <input type="text" class="form-control" name="pipeline-san-template"
+                                       id="pipeline-san-template" v-model="pipeline.restriction_SAN.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-san-template-readonly"
+                                       id="pipeline-san-template-readonly"
+                                       v-model="pipeline.restriction_SAN.templateReadOnly"/>
                             </td>
                             <td>
-                              <input type="text" class="form-control" name="pipeline-san-regex" id="pipeline-san-regex" v-model="pipeline.restriction_SAN.regEx" />
+                                <input type="text" class="form-control" name="pipeline-san-regex"
+                                       id="pipeline-san-regex" v-model="pipeline.restriction_SAN.regEx"/>
                             </td>
                         </tr>
                         </tbody>
                     </table>
 
                     <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.acme.contact.email.regex')" for="pipeline-contact-email-regex"></label>  <help-tag role="Admin" target="pipeline.acme.accountEmailRegex"/>
-                        <input type="text" class="form-check-inline" name="pipeline-contact-email-regex" id="pipeline-contact-email-regex" v-model="pipeline.acmeConfigItems.contactEMailRegEx" />
-                        <input type="text" class="form-check-inline" name="pipeline-contact-email-reject-regex" id="pipeline-contact-email-reject-regex" v-model="pipeline.acmeConfigItems.contactEMailRejectRegEx" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.acme.contact.email.regex')"
+                               for="pipeline-contact-email-regex"></label>
+                        <help-tag role="Admin" target="pipeline.acme.accountEmailRegex"/>
+                        <input type="text" class="form-check-inline" name="pipeline-contact-email-regex"
+                               id="pipeline-contact-email-regex" v-model="pipeline.acmeConfigItems.contactEMailRegEx"/>
+                        <input type="text" class="form-check-inline" name="pipeline-contact-email-reject-regex"
+                               id="pipeline-contact-email-reject-regex"
+                               v-model="pipeline.acmeConfigItems.contactEMailRejectRegEx"/>
                     </div>
 
-                    <div  v-if="pipeline.type !== 'MANUAL_UPLOAD'" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSubjectAllowed')" for="pipeline-ipAsSubjectAllowed"></label>  <help-tag role="Admin" target="pipeline.ip-as-subject"/>
-                        <input type="checkbox" class="form-check-inline" name="ipAsSubjectAllowed" id="pipeline-ipAsSubjectAllowed"
-                               :class="{'valid': !$v.pipeline.ipAsSubjectAllowed.$invalid, 'invalid': $v.pipeline.ipAsSubjectAllowed.$invalid }" v-model="$v.pipeline.ipAsSubjectAllowed.$model" />
+                    <div v-if="pipeline.type !== 'MANUAL_UPLOAD'" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSubjectAllowed')"
+                               for="pipeline-ipAsSubjectAllowed"></label>
+                        <help-tag role="Admin" target="pipeline.ip-as-subject"/>
+                        <input type="checkbox" class="form-check-inline" name="ipAsSubjectAllowed"
+                               id="pipeline-ipAsSubjectAllowed"
+                               :class="{'valid': !$v.pipeline.ipAsSubjectAllowed.$invalid, 'invalid': $v.pipeline.ipAsSubjectAllowed.$invalid }"
+                               v-model="$v.pipeline.ipAsSubjectAllowed.$model"/>
 
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSanAllowed')" for="pipeline-ipAsSanAllowed"></label>  <help-tag role="Admin" target="pipeline.ip-as-san"/>
-                        <input type="checkbox" class="form-check-inline" name="ipAsSanAllowed" id="pipeline-ipAsSanAllowed"
-                               :class="{'valid': !$v.pipeline.ipAsSANAllowed.$invalid, 'invalid': $v.pipeline.ipAsSANAllowed.$invalid }" v-model="$v.pipeline.ipAsSANAllowed.$model" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ipAsSanAllowed')"
+                               for="pipeline-ipAsSanAllowed"></label>
+                        <help-tag role="Admin" target="pipeline.ip-as-san"/>
+                        <input type="checkbox" class="form-check-inline" name="ipAsSanAllowed"
+                               id="pipeline-ipAsSanAllowed"
+                               :class="{'valid': !$v.pipeline.ipAsSANAllowed.$invalid, 'invalid': $v.pipeline.ipAsSANAllowed.$invalid }"
+                               v-model="$v.pipeline.ipAsSANAllowed.$model"/>
                     </div>
 
                     <!-- Additional Request Attributes -->
                     <table class="table">
                         <thead class="thead-light">
-                            <tr>
-                                <th>
-                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.name')"
-                                           for="pipeline-ara-name"></label>
-                                    <help-tag role="Admin" target="pipeline.ara.restrictions"/>
-                                </th>
-                                <th>
-                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.template')"
-                                           for="pipeline-ara-template"></label>
-                                    <help-tag role="Admin" target="pipeline.ara.template"/>
-                                </th>
-                                <th>
-                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')"
-                                           for="pipeline-ara-regExMatch"></label>
-                                </th>
-                                <th>
-                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.content.type')"
-                                           for="pipeline-ara-content-type"></label>
-                                </th>
-                                <th>
-                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.comment')"
-                                           for="pipeline-ara-comment"></label>
-                                </th>
-                                <th>
-                                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.required')"
-                                           for="pipeline-ara-required"></label>
-                                </th>
-                            </tr>
+                        <tr>
+                            <th>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.name')"
+                                       for="pipeline-ara-name"></label>
+                                <help-tag role="Admin" target="pipeline.ara.restrictions"/>
+                            </th>
+                            <th>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.template')"
+                                       for="pipeline-ara-template"></label>
+                                <help-tag role="Admin" target="pipeline.ara.template"/>
+                            </th>
+                            <th>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.regExMatch')"
+                                       for="pipeline-ara-regExMatch"></label>
+                            </th>
+                            <th>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.content.type')"
+                                       for="pipeline-ara-content-type"></label>
+                            </th>
+                            <th>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.comment')"
+                                       for="pipeline-ara-comment"></label>
+                            </th>
+                            <th>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.required')"
+                                       for="pipeline-ara-required"></label>
+                            </th>
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(item, index) in pipeline.araRestrictions" :key="index">
-                                <td>
-                                    <input type="text" class="form-control-inline" name="pipeline-ara-name"
-                                           id="pipeline-ara-name" v-model="pipeline.araRestrictions[index].name"
-                                           v-on:input="alignARAArraySize(index)"/>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control-inline" name="pipeline-ara-template"
-                                           id="pipeline-ara-template"
-                                           v-model="pipeline.araRestrictions[index].contentTemplate"/>
-                                    <input type="checkbox" class="form-check-inline" name="pipeline-ara-templateReadOnly"
-                                           id="pipeline-ara-templateReadOnly"
-                                           v-model="pipeline.araRestrictions[index].templateReadOnly"/>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-control-inline" name="pipeline-ara-regex"
-                                           id="pipeline-ara-regex" v-model="pipeline.araRestrictions[index].regEx"/>
-                                </td>
-                                <td>
-                                    <select class="form-control-inline" id="pipeline-ara-content-type"
-                                            name="pipeline-ara-content-type"
-                                            v-model="pipeline.araRestrictions[index].contentType">
-                                        <option value="NO_TYPE"></option>
-                                        <option value="EMAIL_ADDRESS" v-text="$t('ca3SApp.pipeline.ara.content.type.EMAIL_ADDRESS')"></option>
-                                    </select>
-                                </td>
-                                <td>
-                                    <input type="text" class="form-check-inline" name="pipeline-ara-comment"
-                                           id="pipeline-ara-comment" v-model="pipeline.araRestrictions[index].comment"/>
-                                </td>
-                                <td>
-                                    <input type="checkbox" class="form-check-inline" name="pipeline-ara-required"
-                                           id="pipeline-ara-required" v-model="pipeline.araRestrictions[index].required"/>
-                                </td>
-                            </tr>
+                        <tr v-for="(item, index) in pipeline.araRestrictions" :key="index">
+                            <td>
+                                <input type="text" class="form-control-inline" name="pipeline-ara-name"
+                                       id="pipeline-ara-name" v-model="pipeline.araRestrictions[index].name"
+                                       v-on:input="alignARAArraySize(index)"/>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control-inline" name="pipeline-ara-template"
+                                       id="pipeline-ara-template"
+                                       v-model="pipeline.araRestrictions[index].contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-ara-templateReadOnly"
+                                       id="pipeline-ara-templateReadOnly"
+                                       v-model="pipeline.araRestrictions[index].templateReadOnly"/>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control-inline" name="pipeline-ara-regex"
+                                       id="pipeline-ara-regex" v-model="pipeline.araRestrictions[index].regEx"/>
+                            </td>
+                            <td>
+                                <select class="form-control-inline" id="pipeline-ara-content-type"
+                                        name="pipeline-ara-content-type"
+                                        v-model="pipeline.araRestrictions[index].contentType">
+                                    <option value="NO_TYPE"></option>
+                                    <option value="EMAIL_ADDRESS"
+                                            v-text="$t('ca3SApp.pipeline.ara.content.type.EMAIL_ADDRESS')"></option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-check-inline" name="pipeline-ara-comment"
+                                       id="pipeline-ara-comment" v-model="pipeline.araRestrictions[index].comment"/>
+                            </td>
+                            <td>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-ara-required"
+                                       id="pipeline-ara-required" v-model="pipeline.araRestrictions[index].required"/>
+                            </td>
+                        </tr>
                         </tbody>
                     </table>
 
-                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB' || $v.pipeline.type.$model === 'ACME'">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.tosAgreed')" for="pipeline-tosAgreed"></label>  <help-tag role="Admin" target="pipeline.tosAgreed"/>
-                        <input type="checkbox" class="form-check-inline" name="pipeline-tosAgreementRequired" id="pipeline-tosAgreementRequired" v-model="pipeline.tosAgreementRequired" />
+                    <div class="form-group"
+                         v-if="$v.pipeline.type.$model === 'WEB' || $v.pipeline.type.$model === 'ACME'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.tosAgreed')"
+                               for="pipeline-tosAgreed"></label>
+                        <help-tag role="Admin" target="pipeline.tosAgreed"/>
+                        <input type="checkbox" class="form-check-inline" name="pipeline-tosAgreementRequired"
+                               id="pipeline-tosAgreementRequired" v-model="pipeline.tosAgreementRequired"/>
                         <input v-if="pipeline.tosAgreementRequired"
-                               type="text" class="form-control" name="tosAgreementLink" id="pipeline-tosAgreementLink" v-model="$v.pipeline.tosAgreementLink.$model" />
+                               type="text" class="form-control" name="tosAgreementLink" id="pipeline-tosAgreementLink"
+                               v-model="$v.pipeline.tosAgreementLink.$model"/>
                     </div>
 
 
-                    <div v-if="$v.pipeline.type.$model === 'ACME' || $v.pipeline.type.$model === 'SCEP'" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.toPendingOnFailedRestrictions')" for="^pipeline-toPendingOnFailedRestrictions"></label>  <help-tag role="Admin" target="pipeline.pending-on-failure"/>
-                        <input type="checkbox" class="form-check-inline" name="toPendingOnFailedRestrictions" id="pipeline-toPendingOnFailedRestrictions" v-model="pipeline.toPendingOnFailedRestrictions" />
+                    <div v-if="$v.pipeline.type.$model === 'ACME' || $v.pipeline.type.$model === 'SCEP'"
+                         class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.toPendingOnFailedRestrictions')"
+                               for="^pipeline-toPendingOnFailedRestrictions"></label>
+                        <help-tag role="Admin" target="pipeline.pending-on-failure"/>
+                        <input type="checkbox" class="form-check-inline" name="toPendingOnFailedRestrictions"
+                               id="pipeline-toPendingOnFailedRestrictions"
+                               v-model="pipeline.toPendingOnFailedRestrictions"/>
                     </div>
 
 
-<!--
-                    <div class="form-group" v-if="$v.pipeline.approvalRequired.$model">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.approvalInfo')" for="pipeline-approvalInfo1">Approval Info</label>
+                    <!--
+                                        <div class="form-group" v-if="$v.pipeline.approvalRequired.$model">
+                                            <label class="form-control-label" v-text="$t('ca3SApp.pipeline.approvalInfo')" for="pipeline-approvalInfo1">Approval Info</label>
 
-                        <input type="text" class="form-control" name="urlPart" id="pipeline-approvalInfo1"
-                            :class="{'valid': !$v.pipeline.approvalInfo1.$invalid, 'invalid': $v.pipeline.approvalInfo1.$invalid }" v-model="$v.pipeline.approvalInfo1.$model" />
-                    </div>
--->
+                                            <input type="text" class="form-control" name="urlPart" id="pipeline-approvalInfo1"
+                                                :class="{'valid': !$v.pipeline.approvalInfo1.$invalid, 'invalid': $v.pipeline.approvalInfo1.$invalid }" v-model="$v.pipeline.approvalInfo1.$model" />
+                                        </div>
+                    -->
 
                     <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeHTTP01')" for="pipeline-allowChallengeHTTP01"></label>  <help-tag role="Admin" target="pipeline.acme.allow-challenge-http01"/>
-                        <input type="checkbox" class="form-check-inline" name="allowChallengeHTTP01" id="pipeline-allowChallengeHTTP01" v-model="pipeline.acmeConfigItems.allowChallengeHTTP01" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeHTTP01')"
+                               for="pipeline-allowChallengeHTTP01"></label>
+                        <help-tag role="Admin" target="pipeline.acme.allow-challenge-http01"/>
+                        <input type="checkbox" class="form-check-inline" name="allowChallengeHTTP01"
+                               id="pipeline-allowChallengeHTTP01"
+                               v-model="pipeline.acmeConfigItems.allowChallengeHTTP01"/>
 
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeAlpn')" for="pipeline-allowChallengeAlpn"></label>  <help-tag role="Admin" target="pipeline.acme.allow-challenge-alpn"/>
-                        <input type="checkbox" class="form-check-inline" name="allowChallengeAlpn" id="pipeline-allowChallengeAlpn" v-model="pipeline.acmeConfigItems.allowChallengeAlpn" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeAlpn')"
+                               for="pipeline-allowChallengeAlpn"></label>
+                        <help-tag role="Admin" target="pipeline.acme.allow-challenge-alpn"/>
+                        <input type="checkbox" class="form-check-inline" name="allowChallengeAlpn"
+                               id="pipeline-allowChallengeAlpn" v-model="pipeline.acmeConfigItems.allowChallengeAlpn"/>
 
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeDNS')" for="pipeline-allowChallengeDNS"></label>  <help-tag role="Admin" target="pipeline.acme.allow-challenge-dns"/>
-                        <input type="checkbox" class="form-check-inline" name="allowChallengeDNS" id="pipeline-allowChallengeDNS" v-model="pipeline.acmeConfigItems.allowChallengeDNS" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeDNS')"
+                               for="pipeline-allowChallengeDNS"></label>
+                        <help-tag role="Admin" target="pipeline.acme.allow-challenge-dns"/>
+                        <input type="checkbox" class="form-check-inline" name="allowChallengeDNS"
+                               id="pipeline-allowChallengeDNS" v-model="pipeline.acmeConfigItems.allowChallengeDNS"/>
 
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowWildcards')" for="pipeline-allowWildcards"></label>  <help-tag role="Admin" target="pipeline.acme.allow-wildcards"/>
-                        <input type="checkbox" class="form-check-inline" :disabled="pipeline.acmeConfigItems.allowChallengeDNS === false" name="allowWildcards" id="pipeline-allowWildcards" v-model="pipeline.acmeConfigItems.allowWildcards" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowWildcards')"
+                               for="pipeline-allowWildcards"></label>
+                        <help-tag role="Admin" target="pipeline.acme.allow-wildcards"/>
+                        <input type="checkbox" class="form-check-inline"
+                               :disabled="pipeline.acmeConfigItems.allowChallengeDNS === false" name="allowWildcards"
+                               id="pipeline-allowWildcards" v-model="pipeline.acmeConfigItems.allowWildcards"/>
 
                     </div>
                     <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.eabRequired')" for="pipeline-eabRequired"></label>  <help-tag role="Admin" target="pipeline.acme.eabRequired"/>
-                        <input type="checkbox" class="form-check-inline" name="pipeline-eabRequired" id="pipeline-eabRequired" v-model="pipeline.acmeConfigItems.externalAccountRequired" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.eabRequired')"
+                               for="pipeline-eabRequired"></label>
+                        <help-tag role="Admin" target="pipeline.acme.eabRequired"/>
+                        <input type="checkbox" class="form-check-inline" name="pipeline-eabRequired"
+                               id="pipeline-eabRequired" v-model="pipeline.acmeConfigItems.externalAccountRequired"/>
                     </div>
 
-                  <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
-                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.checkCAA')"
-                           for="pipeline-checkCAA"></label>
-                    <help-tag role="Admin" target="pipeline.acme.check-caa" />
-                    <input type="checkbox" class="form-check-inline" name="pipeline-checkCAA" id="pipeline-checkCAA"
-                           v-model="pipeline.acmeConfigItems.checkCAA" />
+                    <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.checkCAA')"
+                               for="pipeline-checkCAA"></label>
+                        <help-tag role="Admin" target="pipeline.acme.check-caa"/>
+                        <input type="checkbox" class="form-check-inline" name="pipeline-checkCAA" id="pipeline-checkCAA"
+                               v-model="pipeline.acmeConfigItems.checkCAA"/>
 
-                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caNameCAA')"
-                           for="pipeline-caNameCAA"></label>
-                    <help-tag role="Admin" target="pipeline.acme.ca-name-caa" />
-                    <input type="text" class="form-control" name="caNameCAA" id="pipeline-caNameCAA"
-                           v-model="pipeline.acmeConfigItems.caNameCAA" />
-                  </div>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caNameCAA')"
+                               for="pipeline-caNameCAA"></label>
+                        <help-tag role="Admin" target="pipeline.acme.ca-name-caa"/>
+                        <input type="text" class="form-control" name="caNameCAA" id="pipeline-caNameCAA"
+                               v-model="pipeline.acmeConfigItems.caNameCAA"/>
+                    </div>
 
-                  <div v-if="($v.pipeline.type.$model === 'ACME') && (requestProxyConfigs.length > 0 )"
-                       class="form-inline">
+                    <div v-if="($v.pipeline.type.$model === 'ACME') && (requestProxyConfigs.length > 0 )"
+                         class="form-inline">
 
-                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.requestProxies')"
-                           for="pipeline-requestProxyIds"></label>
-                    <help-tag role="Admin" target="pipeline.acme.request-proxies" />
-                    <select class="form-control" id="pipeline-requestProxyIds" name="pipeline-requestProxyIds"
-                            multiple
-                            v-model="pipeline.requestProxyConfigIds">
-                      <option v-for="item in requestProxyConfigs" :key="item.id" :value="item.id">{{ item.name }}
-                      </option>
-                    </select>
-                  </div>
-
-                  <div class="container" v-if="$v.pipeline.type.$model === 'WEB'">
-                    <div class="row">
-                      <div class="col">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.csr.usage')"
-                               for="pipeline-csrUsage"></label>
-                        <help-tag role="Admin" target="pipeline.csr-usage" />
-                      </div>
-                      <div class="col">
-                        <select class="form-control" id="pipeline-csrUsage" name="pipeline-csrUsage"
-                                v-model="pipeline.csrUsage">
-                          <option value="TLS_SERVER">TLS Server</option>
-                          <option value="TLS_CLIENT">TLS Client</option>
-                          <option value="DOC_SIGNING">Document Signing</option>
-                          <option value="CODE_SIGNING">Code Signing</option>
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.requestProxies')"
+                               for="pipeline-requestProxyIds"></label>
+                        <help-tag role="Admin" target="pipeline.acme.request-proxies"/>
+                        <select class="form-control" id="pipeline-requestProxyIds" name="pipeline-requestProxyIds"
+                                multiple
+                                v-model="pipeline.requestProxyConfigIds">
+                            <option v-for="item in requestProxyConfigs" :key="item.id" :value="item.id">{{ item.name }}
+                            </option>
                         </select>
-                      </div>
                     </div>
-                  </div>
 
-                  <div class="container" v-if="pipeline.domainRaOfficerList && domainRAs && domainRAs.length > 0 && $v.pipeline.type.$model === 'WEB'">
-                    <div class="row">
-                      <div class="col">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.domainRAs')"
-                               for="pipeline-domainRAs"></label>
-                        <help-tag role="Admin" target="pipeline.domain-ra" />
-                      </div>
-                      <div class="col">
-                        <select class="form-control" multiple id="pipeline-domainRAs" name="pipeline-domainRAs"
-                                v-model="pipeline.domainRaOfficerList">
-                          <option v-bind:value="domainRA.id" v-for="domainRA in domainRAs" :key="domainRA.id">
-                            {{ readableUserName(domainRA) }}
-                          </option>
+                    <div class="container" v-if="$v.pipeline.type.$model === 'WEB'">
+                        <div class="row">
+                            <div class="col">
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.csr.usage')"
+                                       for="pipeline-csrUsage"></label>
+                                <help-tag role="Admin" target="pipeline.csr-usage"/>
+                            </div>
+                            <div class="col">
+                                <select class="form-control" id="pipeline-csrUsage" name="pipeline-csrUsage"
+                                        v-model="pipeline.csrUsage">
+                                    <option value="TLS_SERVER">TLS Server</option>
+                                    <option value="TLS_CLIENT">TLS Client</option>
+                                    <option value="DOC_SIGNING">Document Signing</option>
+                                    <option value="CODE_SIGNING">Code Signing</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="container"
+                         v-if="pipeline.domainRaOfficerList && domainRAs && domainRAs.length > 0 && $v.pipeline.type.$model === 'WEB'">
+                        <div class="row">
+                            <div class="col">
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.domainRAs')"
+                                       for="pipeline-domainRAs"></label>
+                                <help-tag role="Admin" target="pipeline.domain-ra"/>
+                            </div>
+                            <div class="col">
+                                <select class="form-control" multiple id="pipeline-domainRAs" name="pipeline-domainRAs"
+                                        v-model="pipeline.domainRaOfficerList">
+                                    <option v-bind:value="domainRA.id" v-for="domainRA in domainRAs" :key="domainRA.id">
+                                        {{ readableUserName(domainRA) }}
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB'">
+                        <label class="form-control-label"
+                               v-text="$t('ca3SApp.pipeline.notifyRAOnCertificateLifecycleEvents')"
+                               for="pipeline-notifyRAOnCertificateLifecycleEvents"></label>
+                        <help-tag role="Admin" target="pipeline.notify-ra-on-pending-request"/>
+                        <input type="checkbox" class="form-check-inline" name="notifyRAOnCertificateLifecycleEvents"
+                               id="pipeline-notifyRAOnCertificateLifecycleEvents"
+                               v-model="$v.pipeline.webConfigItems.notifyRAOfficerOnPendingRequest.$model"/>
+                    </div>
+
+                    <div class="form-group"
+                         v-if="$v.pipeline.type.$model === 'WEB' && pipeline.domainRaOfficerList && (pipeline.domainRaOfficerList.length > 0) ">
+                        <label class="form-control-label"
+                               v-text="$t('ca3SApp.pipeline.notifyDomainRAOnCertificateLifecycleEvents')"
+                               for="pipeline-notifyDomainRAOnCertificateLifecycleEvents"></label>
+                        <input type="checkbox" class="form-check-inline"
+                               name="notifyDomainRAOnCertificateLifecycleEvents"
+                               id="pipeline-notifyDomainRAOnCertificateLifecycleEvents"
+                               v-model="$v.pipeline.webConfigItems.notifyDomainRAOfficerOnPendingRequest.$model"/>
+                    </div>
+
+
+                    <div class="container" v-if="$v.pipeline.type.$model === 'WEB'">
+                        <div class="row">
+                            <div class="col">
+                                <label class="form-control-label"
+                                       v-text="$t('ca3SApp.pipeline.additionalEmailRecipients')"
+                                       for="pipeline-additionalEmailRecipients"></label>
+                                <help-tag role="Admin" target="pipeline.additional-email-recipients"/>
+                            </div>
+                            <div class="col">
+                                <input type="text" class="form-control" name="additionalEmailRecipients"
+                                       id="pipeline-additionalEmailRecipients"
+                                       v-model="$v.pipeline.webConfigItems.additionalEMailRecipients.$model"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!--div class="form-group"
+                         v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_CREATION').length > 0">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoCreate')"
+                               for="pipeline-processInfoIssue"></label>
+                        <help-tag role="Admin" target="pipeline.process.create"/>
+                        <select class="form-control" id="pipeline-processInfoIssue" name="pipeline-processInfoIssue"
+                                v-model="pipeline.processInfoNameCreate">
+                            <option v-bind:value="null"></option>
+                            <option
+                                v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
+                                v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_CREATION')"
+                                :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
+                            </option>
                         </select>
-                      </div>
+                    </div-->
+
+                    <div class="form-group"
+                         v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_CREATION').length > 0">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoCreate')"
+                               for="pipeline-processInfoIssue"></label>
+                        <help-tag role="Admin" target="pipeline.process.create"/>
+                        <select class="form-control" id="pipeline-processInfoIssue" name="processInfoIssue"
+                                v-model="pipeline.processInfoNameCreate">
+                            <option v-bind:value="null"></option>
+                            <option
+                                v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
+                                v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_CREATION')"
+                                :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
+                            </option>
+                        </select>
                     </div>
-                  </div>
 
-                  <div class="form-group" v-if="$v.pipeline.type.$model === 'WEB'">
-                    <label class="form-control-label"
-                           v-text="$t('ca3SApp.pipeline.notifyRAOnCertificateLifecycleEvents')"
-                           for="pipeline-notifyRAOnCertificateLifecycleEvents"></label>
-                    <help-tag role="Admin" target="pipeline.notify-ra-on-pending-request" />
-                    <input type="checkbox" class="form-check-inline" name="notifyRAOnCertificateLifecycleEvents"
-                           id="pipeline-notifyRAOnCertificateLifecycleEvents"
-                           v-model="$v.pipeline.webConfigItems.notifyRAOfficerOnPendingRequest.$model" />
-                  </div>
-
-                  <div class="form-group"
-                       v-if="$v.pipeline.type.$model === 'WEB' && pipeline.domainRaOfficerList && (pipeline.domainRaOfficerList.length > 0) ">
-                    <label class="form-control-label"
-                           v-text="$t('ca3SApp.pipeline.notifyDomainRAOnCertificateLifecycleEvents')"
-                           for="pipeline-notifyDomainRAOnCertificateLifecycleEvents"></label>
-                    <input type="checkbox" class="form-check-inline" name="notifyDomainRAOnCertificateLifecycleEvents"
-                           id="pipeline-notifyDomainRAOnCertificateLifecycleEvents"
-                           v-model="$v.pipeline.webConfigItems.notifyDomainRAOfficerOnPendingRequest.$model" />
-                  </div>
-
-
-                  <div class="container" v-if="$v.pipeline.type.$model === 'WEB'">
-                    <div class="row">
-                      <div class="col">
-                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.additionalEmailRecipients')"
-                               for="pipeline-additionalEmailRecipients"></label>
-                        <help-tag role="Admin" target="pipeline.additional-email-recipients" />
-                      </div>
-                      <div class="col">
-                        <input type="text" class="form-control" name="additionalEmailRecipients"
-                               id="pipeline-additionalEmailRecipients"
-                               v-model="$v.pipeline.webConfigItems.additionalEMailRecipients.$model" />
-                      </div>
+                    <div class="form-group"
+                         v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_REVOCATION').length > 0">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoRevoke')"
+                               for="pipeline-processInfoRevoke"></label>
+                        <help-tag role="Admin" target="pipeline.process.revoke"/>
+                        <select class="form-control" id="pipeline-processInfoRevoke" name="processInfoRevoke"
+                                v-model="pipeline.processInfoNameRevoke">
+                            <option v-bind:value="null"></option>
+                            <option
+                                v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
+                                v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_REVOCATION')"
+                                :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
+                            </option>
+                        </select>
                     </div>
-                  </div>
 
-                  <div class="form-group"
-                       v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_CREATION').length > 0">
-                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoCreate')"
-                           for="pipeline-processInfo"></label>
-                    <help-tag role="Admin" target="pipeline.process.create" />
-                    <select class="form-control" id="pipeline-processInfo" name="processInfo"
-                            v-model="pipeline.processInfoNameCreate">
-                      <option v-bind:value="null"></option>
-                      <option
-                        v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
-                        v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_CREATION')"
-                        :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
-                      </option>
-                    </select>
-                  </div>
+                    <div class="form-group"
+                         v-if="$v.pipeline.type.$model === 'WEB' && getBPNMProcessInfosByType('REQUEST_AUTHORIZATION').length > 0">
+                        <label class="form-control-label"
+                               v-text="$t('ca3SApp.pipeline.processInfoRequestAuthorization')"
+                               for="pipeline-processInfoRequestAuthorization"></label>
+                        <help-tag role="Admin" target="pipeline.process.requestAuthorization"/>
+                        <select class="form-control" id="pipeline-processInfoRequestAuthorization"
+                                name="processInfoRequestAuthorization"
+                                v-model="pipeline.webConfigItems.processInfoNameRequestAuthorization">
+                            <option v-bind:value="null"></option>
+                            <option
+                                v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
+                                v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('REQUEST_AUTHORIZATION')"
+                                :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
+                            </option>
+                        </select>
+                    </div>
 
-                  <div class="form-group"
-                       v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_REVOCATION').length > 0">
-                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoRevoke')"
-                           for="pipeline-processInfo"></label>
-                    <help-tag role="Admin" target="pipeline.process.revoke" />
-                    <select class="form-control" id="pipeline-processInfo" name="processInfo"
-                            v-model="pipeline.processInfoNameRevoke">
-                      <option v-bind:value="null"></option>
-                      <option
-                        v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
-                        v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_REVOCATION')"
-                        :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
-                      </option>
-                    </select>
-                  </div>
+                    <div class="form-group"
+                         v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_NOTIFY').length > 0">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoNotify')"
+                               for="pipeline-processInfoNotify"></label>
+                        <help-tag role="Admin" target="pipeline.process.notify"/>
+                        <select class="form-control" id="pipeline-processInfoNotify" name="processInfoNotify"
+                                v-model="pipeline.processInfoNameNotify">
+                            <option v-bind:value="null"></option>
+                            <option
+                                v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
+                                v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_NOTIFY')"
+                                :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
+                            </option>
+                        </select>
+                    </div>
 
-                  <div class="form-group"
-                       v-if="$v.pipeline.type.$model === 'WEB' && getBPNMProcessInfosByType('REQUEST_AUTHORIZATION').length > 0">
-                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoRequestAuthorization')"
-                           for="pipeline-processInfoRequestAuthorization"></label>
-                    <help-tag role="Admin" target="pipeline.process.requestAuthorization" />
-                    <select class="form-control" id="pipeline-processInfoRequestAuthorization"
-                            name="processInfoRequestAuthorization"
-                            v-model="pipeline.webConfigItems.processInfoNameRequestAuthorization">
-                      <option v-bind:value="null"></option>
-                      <option
-                        v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
-                        v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('REQUEST_AUTHORIZATION')"
-                        :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
-                      </option>
-                    </select>
-                  </div>
+                    <div class="form-group"
+                         v-if="$v.pipeline.type.$model === 'ACME' && getBPNMProcessInfosByType('ACME_ACCOUNT_AUTHORIZATION').length > 0">
+                        <label class="form-control-label"
+                               v-text="$t('ca3SApp.pipeline.processInfoAccountAuthorization')"
+                               for="pipeline-processInfoAccountAuthorization"></label>
+                        <help-tag role="Admin" target="pipeline.process.account-authorization"/>
+                        <select class="form-control" id="pipeline-processInfoAccountAuthorization" name="processInfoAccountAuthorization"
+                                v-model="pipeline.acmeConfigItems.processInfoNameAccountAuthorization">
+                            <option v-bind:value="null"></option>
+                            <option
+                                v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
+                                v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('ACME_ACCOUNT_AUTHORIZATION')"
+                                :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
+                            </option>
+                        </select>
+                    </div>
 
-                  <div class="form-group"
-                       v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_NOTIFY').length > 0">
-                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoNotify')"
-                           for="pipeline-processInfoNotify"></label>
-                    <help-tag role="Admin" target="pipeline.process.notify" />
-                    <select class="form-control" id="pipeline-processInfoNotify" name="processInfoNotify"
-                            v-model="pipeline.processInfoNameNotify">
-                      <option v-bind:value="null"></option>
-                      <option
-                        v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
-                        v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_NOTIFY')"
-                        :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
-                      </option>
-                    </select>
-                  </div>
+                    <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.isNotifyContactsOnError')"
+                               for="pipeline-isNotifyContactsOnError"></label>
+                        <help-tag role="Admin" target="pipeline.acme.notify-contacts-on-error"/>
+                        <input type="checkbox" class="form-check-inline" name="checkCAA"
+                               id="pipeline-isNotifyContactsOnError"
+                               v-model="pipeline.acmeConfigItems.notifyContactsOnError"/>
+                    </div>
 
-                  <div class="form-group"
-                       v-if="$v.pipeline.type.$model === 'ACME' && getBPNMProcessInfosByType('ACME_ACCOUNT_AUTHORIZATION').length > 0">
-                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoAccountAuthorization')"
-                           for="pipeline-processInfoAccountAuthorization"></label>
-                    <help-tag role="Admin" target="pipeline.process.account-authorization" />
-                    <select class="form-control" id="pipeline-processInfoNotify" name="processInfoNotify"
-                            v-model="pipeline.acmeConfigItems.processInfoNameAccountAuthorization">
-                      <option v-bind:value="null"></option>
-                      <option
-                        v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
-                        v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('ACME_ACCOUNT_AUTHORIZATION')"
-                        :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
-                      </option>
-                    </select>
-                  </div>
+                    <div class="form-group"
+                         v-if="(isWebPipelineType() || pipeline.acmeConfigItems.externalAccountRequired) && tenants && (tenants.length > 0)">
+                        <label v-text="$t('ca3SApp.pipeline.tenants')"></label>
+                        <help-tag role="Admin" target="pipeline.tenants"/>
+                        <select class="form-control" multiple name="selectedTenants" id="pipeline-selectedTenants"
+                                v-model="pipeline.selectedTenantList">
+                            <option v-for="tenant of tenants" :value="tenant" :key="tenant.id">{{
+                                    tenant.longname
+                                }}
+                            </option>
+                        </select>
+                    </div>
 
-                  <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
-                    <label class="form-control-label" v-text="$t('ca3SApp.pipeline.isNotifyContactsOnError')"
-                           for="pipeline-isNotifyContactsOnError"></label>
-                    <help-tag role="Admin" target="pipeline.acme.notify-contacts-on-error" />
-                    <input type="checkbox" class="form-check-inline" name="checkCAA"
-                           id="pipeline-isNotifyContactsOnError"
-                           v-model="pipeline.acmeConfigItems.notifyContactsOnError" />
-                  </div>
-
-                  <div class="form-group" v-if="(isWebPipelineType() || pipeline.acmeConfigItems.externalAccountRequired) && tenants && (tenants.length > 0)">
-                    <label v-text="$t('ca3SApp.pipeline.tenants')"></label>
-                    <help-tag role="Admin" target="pipeline.tenants" />
-                    <select class="form-control" multiple name="selectedTenants" id="pipeline-selectedTenants"
-                            v-model="pipeline.selectedTenantList">
-                      <option v-for="tenant of tenants" :value="tenant" :key="tenant.id">{{ tenant.longname }}</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group" v-if="isWebPipelineType() && pipeline.selectedRolesList">
-                    <label v-text="$t('ca3SApp.pipeline.roles')"></label>
-                    <help-tag role="Admin" target="pipeline.roles" />
-                    <select class="form-control" multiple name="selectedRoles" id="pipeline-selectedRoles"
-                            v-model="pipeline.selectedRolesList">
-                      <option v-for="role of authorities" :value="role" :key="role.name">{{ role.name }}</option>
-                    </select>
-                  </div>
+                    <div class="form-group" v-if="isWebPipelineType() && pipeline.selectedRolesList">
+                        <label v-text="$t('ca3SApp.pipeline.roles')"></label>
+                        <help-tag role="Admin" target="pipeline.roles"/>
+                        <select class="form-control" multiple name="selectedRoles" id="pipeline-selectedRoles"
+                                v-model="pipeline.selectedRolesList">
+                            <option v-for="role of authorities" :value="role" :key="role.name">{{ role.name }}</option>
+                        </select>
+                    </div>
                 </div>
                 <p></p>
 
                 <div v-if="$v.pipeline.type.$model === 'ACME'">
-                  <div v-if="networkCollapsed">
-                    <button type="button" class="addRemoveSelector" v-on:click="setNetworkCollapsed(false)">
-                      <font-awesome-icon icon="plus"></font-awesome-icon>
-                    </button>
-                    <b v-text="$t('ca3SApp.pipeline.network')"></b>
-                    <p />
-                  </div>
-                  <div v-if="!networkCollapsed">
-                    <button type="button" class="addRemoveSelector" v-on:click="setNetworkCollapsed(true)">
-                      <font-awesome-icon icon="minus"></font-awesome-icon>
-                    </button>
-                    <b v-text="$t('ca3SApp.pipeline.network')"></b>
-                    <small v-if="requestProxyConfigs.length > 0" class="form-text" v-text="$t('entity.validation.subnet.notApplicableForProxies')"></small>
-                  </div>
+                    <div v-if="networkCollapsed">
+                        <button type="button" class="addRemoveSelector" v-on:click="setNetworkCollapsed(false)">
+                            <font-awesome-icon icon="plus"></font-awesome-icon>
+                        </button>
+                        <b v-text="$t('ca3SApp.pipeline.network')"></b>
+                        <p/>
+                    </div>
+                    <div v-if="!networkCollapsed">
+                        <button type="button" class="addRemoveSelector" v-on:click="setNetworkCollapsed(true)">
+                            <font-awesome-icon icon="minus"></font-awesome-icon>
+                        </button>
+                        <b v-text="$t('ca3SApp.pipeline.network')"></b>
+                        <small v-if="requestProxyConfigs.length > 0" class="form-text"
+                               v-text="$t('entity.validation.subnet.notApplicableForProxies')"></small>
+                    </div>
 
-                  <div v-if="!networkCollapsed">
-                    <div class="form-group">
-                      <label class="form-control-label" v-text="$t('ca3SApp.pipeline.network.accept')"
-                             for="pipeline-network-accept"></label>
-                      <div v-for="(item, index) in $v.pipeline.networkAcceptArr.$model" :key="index">
-                        <input type="text" class="form-control" name="pipeline-network-accept"
-                               id="pipeline-network-accept"
-                               v-model="$v.pipeline.networkAcceptArr.$model[index]"
-                               v-on:input="alignNetworkAcceptArraySize(index)" />
-                        <small v-if="$v.pipeline.networkAcceptArr.$each[index].$invalid"
-                               class="form-text text-danger"
-                               v-text="$t('entity.validation.subnetRequired')"></small>
-                      </div>
+                    <div v-if="!networkCollapsed">
+                        <div class="form-group">
+                            <label class="form-control-label" v-text="$t('ca3SApp.pipeline.network.accept')"
+                                   for="pipeline-network-accept"></label>
+                            <div v-for="(item, index) in $v.pipeline.networkAcceptArr.$model" :key="index">
+                                <input type="text" class="form-control" name="pipeline-network-accept"
+                                       id="pipeline-network-accept"
+                                       v-model="$v.pipeline.networkAcceptArr.$model[index]"
+                                       v-on:input="alignNetworkAcceptArraySize(index)"/>
+                                <small v-if="$v.pipeline.networkAcceptArr.$each[index].$invalid"
+                                       class="form-text text-danger"
+                                       v-text="$t('entity.validation.subnetRequired')"></small>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                  <div v-if="!networkCollapsed">
-                    <div class="form-group">
-                      <label class="form-control-label" v-text="$t('ca3SApp.pipeline.network.reject')"
-                             for="pipeline-network-reject"></label>
-                      <div v-for="(item, index) in $v.pipeline.networkRejectArr.$model" :key="index">
-                        <input type="text" class="form-control" name="pipeline-network-reject"
-                               id="pipeline-network-reject"
-                               v-model="$v.pipeline.networkRejectArr.$model[index]"
-                               v-on:input="alignNetworkRejectArraySize(index)" />
-                        <small v-if="$v.pipeline.networkRejectArr.$each[index].$invalid"
-                               class="form-text text-danger"
-                               v-text="$t('entity.validation.subnetRequired')"></small>
-                      </div>
+                    <div v-if="!networkCollapsed">
+                        <div class="form-group">
+                            <label class="form-control-label" v-text="$t('ca3SApp.pipeline.network.reject')"
+                                   for="pipeline-network-reject"></label>
+                            <div v-for="(item, index) in $v.pipeline.networkRejectArr.$model" :key="index">
+                                <input type="text" class="form-control" name="pipeline-network-reject"
+                                       id="pipeline-network-reject"
+                                       v-model="$v.pipeline.networkRejectArr.$model[index]"
+                                       v-on:input="alignNetworkRejectArraySize(index)"/>
+                                <small v-if="$v.pipeline.networkRejectArr.$each[index].$invalid"
+                                       class="form-text text-danger"
+                                       v-text="$t('entity.validation.subnetRequired')"></small>
+                            </div>
+                        </div>
                     </div>
-                  </div>
                 </div>
-              <p></p>
+                <p></p>
                 <div v-if="pipeline.id">
-                    <audit-tag :pipelineId="pipeline.id" showLinks="false" :title="$t('ca3SApp.certificate.audit')"></audit-tag>
+                    <audit-tag :pipelineId="pipeline.id" showLinks="false"
+                               :title="$t('ca3SApp.certificate.audit')"></audit-tag>
                 </div>
 
                 <div>
                     <button type="button" id="cancel-save" class="btn btn-secondary" v-on:click="previousState()">
-                        <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.cancel')"></span>
+                        <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span
+                        v-text="$t('entity.action.cancel')"></span>
                     </button>
                     <button type="submit" id="save-entity" :disabled="$v.pipeline.$invalid" class="btn btn-primary">
-                        <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.save')"></span>
+                        <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span
+                        v-text="$t('entity.action.save')"></span>
                     </button>
                 </div>
             </form>
@@ -784,11 +979,12 @@
 
 <style>
 .container {
-	padding-left: 0;
-	margin-left: 0;
+    padding-left: 0;
+    margin-left: 0;
 }
+
 .row {
-	padding-top: 5px;
-	padding-bottom: 5px;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 </style>

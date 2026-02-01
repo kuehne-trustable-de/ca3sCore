@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.HashSet;
@@ -65,9 +66,16 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
             " c.requestedOn > :after" +
             " group by concat(MONTH(requested_on), '.',YEAR(requested_on)), pipelineType"
     ),
+
+    @NamedQuery(name = "CSR.findByStatus",
+        query = "SELECT c FROM CSR c WHERE " +
+            " c.status = :csrStatus"
+    ),
+
 })
 public class CSR implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id

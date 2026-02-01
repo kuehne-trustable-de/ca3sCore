@@ -163,7 +163,7 @@ public class CSRAdministration {
                 Instant validTo = Instant.now().plus(preferenceUtil.getServerSideKeyDeleteAfterDays(), ChronoUnit.DAYS);
                 int leftUsages = preferenceUtil.getServerSideKeyDeleteAfterUses();
                 protectedContentUtil.updateServersideKeyRetentionSettings(csr.getId(),
-                   validTo,
+                    validTo,
                     leftUsages);
 
     			if(cert != null) {
