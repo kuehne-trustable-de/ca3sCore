@@ -71,6 +71,15 @@ public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationPr
         this.languages = new Languages(availableLanguages);
         this.oidcMappingConfig = oidcMappingConfig;
 
+        List<Authority> authorityList = authorityRepository.findAll();
+        for(String role: oidcMappingConfig.getRolesOtherArr()){
+            Authority newAuthority = new Authority();
+            newAuthority.setName(role);
+            if( !authorityList.contains(newAuthority)){
+                authorityRepository.save(newAuthority);
+            }
+        }
+
         this.authorizationCodeAuthenticationProvider = new OAuth2AuthorizationCodeAuthenticationProvider(accessTokenResponseClient);
     }
 
@@ -307,7 +316,10 @@ public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationPr
         if (oidcMappingConfig.getExprRolesOther() != null && !oidcMappingConfig.getExprRolesOther().isEmpty()) {
 
             List<String> otherRolesList = Arrays.asList(oidcMappingConfig.getRolesOtherArr());
+            LOG.debug("otherRolesList : '{}'", StringUtils.join(otherRolesList, ","));
+
             Collection<String> otherRolesColl = sPeLUtil.evaluateListExpression(attributeMap, oidcMappingConfig.getExprRolesOther());
+            LOG.debug("otherRolesColl : '{}'", StringUtils.join(otherRolesColl, ","));
 
             for( String roleName: otherRolesColl) {
 
@@ -316,9 +328,13 @@ public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationPr
                         otherRolesList.contains(roleName) ){
                         authoritySet.add(auth);
                         LOG.debug("authority.getName() {} included in other roles, adding it to authority Set", auth.getName());
+                    }else{
+                        LOG.debug("authority.getName() {} NOT included in other roles", auth.getName());
                     }
                 }
             }
+        }else{
+            LOG.debug("No 'other role' expression given.");
         }
 
         if( authoritySet.containsAll(user.getAuthorities()) && user.getAuthorities().containsAll(authoritySet)){
