@@ -196,6 +196,15 @@ public class CertificateView implements Serializable {
     @CsvBindByName
     private String processingCa;
 
+    @CsvBindByName
+    private Long pipelineId;
+
+    @CsvBindByName
+    private String pipelineName;
+
+    @CsvBindByName
+    private String pipelineType;
+
     @CsvIgnore
     private String acmeAccountId;
 
@@ -333,6 +342,11 @@ public class CertificateView implements Serializable {
             }
 
             if( csr.getPipeline() != null) {
+
+                this.pipelineId = csr.getPipeline().getId();
+                this.pipelineName = csr.getPipeline().getName();
+                this.pipelineType = csr.getPipeline().getType().toString();
+
                 orderAttributeMap =
                     csr.getPipeline().getPipelineAttributes().stream()
                         .filter(attr -> (attr.getName().startsWith("RESTR_ARA_") && attr.getName().endsWith("_NAME")))
@@ -833,7 +847,31 @@ public class CertificateView implements Serializable {
 		this.crlNextUpdate = crlNextUpdate;
 	}
 
-	public String getAcmeAccountId() {
+    public Long getPipelineId() {
+        return pipelineId;
+    }
+
+    public void setPipelineId(Long pipelineId) {
+        this.pipelineId = pipelineId;
+    }
+
+    public String getPipelineName() {
+        return pipelineName;
+    }
+
+    public void setPipelineName(String pipelineName) {
+        this.pipelineName = pipelineName;
+    }
+
+    public String getPipelineType() {
+        return pipelineType;
+    }
+
+    public void setPipelineType(String pipelineType) {
+        this.pipelineType = pipelineType;
+    }
+
+    public String getAcmeAccountId() {
 		return acmeAccountId;
 	}
 

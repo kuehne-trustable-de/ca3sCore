@@ -249,12 +249,10 @@ public class CertificateProcessingUtil {
                 auditService.saveAuditTrace(auditService.createAuditTraceCertificate(certificateAuditType, cert));
                 return cert;
             } else {
-                LOG.warn("creation of certificate requested by {} failed ", requestorName);
+                LOG.warn("creation of certificate requested by {} failed / deferred ", requestorName);
             }
         } catch( CAFailureException caFailureException){
             auditService.saveAuditTrace(auditService.createAuditTraceCsrSigningFailed(csr, caFailureException.getMessage()));
-
-            caFailureException.printStackTrace();
             throw caFailureException;
         }
 

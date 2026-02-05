@@ -269,7 +269,7 @@ public class BPMNUtil{
                 }
 
                 if( !csr.getStatus().equals(CsrStatus.PENDING)){
-                    LOG.info("Request status != 'pending', quit processing!");
+                    LOG.info("Request status != 'pending', defer processing!");
                     return null;
                 }
             }else{

@@ -437,6 +437,8 @@
   "ca3SApp.certificate.download.p12pbe": "PKCS12 protection",
   "ca3SApp.certificate.download.p12keyex": "'KeyEx' option",
 
+  "ca3SApp.certificate.pipelineName": "Pipeline type / name",
+
   "ca3SApp.certificate.endEntity": "End Entity",
   "ca3SApp.certificate.extended.usage": "Extended Usage",
   "ca3SApp.certificate.fingerprint": "Fingerprint",

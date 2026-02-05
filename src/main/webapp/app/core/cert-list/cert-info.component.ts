@@ -249,10 +249,18 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   }
 
   public isRevocable() {
+
     return (
       this.certificateView.active &&
       (this.isRAOfficer() || this.isOwnCertificate())
     );
+  }
+
+  public isNotificationBlockable(){
+    if( this.certificateView.pipelineType === 'WEB'){
+      return this.isRevocable();
+    }
+    return false;
   }
 
   public isRemovableFromCRL() {

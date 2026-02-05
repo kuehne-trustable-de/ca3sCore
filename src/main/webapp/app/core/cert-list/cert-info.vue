@@ -171,6 +171,17 @@
                             </div>
                         </dd>
 
+                        <dt v-if="isAdmin() && certificateView.pipelineId">
+                            <span v-text="$t('ca3SApp.certificate.pipelineName')"></span>
+                        </dt>
+                        <dd v-if="isAdmin() && certificateView.pipelineId">
+                            <div>{{certificateView.pipelineType}}
+                                <router-link :to="{name: 'ConfPipelineEdit', params: {pipelineId: certificateView.pipelineId, mode: 'edit'}}" >
+                                    {{certificateView.pipelineName}}
+                                </router-link>
+                            </div>
+                        </dd>
+
                         <dt v-if="isRAOrAdmin() && (certificateView.acmeAccountId || certificateView.acmeOrderId)">
                             <span v-text="$t('ca3SApp.certificate.acme')"></span>
                         </dt>
@@ -318,7 +329,7 @@
                             <input type="text" class="form-control" :name="'cert-ar-'+attr.name" :id="'cert-ar-'+attr.name" v-model="attr.value" />
                         </div>
 
-                        <div v-if="isRevocable()" class="form-group">
+                        <div v-if="isNotificationBlockable()" class="form-group">
                             <label class="form-control-label" v-text="$t('ca3SApp.notification.blocked')" for="certificate-notification-blocked"></label>
                             <input type="checkbox" class="form-check-inline" name="trusted" id="certificate-notification-blocked" v-model="certificateView.notificationBlocked"
                                    v-b-modal.blockNotificationForCertificate/>
@@ -346,7 +357,7 @@
                                       v-model="comment" />
                             <textarea v-else class="form-control" name="content" id="comment"
                                       autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-                                      readonly="true"
+                                      readonly="readonly"
                                       v-model="comment" />
                         </div>
 

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-01-18 14:23:13.
+// Generated using typescript-generator version 3.2.1263 on 2026-02-05 21:55:05.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -261,6 +261,9 @@ export interface ICertificateView extends ISerializable {
   caConnectorId?: number;
   caProcessingId?: number;
   processingCa?: string;
+  pipelineId?: number;
+  pipelineName?: string;
+  pipelineType?: string;
   acmeAccountId?: string;
   acmeOrderId?: string;
   scepTransId?: string;
@@ -1053,7 +1056,7 @@ export type ICsrUsage = "TLS_SERVER" | "TLS_CLIENT" | "DOC_SIGNING" | "CODE_SIGN
 
 export type IAuthSecondFactor = "NONE" | "CLIENT_CERT" | "TOTP" | "EMAIL" | "SMS";
 
-export type ICsrStatus = "PROCESSING" | "ISSUED" | "REJECTED" | "PENDING";
+export type ICsrStatus = "PROCESSING" | "ISSUED" | "REJECTED" | "PENDING" | "AUTHORIZING";
 
 export type IPKCSDataType = "CSR" | "X509_CERTIFICATE" | "X509_CERTIFICATE_CREATED" | "UNKNOWN" | "CONTAINER" | "CONTAINER_WITH_KEY" | "CONTAINER_REQUIRING_PASSPHRASE";
 
