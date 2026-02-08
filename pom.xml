@@ -106,7 +106,7 @@
 
         <!-- The hibernate version should match the one managed by
         https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-dependencies/${spring-boot.version} -->
-        <hibernate.version>5.6.15.Final</hibernate.version>
+        <hibernate.version>7.2.4.Final</hibernate.version>
         <hibernate-core.version>${hibernate.version}</hibernate-core.version>
         <!-- The javassist version should match the one managed by
         https://mvnrepository.com/artifact/org.hibernate/hibernate-core/${hibernate.version} -->
