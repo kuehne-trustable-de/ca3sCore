@@ -284,7 +284,7 @@ entity BPMNProcessInfo{
 @skipClient
 entity BPMNProcessInfoAttribute {
     name String required
-    value0 String required
+    value0 TextBlob required
     protectedContent Boolean
 }
 
