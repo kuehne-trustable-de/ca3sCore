@@ -40,6 +40,8 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   public bpmnFileUploaded = false;
   public warningMessage: string = null;
 
+  public fileContent: string = "foo";
+
   public options: {
     propertiesPanel: {};
     additionalModules: [];
@@ -94,11 +96,23 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
     return this.$store.state.uiConfigStore.config.scndFactorTypes.includes(secondFactorType);
   }
 
+  public async processFileContent(){
+    let response = await fetch(`data:application/xml,${this.fileContent}`);
+    let data = await response.blob();
+    let metadata = {
+      type: "application/xml"
+    };
+    this.processFile(new File([data], "fileContent", metadata));
+  }
+
   public notifyFileChange(evt: any): void {
     if (!evt || !evt.target || !evt.target.files || evt.target.files.length === 0) {
       return;
     }
+    this.processFile(evt.target.files[0]);
+  }
 
+  public processFile(file: File): void {
     this.warningMessage = null;
 
     const self = this;
@@ -109,7 +123,6 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
       self.bpmnFileUploaded = false;
       self.bpmnUpload.contentXML = '';
       self.bpmnUrl = '';
-      self.warningMessage = '';
 
       if (typeof readerContent.result === 'string') {
         self.bpmnUpload.contentXML = readerContent.result;
@@ -123,7 +136,7 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
         if (typeof readerUrl.result === 'string') {
           self.bpmnUrl = readerUrl.result;
 
-          const name = evt.target.files[0].name;
+          const name = file.name;
           if (name.endsWith('.bpmn20.xml')) {
             name.substring(0, name.length - 11);
           }
@@ -137,9 +150,9 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
         }
       };
 
-      readerUrl.readAsDataURL(evt.target.files[0]);
+      readerUrl.readAsDataURL(file);
     };
-    readerContent.readAsText(evt.target.files[0]);
+    readerContent.readAsText(file);
   }
 
   public getOptions() {

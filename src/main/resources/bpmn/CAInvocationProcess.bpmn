@@ -9,7 +9,7 @@
       <bpmn2:incoming>SequenceFlow_1b8to73</bpmn2:incoming>
       <bpmn2:outgoing>SequenceFlow_19mr0q9</bpmn2:outgoing>
     </bpmn2:serviceTask>
-    <bpmn2:endEvent id="EndEvent_1" name="CA Request&#10;Processed">
+    <bpmn2:endEvent id="EndEvent_1" name="CA Request Processed">
       <bpmn2:incoming>SequenceFlow_19mr0q9</bpmn2:incoming>
     </bpmn2:endEvent>
     <bpmn2:sequenceFlow id="SequenceFlow_19mr0q9" sourceRef="CAInvocationTask" targetRef="EndEvent_1" />

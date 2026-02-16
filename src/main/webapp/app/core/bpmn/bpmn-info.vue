@@ -38,6 +38,7 @@
 
                         <label v-if="interactionMode == 'EDIT'" class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.fileSelectorBPMN')" for="fileSelector"></label>  <help-tag role="Admin" target="bpmn.upload"/>
                         <input v-if="interactionMode == 'EDIT'" type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
+
                         <small class="form-text text-danger" v-if="warningMessage" v-text="$t('entity.validation.required')">{{warningMessage}}</small>
 
                     </div>

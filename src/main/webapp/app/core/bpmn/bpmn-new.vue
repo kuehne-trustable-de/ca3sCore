@@ -7,6 +7,9 @@
                 <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.fileSelectorBPMN')" for="fileSelector"></label>  <help-tag role="Admin" target="bpmn.upload"/>
                 <input type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
 
+                <textarea id="fileContent" name="fileContent" v-model="fileContent" />
+                <input type="button" id="fileSubmit"  name="fileSubmit" v-on:click="processFileContent()" />
+
                 <small class="form-text text-danger" v-if="warningMessage" v-text="$t('entity.validation.required')">{{warningMessage}}</small>
             </div>
 

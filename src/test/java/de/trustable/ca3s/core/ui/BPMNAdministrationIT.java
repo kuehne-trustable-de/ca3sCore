@@ -24,6 +24,8 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Random;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -39,6 +41,8 @@ public class BPMNAdministrationIT extends WebTestBase{
     public static final By LOC_LNK_BPMN_PROCESS_INFO_MENUE = By.xpath("//nav//a [.//span [text() = 'BPMN Process Info']]");
     public static final By LOC_BTN_BPMN_PROCESS_INFO_NEW = By.xpath("//div//button [.//span [text() = 'Create a new BPMN Process Info']]");
     public static final By LOC_INP_BPMN_FILE = By.xpath("//div/input [@type = 'file'][@id = 'fileSelector']");
+    public static final By LOC_TXT_BPMN_FILECONTENT = By.xpath("//div/textarea[@id = 'fileContent']");
+    public static final By LOC_BTN_BPMN_FILESUBMIT = By.xpath("//div/input [@type = 'button'][@id = 'fileSubmit']");
     public static final By LOC_INP_BPMN_NEW_NAME = By.xpath("//div/input [@type = 'text'][@id = 'bpmn.new.name']");
     public static final By LOC_INP_BPMN_NEW_VERSION = By.xpath("//div/input [@type = 'text'][@id = 'bpmn.new.version']");
     public static final By LOC_SEL_BPMN_NEW_TYPE = By.xpath("//div//select [@id = 'bpmn.new.type']");
@@ -60,8 +64,8 @@ public class BPMNAdministrationIT extends WebTestBase{
 
     private static Random rand = new Random();
 
-//    static String bpmnTestFilePath;
     static File bpmnTestFile;
+    static String bpmnTestContent;
 
     @LocalServerPort
 	int serverPort; // random port chosen by spring test
@@ -75,8 +79,6 @@ public class BPMNAdministrationIT extends WebTestBase{
     @Autowired
     private ContentUploadProcessor contentUploadProcessor;
 
-    long createdCertificateId;
-
     @BeforeAll
 	public static void setUpBeforeClass() throws IOException {
         JCAManager.getInstance();
@@ -85,6 +87,7 @@ public class BPMNAdministrationIT extends WebTestBase{
         bpmnTestFile = File.createTempFile("TestProcess", ".bpmn");
 
         FileUtils.copyInputStreamToFile(bpmnTestResource.getInputStream(), bpmnTestFile);
+        bpmnTestContent = new String( Files.readAllBytes(Paths.get(bpmnTestFile.getAbsolutePath())));
     }
 
 	@BeforeEach
@@ -150,9 +153,13 @@ public class BPMNAdministrationIT extends WebTestBase{
         validatePresent(LOC_INP_BPMN_FILE);
         setText( LOC_INP_BPMN_FILE, bpmnTestFile.getAbsolutePath());
 
-        validatePresent(LOC_INP_BPMN_NEW_NAME);
-        Assertions.assertEquals(bpmnTestFile.getName().replace(".bpmn", ""), getText(LOC_INP_BPMN_NEW_NAME));
+        validatePresent(LOC_TXT_BPMN_FILECONTENT);
+        setText( LOC_TXT_BPMN_FILECONTENT, bpmnTestContent);
 
+        validatePresent(LOC_BTN_BPMN_FILESUBMIT);
+        click(LOC_BTN_BPMN_FILESUBMIT);
+
+        validatePresent(LOC_INP_BPMN_NEW_NAME);
         setText(LOC_INP_BPMN_NEW_NAME, newBPNMName);
 
         validatePresent(LOC_INP_BPMN_NEW_VERSION);

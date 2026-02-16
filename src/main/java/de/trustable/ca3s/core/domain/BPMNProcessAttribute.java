@@ -26,6 +26,7 @@ public class BPMNProcessAttribute implements Serializable {
     private String name;
 
     @NotNull
+    @Lob
     @Column(name = "value_0", nullable = false)
     private String value0;
 

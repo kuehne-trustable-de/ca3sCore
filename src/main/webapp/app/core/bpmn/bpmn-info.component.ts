@@ -8,11 +8,10 @@ import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 
 import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-process-info.service';
-import { IBPMNProcessInfoView } from '@/shared/model/bpmn-process-info.model';
 
 import VueBpmn from 'vue-bpmn';
 import axios, { AxiosError } from 'axios';
-import { IBpmnCheckResult, IBPMNUpload } from '@/shared/model/transfer-object.model';
+import { IBpmnCheckResult, IBPMNUpload, IBPMNProcessInfoView } from '@/shared/model/transfer-object.model';
 
 const bpmnUrl = 'api/bpmn';
 
