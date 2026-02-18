@@ -906,8 +906,9 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
             } else {
               subject += '/' + name.toUpperCase() + '=';
             }
-            const re = new RegExp(/\//, 'g');
-            subject += value.value.replace(re, '\\/');
+            subject += value.value
+              .replace(/\\/g, '\\\\')
+              .replace(/\//g, '\\/');
           }
         }
       }
