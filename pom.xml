@@ -121,7 +121,7 @@
         <jaxb-runtime.version>2.3.9</jaxb-runtime.version>
 
         <spring.version>5.3.39</spring.version>
-        <spring.security.version>5.8.16</spring.security.version>
+        <spring.security.version>6.3.8</spring.security.version>
 
         <spring-security-oauth2-autoconfigure.version>2.6.8</spring-security-oauth2-autoconfigure.version>
 
