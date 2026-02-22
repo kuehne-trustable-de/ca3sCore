@@ -65,6 +65,8 @@ public class UIDatasetSupport {
     private final String ldapLoginDomainName;
     private final String samlEntityBaseUrl;
 
+    private final String testMode;
+
     private final List<AuthSecondFactor> secondFactorList;
 
     public UIDatasetSupport(CAConnectorConfigRepository caConnConfRepo,
@@ -87,7 +89,8 @@ public class UIDatasetSupport {
                             @Value("${ca3s.oidc.provider-name:}") String oidcProviderName,
                             @Value("${ca3s.saml.entity.base-url:}") String samlEntityBaseUrl,
                             @Value("${ca3s.ui.login.scnd-factor:CLIENT_CERT, TOTP, SMS}") String[] scndFactorTypes,
-                            CertificateAttributeRepository certificateAttributeRepository) {
+                            CertificateAttributeRepository certificateAttributeRepository,
+                            @Value("${ca3s.ui.test.mode:}") String testMode) {
         this.caConnConfRepo = caConnConfRepo;
         this.caConnectorAdapter = caConnectorAdapter;
         this.pipelineRepo = pipelineRepo;
@@ -106,6 +109,7 @@ public class UIDatasetSupport {
         this.samlEntityBaseUrl = samlEntityBaseUrl;
         this.certificateAttributeRepository = certificateAttributeRepository;
         this.ldapLoginDomainName = ldapLoginDomainName;
+        this.testMode = testMode;
 
         this.secondFactorList = new ArrayList<>();
         for( String factor: scndFactorTypes){
@@ -164,7 +168,8 @@ public class UIDatasetSupport {
             effSecondFactorList.toArray(new AuthSecondFactor[0]),
             certificateAttributeRepository.findDistinctValues(
                 CertificateAttribute.ATTRIBUTE_EXTENDED_USAGE).toArray(new String[0]),
-            infoMessage
+            infoMessage,
+            testMode
         );
 
 

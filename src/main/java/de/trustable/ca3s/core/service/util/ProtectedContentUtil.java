@@ -1,3 +1,4 @@
+
 package de.trustable.ca3s.core.service.util;
 
 import java.security.NoSuchAlgorithmException;
@@ -347,7 +348,9 @@ public class ProtectedContentUtil {
         List<ProtectedContent> pcList = protContentRepository.findByTypeRelationId(type, crt, id);
 
         Instant now = Instant.now();
-        Predicate<ProtectedContent> usableItem = pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0)) && pc.getValidTo().isAfter(now);
+        Predicate<ProtectedContent> usableItem =
+            pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0))
+                && ( (pc.getValidTo() == null) || pc.getValidTo().isAfter(now));
         return pcList.stream().filter(usableItem).collect(Collectors.toList());
     }
 

@@ -11,7 +11,7 @@ import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-proces
 
 import VueBpmn from 'vue-bpmn';
 import axios, { AxiosError } from 'axios';
-import { IBpmnCheckResult, IBPMNUpload, IBPMNProcessInfoView } from '@/shared/model/transfer-object.model';
+import { IBpmnCheckResult, IBPMNUpload } from '@/shared/model/transfer-object.model';
 
 const bpmnUrl = 'api/bpmn';
 
@@ -85,9 +85,9 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
         self.bPNMProcessInfo = res.data;
 
         if (!self.bPNMProcessInfo.bpmnProcessAttributes) {
-          self.bPNMProcessInfo.bpmnProcessAttributes = new Array();
+          self.bPNMProcessInfo.bpmnProcessAttributes = [];
         }
-        self.bPNMProcessInfo.bpmnProcessAttributes.push({});
+        self.bPNMProcessInfo.bpmnProcessAttributes.push({"name":""});
 
         self.getBpmnUrl(self.bPNMProcessInfo.processId);
         self.bpmnUpload.id = self.bPNMProcessInfo.id;
@@ -215,6 +215,8 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
       targetURL = bpmnUrl + `/check/certificateNotify/${this.bPNMProcessInfo.processId}/${encodeURIComponent(this.certificateId)}`;
     } else if (this.bpmnUpload.type === 'REQUEST_AUTHORIZATION') {
       targetURL = bpmnUrl + `/check/csrRequestAuthorization/${this.bPNMProcessInfo.processId}/${encodeURIComponent(this.csrId)}`;
+    } else if (this.bpmnUpload.type === 'REQUEST_ELEMENT_VALIDATION') {
+      targetURL = bpmnUrl + `/check/csrRequestElementValidation/${this.bPNMProcessInfo.processId}/${encodeURIComponent(this.csrId)}`;
       //    } else if (this.bpmnUpload.type === 'ACME_ACCOUNT_AUTHORIZATION') {
       //      targetURL = bpmnUrl + `/check/accountRequest/${this.bPNMProcessInfo.processId}`;
     } else if (this.bpmnUpload.type === 'SEND_SMS') {

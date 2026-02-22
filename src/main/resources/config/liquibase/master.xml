@@ -168,9 +168,9 @@
     <include file="config/liquibase/changelog/20250825133725_added_column_ProtectedContent.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20250830165300_added_columns_AcmeAccount.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20250909184500_added_relation_pipeline_authorities.xml" relativeToChangelogFile="false"/>
-
     <include file="config/liquibase/changelog/2026010918000000_modify_columns_user.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20260210174500_change_bpmn_attribute_value_type.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20260220180000_added_relation_pipeline_bpmn_element_validate.xml" relativeToChangelogFile="false"/>
 
 
 </databaseChangeLog>

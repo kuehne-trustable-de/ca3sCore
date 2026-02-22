@@ -42,6 +42,8 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
 
   public fileContent: string = "foo";
 
+  public testMode: string = "";
+
   public options: {
     propertiesPanel: {};
     additionalModules: [];
@@ -53,6 +55,9 @@ export default class BpmnInfo extends mixins(JhiDataUtils, Vue) {
   }
 
   public mounted(): void {
+
+    this.testMode = this.$store.getters.config.testMode;
+
     window.console.info('in mounted()) ');
   }
 

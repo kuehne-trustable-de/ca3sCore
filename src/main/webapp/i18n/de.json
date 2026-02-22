@@ -276,6 +276,7 @@
   "ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION": "Zertifikats-Rückruf",
   "ca3SApp.bPNMProcessInfo.type.CERTIFICATE_NOTIFY": "Zertifikats-Benachrichtigung",
   "ca3SApp.bPNMProcessInfo.type.ACME_ACCOUNT_AUTHORIZATION": "Konto-Autorisierung",
+  "ca3SApp.bPNMProcessInfo.type.REQUEST_ELEMENT_VALIDATION": "Anfrage-Validierierung",
   "ca3SApp.bPNMProcessInfo.type.SEND_SMS": "SMS Versand",
   "ca3SApp.bPNMProcessInfo.type.BATCH": "Stapelverarbeitung",
 
@@ -674,8 +675,9 @@
   "ca3SApp.pipeline.processInfoCreate": "Prozess 'Ausstellung'",
   "ca3SApp.pipeline.processInfoRevoke": "Prozess 'Rückruf'",
   "ca3SApp.pipeline.processInfoNotify": "Prozess 'Benachrichtigung'",
-  "ca3SApp.pipeline.processInfoRequestAuthorization": "Process 'Anfrage-Autorisierung'",
-  "ca3SApp.pipeline.processInfoAccountAuthorization": "Process 'Konto-Autorisierung'",
+  "ca3SApp.pipeline.processInfoRequestAuthorization": "Prozess 'Anfrage-Autorisierung'",
+  "ca3SApp.pipeline.processInfoRequestElementValidiation": "Prozess ' Validierung Anfrageelemente'",
+  "ca3SApp.pipeline.processInfoAccountAuthorization": "Prozess 'Konto-Autorisierung'",
 
   "ca3SApp.pipeline.regExMatch": "Regulärer Ausdruck",
   "ca3SApp.pipeline.s.cardinality": "Kardinalität 'ST'",

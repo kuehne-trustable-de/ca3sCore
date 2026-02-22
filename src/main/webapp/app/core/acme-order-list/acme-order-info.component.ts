@@ -38,7 +38,7 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
   }
 
   public previousState() {
-    this.$router.go(-1);
+    this.$router.push('/acme-order-list');
   }
 
   public mounted(): void {

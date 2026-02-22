@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-02-05 21:55:05.
+// Generated using typescript-generator version 3.2.1263 on 2026-02-20 16:46:43.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -318,6 +318,7 @@ export interface IUIConfigView extends ISerializable {
   scndFactorTypes?: IAuthSecondFactor[];
   extUsageArr?: string[];
   infoMsg?: string;
+  testMode?: string;
 }
 
 export interface IRequestProxyConfigView extends ISerializable {
@@ -713,6 +714,7 @@ export interface IWebConfigItems extends ISerializable {
   notifyRAOfficerOnPendingRequest?: boolean;
   notifyDomainRAOfficerOnPendingRequest?: boolean;
   processInfoNameRequestAuthorization?: string;
+  processInfoNameRequestElementValidiation?: string;
   issuesSecondFactorClientCert?: boolean;
 }
 
@@ -821,6 +823,7 @@ export interface IPipeline extends ISerializable {
   processInfoCreate?: IBPMNProcessInfo;
   processInfoRevoke?: IBPMNProcessInfo;
   processInfoNotify?: IBPMNProcessInfo;
+  processInfoRequestElementValidation?: IBPMNProcessInfo;
   processInfoRequestAuthorization?: IBPMNProcessInfo;
   processInfoAccountAuthorization?: IBPMNProcessInfo;
   algorithms?: IAlgorithmRestriction[];
@@ -1040,7 +1043,7 @@ export type IKDFType = "PBKDF2";
 
 export type IScepOrderStatus = "PENDING" | "READY" | "INVALID";
 
-export type IBPMNProcessType = "CA_INVOCATION" | "CERTIFICATE_CREATION" | "CERTIFICATE_REVOCATION" | "CERTIFICATE_NOTIFY" | "REQUEST_AUTHORIZATION" | "ACME_ACCOUNT_AUTHORIZATION" | "SEND_SMS" | "TIMED";
+export type IBPMNProcessType = "CA_INVOCATION" | "CERTIFICATE_CREATION" | "CERTIFICATE_REVOCATION" | "CERTIFICATE_NOTIFY" | "REQUEST_ELEMENT_VALIDATION" | "REQUEST_AUTHORIZATION" | "ACME_ACCOUNT_AUTHORIZATION" | "SEND_SMS" | "TIMED";
 
 export type ICAConnectorType = "INTERNAL" | "CMP" | "ADCS" | "ADCS_CERTIFICATE_INVENTORY" | "DIRECTORY" | "VAULT" | "VAULT_INVENTORY" | "EJBCA_INVENTORY" | "ACME_CLIENT";
 

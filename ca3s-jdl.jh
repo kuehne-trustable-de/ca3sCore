@@ -262,6 +262,7 @@ enum BPMNProcessType {
     CERTIFICATE_CREATION,
     CERTIFICATE_REVOCATION,
     CERTIFICATE_NOTIFY,
+    REQUEST_ELEMENT_VALIDATION,
     REQUEST_AUTHORIZATION,
     ACME_ACCOUNT_AUTHORIZATION,
     SEND_SMS,
@@ -561,9 +562,13 @@ relationship ManyToOne {
     CSR{tenant} to Tenant
 
 	Pipeline{caConnector} to CAConnectorConfig
+
     Pipeline{processInfoCreate} to BPMNProcessInfo
     Pipeline{processInfoRevoke} to BPMNProcessInfo
     Pipeline{processInfoNotify} to BPMNProcessInfo
+    Pipeline{processInfoRequestElementValidation} to BPMNProcessInfo
+    Pipeline{processInfoRequestAuthorization} to BPMNProcessInfo
+    Pipeline{processInfoAccountAuthorization} to BPMNProcessInfo
 
     CAConnectorConfig{tlsAuthentication} to Certificate
     CAConnectorConfig{messageProtection} to Certificate

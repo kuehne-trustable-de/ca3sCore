@@ -9,11 +9,8 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
-import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.exception.InvalidCredentialException;
 import de.trustable.ca3s.core.service.util.*;
-import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.commons.codec.binary.Base64;
@@ -43,8 +40,6 @@ import java.security.GeneralSecurityException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.*;
-
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Service
 public class ESTService {
@@ -273,6 +268,7 @@ public class ESTService {
     }
 
     String[] parseBasicAuth(final String authorization) {
+        //@ToDo look for functionality in a lib
         if (authorization != null && authorization.toLowerCase().startsWith("basic")) {
             // Authorization: Basic base64credentials
             String base64Credentials = authorization.substring("Basic".length()).trim();

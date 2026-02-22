@@ -7,8 +7,10 @@
                 <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.fileSelectorBPMN')" for="fileSelector"></label>  <help-tag role="Admin" target="bpmn.upload"/>
                 <input type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
 
-                <textarea id="fileContent" name="fileContent" v-model="fileContent" />
-                <input type="button" id="fileSubmit"  name="fileSubmit" v-on:click="processFileContent()" />
+                <div v-if="testMode == 'TEST'">
+                    <textarea id="fileContent" name="fileContent" v-model="fileContent" />
+                    <input type="button" id="fileSubmit"  name="fileSubmit" v-on:click="processFileContent()" />
+                </div>
 
                 <small class="form-text text-danger" v-if="warningMessage" v-text="$t('entity.validation.required')">{{warningMessage}}</small>
             </div>
@@ -34,6 +36,7 @@
                     <option value="CERTIFICATE_REVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION')" ></option>
                     <option v-if="!canCreateSecondFactor('SMS')" value="SEND_SMS" v-text="$t('ca3SApp.bPNMProcessInfo.type.SEND_SMS')"></option>
                     <option value="ACME_ACCOUNT_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.ACME_ACCOUNT_AUTHORIZATION')" ></option>
+                    <option value="REQUEST_ELEMENT_VALIDATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_ELEMENT_VALIDATION')" ></option>
 
                     <!--option value="BATCH" v-text="$t('ca3SApp.bPNMProcessInfo.type.TIMED')" >TIMED</option-->
                 </select>

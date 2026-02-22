@@ -841,6 +841,24 @@
                     </div>
 
                     <div class="form-group"
+                         v-if="$v.pipeline.type.$model === 'WEB' && getBPNMProcessInfosByType('REQUEST_ELEMENT_VALIDATION').length > 0">
+                        <label class="form-control-label"
+                               v-text="$t('ca3SApp.pipeline.processInfoRequestElementValidiation')"
+                               for="pipeline-processInfoRequestElementValidiation"></label>
+                        <help-tag role="Admin" target="pipeline.process.requestElementValidiation"/>
+                        <select class="form-control" id="pipeline-processInfoRequestElementValidiation"
+                                name="pipeline-processInfoRequestElementValidiation"
+                                v-model="pipeline.webConfigItems.processInfoNameRequestElementValidiation">
+                            <option v-bind:value="null"></option>
+                            <option
+                                v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
+                                v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('REQUEST_ELEMENT_VALIDATION')"
+                                :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group"
                          v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_NOTIFY').length > 0">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoNotify')"
                                for="pipeline-processInfoNotify"></label>

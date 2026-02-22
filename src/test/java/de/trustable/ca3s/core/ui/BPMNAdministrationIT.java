@@ -46,6 +46,12 @@ public class BPMNAdministrationIT extends WebTestBase{
     public static final By LOC_INP_BPMN_NEW_NAME = By.xpath("//div/input [@type = 'text'][@id = 'bpmn.new.name']");
     public static final By LOC_INP_BPMN_NEW_VERSION = By.xpath("//div/input [@type = 'text'][@id = 'bpmn.new.version']");
     public static final By LOC_SEL_BPMN_NEW_TYPE = By.xpath("//div//select [@id = 'bpmn.new.type']");
+    public static final By LOC_INP_BPMN_NAME = By.xpath("//div/input [@type = 'text'][@id = 'bpmn.name']");
+    public static final By LOC_SEL_BPMN_TYPE = By.xpath("//div//select [@id = 'bpmn.type']");
+
+    public static final By LOC_INP_BPMN_ATT_0_NAME = By.xpath("//div//input [@type = 'text'][@id = 'ca3SApp.bPNMProcessInfo.attribute.name.0']");
+    public static final By LOC_INP_BPMN_ATT_1_NAME = By.xpath("//div//input [@type = 'text'][@id = 'ca3SApp.bPNMProcessInfo.attribute.name.1']");
+    public static final By LOC_INP_BPMN_ATT_0_VALUE = By.xpath("//div//input [@type = 'text'][@id = 'ca3SApp.bPNMProcessInfo.attribute.value.0']");
 
 
     public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='button'][span [text() = 'Save']]");
@@ -178,21 +184,51 @@ public class BPMNAdministrationIT extends WebTestBase{
 
         click(byProcessName);
 
-        /*
         // back in the created process
-        validatePresent(LOC_INP_PIPELINE_NAME);
-        Assertions.assertEquals(newBPNMName, getText(LOC_INP_PIPELINE_NAME), "Expect the name of the connector");
+        validatePresent(LOC_INP_BPMN_NAME);
 
-        Assertions.assertEquals(newBPNMName, getText(LOC_INP_PIPELINE_NAME));
+        Assertions.assertEquals( "CERTIFICATE_NOTIFY", getText(LOC_SEL_BPMN_TYPE));
 
-        Assertions.assertEquals( newPipelineDesription, getText(LOC_SEL_PIPELINE_DESCRIPTION) );
 
-        Assertions.assertTrue(isChecked(LOC_INP_PIPELINE_ACTIVE));
+        validatePresent(LOC_INP_BPMN_ATT_0_NAME);
+        validatePresent(LOC_INP_BPMN_ATT_0_VALUE);
+        setText(LOC_INP_BPMN_ATT_0_NAME, "attribute_0_name");
+        setText(LOC_INP_BPMN_ATT_0_VALUE, "attribute_0_value");
 
-        Assertions.assertEquals( "WEB", getText(LOC_SEL_PIPELINE_TYPE));
-        Assertions.assertEquals( "InternalTestCA", getText(LOC_SEL_PIPELINE_CA_CONNECTOR));
-        Assertions.assertEquals( "TLS_SERVER", getText(LOC_SEL_PIPELINE_USAGE ));
-*/
+        validatePresent(LOC_INP_BPMN_ATT_1_NAME);
+
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
+
+        validatePresent(LOC_TEXT_PROCESS_LIST);
+
+        validatePresent(byProcessName);
+        click(byProcessName);
+
+        validatePresent(LOC_INP_BPMN_ATT_0_NAME);
+        validatePresent(LOC_INP_BPMN_ATT_0_VALUE);
+        validatePresent(LOC_INP_BPMN_ATT_1_NAME);
+
+        Assertions.assertEquals("attribute_0_name", getText(LOC_INP_BPMN_ATT_0_NAME));
+        Assertions.assertEquals("attribute_0_value", getText(LOC_INP_BPMN_ATT_0_VALUE));
+
+        setText(LOC_INP_BPMN_ATT_0_NAME, "");
+        validateNotPresent(LOC_INP_BPMN_ATT_1_NAME);
+
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
+
+        validatePresent(byProcessName);
+        click(byProcessName);
+
+        validatePresent(LOC_INP_BPMN_ATT_0_NAME);
+        validatePresent(LOC_INP_BPMN_ATT_0_VALUE);
+
+        Assertions.assertEquals("", getText(LOC_INP_BPMN_ATT_0_NAME));
+        Assertions.assertEquals("", getText(LOC_INP_BPMN_ATT_0_VALUE));
+
+        validateNotPresent(LOC_INP_BPMN_ATT_1_NAME);
+
     }
 
 }

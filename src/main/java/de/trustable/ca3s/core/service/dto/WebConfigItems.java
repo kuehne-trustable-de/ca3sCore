@@ -15,6 +15,7 @@ public class WebConfigItems implements Serializable{
     private boolean notifyDomainRAOfficerOnPendingRequest  = false;
 
     private String processInfoNameRequestAuthorization;
+    private String processInfoNameRequestElementValidiation;
 
     private Boolean issuesSecondFactorClientCert;
 
@@ -51,6 +52,14 @@ public class WebConfigItems implements Serializable{
 
     public void setProcessInfoNameRequestAuthorization(String processInfoNameRequestAuthorization) {
         this.processInfoNameRequestAuthorization = processInfoNameRequestAuthorization;
+    }
+
+    public String getProcessInfoNameRequestElementValidiation() {
+        return processInfoNameRequestElementValidiation;
+    }
+
+    public void setProcessInfoNameRequestElementValidiation(String processInfoNameRequestElementValidiation) {
+        this.processInfoNameRequestElementValidiation = processInfoNameRequestElementValidiation;
     }
 
     public Boolean getIssuesSecondFactorClientCert() {

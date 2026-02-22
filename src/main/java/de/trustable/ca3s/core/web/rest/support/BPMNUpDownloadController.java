@@ -341,39 +341,63 @@ public class BPMNUpDownloadController {
         method = POST)
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
     @Transactional
-    public ResponseEntity<Map<String, String>> postBPMNCsrRequestAuthorization(@PathVariable final String processId, @PathVariable final String csrId){
+    public ResponseEntity<BpmnCheckResult> postBPMNCsrRequestAuthorization(@PathVariable final String processId, @PathVariable final String csrId){
 
         LOG.info("Received bpmn check request for process id {} and csr id {}", processId, csrId);
 
+        return processCsr(processId, csrId);
+    }
+
+    /**
+     * check results a given request element validation process id when started
+     *
+     * @param csrId the internal process id
+     * @return the process's response
+     */
+    @RequestMapping(value = "/bpmn/check/csrRequestElementValidation/{processId}/{csrId}",
+        method = POST)
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
+    public ResponseEntity<BpmnCheckResult> postBPMNCsrRequestElementValidation(@PathVariable final String processId, @PathVariable final String csrId){
+
+        LOG.info("Received bpmn check request element validation for process id {} and csr id {}", processId, csrId);
+
+        return processCsr(processId, csrId);
+    }
+
+    private ResponseEntity<BpmnCheckResult> processCsr(@PathVariable final String processId, @PathVariable final String csrId){
+
         Optional<CSR> csrOpt = csrRepository.findById(Long.parseLong(csrId));
+        if(csrOpt.isPresent()) {
+            ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkCsrProcess(processId, csrOpt.get(), null);
 
-        ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkCsrRequestAuthorization(processId, csrOpt.get());
-
-        ResponseEntity result = handleProcessResponse(processInstanceWithVariables);
-        if (result != null) return result;
+            ResponseEntity result = handleProcessResponse(processInstanceWithVariables);
+            if (result != null) return result;
+        }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     @Nullable
-    private static ResponseEntity handleProcessResponse(ProcessInstanceWithVariables processInstanceWithVariables) {
+    private static ResponseEntity<BpmnCheckResult> handleProcessResponse(ProcessInstanceWithVariables processInstanceWithVariables) {
         if( processInstanceWithVariables != null) {
             BpmnCheckResult result = new BpmnCheckResult();
 
             Map<String, Object> variables = processInstanceWithVariables.getVariables();
             for(String key: variables.keySet()){
+                String value = (variables.get(key) == null)?"": variables.get(key).toString();
+
                 if( "failureReason".equals(key) ){
-                    result.setFailureReason(variables.get(key).toString());
+                    result.setFailureReason(value);
                 }else if( "status".equals(key) ){
-                    result.setStatus(variables.get(key).toString());
+                    result.setStatus(value);
                 }else if( "isActive".equals(key) ) {
-                    result.setActive(Boolean.parseBoolean(variables.get(key).toString()));
+                    result.setActive(Boolean.parseBoolean(value));
                 }else {
-                    String value = variables.get(key).toString();
                     LOG.info("bpmn process returns variable {} with value {}", key, value);
                     result.getResponseAttributes().add(new ImmutablePair<>(key, value));
                 }
             }
-            return new ResponseEntity(result, HttpStatus.OK);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         }
         return null;
     }

@@ -108,6 +108,10 @@ public class Pipeline implements Serializable {
 
     @ManyToOne
     @JsonIgnoreProperties({"pipelines", "secret"})
+    private BPMNProcessInfo processInfoRequestElementValidation;
+
+    @ManyToOne
+    @JsonIgnoreProperties({"pipelines", "secret"})
     private BPMNProcessInfo processInfoRequestAuthorization;
 
     @ManyToOne
@@ -335,6 +339,14 @@ public class Pipeline implements Serializable {
         return this;
     }
 
+    public BPMNProcessInfo getProcessInfoRequestElementValidation() {
+        return processInfoRequestElementValidation;
+    }
+
+    public void setProcessInfoRequestElementValidation(BPMNProcessInfo processInfoRequestElementValidation) {
+        this.processInfoRequestElementValidation = processInfoRequestElementValidation;
+    }
+
     public BPMNProcessInfo getProcessInfoRequestAuthorization() {
         return processInfoRequestAuthorization;
     }
@@ -460,9 +472,11 @@ public class Pipeline implements Serializable {
                 }
             }
         }
-        Instant connectorExpiry = getCaConnector().getExpiryDate();
-        if (expiryDate.isAfter(connectorExpiry)) {
-            expiryDate = connectorExpiry;
+        if( getCaConnector() != null) {
+            Instant connectorExpiry = getCaConnector().getExpiryDate();
+            if (expiryDate.isAfter(connectorExpiry)) {
+                expiryDate = connectorExpiry;
+            }
         }
 
         return expiryDate;

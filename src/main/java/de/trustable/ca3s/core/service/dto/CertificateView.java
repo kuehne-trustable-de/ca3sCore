@@ -1008,6 +1008,10 @@ public class CertificateView implements Serializable {
     }
 
     public String getSkiUrlSafe() {
+
+        if( ski == null || ski.isEmpty()){
+            return "";
+        }
         return Base64.getUrlEncoder().encodeToString(Base64.getDecoder().decode(ski));
     }
 

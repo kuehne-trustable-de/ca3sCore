@@ -8,6 +8,7 @@ import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.service.dto.BPMNProcessInfoView;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.ResponseUtil;
 import org.slf4j.Logger;
@@ -72,11 +73,10 @@ public class BPMNProcessInfoResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated bPMNProcessInfoView,
      * or with status {@code 400 (Bad Request)} if the bPMNProcessInfoView is not valid,
      * or with status {@code 500 (Internal Server Error)} if the bPMNProcessInfoView couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/bpmn-process-infos")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
-    public ResponseEntity<BPMNProcessInfo> updateBPMNProcessInfo(@Valid @RequestBody BPMNProcessInfoView bPMNProcessInfoView) throws URISyntaxException {
+    public ResponseEntity<BPMNProcessInfo> updateBPMNProcessInfo(@Valid @RequestBody BPMNProcessInfoView bPMNProcessInfoView) {
         log.debug("REST request to update BPMNProcessInfo : {}", bPMNProcessInfoView);
         if (bPMNProcessInfoView.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -121,6 +121,7 @@ public class BPMNProcessInfoResource {
      */
     @GetMapping("/bpmn-process-info-view/{id}")
     @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    @Transactional
     public ResponseEntity<BPMNProcessInfoView> getBPMNProcessInfoView(@PathVariable Long id) {
         log.debug("REST request to get BPMNProcessInfo : {}", id);
         Optional<BPMNProcessInfo> bPMNProcessInfo = bPMNProcessInfoService.findOne(id);

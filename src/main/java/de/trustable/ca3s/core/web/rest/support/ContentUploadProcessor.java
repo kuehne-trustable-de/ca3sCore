@@ -17,6 +17,8 @@ import de.trustable.ca3s.core.service.KeyGenerationService;
 import de.trustable.ca3s.core.service.badkeys.BadKeysResult;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.*;
+import de.trustable.ca3s.core.service.dto.bpmn.BpmnInput;
+import de.trustable.ca3s.core.service.dto.bpmn.BpmnOutput;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.CreationMode;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
@@ -46,6 +48,7 @@ import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
+import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -643,6 +646,23 @@ public class ContentUploadProcessor {
                         pipeline,
                         null, // no ACMEOrder available
                         nvArr, messageList);
+
+                    if( pipeline.getProcessInfoRequestElementValidation() != null){
+
+                        ProcessInstanceWithVariables piv = bpmnUtil.checkCsrProcess(
+                            pipeline.getProcessInfoRequestElementValidation().getName(),
+                            csr,
+                            pipeline.getCaConnector());
+                        BpmnOutput bpmnOutput = new BpmnOutput(piv);
+                        if(BpmnInput.FAILED.equals(bpmnOutput.getStatus())){
+                            LOG.warn("ProcessInfoRequestElementValidation failed with warnings: {}", bpmnOutput);
+                            messageList.add(bpmnOutput.getFailureReason());
+                            csr = null;
+                        }
+
+                    }
+
+
                 } catch (KeyApplicableException e) {
                     LOG.info("cpUtil.buildCSR rejects key", e);
                 }
@@ -668,23 +688,7 @@ public class ContentUploadProcessor {
                         }
 
                     }
-/*
-                    if( pipeline.getProcessInfoRequestAuthorization() != null ){
-                        ProcessInstanceWithVariables processInstanceWithVariables =
-                            bpmnUtil.checkCsrRequestAuthorization(
-                                pipeline.getProcessInfoRequestAuthorization().getProcessId(),
-                                csr);
-                        Object messagesObj = processInstanceWithVariables.getVariables().get("messages");
-                        if( messagesObj instanceof String[]){
-                            p10ReqData.setWarnings((String[])messagesObj);
-                        }
-                        Object statusObj = processInstanceWithVariables.getVariables().get("status");
-                            if( statusObj == null || !"Success".equalsIgnoreCase(statusObj.toString())){
-                            LOG.warn("startCertificateCreationProcess: ProcessInfoRequestAuthorization failed");
-                            return null;
-                        }
-                    }
-*/
+
                     if (pipeline.isApprovalRequired()) {
                         LOG.debug("deferring certificate creation for csr #{}", csr.getId());
                         p10ReqData.setCsrPending(true);

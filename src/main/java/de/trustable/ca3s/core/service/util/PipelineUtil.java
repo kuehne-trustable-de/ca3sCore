@@ -389,6 +389,10 @@ public class PipelineUtil {
 
         }
 
+        if (pipeline.getProcessInfoRequestElementValidation() != null) {
+            webConfigItems.setProcessInfoNameRequestElementValidiation(pipeline.getProcessInfoRequestElementValidation().getName());
+        }
+
         if (pipeline.getProcessInfoRequestAuthorization() != null) {
             webConfigItems.setProcessInfoNameRequestAuthorization(pipeline.getProcessInfoRequestAuthorization().getName());
         }
@@ -861,7 +865,30 @@ public class PipelineUtil {
             }
         }
 
-        // Reequest Proxy
+        // Request element validation
+        String oldProcessNameRequestElementValidation = "";
+        if (p.getProcessInfoRequestElementValidation() != null) {
+            oldProcessNameRequestElementValidation = p.getProcessInfoRequestElementValidation().getName();
+        }
+
+        List<BPMNProcessInfo> bpmnProcessInfoRequestElementValidationList = new ArrayList<>();
+        if(pv.getWebConfigItems() != null && pv.getWebConfigItems().getProcessInfoNameRequestElementValidiation() != null ) {
+            bpmnProcessInfoRequestElementValidationList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getWebConfigItems().getProcessInfoNameRequestElementValidiation());
+        }
+        if(!bpmnProcessInfoRequestElementValidationList.isEmpty()) {
+            BPMNProcessInfo bpi = bpmnProcessInfoRequestElementValidationList.get(0);
+            p.setProcessInfoRequestElementValidation(bpi);
+            if (!bpi.getName().equals(oldProcessNameRequestElementValidation)) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("REQUEST_ELEMENT_VALIDATION_PROCESS", oldProcessNameRequestElementValidation, bpi.getName(), p));
+            }
+        } else {
+            p.setProcessInfoRequestElementValidation(null);
+            if (!oldProcessNameRequestElementValidation.isEmpty()) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("REQUEST_ELEMENT_VALIDATION_PROCESS", oldProcessNameRequestElementValidation, "", p));
+            }
+        }
+
+        // Request Proxy
         Set<RequestProxyConfig> requestProxyConfigList = new HashSet<>();
         for (long requestProxyConfigId : pv.getRequestProxyConfigIds()) {
             Optional<RequestProxyConfig> requestProxyConfigOptional = requestProxyConfigRepository.findById(requestProxyConfigId);

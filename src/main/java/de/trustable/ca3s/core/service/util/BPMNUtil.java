@@ -249,22 +249,27 @@ public class BPMNUtil{
 	 */
 	public Certificate startCertificateCreationProcess(CSR csr)  {
 
-		CAConnectorConfig caConfig;
+		CAConnectorConfig caConfig = null;
         Pipeline pipeline = null;
 
 		if( csr.getPipeline() == null) {
 			LOG.warn("No pipeline information in CSR #{}", csr.getId());
 			caConfig = configUtil.getDefaultConfig();
 		}else {
-			caConfig = csr.getPipeline().getCaConnector();
             pipeline = csr.getPipeline();
+
+            if(pipeline != null ) {
+                caConfig = pipeline.getCaConnector();
+            }
 
             if( pipeline != null &&
                 pipeline.getProcessInfoRequestAuthorization() != null){
                 try {
-                    requestAuthorizationProcess(csr.getPipeline(), new RequestAuthorizationInput(csr));
+                    requestAuthorizationProcess(pipeline, new RequestAuthorizationInput(csr));
                 } catch (GeneralSecurityException e) {
                     LOG.warn("GeneralSecurityException when processing CSR #{} : {}", csr.getId(), e.getMessage());
+                    csr.setStatus(CsrStatus.REJECTED);
+                    csrRepository.save(csr);
                     return null;
                 }
 
@@ -397,8 +402,8 @@ public class BPMNUtil{
         return bpmnExecutor.executeBPMNProcessByName(processName, variables);
     }
 
-    public ProcessInstanceWithVariables checkCsrRequestAuthorization(String processName, CSR csr) {
-        Map<String, Object> variables = buildVariableMapFromCSR(csr, null);
+    public ProcessInstanceWithVariables checkCsrProcess(String processName, CSR csr, CAConnectorConfig caConfig) {
+        Map<String, Object> variables = buildVariableMapFromCSR(csr,caConfig );
         return bpmnExecutor.executeBPMNProcessByName(processName, variables);
     }
 
@@ -662,6 +667,8 @@ public class BPMNUtil{
             csr.setStatus(CsrStatus.AUTHORIZING);
         } else {
             LOG.warn("Request authorization by BPMN process {} rejected with reason '{}' ", bpmnOutput.getProcessInstanceId(), bpmnOutput.getFailureReason());
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceCSRBPMNProcessInfo(AuditService.AUDIT_REQUEST_AUTHENTICATION_FAILED, csr, bpmnProcessInfoRequestAuthorization));
             csr.setStatus(CsrStatus.REJECTED);
         }
         csrRepository.save(csr);

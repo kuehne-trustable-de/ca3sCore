@@ -20,7 +20,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.mail.Flags;
 import javax.mail.Folder;
 import javax.mail.MessagingException;
 import javax.security.auth.x500.X500Principal;
@@ -137,6 +136,7 @@ public class WebTestBase extends LocomotiveBase {
         System.setProperty(Ca3SApp.SERVER_ACME_PREFIX + "port", "" + testPortHttps);
         System.setProperty(Ca3SApp.SERVER_SCEP_PREFIX + "port", "" + testPortHttp);
 
+        System.setProperty("ca3s.ui.test.mode", "TEST");
 
         ClassPathResource explainationsResource =  new ClassPathResource("tutorial/explanations.xml");
 
@@ -676,8 +676,8 @@ public class WebTestBase extends LocomotiveBase {
         }
         if( !missingHelpRefs.isEmpty()){
             System.out.println("\n######### Missing help targets found !");
-            for( String missíngRef: missingHelpRefs){
-                System.out.println("Missing help target: " + missíngRef);
+            for( String missingRef: missingHelpRefs){
+                System.out.println("Missing help target: " + missingRef);
             }
         }
         Assertions.assertEquals(0, missingHelpRefs.size(), "No missing help targets expected");
