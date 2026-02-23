@@ -30,13 +30,17 @@ public class BPMNExecutor {
     }
 
 
-    public ProcessInstanceWithVariables executeBPMNProcessByName(final String processNameId, Map<String, Object> variables) {
+    public ProcessInstanceWithVariables executeBPMNProcessByName(final String processNameName, Map<String, Object> variables) {
 
-        Optional<BPMNProcessInfo> bpmnProcessInfoOpt = bpnmInfoRepo.findByProcessId(processNameId);
+        Optional<BPMNProcessInfo> bpmnProcessInfoOpt = bpnmInfoRepo.findByName(processNameName);
+        if( bpmnProcessInfoOpt.isEmpty()) {
+            bpmnProcessInfoOpt = bpnmInfoRepo.findByProcessId(processNameName);
+        }
+
         if( bpmnProcessInfoOpt.isPresent()){
             return executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoOpt.get(), variables);
         }else{
-            throw new RuntimeException("processNameId '" + processNameId + "' unknown");
+            throw new RuntimeException("processNameId '" + processNameName + "' unknown");
         }
     }
 
