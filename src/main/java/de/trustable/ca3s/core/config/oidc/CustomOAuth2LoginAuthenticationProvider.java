@@ -120,7 +120,15 @@ public class CustomOAuth2LoginAuthenticationProvider implements AuthenticationPr
         OAuth2User oauth2User = this.userService.loadUser(new OAuth2UserRequest(loginAuthenticationToken.getClientRegistration(), accessToken, additionalParameters));
         LOG.debug("oauth2User '{}' found", oauth2User);
 
-        OAuth2LoginAuthenticationToken authenticationResult = new OAuth2LoginAuthenticationToken(loginAuthenticationToken.getClientRegistration(), loginAuthenticationToken.getAuthorizationExchange(), oauth2User, authorities, accessToken, authorizationCodeAuthenticationToken.getRefreshToken());
+        OAuth2LoginAuthenticationToken authenticationResult =
+            new OAuth2LoginAuthenticationToken(
+                loginAuthenticationToken.getClientRegistration(),
+                loginAuthenticationToken.getAuthorizationExchange(),
+                oauth2User,
+                authorities,
+                accessToken,
+                authorizationCodeAuthenticationToken.getRefreshToken());
+
         authenticationResult.setDetails(loginAuthenticationToken.getDetails());
 
         String principal = SecurityUtils.extractPrincipal(authenticationResult);

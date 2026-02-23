@@ -26,7 +26,6 @@ public class CustomOAuth2AuthenticationSuccessHandler extends SimpleUrlAuthentic
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
-
         tokenProvider.setAuthenticationCookie(response, authentication, "/login");
 
         LOG.debug("onAuthenticationSuccess: {}", authentication);
