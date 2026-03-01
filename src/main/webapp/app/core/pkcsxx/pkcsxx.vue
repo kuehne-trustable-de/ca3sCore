@@ -5,6 +5,7 @@
 				:variant="alertType"
 				@dismissed="dismissCountDown=0"
 				@dismiss-count-down="countDownChanged">
+				@dismiss-count-down="countDownChanged">
 				{{alertMessage}}
 		</b-alert>
 		<br/>
@@ -159,7 +160,8 @@
                           <label v-if="item.comment.length > 0" class="form-control-label small">{{item.comment}}</label>
                       </div>
                       <div class="col colContent">
-                          <input type="text"
+
+                          <textarea v-if="item.contentType==='TEXT_AREA'"
                              :class="(showProblemWarning(item, 0, upload.arAttributes[index].values[0])) ? 'invalid' : ' valid'"
                              class="form-control form-check-inline"
                              :name="'pkcsxx.upload.ara.' + item.name" :id="'pkcsxx.upload.ara.' + item.name"
@@ -167,6 +169,17 @@
                              :required="item.required"
                              v-model="upload.arAttributes[index].values[0].value"
                              v-on:input="updateAdditionalRestriction()" />
+
+                          <input v-else
+                           type="text"
+                             :class="(showProblemWarning(item, 0, upload.arAttributes[index].values[0])) ? 'invalid' : ' valid'"
+                             class="form-control form-check-inline"
+                             :name="'pkcsxx.upload.ara.' + item.name" :id="'pkcsxx.upload.ara.' + item.name"
+                             :readonly="item.readOnly"
+                             :required="item.required"
+                             v-model="upload.arAttributes[index].values[0].value"
+                             v-on:input="updateAdditionalRestriction()" />
+
                           <small v-if="showContentWarning(item, 0, upload.arAttributes[index].values[0].value)"
                                  class="form-text text-danger" v-text="$t('entity.validation.required')"></small>
                           <small v-else-if="showRegExpWarningTV(item, 0, upload.arAttributes[index].values[0])"

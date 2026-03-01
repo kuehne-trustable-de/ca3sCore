@@ -636,6 +636,7 @@
   "ca3SApp.pipeline.ara.content.type": "Typ",
 
   "ca3SApp.pipeline.ara.content.type.EMAIL_ADDRESS": "Email-Adresse für Benachrichtigung",
+  "ca3SApp.pipeline.ara.content.type.TEXT_AREA": "Mehrzeiliger Text",
 
   "ca3SApp.pipeline.cardinality": "Kardinalität",
   "ca3SApp.pipeline.cn": "Common Name (CN)",

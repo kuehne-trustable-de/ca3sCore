@@ -644,6 +644,7 @@
   "ca3SApp.pipeline.ara.content.type": "Type",
 
   "ca3SApp.pipeline.ara.content.type.EMAIL_ADDRESS": "Notification Email address",
+  "ca3SApp.pipeline.ara.content.type.TEXT_AREA": "Multi-line text area",
 
   "ca3SApp.pipeline.c.cardinality": "Cardinality 'C'",
   "ca3SApp.pipeline.caConnector": "Ca Connector",

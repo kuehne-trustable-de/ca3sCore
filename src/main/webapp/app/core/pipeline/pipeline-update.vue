@@ -587,6 +587,9 @@
                                     <option value="NO_TYPE"></option>
                                     <option value="EMAIL_ADDRESS"
                                             v-text="$t('ca3SApp.pipeline.ara.content.type.EMAIL_ADDRESS')"></option>
+                                    <option value="TEXT_AREA"
+                                            v-text="$t('ca3SApp.pipeline.ara.content.type.TEXT_AREA')"></option>
+
                                 </select>
                             </td>
                             <td>
