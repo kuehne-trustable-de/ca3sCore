@@ -34,7 +34,7 @@ public class UploadPrecheckData {
 	private CreationMode creationMode = CreationMode.CSR_AVAILABLE;
 
 	@JsonProperty("keyAlgoLength")
-	private String keyAlgoLength = KeyAlgoLengthOrSpec.RSA_2048.toString();
+	private String keyAlgoLength = KeyAlgoLengthOrSpec.RSA_4096.toString();
 
 	@JsonProperty("containerType")
 	private ContainerType containerType = ContainerType.PKCS_12;
@@ -47,6 +47,9 @@ public class UploadPrecheckData {
 
     @JsonProperty("arAttributes")
     private NamedValues[] arAttributes;
+
+    @JsonProperty("relatedCSRId")
+    private Long relatedCSRId;
 
     @JsonProperty("tosAgreed")
     private boolean tosAgreed;
@@ -155,5 +158,11 @@ public class UploadPrecheckData {
 		this.secret = secret;
 	}
 
+    public Long getRelatedCSRId() {
+        return relatedCSRId;
+    }
 
+    public void setRelatedCSRId(Long relatedCSRId) {
+        this.relatedCSRId = relatedCSRId;
+    }
 }

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-02-20 16:46:43.
+// Generated using typescript-generator version 3.2.1263 on 2026-03-11 19:31:42.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -241,6 +241,7 @@ export interface ICertificateView extends ISerializable {
   active?: boolean;
   validFrom?: Date;
   validTo?: Date;
+  validitySeconds?: number;
   contentAddedAt?: Date;
   notificationBlocked?: boolean;
   revokedSince?: Date;
@@ -286,7 +287,7 @@ export interface ICertificateView extends ISerializable {
   serversideKeyValidTo?: Date;
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
-  arArr?: INamedValue[];
+  arArr?: INamedTypedValue[];
   skiUrlSafe?: string;
   auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
@@ -392,14 +393,14 @@ export interface ICSRView extends ISerializable {
   acceptedBy?: string;
   approvedOn?: Date;
   comment?: string;
-  arArr?: INamedValue[];
+  arArr?: INamedTypedValue[];
   csrBase64?: string;
   auditViewArr?: IAuditView[];
   isAdministrable?: boolean;
   tosAgreed?: boolean;
   tosAgreementLink?: string;
-  administrable?: boolean;
   csrvalid?: boolean;
+  administrable?: boolean;
 }
 
 export interface IPreferences extends ISerializable {
@@ -453,6 +454,8 @@ export interface IPkcsXXData {
   passphraseRequired?: boolean;
   csrPending?: boolean;
   createdCSRId?: string;
+  relatedCSRId?: number;
+  relatedCSRDesc?: string;
   messages?: string[];
   warnings?: string[];
   badKeysResult?: IBadKeysResult;
@@ -495,7 +498,7 @@ export interface ICSRAdministrationData extends ISerializable {
   administrationType?: IAdministrationType;
   rejectionReason?: string;
   comment?: string;
-  arAttributes?: INamedValue[];
+  arAttributes?: INamedTypedValue[];
 }
 
 export interface ICSRAdministrationResponse extends ISerializable {
@@ -512,7 +515,7 @@ export interface ICertificateAdministrationData extends ISerializable {
   administrationType?: IAdministrationType;
   trusted?: boolean;
   notificationBlocked?: boolean;
-  arAttributes?: INamedValue[];
+  arAttributes?: INamedTypedValue[];
 }
 
 export interface IUploadPrecheckData {
@@ -528,6 +531,7 @@ export interface IUploadPrecheckData {
   namedValues?: INamedValue[];
   certificateAttributes?: INamedValues[];
   arAttributes?: INamedValues[];
+  relatedCSRId?: number;
   tosAgreed?: boolean;
 }
 
@@ -716,6 +720,12 @@ export interface IWebConfigItems extends ISerializable {
   processInfoNameRequestAuthorization?: string;
   processInfoNameRequestElementValidiation?: string;
   issuesSecondFactorClientCert?: boolean;
+}
+
+export interface INamedTypedValue {
+  name?: string;
+  type?: string;
+  value?: string;
 }
 
 export interface INamedValues {
@@ -989,6 +999,7 @@ export interface ICsrAttribute extends ISerializable {
   id?: number;
   name?: string;
   value?: string;
+  value_clob?: string;
   csr?: ICSR;
 }
 
@@ -1045,7 +1056,7 @@ export type IScepOrderStatus = "PENDING" | "READY" | "INVALID";
 
 export type IBPMNProcessType = "CA_INVOCATION" | "CERTIFICATE_CREATION" | "CERTIFICATE_REVOCATION" | "CERTIFICATE_NOTIFY" | "REQUEST_ELEMENT_VALIDATION" | "REQUEST_AUTHORIZATION" | "ACME_ACCOUNT_AUTHORIZATION" | "SEND_SMS" | "TIMED";
 
-export type ICAConnectorType = "INTERNAL" | "CMP" | "ADCS" | "ADCS_CERTIFICATE_INVENTORY" | "DIRECTORY" | "VAULT" | "VAULT_INVENTORY" | "EJBCA_INVENTORY" | "ACME_CLIENT";
+export type ICAConnectorType = "INTERNAL" | "CMP" | "ADCS" | "ADCS_CERTIFICATE_INVENTORY" | "DIRECTORY" | "VAULT" | "VAULT_INVENTORY" | "EJBCA_INVENTORY" | "MANUAL_UPLOAD" | "ACME_CLIENT";
 
 export type IInterval = "MINUTE" | "HOUR" | "DAY" | "WEEK" | "MONTH";
 
@@ -1079,6 +1090,6 @@ export type IChallengeStatus = "pending" | "valid" | "invalid" | "deactivated" |
 
 export type IRDNCardinalityRestriction = "NOT_ALLOWED" | "ZERO_OR_ONE" | "ONE" | "ONE_OR_SAN" | "ZERO_OR_MANY" | "ONE_OR_MANY";
 
-export type IARAContentType = "NO_TYPE" | "EMAIL_ADDRESS";
+export type IARAContentType = "NO_TYPE" | "EMAIL_ADDRESS" | "TEXT_AREA";
 
 export type IAlgorithmType = "SIGNING" | "PADDING" | "HASH" | "CURVE";

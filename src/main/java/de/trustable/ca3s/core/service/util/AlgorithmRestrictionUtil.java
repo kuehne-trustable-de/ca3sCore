@@ -71,7 +71,7 @@ public class AlgorithmRestrictionUtil {
         return true;
     }
 
-    private boolean matchesAlgo(String algoName, String signingAlgo, int keyLength) {
+    boolean matchesAlgo(String algoName, String signingAlgo, int keyLength) {
 
         LOG.debug("matchesAlgo( algo '{}', signingAlgo '{}', keyLength {})", algoName, signingAlgo, keyLength);
 
@@ -93,15 +93,15 @@ public class AlgorithmRestrictionUtil {
         }
 
         if( algoNameLC.equalsIgnoreCase(KeyAlgoLengthOrSpec.Ed25519.getAlgoName() )){
-            return true;
+            return algoNameLC.equalsIgnoreCase(signingAlgo);
         }
         if( algoNameLC.startsWith("brainpool")) {
             if (algoNameLC.startsWith(KeyAlgoLengthOrSpec.Brainpool_P256r1.getAlgoName().toLowerCase(Locale.ROOT))) {
-                return true;
+                return algoNameLC.equalsIgnoreCase(signingAlgo);
             }else if (algoNameLC.startsWith(KeyAlgoLengthOrSpec.Brainpool_P384r1.getAlgoName().toLowerCase(Locale.ROOT))) {
-                return true;
+                return algoNameLC.equalsIgnoreCase(signingAlgo);
             }else if (algoNameLC.startsWith(KeyAlgoLengthOrSpec.Brainpool_P512r1.getAlgoName().toLowerCase(Locale.ROOT))) {
-                return true;
+                return algoNameLC.equalsIgnoreCase(signingAlgo);
             }
         }
 
