@@ -5,7 +5,7 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.trustable.ca3s.core.service.dto.NamedValue;
+import de.trustable.ca3s.core.service.dto.NamedTypedValue;
 
 public class CertificateAdministrationData implements Serializable {
 
@@ -37,7 +37,7 @@ public class CertificateAdministrationData implements Serializable {
     private Boolean notificationBlocked;
 
     @JsonProperty("arAttributes")
-    private NamedValue[] arAttributeArr;
+    private NamedTypedValue[] arAttributeArr;
 
 
     public Long getCertificateId() {
@@ -91,11 +91,11 @@ public class CertificateAdministrationData implements Serializable {
         this.notificationBlocked = notificationBlocked;
     }
 
-    public NamedValue[] getArAttributeArr() {
+    public NamedTypedValue[] getArAttributeArr() {
         return arAttributeArr;
     }
 
-    public void setArAttributeArr(NamedValue[] arAttributeArr) {
+    public void setArAttributeArr(NamedTypedValue[] arAttributeArr) {
         this.arAttributeArr = arAttributeArr;
     }
 }
