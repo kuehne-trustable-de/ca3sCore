@@ -411,6 +411,24 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
         //        window.console.debug('getUsersFilterList sets filters to ' + JSON.stringify(self.filters));
         self.lastFilters = JSON.stringify(self.filters);
       }
+    }) .catch(function (error) {
+      window.console.debug('getUsersFilterList returns ' + error );
+      if (error.response) {
+        if (error.response.status === 404) {
+          self.filters.filterList = [
+            { attributeName: 'requestedBy', attributeValue: self.username, selector: 'EQUAL' }
+          ];
+          self.lastFilters = JSON.stringify(self.filters);
+        } else {
+
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        }
+      }
+      console.log(error.config);
     });
   }
 

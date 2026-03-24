@@ -9,13 +9,14 @@ import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
 
-import { ICSRAdministrationData, INamedValue, ICSRView, ICSRAdministrationResponse } from '@/shared/model/transfer-object.model';
+import { ICSRAdministrationData, ICSRView, ICSRAdministrationResponse } from '@/shared/model/transfer-object.model';
 
 import ArItem from './ar-item.component';
 
 import CSRViewService from '../../entities/csr/csr-view.service';
 import { ICsrAttribute } from '@/shared/model/csr-attribute.model';
 import AlertMixin from '@/shared/alert/alert.mixin';
+import {INamedTypedValue} from "../../../../../../target/generated-sources/typescript/transfer-object.model";
 
 @Component({
   components: {
@@ -32,7 +33,7 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
 
   public csrAdminData: ICSRAdministrationData = {};
 
-  public arAttributes: INamedValue[] = [];
+  public arAttributes: INamedTypedValue[] = [];
 
   public requestorComment = '';
 
@@ -76,7 +77,7 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
     return icsrView.comment;
   }
 
-  public getArAttributes(): INamedValue[] {
+  public getArAttributes(): INamedTypedValue[] {
     return this.icsrView.arArr;
     /*
     const resultArr: INamedValue[] = new Array<INamedValue>();
@@ -232,6 +233,13 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
 
   public isEditable() {
     return this.isRAOfficer() || this.getUsername() === this.icsrView.requestedBy;
+  }
+
+  public isARAReadOnly(){
+    if(this.isEditable() && this.icsrView.status === 'PENDING'){
+      return "";
+    }
+    return "readOnly";
   }
 
   public isAdmin() {

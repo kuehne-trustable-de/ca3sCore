@@ -77,7 +77,8 @@
                     <td>{{pipeline.urlPart}}</td>
                     <td>{{pipeline.description}}</td>
                     <td>{{pipeline.approvalRequired}}</td>
-                    <td>{{pipeline.caConnectorName}}</td>
+                    <td v-if="pipeline.type === 'MANUAL_UPLOAD'"></td>
+                    <td v-else> {{pipeline.caConnectorName}}</td>
                     <td class="text-right">
                         <div class="btn-group">
                             <router-link :to="{name: 'ConfPipelineEdit', params: {pipelineId: pipeline.id, mode: 'edit'}}"  tag="button" class="btn btn-primary btn-sm edit">

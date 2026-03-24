@@ -44,8 +44,14 @@ public class PkcsXXData {
 	@JsonProperty("csrPending")
 	private boolean csrPending = false;
 
-	@JsonProperty("createdCSRId")
-	private String createdCSRId;
+    @JsonProperty("createdCSRId")
+    private String createdCSRId;
+
+    @JsonProperty("relatedCSRId")
+    private Long relatedCSRId;
+
+    @JsonProperty("relatedCSRDesc")
+    private String relatedCSRDesc;
 
     @JsonProperty("messages")
     private String[] messages;
@@ -161,7 +167,23 @@ public class PkcsXXData {
 		this.createdCSRId = createdCSRId;
 	}
 
-	public String[] getWarnings() {
+    public Long getRelatedCSRId() {
+        return relatedCSRId;
+    }
+
+    public void setRelatedCSRId(Long relatedCSRId) {
+        this.relatedCSRId = relatedCSRId;
+    }
+
+    public String getRelatedCSRDesc() {
+        return relatedCSRDesc;
+    }
+
+    public void setRelatedCSRDesc(String relatedCSRDesc) {
+        this.relatedCSRDesc = relatedCSRDesc;
+    }
+
+    public String[] getWarnings() {
 		return warnings;
 	}
 

@@ -11,7 +11,7 @@ import de.trustable.ca3s.core.repository.CsrAttributeRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.dto.NamedValue;
+import de.trustable.ca3s.core.service.dto.NamedTypedValue;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CSRAdministrationData;
@@ -167,23 +167,8 @@ public class CSRAdministration {
                     leftUsages);
 
     			if(cert != null) {
+                    asyncNotificationService.notifyInterestedPartiesByEMail(cert, csr);
 
-                    Set<String> additionalEmailSet = new HashSet<>();
-                    if(cert.getCsr() != null) {
-                        additionalEmailSet = csrUtil.getAdditionalEmailRecipients(cert.getCsr());
-                    }
-
-                    Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
-        			if( optUser.isPresent()) {
-        				User requestor = optUser.get();
-	    		        if (requestor.getEmail() == null) {
-	    		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
-	    		        }else {
-                            asyncNotificationService.notifyUserCertificateIssuedAsync(requestor, cert, additionalEmailSet);
-	    		        }
-        			} else {
-        				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
-        			}
                     CSRAdministrationResponse csrAdministrationResponse = new CSRAdministrationResponse();
                     csrAdministrationResponse.setAdministrationType(adminData.getAdministrationType());
                     csrAdministrationResponse.setCertId(cert.getId());
@@ -344,11 +329,29 @@ public class CSRAdministration {
 
     private void updateARAttributes(CSRAdministrationData adminData, CSR csr) {
 
+        User currentUser = userUtil.getCurrentUser();
+        String userName = currentUser.getLogin();
+
+        if( CsrStatus.PENDING.equals( csr.getStatus())){
+            LOG.debug("updating additional request attributes for pending CSR '{}'",adminData.getCsrId());
+        }else{
+            LOG.warn("REST request by user '{}' to additional request attributes of CSR '{}' is not allowed for request status {}",
+                userName, adminData.getCsrId(), csr.getStatus());
+            return;
+        }
+
+        if( pipelineUtil.isUserValidAsRA(csr.getPipeline(), currentUser) ||
+            userName.equals(csr.getRequestedBy())){
+            LOG.debug("updating additional request attributes of CSR '{}'",adminData.getCsrId());
+        }else{
+            LOG.warn("REST request by user '{}' to additional request attributes of CSR '{}' is not allowed!", userName, adminData.getCsrId());
+            return;
+        }
+
         Set<CsrAttribute> csrAttributeSet = csr.getCsrAttributes();
         for(CsrAttribute csrAttr: csrAttributeSet){
-            for(NamedValue nv: adminData.getArAttributeArr()){
+            for(NamedTypedValue nv: adminData.getArAttributeArr()){
                 if( StringUtils.equals(csrAttr.getName(), CsrAttribute.ARA_PREFIX + nv.getName())){
-
                     if( !StringUtils.equals(csrAttr.getValue(), nv.getValue())) {
                         auditService.saveAuditTrace(
                             auditService.createAuditTraceCsrAttribute(csrAttr.getName(), csrAttr.getValue(), nv.getValue(), csr));
@@ -360,7 +363,7 @@ public class CSRAdministration {
             }
         }
 
-        for(NamedValue nv: adminData.getArAttributeArr()){
+        for(NamedTypedValue nv: adminData.getArAttributeArr()){
 
             if( !csrAttributeSet.stream().anyMatch(certAtt ->( StringUtils.equals(certAtt.getName(), CsrAttribute.ARA_PREFIX + nv.getName())))){
 
@@ -377,8 +380,6 @@ public class CSRAdministration {
 
         csrAttributeRepository.saveAll(csrAttributeSet);
         csr.setCsrAttributes(csrAttributeSet);
-
     }
-
 
 }

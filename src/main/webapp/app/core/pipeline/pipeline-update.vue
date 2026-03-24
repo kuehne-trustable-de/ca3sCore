@@ -862,7 +862,7 @@
                     </div>
 
                     <div class="form-group"
-                         v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_NOTIFY').length > 0">
+                         v-if="getBPNMProcessInfosByType('CERTIFICATE_NOTIFY').length > 0">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoNotify')"
                                for="pipeline-processInfoNotify"></label>
                         <help-tag role="Admin" target="pipeline.process.notify"/>

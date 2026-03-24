@@ -164,7 +164,7 @@ public class PipelineUtil {
     private final CSRUtil cSRUtil;
 
 
-    Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
+    static Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
 
     final private CertificateRepository certRepository;
     final private CSRRepository csrRepository;
@@ -613,7 +613,7 @@ public class PipelineUtil {
          */
         for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
             if (plAtt.getName().startsWith(RESTR_ARA_PREFIX)) {
-                LOG.debug("ARA itmes : {}", plAtt.getName());
+                LOG.debug("ARA items : {}", plAtt.getName());
                 Matcher m = araPattern.matcher(plAtt.getName());
                 if (m.find()) {
                     int araIdx = Integer.parseInt(m.group(1));
@@ -2171,6 +2171,32 @@ public class PipelineUtil {
 
         LOG.info("IP Address {} matches no range", ipAddress);
         return false;
+    }
+
+
+    public static Map<String, Integer> buildAttributeOrderMap(Pipeline pipeline) {
+        return
+            pipeline.getPipelineAttributes().stream()
+                .filter(attr -> (attr.getName().startsWith("RESTR_ARA_") && attr.getName().endsWith("_NAME")))
+                .collect(Collectors.toMap(attr -> (attr.getValue()),
+                    attr -> (Integer.parseInt(attr.getName().replace("RESTR_ARA_", "").replace("_NAME", "")))));
+    }
+
+    public static Map<String, String> buildTypedAttributeMap(Pipeline pipeline) {
+
+        Map<String, String> typedAttributeMap = new HashMap<>();
+
+        Map<String, Integer> orderAttributeMap = buildAttributeOrderMap(pipeline);
+        for( String attName : orderAttributeMap.keySet()){
+            for(PipelineAttribute attr : pipeline.getPipelineAttributes()){
+                if( attr.getName().equals("RESTR_ARA_" +orderAttributeMap.get(attName)+"_ARAContentType")){
+                    LOG.debug("attribute '{}', #{} has type  {}", attName, orderAttributeMap.get(attName), attr.getValue());
+                    typedAttributeMap.put(attName, attr.getValue());
+                }
+            }
+        }
+
+        return typedAttributeMap;
     }
 }
 

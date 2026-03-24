@@ -5,7 +5,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvIgnore;
@@ -15,6 +14,7 @@ import de.trustable.ca3s.core.domain.CsrAttribute;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +124,7 @@ public class CSRView implements Serializable {
     private String comment;
 
     @CsvRecurse
-    private NamedValue[] arArr;
+    private NamedTypedValue[] arArr;
 
     @CsvIgnore
     private String csrBase64;
@@ -216,15 +216,31 @@ public class CSRView implements Serializable {
         this.tosAgreementLink = csrUtil.getCSRAttribute(csr, CsrAttribute.ATTRIBUTE_TOS_AGREEMENT_LINK);
 
         Map<String, Integer> orderAttributeMap = new HashMap<>();
+        Map<String, String> typedAttributeMap = new HashMap<>();
 
         if( csr.getPipeline() != null) {
+
             this.pipelineName = csr.getPipeline().getName();
             this.pipelineType = csr.getPipeline().getType();
+            orderAttributeMap = PipelineUtil.buildAttributeOrderMap(csr.getPipeline());
+            typedAttributeMap = PipelineUtil.buildTypedAttributeMap(csr.getPipeline());
+
+            /*
             orderAttributeMap =
                 csr.getPipeline().getPipelineAttributes().stream()
                     .filter(attr -> (attr.getName().startsWith("RESTR_ARA_") && attr.getName().endsWith("_NAME")))
                     .collect(Collectors.toMap( attr -> (attr.getValue()),
                         attr -> (Integer.parseInt(attr.getName().replace("RESTR_ARA_", "").replace("_NAME", "")))));
+
+            for( String attName : orderAttributeMap.keySet()){
+                for(PipelineAttribute attr : csr.getPipeline().getPipelineAttributes()){
+                    if( attr.getName().equals("RESTR_ARA_" +orderAttributeMap.get(attName)+"_ARAContentType")){
+                        LOG.debug("attribute '{}', #{} has type  {}", attName, orderAttributeMap.get(attName), attr.getValue());
+                        typedAttributeMap.put(attName, attr.getValue());
+                    }
+                }
+            }
+            */
         }else{
             this.pipelineName = null;
             this.pipelineType = null;
@@ -257,7 +273,17 @@ public class CSRView implements Serializable {
             }
         }
 
-        this.arArr = listArNamedAttributes.toArray(new NamedValue[0]);
+        List<NamedTypedValue> listArNamedTypedAttributes = new ArrayList<>();
+        for(NamedValue namedValue: listArNamedAttributes){
+            String name = namedValue.getName();
+            if( typedAttributeMap.containsKey(name)) {
+                listArNamedTypedAttributes.add(new NamedTypedValue(name, typedAttributeMap.get(name), namedValue.getValue()));
+            }else{
+                listArNamedTypedAttributes.add(new NamedTypedValue(name, "", namedValue.getValue()));
+            }
+        }
+
+        this.arArr = listArNamedTypedAttributes.toArray(new NamedTypedValue[0]);
 
     }
 
@@ -576,11 +602,11 @@ public class CSRView implements Serializable {
         return isAdministrable;
     }
 
-    public NamedValue[] getArArr() {
+    public NamedTypedValue[] getArArr() {
         return arArr;
     }
 
-    public void setArArr(NamedValue[] arArr) {
+    public void setArArr(NamedTypedValue[] arArr) {
         this.arArr = arArr;
     }
 

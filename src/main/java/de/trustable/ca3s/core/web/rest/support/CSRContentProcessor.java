@@ -1,7 +1,9 @@
 package de.trustable.ca3s.core.web.rest.support;
 
+import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.Pipeline;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.KeyUniqueness;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
@@ -12,10 +14,7 @@ import de.trustable.ca3s.core.service.dto.PKCSDataType;
 import de.trustable.ca3s.core.service.dto.Pkcs10RequestHolderShallow;
 import de.trustable.ca3s.core.service.dto.PkcsXXData;
 import de.trustable.ca3s.core.service.dto.X509CertificateHolderShallow;
-import de.trustable.ca3s.core.service.util.AlgorithmRestrictionUtil;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.PipelineUtil;
-import de.trustable.ca3s.core.service.util.ReplacementCandidateUtil;
+import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.*;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.Pkcs10RequestHolder;
@@ -32,6 +31,8 @@ import org.jose4j.base64url.Base64Url;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -85,6 +86,7 @@ public class CSRContentProcessor {
     final private ReplacementCandidateUtil replacementCandidateUtil;
 
     private final boolean findReplacementCandidates;
+    private final CSRUtil cSRUtil;
 
     public CSRContentProcessor(CryptoUtil cryptoUtil,
                                CSRRepository csrRepository,
@@ -94,7 +96,7 @@ public class CSRContentProcessor {
                                PipelineRepository pipelineRepository,
                                PipelineUtil pvUtil,
                                BadKeysService badKeysService,
-                               ReplacementCandidateUtil replacementCandidateUtil, @Value("${ca3s.issuance.findReplacements:false}") boolean findReplacementCandidates) {
+                               ReplacementCandidateUtil replacementCandidateUtil, @Value("${ca3s.issuance.findReplacements:false}") boolean findReplacementCandidates, CSRUtil cSRUtil) {
         this.cryptoUtil = cryptoUtil;
         this.csrRepository = csrRepository;
         this.certificateRepository = certificateRepository;
@@ -105,6 +107,7 @@ public class CSRContentProcessor {
         this.badKeysService = badKeysService;
         this.replacementCandidateUtil = replacementCandidateUtil;
         this.findReplacementCandidates = findReplacementCandidates;
+        this.cSRUtil = cSRUtil;
     }
 
 
@@ -130,8 +133,11 @@ public class CSRContentProcessor {
         }
 
         try {
-
-	    	try {
+            X509Certificate x509Cert = certUtil.tryParsingCertificateContent(content);
+            content = cryptoUtil.x509CertToPem(x509Cert);
+            X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
+/*
+            try {
 
                 BufferedReader reader = new BufferedReader( new StringReader(content));
                 String rawBase64 = "";
@@ -157,15 +163,35 @@ public class CSRContentProcessor {
 	    	}
 
 			X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
+ */
 			if( auth.isAuthenticated()) {
 				List<Certificate> certList = certificateRepository.findByIssuerSerial(certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
-				p10ReqData = new PkcsXXData(certHolder, content, !certList.isEmpty());
+
+                p10ReqData = new PkcsXXData(certHolder, content, !certList.isEmpty());
+
+                Page<CSR> csrPage = csrRepository.findNonRejectedByPublicKeyHash(
+                    PageRequest.of(0, 10),
+                    cryptoUtil.getHashAsBase64(x509Cert.getPublicKey().getEncoded()));
+
+                if(csrPage.getContent().size() > 1){
+                    LOG.warn("unexpected number of related CSRs found: {}", csrPage.getContent().size());
+                }
+
+                if(!csrPage.isEmpty()){
+                    CSR csr = csrPage.getContent().get(0);
+                    if(CsrStatus.PENDING.equals(csr.getStatus()) && csr.getCertificate() == null ) {
+                        p10ReqData.setRelatedCSRId(csr.getId());
+                        p10ReqData.setRelatedCSRDesc( CSRUtil.getCnOrFirstSan(csr));
+                        LOG.debug("found related CSR with id {}", p10ReqData.getRelatedCSRId());
+                    }
+                }
+
 			} else {
 				// no information leakage to the outside if not authenticated
 				p10ReqData = new PkcsXXData(certHolder, content, false);
 			}
 
-                if( badKeysService.isInstalled()){
+            if( badKeysService.isInstalled()){
                 List<String> messageList = new ArrayList<>();
 
                 BadKeysResult badKeysResult = badKeysService.checkContent(content);
@@ -187,7 +213,7 @@ public class CSRContentProcessor {
             }
 
             LOG.debug("certificate parsed from uploaded PEM content : " + certHolder.getSubject());
-		} catch (org.bouncycastle.util.encoders.DecoderException de){
+		} catch (org.bouncycastle.util.encoders.DecoderException | IOException de){
 			// not parseable ...
 			p10ReqData.setDataType(PKCSDataType.UNKNOWN);
 			LOG.debug("certificate parsing problem of uploaded content: " + de.getMessage());

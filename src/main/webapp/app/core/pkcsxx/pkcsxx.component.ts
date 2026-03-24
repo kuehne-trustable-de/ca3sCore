@@ -924,7 +924,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     this.contentCall(precheckUrl);
   }
 
-  // handle the selection of a file
+    // handle the selection of a file
   public notifyFileChange(evt: any): void {
     const self = this;
     const selectedFile = evt.target.files[0];
@@ -949,6 +949,11 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     readerBase64.readAsText(selectedFile);
   }
 
+
+  public uploadContentForCSR(_evt: Event): void {
+    this.upload.relatedCSRId = this.precheckResponse.relatedCSRId;
+    this.contentCall(uploadUrl);
+  }
   // handle any changes affecting the plain content
   public uploadContent(_evt: Event): void {
     this.contentCall(uploadUrl);
@@ -1011,6 +1016,12 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
       }
 
       this.isChecked = true;
+
+      console.log("this.precheckResponse.createdCertificateId: " + this.precheckResponse.createdCertificateId);
+      if( this.precheckResponse.createdCertificateId ){
+        this.$router.push({ name: 'CertInfo', params: { certificateId: this.precheckResponse.createdCertificateId.toString() } });
+      }
+
     } catch (error) {
       console.error('####################' + error);
       document.body.style.cursor = 'default';

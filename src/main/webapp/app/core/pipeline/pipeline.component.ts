@@ -71,9 +71,12 @@ export default class Pipeline extends mixins(Vue2Filters.mixin, AlertMixin) {
     let connectorNames: string[] = [];
     for (const pipeline of this.pipelines) {
       if (!connectorNames.includes(pipeline.caConnectorName)) {
-        connectorNames.push(pipeline.caConnectorName);
+        if(pipeline.caConnectorName){
+          connectorNames.push(pipeline.caConnectorName);
+        }
       }
     }
+
     this.distinctConnectors = connectorNames.sort((a, b) => a.localeCompare(b));
 
     this.filteredPipelines = [];

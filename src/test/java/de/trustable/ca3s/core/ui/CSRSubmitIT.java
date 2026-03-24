@@ -5,12 +5,15 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.service.util.CSRUtil;
+import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
+import de.trustable.util.Pkcs10RequestHolder;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -43,7 +46,10 @@ import javax.security.auth.x500.X500Principal;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.*;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.*;
@@ -189,6 +195,12 @@ public class CSRSubmitIT extends WebTestBase {
 
     @Autowired
     UserUtil userUtil;
+    @Autowired
+    private CertificateUtil certificateUtil;
+    @Autowired
+    private CryptoUtil cryptoUtil;
+    @Autowired
+    private CSRUtil cSRUtil;
 
     public CSRSubmitIT() {
         super();
@@ -656,7 +668,7 @@ public class CSRSubmitIT extends WebTestBase {
         click(byCertSubject);
 
         // already revoked
-        validateNotPresent(LOC_TEXT_CERT_REVOCATION_REASON);
+        validatePresent(LOC_TEXT_CERT_REVOCATION_REASON);
         selectElementText(LOC_TEXT_CERT_REVOCATION_REASON);
 
         scrollToElement(LOC_BTN_EDIT);
@@ -756,9 +768,9 @@ public class CSRSubmitIT extends WebTestBase {
             keyPair2.getPrivate() );
 
         LOG.info("upload csrFilePath '{}'", csrFilePath);
+        LOG.info(" csrFilePath content: '{}'", getFileAsPEM(csrFilePath));
 
-        validatePresent(LOC_SELECT_FILE);
-        setText(LOC_SELECT_FILE, csrFilePath);
+        setCSRContent(csrFilePath);
 
         explain("csr.submit.38");
 
@@ -788,8 +800,8 @@ public class CSRSubmitIT extends WebTestBase {
             keyPair3.getPublic(),
             keyPair3.getPrivate() );
 
-        validatePresent(LOC_SELECT_FILE);
-        setText(LOC_SELECT_FILE, csrFilePath);
+        setCSRContent(csrFilePath);
+
 //        explain("csr.submit.38");
 
         waitForElement(LOC_TEXT_CONTENT_TYPE);
@@ -816,8 +828,8 @@ public class CSRSubmitIT extends WebTestBase {
             keyPair1.getPublic(),
             keyPair1.getPrivate() );
 
-        validatePresent(LOC_SELECT_FILE);
-        setText(LOC_SELECT_FILE, csrFilePath);
+        setCSRContent(csrFilePath);
+
         explain("csr.submit.38");
 
         waitForElement(LOC_TEXT_CONTENT_TYPE);
@@ -853,7 +865,7 @@ public class CSRSubmitIT extends WebTestBase {
         selectOptionByText(LOC_SEL_PIPELINE, PipelineTestConfiguration.PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
         // explain("csr.submit.37");
 
-        setText(LOC_SELECT_FILE, csrFilePath);
+        setCSRContent(csrFilePath);
         // explain("csr.submit.38");
 
         waitForElement(LOC_TEXT_WARNING_LABEL);
@@ -869,6 +881,16 @@ public class CSRSubmitIT extends WebTestBase {
 */
     }
 
+    private void setCSRContent(String csrFilePath) throws GeneralSecurityException, IOException {
+        validatePresent(LOC_TA_UPLOAD_CONTENT);
+        setText(LOC_TA_UPLOAD_CONTENT, "");
+
+        validatePresent(LOC_SELECT_FILE);
+        setText(LOC_SELECT_FILE, csrFilePath);
+        if(getText(LOC_TA_UPLOAD_CONTENT).isEmpty()) {
+            setText(LOC_TA_UPLOAD_CONTENT, getFileAsPEM(csrFilePath));
+        }
+    }
     @Test
     public void testCSRSubmitDirect() throws GeneralSecurityException, IOException, InterruptedException {
 
@@ -1030,8 +1052,8 @@ public class CSRSubmitIT extends WebTestBase {
         explain("csr.submit.47");
 
         String csrFilePath = buildCSRAsDERFile(subjectPrincipal, null);
-        validatePresent(LOC_SELECT_FILE);
-        setText(LOC_SELECT_FILE, csrFilePath);
+        setCSRContent(csrFilePath);
+
         explain("csr.submit.48");
         selectElementText(bySubject, "the same information as before");
         selectElementText(byBits, "are shown below.");
@@ -1489,6 +1511,15 @@ public class CSRSubmitIT extends WebTestBase {
         }
 
         return fileDerCSR.getAbsolutePath();
+
+    }
+
+    public String getFileAsPEM(String derPath) throws IOException, GeneralSecurityException {
+
+        byte[] content = Files.readAllBytes(Paths.get(derPath));
+
+        Pkcs10RequestHolder p10CR = cryptoUtil.parseCertificateRequest(content);
+        return CryptoUtil.pkcs10RequestToPem(p10CR.getP10Req());
 
     }
 

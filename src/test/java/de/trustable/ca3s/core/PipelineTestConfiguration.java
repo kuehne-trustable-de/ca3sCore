@@ -6,6 +6,7 @@ import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
 import de.trustable.ca3s.core.repository.PipelineRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.dto.AcmeConfigItems;
 import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.RDNRestriction;
@@ -41,6 +42,7 @@ public class PipelineTestConfiguration {
     public static final String PIPELINE_NAME_WEB_DIRECT_ISSUANCE = "TLS Server direct issuance";
     public static final String PIPELINE_NAME_WEB_DIRECT_ISSUANCE_KEY_REUSE = "TLS Server direct issuance key reuse";
     public static final String PIPELINE_NAME_WEB_RA_ISSUANCE = "TLS Server officer issuance";
+    public static final String PIPELINE_NAME_WEB_UPLOAD = "Manual certificate upload";
 
     private static final String PIPELINE_NAME_ACME = "acme";
 
@@ -104,11 +106,15 @@ public class PipelineTestConfiguration {
 
     private BPMNProcessInfo simpleBPMNProcessInfo;
 
-    private Authority userAuthority = new Authority("ROLE_USER");
-    private Set<Authority> authoritySet = new HashSet<>();
+    private Authority userAuthority = new Authority(AuthoritiesConstants.USER);
+    private Authority adminAuthority = new Authority(AuthoritiesConstants.ADMIN);
+    private final Set<Authority> authoritySet = new HashSet<>();
+    private final Set<Authority> adminAuthoritySet = new HashSet<>();
 
     public PipelineTestConfiguration() {
+
         authoritySet.add(userAuthority);
+        adminAuthoritySet.add(adminAuthority);
     }
 
     static final String SIMPLE_CERTIFICATE_PROCESS = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
@@ -764,6 +770,63 @@ public class PipelineTestConfiguration {
 
         pipelineWeb.setProcessInfoNotify(getSimpleBPMNProcessInfo());
 
+        pipelineAttributeRepository.saveAll(pipelineWeb.getPipelineAttributes());
+        pipelineRepo.save(pipelineWeb);
+
+        return pipelineWeb;
+    }
+
+    @Transactional
+    public Pipeline getUploadTestPipeline() {
+
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_WEB_UPLOAD);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_WEB_UPLOAD);
+            return existingPLList.get(0);
+        }
+
+        LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_WEB_UPLOAD);
+
+        Pipeline pipelineWeb = new Pipeline();
+        pipelineWeb.setActive(true);
+        pipelineWeb.setApprovalRequired(false);
+
+        pipelineWeb.setCaConnector(internalTestCAC());
+        pipelineWeb.setName(PIPELINE_NAME_WEB_UPLOAD);
+        pipelineWeb.setType(PipelineType.MANUAL_UPLOAD);
+        pipelineWeb.setUrlPart("");
+
+        pipelineWeb.setAuthorities(adminAuthoritySet);
+/*
+        addPipelineAttribute(pipelineWeb, PipelineUtil.ALLOW_IP_AS_SAN, "false");
+        addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_REQUIRED, "true");
+        addPipelineAttribute(pipelineWeb, PipelineUtil.TOS_AGREEMENT_LINK, "http://trustable.eu/tos.html");
+
+        addPipelineAttribute(pipelineWeb, CN_AS_SAN_RESTRICTION, CnAsSanRestriction.CN_AS_SAN_WARN_ONLY.toString());
+
+        addPipelineAttribute(pipelineWeb, RESTR_O_CARDINALITY, RDNCardinalityRestriction.ZERO_OR_ONE.toString());
+        addPipelineAttribute(pipelineWeb, RESTR_O_TEMPLATE, "prefilled organisation");
+        addPipelineAttribute(pipelineWeb, RESTR_O_TEMPLATE_READ_ONLY, "false");
+        addPipelineAttribute(pipelineWeb, RESTR_O_REGEX, "");
+        addPipelineAttribute(pipelineWeb, RESTR_O_REGEXMATCH, "false");
+
+        addPipelineAttribute(pipelineWeb, RESTR_C_CARDINALITY, RDNCardinalityRestriction.ZERO_OR_ONE.toString());
+        addPipelineAttribute(pipelineWeb, RESTR_C_TEMPLATE, "DE");
+        addPipelineAttribute(pipelineWeb, RESTR_C_TEMPLATE_READ_ONLY, "true");
+        addPipelineAttribute(pipelineWeb, RESTR_C_REGEX, "");
+        addPipelineAttribute(pipelineWeb, RESTR_C_REGEXMATCH, "false");
+
+
+        addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE, "{{user.email}}");
+        addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE_READ_ONLY, "true");
+
+        pipelineWeb.setProcessInfoNotify(getSimpleBPMNProcessInfo());
+*/
         pipelineAttributeRepository.saveAll(pipelineWeb.getPipelineAttributes());
         pipelineRepo.save(pipelineWeb);
 

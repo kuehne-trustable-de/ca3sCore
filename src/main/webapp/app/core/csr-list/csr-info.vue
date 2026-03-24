@@ -159,23 +159,6 @@
                         <a href="{icsrView.tosAgreementLink}">{{icsrView.tosAgreementLink}}</a>
                     </dd>
 
-                    <!--dt>
-                        <span v-text="$t('ca3SApp.cSR.processInstanceId')">Process Instance Id</span>
-                    </dt>
-                    <dd>
-                        <span>{{cSR.processInstanceId}}</span>
-                    </dd-->
-
-                    <div v-for="attr in arAttributes" :key="attr.name" v-if="!isEditable()">
-                        <dt>
-                            <span >{{attr.name}}</span>
-                        </dt>
-                        <dd >
-                            <span >{{attr.value}}</span>
-                        </dd>
-                    </div>
-
-
                     <dt v-if="icsrView.csrBase64 && icsrView.csrBase64.trim().length > 0">
                         <span v-text="$t('ca3SApp.cSR.csrBase64')"></span>
                     </dt>
@@ -198,15 +181,25 @@
 -->
             <form name="editForm" role="form" novalidate>
                 <div>
-
                     <div v-if="isEditable() && icsrView.status === 'PENDING'" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="csr-rejectionReason"></label>
                         <input type="text" class="form-control" name="rejectionReason" id="csr-rejectionReason" v-model="csrAdminData.rejectionReason" />
                     </div>
 
-                    <div v-if="isEditable()" v-for="attr in csrAdminData.arAttributes" :key="attr.name" class="form-group">
+                    <div v-for="attr in csrAdminData.arAttributes" :key="attr.name" class="form-group">
                         <label class="form-control-label"  for="csr-ar-{attr.name}">{{attr.name}}</label>
-                        <input type="text" class="form-control" name="csr-ar-{attr.name}" id="csr-ar-{attr.name}" v-model="attr.value" />
+                        <textarea v-if="attr.type && (attr.type === 'TEXT_AREA')"
+                            class="form-control form-check-inline"
+                            name="csr-ar-{attr.name}" id="csr-ar-{attr.name}"
+                            :readonly="isARAReadOnly()"
+                            v-model="attr.value" />
+
+                        <input v-else
+                               type="text"
+                               class="form-control"
+                               name="csr-ar-{attr.name}" id="csr-ar-{attr.name}"
+                               :readonly="isARAReadOnly()"
+                               v-model="attr.value" />
                     </div>
 
                     <div v-if="isEditable()" class="form-group">

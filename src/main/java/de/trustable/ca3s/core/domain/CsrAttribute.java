@@ -1,6 +1,9 @@
 package de.trustable.ca3s.core.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Serializable;
 import javax.persistence.*;
 import javax.validation.constraints.*;
@@ -20,6 +23,7 @@ public class CsrAttribute implements Serializable {
     public static final int CURRENT_ATTRIBUTES_VERSION = 2;
 
     private static final long serialVersionUID = 1L;
+    private static final Logger log = LoggerFactory.getLogger(CsrAttribute.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,6 +36,10 @@ public class CsrAttribute implements Serializable {
 
     @Column(name = "value_")
     private String value;
+
+    @Lob
+    @Column(name = "value_clob", nullable = false)
+    private String value_clob;
 
     @ManyToOne
     @JsonIgnoreProperties("csrAttributes")
@@ -66,16 +74,40 @@ public class CsrAttribute implements Serializable {
     }
 
     public String getValue() {
-        return value;
+
+        if( this.value != null) {
+            return this.value;
+        }else if( this.value_clob != null) {
+            return this.value_clob;
+        }
+        return null;
     }
 
     public CsrAttribute value(String value) {
-        this.value = value;
+        setValue(value);
         return this;
     }
 
     public void setValue(String value) {
-        this.value = value;
+
+        if( value == null){
+            this.value = null;
+            this.value_clob = null;
+        }else if( value.length() > 240){
+            this.value = null;
+            this.value_clob = value;
+        }else{
+            this.value = value;
+            this.value_clob = null;
+        }
+    }
+
+    public String getValue_clob() {
+        return value_clob;
+    }
+
+    public void setValue_clob(String value_clob) {
+        this.value_clob = value_clob;
     }
 
     public CSR getCsr() {
