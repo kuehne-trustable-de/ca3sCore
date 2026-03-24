@@ -164,6 +164,7 @@ public class CertificateAttribute implements Serializable {
 	public static final String ATTRIBUTE_VALID_TO = "VALID_TO";
 	public static final String ATTRIBUTE_VALID_TO_TIMESTAMP = "VALID_TO_TIMESTAMP";
 	public static final String ATTRIBUTE_VALIDITY_PERIOD = "VALIDITY_PERIOD";
+    public static final String ATTRIBUTE_VALIDITY_PERIOD_PADDED = "VALIDITY_PERIOD_PADDED";
 
     public static final String ATTRIBUTE_FINGERPRINT_SHA1 = "FINGERPRINT_SHA1";
     public static final String ATTRIBUTE_FINGERPRINT_SHA256 = "FINGERPRINT_SHA256";

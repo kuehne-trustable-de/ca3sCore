@@ -5,15 +5,16 @@ import com.opencsv.bean.CsvIgnore;
 import com.opencsv.bean.CsvRecurse;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
+import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.math.BigInteger;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * A certificate view from a given certificate and its attributes
@@ -136,6 +137,9 @@ public class CertificateView implements Serializable {
 
     @CsvBindByName
     private Instant validTo;
+
+    @CsvBindByName
+    private Long validitySeconds;
 
     private Instant contentAddedAt;
 
@@ -280,7 +284,7 @@ public class CertificateView implements Serializable {
     private String[] replacedCertArr;
 
     @CsvRecurse
-    private NamedValue[] arArr;
+    private NamedTypedValue[] arArr;
 
     public CertificateView() {}
 
@@ -314,6 +318,7 @@ public class CertificateView implements Serializable {
         this.active = cert.isActive();
         this.validFrom = cert.getValidFrom();
     	this.validTo = cert.getValidTo();
+        this.validitySeconds = Duration.between(validFrom, validTo).getSeconds();
     	this.contentAddedAt = cert.getContentAddedAt();
     	this.revokedSince = cert.getRevokedSince();
     	this.revocationReason = cert.getRevocationReason();
@@ -325,6 +330,7 @@ public class CertificateView implements Serializable {
         this.csrComment = "";
 
         Map<String, Integer> orderAttributeMap = new HashMap<>();
+        Map<String, String> typedAttributeMap = new HashMap<>();
 
         CSR csr = cert.getCsr();
     	if( csr != null) {
@@ -347,11 +353,9 @@ public class CertificateView implements Serializable {
                 this.pipelineName = csr.getPipeline().getName();
                 this.pipelineType = csr.getPipeline().getType().toString();
 
-                orderAttributeMap =
-                    csr.getPipeline().getPipelineAttributes().stream()
-                        .filter(attr -> (attr.getName().startsWith("RESTR_ARA_") && attr.getName().endsWith("_NAME")))
-                        .collect(Collectors.toMap(attr -> (attr.getValue()),
-                            attr -> (Integer.parseInt(attr.getName().replace("RESTR_ARA_", "").replace("_NAME", "")))));
+                orderAttributeMap = PipelineUtil.buildAttributeOrderMap(csr.getPipeline());
+                typedAttributeMap = PipelineUtil.buildTypedAttributeMap(csr.getPipeline());
+
             }
         } else {
     		this.requestedBy = "";
@@ -432,7 +436,8 @@ public class CertificateView implements Serializable {
                     this.rdn_l = certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_RDN_S.equalsIgnoreCase(certAttr.getName())) {
                     this.rdn_s = certAttr.getValue();
-
+                } else if (CertificateAttribute.ATTRIBUTE_VALIDITY_PERIOD.equalsIgnoreCase(certAttr.getName())) {
+                    this.validitySeconds = Long.parseLong(certAttr.getValue());
                 } else if (CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE.equalsIgnoreCase(certAttr.getName())) {
                     this.crlNextUpdate = Instant.ofEpochMilli(Long.parseLong(certAttr.getValue()));
                 } else if (CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID.equalsIgnoreCase(certAttr.getName())) {
@@ -486,7 +491,6 @@ public class CertificateView implements Serializable {
         this.extUsage = extUsageList.toArray(new String[0]);
         this.sanArr = sanList.toArray(new String[0]);
         this.replacedCertArr = replacedCertList.toArray(new String[0]);
-
         this.downloadFilename = CertificateUtil.getDownloadFilename(cert);
 
         List<NamedValue> listArNamedAttributes = copyArAttributes(cert);
@@ -498,7 +502,17 @@ public class CertificateView implements Serializable {
             }
         }
 
-        this.arArr = listArNamedAttributes.toArray(new NamedValue[0]);
+        List<NamedTypedValue> listArNamedTypedAttributes = new ArrayList<>();
+        for(NamedValue namedValue: listArNamedAttributes){
+            String name = namedValue.getName();
+            if( typedAttributeMap.containsKey(name)) {
+                listArNamedTypedAttributes.add(new NamedTypedValue(name, typedAttributeMap.get(name), namedValue.getValue()));
+            }else{
+                listArNamedTypedAttributes.add(new NamedTypedValue(name, "", namedValue.getValue()));
+            }
+        }
+
+        this.arArr = listArNamedTypedAttributes.toArray(new NamedTypedValue[0]);
 
         this.issuer_rdn_cn = getRdnCn(cert.getIssuingCertificate());
         this.root_rdn_cn = getRdnCn(cert.getRootCertificate());
@@ -561,7 +575,15 @@ public class CertificateView implements Serializable {
 		return validTo;
 	}
 
-	public Instant getContentAddedAt() {
+    public Long getValiditySeconds() {
+        return validitySeconds;
+    }
+
+    public void setValiditySeconds(Long validitySeconds) {
+        this.validitySeconds = validitySeconds;
+    }
+
+    public Instant getContentAddedAt() {
 		return contentAddedAt;
 	}
 
@@ -1127,18 +1149,18 @@ public class CertificateView implements Serializable {
         this.csrComment = csrComment;
     }
 
-    public NamedValue[] getArArr() {
+    public NamedTypedValue[] getArArr() {
         return arArr;
     }
 
-    public void setArArr(NamedValue[] arArr) {
+    public void setArArr(NamedTypedValue[] arArr) {
         this.arArr = arArr;
     }
 
     public String getArValue(final String name) {
 
         if( arArr != null) {
-            for (NamedValue nv : arArr) {
+            for (NamedTypedValue nv : arArr) {
                 if (nv.getName().equals(name)) {
                     return nv.getValue();
                 }

@@ -523,10 +523,10 @@ public class ADCSConnector {
                             GetCertificateResponse certResponse = adcsConnector.getCertificateByRequestId(caProcessingId);
                             certUtil.setCertAttribute(certWOResolved,
                                 CertificateAttribute.ATTRIBUTE_CA_RESOLVED_TIMESTAMP,
-                                CertificateUtil.getPaddedTimestamp(certResponse.getResolvedDate()));
+                                CertificateUtil.getPaddedNumber(certResponse.getResolvedDate()));
 
                             LOGGER.warn("added resolved timestamp {} to certificate #{} retrieved for ca '{}' with CA_PROCESSING_ID '{}'",
-                                CertificateUtil.getPaddedTimestamp(certResponse.getResolvedDate()),
+                                CertificateUtil.getPaddedNumber(certResponse.getResolvedDate()),
                                 certWOResolved.getId(),
                                 info,
                                 caProcessingId);
@@ -611,10 +611,10 @@ public class ADCSConnector {
                             GetCertificateResponse certResponse = adcsConnector.getCertificateByRequestId(caProcessingId);
                             certUtil.setCertAttribute(certWORevoked,
                                 CertificateAttribute.ATTRIBUTE_CA_REVOKED_TIMESTAMP,
-                                CertificateUtil.getPaddedTimestamp(certResponse.getRevokedDate()));
+                                CertificateUtil.getPaddedNumber(certResponse.getRevokedDate()));
 
                             LOGGER.warn("added revoked timestamp {} to certificate #{} retrieved for ca '{}' with CA_PROCESSING_ID '{}'",
-                                CertificateUtil.getPaddedTimestamp(certResponse.getRevokedDate()),
+                                CertificateUtil.getPaddedNumber(certResponse.getRevokedDate()),
                                 certWORevoked.getId(),
                                 info,
                                 caProcessingId);
@@ -665,7 +665,7 @@ public class ADCSConnector {
 
                         certUtil.setCertAttribute(certRevoked,
                             CertificateAttribute.ATTRIBUTE_CA_REVOKED_TIMESTAMP,
-                            CertificateUtil.getPaddedTimestamp(certResponse.getRevokedDate()));
+                            CertificateUtil.getPaddedNumber(certResponse.getRevokedDate()));
 
                         if (alreadyRevoked) {
                             LOGGER.info("certificate with requestID '{}' from ca '{}' with cert id {} is already revoked", reqId, info, certRevoked.getId());
@@ -754,7 +754,7 @@ public class ADCSConnector {
             // the Request ID is specific to ADCS instance
             certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_PROCESSING_CA, caName);
             certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_PROCESSING_ID, certResponse.getReqId());
-            certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_RESOLVED_TIMESTAMP, CertificateUtil.getPaddedTimestamp(certResponse.getResolvedDate()));
+            certUtil.setCertAttribute(certDao, CertificateAttribute.ATTRIBUTE_CA_RESOLVED_TIMESTAMP, CertificateUtil.getPaddedNumber(certResponse.getResolvedDate()));
 
             certificateRepository.save(certDao);
 

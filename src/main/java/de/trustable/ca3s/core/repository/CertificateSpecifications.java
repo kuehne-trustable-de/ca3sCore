@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.service.dto.CertificateView;
+import de.trustable.ca3s.core.service.dto.NamedTypedValue;
 import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.ca3s.core.service.dto.Selector;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
@@ -507,6 +508,13 @@ public final class CertificateSpecifications {
 			i++;
 		}
 
+        cv.setArArr(
+            namedValueList.stream()
+                .map(namedValue -> new NamedTypedValue(namedValue.getName(), "", namedValue.getValue()))
+                .toArray(NamedTypedValue[]::new)
+        );
+
+        /*
         if(!namedValueList.isEmpty()){
             cv.setArArr(namedValueList.toArray(new NamedValue[0]));
         }else{
@@ -524,6 +532,8 @@ public final class CertificateSpecifications {
                 }
             }
         }
+
+ */
 		return cv;
 	}
 
@@ -729,7 +739,7 @@ public final class CertificateSpecifications {
 		}else if( "root".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.root));
 
-			if( attributeValue.trim().length() > 0 ) {
+			if(!attributeValue.trim().isEmpty()) {
 				//subquery
 			    Subquery<CertificateAttribute> certAttSubquery = certQuery.subquery(CertificateAttribute.class);
 			    Root<CertificateAttribute> certAttRoot = certAttSubquery.from(CertificateAttribute.class);
@@ -771,6 +781,15 @@ public final class CertificateSpecifications {
 
             pred = cb.and( cb.equal(attJoin.get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_FINGERPRINT_SHA1),
                 buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value), attributeValue.toLowerCase()));
+
+        }else if( "validityPeriod".equals(attribute)){
+            Join<Certificate, CertificateAttribute> attJoin = root.join(Certificate_.certificateAttributes, JoinType.LEFT);
+            addNewColumn(selectionList,attJoin.get(CertificateAttribute_.value));
+
+            long validitySeconds = Long.parseLong(attributeValue.toLowerCase()) * 3600L * 24L;
+            pred = cb.and( cb.equal(attJoin.get(CertificateAttribute_.name), CertificateAttribute.ATTRIBUTE_VALIDITY_PERIOD_PADDED),
+                buildPredicateString( attributeSelector, cb, attJoin.get(CertificateAttribute_.value),
+                    CertificateUtil.getPaddedNumber("" + validitySeconds)));
 
         }else if( "pkiLevel".equals(attribute)){
             addNewColumn(selectionList,root.get(Certificate_.root));
@@ -849,9 +868,14 @@ public final class CertificateSpecifications {
 		}else if( "validFrom".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.validFrom));
 			pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.get(Certificate_.validFrom), attributeValue);
-		}else if( "validTo".equals(attribute)){
-			addNewColumn(selectionList,root.get(Certificate_.validTo));
-			pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.get(Certificate_.validTo), attributeValue);
+        }else if( "validTo".equals(attribute)){
+            addNewColumn(selectionList,root.get(Certificate_.validTo));
+            pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.get(Certificate_.validTo), attributeValue);
+  /*
+        }else if( "validityPeriod".equals(attribute)){
+            addNewColumn(selectionList,root.get(Certificate_.validTo));
+            pred = SpecificationsHelper.buildDatePredicate( attributeSelector, cb, root.get(Certificate_.validTo), attributeValue);
+ */
 		}else if( "active".equals(attribute)){
 			addNewColumn(selectionList,root.get(Certificate_.active));
 			pred = SpecificationsHelper.buildBooleanPredicate( attributeSelector, cb, root.get(Certificate_.active), attributeValue);

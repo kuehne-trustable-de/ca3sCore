@@ -248,6 +248,13 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     return this.isRAOfficer() || this.isOwnCertificate();
   }
 
+  public isARAReadOnly(){
+    if(this.isEditable()){
+      return "";
+    }
+    return "readOnly";
+  }
+
   public isRevocable() {
 
     return (
@@ -256,7 +263,13 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     );
   }
 
-  public isNotificationBlockable(){
+  public getValidityDays(): string {
+
+    let days = this.certificateView.validitySeconds / 24 / 3600;
+    return days.toFixed();
+}
+
+public isNotificationBlockable(){
     if( this.certificateView.pipelineType === 'WEB'){
       return this.isRevocable();
     }

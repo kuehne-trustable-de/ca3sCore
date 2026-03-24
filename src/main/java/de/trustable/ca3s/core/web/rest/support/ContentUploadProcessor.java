@@ -2,10 +2,7 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
-import de.trustable.ca3s.core.domain.enumeration.CsrUsage;
-import de.trustable.ca3s.core.domain.enumeration.KeyUniqueness;
-import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.domain.enumeration.*;
 import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.exception.KeyApplicableException;
 import de.trustable.ca3s.core.repository.CSRRepository;
@@ -52,6 +49,8 @@ import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -66,7 +65,6 @@ import javax.validation.Valid;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.*;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECKey;
 import java.time.Instant;
@@ -190,18 +188,10 @@ public class ContentUploadProcessor {
         LOG.debug("Request to upload a PEM clob : {} by user {}", content, requestorName);
 
         PkcsXXData p10ReqData = new PkcsXXData();
-        try {
-            // try to read a DER encoded, non-PEM certificate and convert it to PEM
-            try {
-                CertificateFactory factory = CertificateFactory.getInstance("X.509");
-                X509Certificate cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(Base64.decode(content)));
-                content = cryptoUtil.x509CertToPem(cert);
-                LOG.debug("certificate parsed from base64 (non-pem) content");
-            } catch (GeneralSecurityException | IOException | DecoderException gse) {
-                LOG.debug("certificate parsing from base64 (non-pem) content failed: " + gse.getMessage());
-            }
 
-            // try to read the content as a PEM certificate
+        try {
+            X509Certificate x509Cert = certUtil.tryParsingCertificateContent(content);
+            content = cryptoUtil.x509CertToPem(x509Cert);
             X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
 
             List<Certificate> certList = findCertificateByIssuerSerial(certHolder);
@@ -210,6 +200,9 @@ public class ContentUploadProcessor {
                 LOG.info("certificate already present");
                 return new ResponseEntity<>(HttpStatus.CONFLICT);
             }
+
+            // certificate inserted into the db
+            p10ReqData = new PkcsXXData(certHolder, content, true );
 
             if( badKeysService.isInstalled()){
                 BadKeysResult badKeysResult = badKeysService.checkContent(content);
@@ -229,16 +222,56 @@ public class ContentUploadProcessor {
 
             // insert or read a certificate and return Certificate object
             Certificate cert = insertCertificate(content, requestorName);
-
-            // certificate inserted into the db
-            p10ReqData = new PkcsXXData(certHolder, content, true );
-
+            p10ReqData.setCreatedCertificateId(cert.getId().toString());
             p10ReqData.setCertificateView( new CertificateView(cert));
 
             certUtil.setCertAttribute(cert, CsrAttribute.ATTRIBUTE_REQUESTED_BY, requestorName);
 
-            return new ResponseEntity<>(p10ReqData, HttpStatus.CREATED);
+            if( uploaded.getArAttributes() != null) {
+                certUtil.updateARAttributes(Arrays.stream(uploaded.getArAttributes()).map(nvs -> {
+                    String value = (nvs.getValues().length > 0) ?
+                        nvs.getValues()[0].getValue() :
+                        "";
+                    return new NamedTypedValue(nvs.getName(), "", value);
+                }).toArray(NamedTypedValue[]::new), cert);
+            }
 
+            if( x509Cert != null && uploaded.getRelatedCSRId() != null) {
+
+                Page<CSR> csrPage = csrRepository.findNonRejectedByPublicKeyHash(
+                    PageRequest.of(0, 10),
+                    cryptoUtil.getHashAsBase64(x509Cert.getPublicKey().getEncoded()));
+                if(!csrPage.isEmpty()){
+
+                    Optional<CSR> optionalCSR = csrPage.getContent().stream()
+                        .filter( csr -> Objects.equals(uploaded.getRelatedCSRId(), csr.getId()))
+                        .findFirst();
+
+                    if(optionalCSR.isPresent()) {
+                        CSR csr = optionalCSR.get();
+                        LOG.debug("Found matching CSR #{} by public key hash", csr.getId());
+                        csr.setStatus(CsrStatus.ISSUED);
+                        csr.setCertificate(cert);
+
+                        csrRepository.save(csr);
+                        cert.setCsr(csr);
+                        certificateRepository.save(cert);
+
+                        asyncNotificationService.notifyInterestedPartiesByEMail(cert, csr);
+                    }else{
+                        LOG.warn("Found matching CSR for requested csr id #{}",
+                            uploaded.getRelatedCSRId());
+                    }
+
+                }
+            }
+
+            Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
+            if( optPipeline.isPresent() && optPipeline.get().getProcessInfoNotify() != null) {
+                bpmnUtil.notifyOnCertificate(optPipeline.get().getProcessInfoNotify(), cert.getId());
+            }
+
+            return new ResponseEntity<>(p10ReqData, HttpStatus.CREATED);
         } catch (DecoderException de){
             // not parseable ...
             p10ReqData.setDataType(PKCSDataType.UNKNOWN);

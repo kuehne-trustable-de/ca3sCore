@@ -11,6 +11,7 @@ import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
+import de.trustable.ca3s.core.service.dto.NamedTypedValue;
 import de.trustable.util.AlgorithmInfo;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
@@ -53,6 +54,7 @@ import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPublicKey;
 import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPublicKey;
 import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
+import org.bouncycastle.util.encoders.DecoderException;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.bouncycastle.x509.extension.X509ExtensionUtil;
@@ -90,7 +92,7 @@ public class CertificateUtil {
     private static final String SERIAL_PADDING_PATTERN = "000000000000000000000000000000000000000000000000000000000000000";
 
     private static final String TIMESTAMP_PADDING_PATTERN = "000000000000000000";
-    public static final int CURRENT_ATTRIBUTES_VERSION = 5;
+    public static final int CURRENT_ATTRIBUTES_VERSION = 6;
     public static HashMap<String,Integer> nameGeneralNameMap = new HashMap<>();
     public static HashMap<String,ASN1ObjectIdentifier> nameOIDMap = new HashMap<>();
 
@@ -278,6 +280,22 @@ public class CertificateUtil {
         }
     }
 
+    public X509Certificate tryParsingCertificateContent(final String content ) throws GeneralSecurityException, IOException {
+        // try to read a DER encoded, non-PEM certificate and convert it to PEM
+        try {
+            CertificateFactory factory = CertificateFactory.getInstance("X.509");
+            X509Certificate x509Cert =
+                (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(org.bouncycastle.util.encoders.Base64.decode(content)));
+            LOG.debug("certificate parsed from base64 (non-pem) content");
+            return x509Cert;
+        } catch (GeneralSecurityException | DecoderException gse) {
+            LOG.debug("certificate parsing from base64 (non-pem) content failed: " + gse.getMessage());
+        }
+
+        // try to read the content as a PEM certificate
+        X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
+        return getCertifcateFromBytes(certHolder.getEncoded());
+    }
     public X509Certificate getCertifcateFromBase64(String base64Cert) throws CertificateException {
         return getCertifcateFromBytes(Base64.decodeBase64(base64Cert));
     }
@@ -603,6 +621,11 @@ public class CertificateUtil {
         setCertAttribute(cert,
             CertificateAttribute.ATTRIBUTE_VALIDITY_PERIOD, "" + validityPeriod);
 
+        setCertAttribute(cert,
+            CertificateAttribute.ATTRIBUTE_VALIDITY_PERIOD_PADDED,
+            getPaddedNumber("" + validityPeriod),
+            false);
+
         addAdditionalCertificateAttributes(x509Cert, cert);
 
         copyCsrAttributesToCertificate(csr, cert);
@@ -738,6 +761,47 @@ public class CertificateUtil {
             }
         }
     }
+
+    public void updateARAttributes(NamedTypedValue[] araAttributeArr, Certificate cert ) {
+
+        Set<CertificateAttribute> certificateAttributeSet = cert.getCertificateAttributes();
+
+        for(CertificateAttribute certAttr: certificateAttributeSet){
+            if(certAttr.getName().startsWith(CsrAttribute.ARA_PREFIX) ){
+                for(NamedTypedValue nv: araAttributeArr){
+                    if( org.apache.commons.lang3.StringUtils.equals( certAttr.getName(), CsrAttribute.ARA_PREFIX + nv.getName())){
+                        if( !org.apache.commons.lang3.StringUtils.equals(certAttr.getValue(),nv.getValue())) {
+                            auditService.saveAuditTrace(
+                                auditService.createAuditTraceCertificateAttribute(certAttr.getName(), certAttr.getValue(), nv.getValue(), cert));
+
+                            certAttr.setValue(nv.getValue());
+                            LOG.debug("certificate attribute {} updated to {}", certAttr.getName(), certAttr.getValue());
+                        }
+                    }
+                }
+            }
+        }
+
+        for(NamedTypedValue nv: araAttributeArr){
+
+            if( !certificateAttributeSet.stream().anyMatch(certAtt ->( org.apache.commons.lang3.StringUtils.equals(certAtt.getName(), CsrAttribute.ARA_PREFIX + nv.getName())))){
+
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceCertificateAttribute(nv.getName(), "", nv.getValue(), cert));
+
+                CertificateAttribute certificateAttribute = new CertificateAttribute();
+                certificateAttribute.setCertificate(cert);
+                certificateAttribute.setName(CsrAttribute.ARA_PREFIX +nv.getName());
+                certificateAttribute.setValue(nv.getValue());
+
+                certificateAttributeSet.add(certificateAttribute);
+            }
+        }
+
+        certificateAttributeRepository.saveAll(certificateAttributeSet);
+        cert.setCertificateAttributes(certificateAttributeSet);
+    }
+
 
 
     /**
@@ -900,9 +964,7 @@ public class CertificateUtil {
             }
         }
 
-
-        if (version < CURRENT_ATTRIBUTES_VERSION) {
-
+        if (version < 5) {
             try {
                 X509CertificateHolder certHolder = new JcaX509CertificateHolder(x509Cert);
 
@@ -918,9 +980,20 @@ public class CertificateUtil {
             } catch (CertificateEncodingException e) {
                 LOG.error("Problem building X509CertificateHolder for certificate '" + x509Cert.getSubjectX500Principal().toString() + "'", e);
             }
+        }
 
+        if (version < 6) {
+            String validityPeriod = getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_VALIDITY_PERIOD);
+
+            setCertAttribute(cert,
+                CertificateAttribute.ATTRIBUTE_VALIDITY_PERIOD_PADDED,
+                getPaddedNumber(validityPeriod),
+                false);
+        }
+
+
+        if (version < CURRENT_ATTRIBUTES_VERSION) {
             setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION, "" + CURRENT_ATTRIBUTES_VERSION, false);
-
         }
 
     }
@@ -1557,22 +1630,22 @@ public class CertificateUtil {
     }
 
     /**
-     * bloat the string-typed timestamp to a defined length to ensure ordering works out fine
+     * bloat the string-typed numberAsString to a defined length to ensure ordering works out fine
      *
-     * @param timestamp a timestamp (e.g.'1593080183000') encoded as a string
-     * @return the padded timestamp string. If timestamp is null, return max number of zeroes
+     * @param numberAsString a numberAsString (e.g.'1593080183000') encoded as a string
+     * @return the padded numberAsString string. If numberAsString is null, return max number of zeroes
      */
-    public static String getPaddedTimestamp(final String timestamp) {
+    public static String getPaddedNumber(final String numberAsString) {
 
-        if (timestamp == null) {
+        if (numberAsString == null) {
             return TIMESTAMP_PADDING_PATTERN;
         }
 
-        int len = timestamp.length();
+        int len = numberAsString.length();
         if (len >= TIMESTAMP_PADDING_PATTERN.length()) {
-            return timestamp;
+            return numberAsString;
         }
-        return TIMESTAMP_PADDING_PATTERN.substring(timestamp.length()) + timestamp;
+        return TIMESTAMP_PADDING_PATTERN.substring(numberAsString.length()) + numberAsString;
     }
 
     /**

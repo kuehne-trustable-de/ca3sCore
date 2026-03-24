@@ -11,199 +11,200 @@
 
         <div class="row justify-content-center">
             <div class="col-8" :key="updateCounter">
-                <div v-if="bPNMProcessInfo">
-                    <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.detail.title')"></span> {{bPNMProcessInfo.id}}</h2>
-
-                    <div class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.name')" ></label> <help-tag role="Admin" target="bpmn.name"/>
-                        <input type="text" class="form-control form-check-inline valid" name="bpmn.name'" id="bpmn.name"
-                               required="true"
-                               :readOnly="interactionMode == 'TEST'"
-                               v-model="bpmnUpload.name" />
-
-                        <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.type')" for="bpmn.type"></label>  <help-tag role="Admin" target="bpmn.type"/>
-                        <select class="form-control" id="bpmn.type" name="bpmn.type"
-                                :readOnly="interactionMode == 'TEST'"
-                                :disabled="interactionMode == 'TEST'"
-                                v-model="bpmnUpload.type" >
-                            <option value="CERTIFICATE_CREATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION')"></option>
-                            <option value="CERTIFICATE_NOTIFY" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_NOTIFY')"></option>
-                            <option value="CERTIFICATE_REVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION')" ></option>
-                            <option value="REQUEST_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION')" ></option>
-                            <option value="SEND_SMS" v-text="$t('ca3SApp.bPNMProcessInfo.type.SEND_SMS')" ></option>
-                            <option value="ACME_ACCOUNT_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.ACME_ACCOUNT_AUTHORIZATION')" ></option>
-                            <option value="REQUEST_ELEMENT_VALIDATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_ELEMENT_VALIDATION')" ></option>
-
-                            <!--option value="BATCH" v-text="$t('ca3SApp.bPNMProcessInfo.type.BATCH')" ></option-->
-                        </select>
-
-                        <label v-if="interactionMode == 'EDIT'" class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.fileSelectorBPMN')" for="fileSelector"></label>  <help-tag role="Admin" target="bpmn.upload"/>
-                        <input v-if="interactionMode == 'EDIT'" type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
-
-                        <small class="form-text text-danger" v-if="warningMessage" v-text="$t('entity.validation.required')">{{warningMessage}}</small>
-
-                    </div>
-
-                    <div class="row">
-                        <div v-if="bpmnFileUploaded" class="col colContent">
-                            <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.version')"></label>
-                            <input type="text" class="form-control form-check-inline valid" name="bpmn.version'" id="bpmn.version"
-                                   required="true"
-                                   :readOnly="interactionMode == 'TEST'"
-                                   v-model="bpmnUploadedVersion" />
-                            <small class="form-text text-danger" v-if="showSemVerRegExpFieldWarning(bpmnUploadedVersion)" v-text="$t('ca3SApp.messages.semver.requirement')"></small>
-                        </div>
-
-                        <div v-if="!bpmnFileUploaded" class="col colContent">
-                            <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.version')"></label>
-                            <span>{{bPNMProcessInfo.version}}</span>&nbsp;
-                            <span v-if="bPNMProcessInfo.lastChange" v-text="$t('ca3SApp.bPNMProcessInfo.createdOn')"></span>&nbsp;
-                            <span v-if="bPNMProcessInfo.lastChange">{{$d(Date.parse(bPNMProcessInfo.lastChange), 'long') }}</span>
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-                        <div class="col colContent">
-                            <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.author')"></label>
-                            <span>{{bPNMProcessInfo.author}}</span>
-                        </div>
-                    </div>
-
-
-                    <p></p>
-                    <h3 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.attribute.title')"></span></h3>
-                    <div class="row" v-for="(bpa, index) in bpmnUpload.bpmnProcessAttributes" :key="index" >
-                        <div class="col colContent">
-                            <label v-if="index == 0" class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.attribute.name')"></label>
-                            <input
-                                type="text"
-                                class="form-control form-check-inline"
-                                autocomplete="false"
-                                :name="'ca3SApp.bPNMProcessInfo.attribute.name.' + index" :id="'ca3SApp.bPNMProcessInfo.attribute.name.' + index"
-                                :readOnly="interactionMode == 'TEST'"
-                                v-model="bpa.name"
-                                required="true"
-                                v-on:input="alignBPAArraySize(index)"/>
-                        </div>
-                        <div class="col colContent">
-                            <label v-if="index == 0" class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.attribute.value')"></label>
-                            <input
-                                :type="bpa.protectedContent ? 'password':'text'"
-                                class="form-control form-check-inline"
-                                autocomplete="false"
-                                :name="'ca3SApp.bPNMProcessInfo.attribute.value.' + index" :id="'ca3SApp.bPNMProcessInfo.attribute.value.' + index"
-                                :readOnly="interactionMode == 'TEST'"
-                                v-model="bpa.value" />
-
-                        </div>
-                        <div class="col colContent">
-                            <label v-if="index == 0" class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.attribute.protected')"></label>
-                            <input type="checkbox" class="form-check-inline"
-                                   :name="'ca3SApp.bPNMProcessInfo.protected.' + index" :id="'ca3SApp.bPNMProcessInfo.protected.' + index"
-                                   :readOnly="interactionMode == 'TEST'"
-                                   v-model="bpa.protectedContent" />
-                        </div>
-                    </div>
-                    <p></p>
-
-                </div>
-
-                <div v-if="interactionMode == 'TEST'">
-                    <h3 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.check.subtitle')"></span></h3>
-                </div>
-
-                <div class="form-group" v-if="(interactionMode == 'TEST') && bpmnUpload.type === 'CERTIFICATE_CREATION'">
-                    <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.csrId')" ></label>
-                    <input type="text" class="form-control form-check-inline valid" name="bpmn.check.csrId" id="bpmn.check.csrId"
-                           required="true"
-                           v-model="csrId" />
-                </div>
-
-                <div class="form-group" v-if="(interactionMode == 'TEST') && ( bpmnUpload.type === 'CERTIFICATE_REVOCATION' || bpmnUpload.type === 'CERTIFICATE_NOTIFY')">
-                    <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.certificateId')" ></label>
-                    <input type="text" class="form-control form-check-inline valid" name="bpmn.check.certificateId" id="bpmn.check.certificateId"
-                           required="true"
-                           v-model="certificateId" />
-                </div>
-
-                <div class="form-group" v-if="(interactionMode == 'TEST') && bpmnUpload.type === 'REQUEST_AUTHORIZATION' || bpmnUpload.type === 'REQUEST_ELEMENT_VALIDATION'">
-                    <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.csrId')" ></label>
-                    <input type="text" class="form-control form-check-inline valid" name="bpmn.check.csrId'" id="bpmn.check.csrId"
-                           required="true"
-                           v-model="csrId" />
-                </div>
-
-                <div class="form-group" v-if="(interactionMode == 'TEST') && bpmnUpload.type === 'SEND_SMS'">
-                    <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.phone')" ></label>
-                    <input type="text" class="form-control form-check-inline valid" name="bpmn.check.phone'" id="bpmn.check.phone"
-                           required="true"
-                           v-model="phone" />
-                    <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.msg')" ></label>
-                    <input type="text" class="form-control form-check-inline valid" name="bpmn.check.msg'" id="bpmn.check.msg"
-                           required="true"
-                           v-model="msg" />
-                </div>
-
-                <div class="form-group" v-if="(interactionMode == 'TEST') && bpmnUpload.type === 'ACME_ACCOUNT_AUTHORIZATION'">
-                    <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.accountId')" ></label>
-                    <input type="text" class="form-control form-check-inline valid" name="bpmn.check.accountId'" id="bpmn.check.accountId"
-                           required="true"
-                           v-model="accountId" />
-                </div>
-
-                <div v-if="(interactionMode == 'TEST')" class="form-group">
-                    <button type="button"
-                            class="btn btn-info"
-                            v-on:click="checkBpmn">
-                        <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('ca3SApp.bPNMProcessInfo.check.check')"></span>
-                    </button>
-                    <help-tag role="Admin" target="bpmn.checkBpmn"/>
-                </div>
-
-                <div v-if="bpmnCheckResult.status && (interactionMode == 'TEST')">
-                  <h3 v-text="$t('pkcsxx.upload.result.label')"></h3>
-
-                  <table class="table">
-
-                    <!--thead class="thead-light">
-                    <tr>
-                      <th>
-                      </th>
-                      <th>
-                      </th>
-                    </tr>
-                    </thead-->
-
-                    <tbody>
-                    <tr>
-                      <td><span v-text="$t('ca3SApp.bPNMProcessInfo.result.status')"></span></td>
-                      <td>{{ bpmnCheckResult.status }}</td>
-                    </tr>
-
-                    <tr v-if="bpmnCheckResult.status !== 'Success'">
-                      <td><span v-text="$t('ca3SApp.bPNMProcessInfo.result.failureReason')"></span></td>
-                      <td>{{ bpmnCheckResult.failureReason }}</td>
-                    </tr>
-
-                    <tr v-for="(val, valueIndex) in bpmnCheckResult.responseAttributes" :key="valueIndex">
-                      <td><span>{{ Object.keys(bpmnCheckResult.responseAttributes[valueIndex])[0] }}</span></td>
-                      <td>
-                        {{ bpmnCheckResult.responseAttributes[valueIndex][Object.keys(bpmnCheckResult.responseAttributes[valueIndex])[0]] }}
-                      </td>
-                    </tr>
-
-                    <tr v-for="(val, valueIndex) in bpmnCheckResult.csrAttributes" :key="valueIndex">
-                      <td><span>{{ Object.keys(bpmnCheckResult.csrAttributes[valueIndex])[0] }}</span></td>
-                      <td>
-                        {{ bpmnCheckResult.csrAttributes[valueIndex][Object.keys(bpmnCheckResult.csrAttributes[valueIndex])[0]] }}
-                      </td>
-                    </tr>
-                    </tbody>
-                  </table>
-                </div>
 
                 <form name="editForm" role="form" novalidate>
+
+                    <div v-if="bPNMProcessInfo">
+                        <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.detail.title')"></span> {{bPNMProcessInfo.id}}</h2>
+
+                        <div class="form-group">
+                            <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.name')" ></label> <help-tag role="Admin" target="bpmn.name"/>
+                            <input type="text" class="form-control form-check-inline valid" name="bpmn.name'" id="bpmn.name"
+                                   required="true"
+                                   :readOnly="interactionMode == 'TEST'"
+                                   v-model="bpmnUpload.name" />
+
+                            <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.type')" for="bpmn.type"></label>  <help-tag role="Admin" target="bpmn.type"/>
+                            <select class="form-control" id="bpmn.type" name="bpmn.type"
+                                    :readOnly="interactionMode == 'TEST'"
+                                    :disabled="interactionMode == 'TEST'"
+                                    v-model="bpmnUpload.type" >
+                                <option value="CERTIFICATE_CREATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION')"></option>
+                                <option value="CERTIFICATE_NOTIFY" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_NOTIFY')"></option>
+                                <option value="CERTIFICATE_REVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION')" ></option>
+                                <option value="REQUEST_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION')" ></option>
+                                <option value="SEND_SMS" v-text="$t('ca3SApp.bPNMProcessInfo.type.SEND_SMS')" ></option>
+                                <option value="ACME_ACCOUNT_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.ACME_ACCOUNT_AUTHORIZATION')" ></option>
+                                <option value="REQUEST_ELEMENT_VALIDATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_ELEMENT_VALIDATION')" ></option>
+
+                                <!--option value="BATCH" v-text="$t('ca3SApp.bPNMProcessInfo.type.BATCH')" ></option-->
+                            </select>
+
+                            <label v-if="interactionMode == 'EDIT'" class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.new.fileSelectorBPMN')" for="fileSelector"></label>  <help-tag role="Admin" target="bpmn.upload"/>
+                            <input v-if="interactionMode == 'EDIT'" type="file" id="fileSelector" ref="fileSelector" name="fileSelector" @change="notifyFileChange" />
+
+                            <small class="form-text text-danger" v-if="warningMessage" v-text="$t('entity.validation.required')">{{warningMessage}}</small>
+
+                        </div>
+
+                        <div class="row">
+                            <div v-if="bpmnFileUploaded" class="col colContent">
+                                <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.version')"></label>
+                                <input type="text" class="form-control form-check-inline valid" name="bpmn.version'" id="bpmn.version"
+                                       required="true"
+                                       :readOnly="interactionMode == 'TEST'"
+                                       v-model="bpmnUploadedVersion" />
+                                <small class="form-text text-danger" v-if="showSemVerRegExpFieldWarning(bpmnUploadedVersion)" v-text="$t('ca3SApp.messages.semver.requirement')"></small>
+                            </div>
+
+                            <div v-if="!bpmnFileUploaded" class="col colContent">
+                                <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.version')"></label>
+                                <span>{{bPNMProcessInfo.version}}</span>&nbsp;
+                                <span v-if="bPNMProcessInfo.lastChange" v-text="$t('ca3SApp.bPNMProcessInfo.createdOn')"></span>&nbsp;
+                                <span v-if="bPNMProcessInfo.lastChange">{{$d(Date.parse(bPNMProcessInfo.lastChange), 'long') }}</span>
+                            </div>
+
+                        </div>
+
+                        <div class="row">
+                            <div class="col colContent">
+                                <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.author')"></label>
+                                <span>{{bPNMProcessInfo.author}}</span>
+                            </div>
+                        </div>
+
+
+                        <p></p>
+                        <h3 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.attribute.title')"></span></h3>
+                        <div class="row" v-for="(bpa, index) in bpmnUpload.bpmnProcessAttributes" :key="index" >
+                            <div class="col colContent">
+                                <label v-if="index == 0" class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.attribute.name')"></label>
+                                <input
+                                    type="text"
+                                    class="form-control form-check-inline"
+                                    autocomplete="false"
+                                    :name="'ca3SApp.bPNMProcessInfo.attribute.name.' + index" :id="'ca3SApp.bPNMProcessInfo.attribute.name.' + index"
+                                    :readOnly="interactionMode == 'TEST'"
+                                    v-model="bpa.name"
+                                    required="true"
+                                    v-on:input="alignBPAArraySize(index)"/>
+                            </div>
+                            <div class="col colContent">
+                                <label v-if="index == 0" class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.attribute.value')"></label>
+                                <input
+                                    :type="bpa.protectedContent ? 'password':'text'"
+                                    class="form-control form-check-inline"
+                                    autocomplete="false"
+                                    :name="'ca3SApp.bPNMProcessInfo.attribute.value.' + index" :id="'ca3SApp.bPNMProcessInfo.attribute.value.' + index"
+                                    :readOnly="interactionMode == 'TEST'"
+                                    v-model="bpa.value" />
+
+                            </div>
+                            <div class="col colContent">
+                                <label v-if="index == 0" class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.attribute.protected')"></label>
+                                <input type="checkbox" class="form-check-inline"
+                                       :name="'ca3SApp.bPNMProcessInfo.protected.' + index" :id="'ca3SApp.bPNMProcessInfo.protected.' + index"
+                                       :readOnly="interactionMode == 'TEST'"
+                                       v-model="bpa.protectedContent" />
+                            </div>
+                        </div>
+                        <p></p>
+
+                    </div>
+
+                    <div v-if="interactionMode == 'TEST'">
+                        <h3 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.check.subtitle')"></span></h3>
+                    </div>
+
+                    <div class="form-group" v-if="(interactionMode == 'TEST') && bpmnUpload.type === 'CERTIFICATE_CREATION'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.csrId')" ></label>
+                        <input type="text" class="form-control form-check-inline valid" name="bpmn.check.csrId" id="bpmn.check.csrId"
+                               required="true"
+                               v-model="csrId" />
+                    </div>
+
+                    <div class="form-group" v-if="(interactionMode == 'TEST') && ( bpmnUpload.type === 'CERTIFICATE_REVOCATION' || bpmnUpload.type === 'CERTIFICATE_NOTIFY')">
+                        <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.certificateId')" ></label>
+                        <input type="text" class="form-control form-check-inline valid" name="bpmn.check.certificateId" id="bpmn.check.certificateId"
+                               required="true"
+                               v-model="certificateId" />
+                    </div>
+
+                    <div class="form-group" v-if="(interactionMode == 'TEST') && bpmnUpload.type === 'REQUEST_AUTHORIZATION' || bpmnUpload.type === 'REQUEST_ELEMENT_VALIDATION'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.csrId')" ></label>
+                        <input type="text" class="form-control form-check-inline valid" name="bpmn.check.csrId'" id="bpmn.check.csrId"
+                               required="true"
+                               v-model="csrId" />
+                    </div>
+
+                    <div class="form-group" v-if="(interactionMode == 'TEST') && bpmnUpload.type === 'SEND_SMS'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.phone')" ></label>
+                        <input type="text" class="form-control form-check-inline valid" name="bpmn.check.phone'" id="bpmn.check.phone"
+                               required="true"
+                               v-model="phone" />
+                        <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.msg')" ></label>
+                        <input type="text" class="form-control form-check-inline valid" name="bpmn.check.msg'" id="bpmn.check.msg"
+                               required="true"
+                               v-model="msg" />
+                    </div>
+
+                    <div class="form-group" v-if="(interactionMode == 'TEST') && bpmnUpload.type === 'ACME_ACCOUNT_AUTHORIZATION'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.accountId')" ></label>
+                        <input type="text" class="form-control form-check-inline valid" name="bpmn.check.accountId'" id="bpmn.check.accountId"
+                               required="true"
+                               v-model="accountId" />
+                    </div>
+
+                    <div v-if="(interactionMode == 'TEST')" class="form-group">
+                        <button type="button"
+                                class="btn btn-info"
+                                v-on:click="checkBpmn">
+                            <font-awesome-icon icon="arrow-left"></font-awesome-icon>&nbsp;<span v-text="$t('ca3SApp.bPNMProcessInfo.check.check')"></span>
+                        </button>
+                        <help-tag role="Admin" target="bpmn.checkBpmn"/>
+                    </div>
+
+                    <div v-if="bpmnCheckResult.status && (interactionMode == 'TEST')">
+                        <h3 v-text="$t('pkcsxx.upload.result.label')"></h3>
+
+                        <table class="table">
+
+                            <!--thead class="thead-light">
+                            <tr>
+                              <th>
+                              </th>
+                              <th>
+                              </th>
+                            </tr>
+                            </thead-->
+
+                            <tbody>
+                            <tr>
+                                <td><span v-text="$t('ca3SApp.bPNMProcessInfo.result.status')"></span></td>
+                                <td>{{ bpmnCheckResult.status }}</td>
+                            </tr>
+
+                            <tr v-if="bpmnCheckResult.status !== 'Success'">
+                                <td><span v-text="$t('ca3SApp.bPNMProcessInfo.result.failureReason')"></span></td>
+                                <td>{{ bpmnCheckResult.failureReason }}</td>
+                            </tr>
+
+                            <tr v-for="(val, valueIndex) in bpmnCheckResult.responseAttributes" :key="valueIndex">
+                                <td><span>{{ Object.keys(bpmnCheckResult.responseAttributes[valueIndex])[0] }}</span></td>
+                                <td>
+                                    {{ bpmnCheckResult.responseAttributes[valueIndex][Object.keys(bpmnCheckResult.responseAttributes[valueIndex])[0]] }}
+                                </td>
+                            </tr>
+
+                            <tr v-for="(val, valueIndex) in bpmnCheckResult.csrAttributes" :key="valueIndex">
+                                <td><span>{{ Object.keys(bpmnCheckResult.csrAttributes[valueIndex])[0] }}</span></td>
+                                <td>
+                                    {{ bpmnCheckResult.csrAttributes[valueIndex][Object.keys(bpmnCheckResult.csrAttributes[valueIndex])[0]] }}
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <div>
                         <button type="submit"

@@ -172,5 +172,6 @@
     <include file="config/liquibase/changelog/20260210174500_change_bpmn_attribute_value_type.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20260220180000_added_relation_pipeline_bpmn_element_validate.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20260301182500_added_columns_lob_value.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

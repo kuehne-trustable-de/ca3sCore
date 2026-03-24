@@ -15,9 +15,7 @@ import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.web.rest.data.AdministrationType;
 import de.trustable.ca3s.core.web.rest.data.CertificateAdministrationData;
-import de.trustable.ca3s.core.service.dto.NamedValue;
 import de.trustable.util.CryptoUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -393,44 +391,8 @@ public class CertificateAdministration {
 
     private void updateARAttributes(CertificateAdministrationData adminData, Certificate cert ) {
 
-        Set<CertificateAttribute> certificateAttributeSet = cert.getCertificateAttributes();
-
-        for(CertificateAttribute certAttr: certificateAttributeSet){
-            if(certAttr.getName().startsWith(CsrAttribute.ARA_PREFIX) ){
-                for(NamedValue nv: adminData.getArAttributeArr()){
-                    if( StringUtils.equals( certAttr.getName(), CsrAttribute.ARA_PREFIX + nv.getName())){
-                        if( !StringUtils.equals(certAttr.getValue(),nv.getValue())) {
-                            auditService.saveAuditTrace(
-                                auditService.createAuditTraceCertificateAttribute(certAttr.getName(), certAttr.getValue(), nv.getValue(), cert));
-
-                            certAttr.setValue(nv.getValue());
-                            LOG.debug("certificate attribute {} updated to {}", certAttr.getName(), certAttr.getValue());
-                        }
-                    }
-                }
-            }
-        }
-
-        for(NamedValue nv: adminData.getArAttributeArr()){
-
-            if( !certificateAttributeSet.stream().anyMatch(certAtt ->( StringUtils.equals(certAtt.getName(), CsrAttribute.ARA_PREFIX + nv.getName())))){
-
-                auditService.saveAuditTrace(
-                    auditService.createAuditTraceCertificateAttribute(nv.getName(), "", nv.getValue(), cert));
-
-                CertificateAttribute certificateAttribute = new CertificateAttribute();
-                certificateAttribute.setCertificate(cert);
-                certificateAttribute.setName(CsrAttribute.ARA_PREFIX +nv.getName());
-                certificateAttribute.setValue(nv.getValue());
-
-                certificateAttributeSet.add(certificateAttribute);
-            }
-        }
-
-        certificateAttributeRepository.saveAll(certificateAttributeSet);
-        cert.setCertificateAttributes(certificateAttributeSet);
+        // update of attributes of a given certificate not supported
+//        certUtil.updateARAttributes(adminData.getArAttributeArr(), cert);
     }
-
-
 
 }

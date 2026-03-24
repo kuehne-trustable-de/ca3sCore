@@ -167,6 +167,10 @@ public class CaConnectorAdapter {
             LOGGER.debug("CAConnectorType INTERNAL signs CSR");
             return internalConnector.signCertificateRequest(csr, caConfig);
 
+        } else if (CAConnectorType.MANUAL_UPLOAD.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType MANUAL_UPLOAD uses uploaded certificate related to CSR");
+            return csr.getCertificate();
+
         } else if (CAConnectorType.ACME_CLIENT.equals(caConfig.getCaConnectorType())) {
             LOGGER.debug("CAConnectorType ACME_CLIENT signs CSR");
             throw new GeneralSecurityException("To Do implement ca connector type '" + caConfig.getCaConnectorType() + "' !");

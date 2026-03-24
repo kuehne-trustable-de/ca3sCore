@@ -121,6 +121,8 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     { itemName: 'id', itemType: 'number', itemDefaultSelector: null, itemDefaultValue: null },
     { itemName: 'validFrom', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
     { itemName: 'validTo', itemType: 'date', itemDefaultSelector: 'AFTER', itemDefaultValue: '{now}' },
+    { itemName: 'validityPeriod', itemType: 'number', itemDefaultSelector: 'LESSTHAN', itemDefaultValue: '365' },
+
     { itemName: 'active', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true' },
     { itemName: 'trusted', itemType: 'boolean', itemDefaultSelector: 'ISTRUE', itemDefaultValue: 'true' },
     {
@@ -504,12 +506,30 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       url: 'api/userProperties/filterList/CertList',
       responseType: 'stream',
     }).then(function (response) {
-      //      window.console.debug('getUsersFilterList returns ' + response.data );
+      window.console.debug('getUsersFilterList returns ' + response );
       if (response.status === 200) {
         self.filters.filterList = response.data.filterList;
         //        window.console.debug('getUsersFilterList sets filters to ' + JSON.stringify(self.filters));
         self.lastFilters = JSON.stringify(self.filters);
       }
+    }) .catch(function (error) {
+      window.console.debug('getUsersFilterList returns ' + error );
+      if (error.response) {
+        if (error.response.status === 404) {
+          self.filters.filterList = [
+            { attributeName: 'requestedBy', attributeValue: self.username, selector: 'EQUAL' }
+          ];
+          self.lastFilters = JSON.stringify(self.filters);
+        } else {
+
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.log(error.response.data);
+          console.log(error.response.status);
+          console.log(error.response.headers);
+        }
+      }
+      console.log(error.config);
     });
   }
 

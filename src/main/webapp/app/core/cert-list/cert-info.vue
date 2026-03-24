@@ -72,7 +72,8 @@
                                 <li v-if="certificateView.serialHex != certificateView.serial">{{certificateView.serial}} ({{$t('DECIMAL')}})</li>
                             </ul>
                         </dd>
-                        <dt>
+
+                        <!--dt>
                             <span v-text="$t('ca3SApp.certificate.validFrom')"></span>
                         </dt>
                         <dd>
@@ -83,9 +84,16 @@
                         </dt>
                         <dd>
                             <span v-if="certificateView.validTo">{{$d(Date.parse(certificateView.validTo), 'long') }}</span>
+                        </dd-->
+
+                        <dt>
+                            <span v-text="$t('ca3SApp.certificate.validFrom')"></span>
+                        </dt>
+                        <dd>
+                            <span v-if="certificateView.validFrom">{{$d(Date.parse(certificateView.validFrom), 'long') }} -&gt; {{$d(Date.parse(certificateView.validTo), 'long') }} : {{getValidityDays()}}</span> <span v-text="$t('ca3SApp.Interval.DAYS')"></span>
                         </dd>
 
-                         <dt>
+                        <dt>
                             <span v-text="$t('ca3SApp.certificate.keyDetails')"></span>
                         </dt>
                         <dd>
@@ -324,9 +332,16 @@
                             <input type="checkbox" class="form-check-inline" name="trusted" id="certificate-trusted" v-model="trusted" />
                         </div>
 
-                        <div v-if="isEditable()" v-for="attr in certificateAdminData.arAttributes" :key="attr.name" class="form-group">
+                        <div v-for="attr in certificateAdminData.arAttributes" :key="attr.name" class="form-group">
                             <label class="form-control-label"  :for="'cert-ar-'+attr.name">{{attr.name}}</label>
-                            <input type="text" class="form-control" :name="'cert-ar-'+attr.name" :id="'cert-ar-'+attr.name" v-model="attr.value" />
+                            <textarea v-if="attr.type && (attr.type === 'TEXT_AREA')"
+                                      class="form-control form-check-inline"
+                                      name="csr-ar-{attr.name}" id="csr-ar-{attr.name}"
+                                      :readonly="isARAReadOnly()"
+                                      v-model="attr.value" />
+
+                            <input v-else
+                                   type="text" class="form-control" :name="'cert-ar-'+attr.name" :id="'cert-ar-'+attr.name" v-model="attr.value" />
                         </div>
 
                         <div v-if="isNotificationBlockable()" class="form-group">

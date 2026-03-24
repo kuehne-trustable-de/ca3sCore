@@ -15,7 +15,6 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -27,7 +26,6 @@ public class ContentUploadProcessorIT {
 
     @Autowired
     private ContentUploadProcessor contentUploadProcessor;
-
 
     @Test
     public void checkCertificateECDSA() throws Exception {

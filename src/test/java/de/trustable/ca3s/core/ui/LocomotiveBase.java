@@ -249,6 +249,8 @@ public class LocomotiveBase {
                             options.addArguments("--no-sandbox");
                             options.addArguments("--disable-dev-shm-usage");
 
+                            options.setBinary("/snap/bin/chromium");
+
 //                            driver = WebDriverManager.chromedriver().capabilities(options).create();
 
                             HashMap<String, Object>  chromePrefs = new HashMap<>();

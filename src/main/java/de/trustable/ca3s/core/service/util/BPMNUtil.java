@@ -727,7 +727,7 @@ public class BPMNUtil{
     }
 
 
-    private void notifyOnCertificate(BPMNProcessInfo processInfo, long certificateId) {
+    public void notifyOnCertificate(BPMNProcessInfo processInfo, long certificateId) {
         if (processInfo != null && processInfo.getProcessId() != null) {
             if( !TransactionSynchronizationManager.isActualTransactionActive()){
                 LOG.warn("notifyOnCertificate: no transaction active !");
