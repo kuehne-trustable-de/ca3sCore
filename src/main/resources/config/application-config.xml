@@ -226,10 +226,6 @@
             </pathmatch>
         </mvc>
         <main>
-            <allow-bean-definition-overriding>
-                <comment>the spring SAML support requires these settings validate the need after a spring security update</comment>
-                <value>true</value>
-            </allow-bean-definition-overriding>
             <allow-circular-references>
                 <comment>the spring SAML support requires these settings validate the need after a spring security update</comment>
                 <value>true</value>

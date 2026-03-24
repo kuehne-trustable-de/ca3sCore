@@ -154,7 +154,6 @@ spring:
   # 2023: the spring SAML support requires these settings
   # validate the need after a spring security update
   main:
-    allow-bean-definition-overriding: true
     allow-circular-references: true
 
   # The basic settings for outbound email support
@@ -185,6 +184,12 @@ spring:
             client-secret: hbk3Q7BV22ESQvSrIJP8VR87kbAsvgsP
 #            authorization-grant-type: authorization_code
 #            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+          google:
+            client-id: 528678999149-90svlt60psv083eddmk6oi0ehpepgp70.apps.googleusercontent.com
+            client-secret: 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
+          github:
+            client-id: Ov23liNaHEzOhD0jLF01
+            client-secret: 7dd1ea6b69d174b36e8abb9d184c1b4dd7536d83
         provider:
           keycloak:
             issuer-uri:  http://10.152.183.139/realms/testRealm
@@ -638,8 +643,8 @@ ca3s:
       roles:
         other: "get('given_name')"
 
-#    provider-name: google
-    provider-name: github
+    provider-name: google
+#    provider-name: github
 #    provider-name: keycloak
 
 

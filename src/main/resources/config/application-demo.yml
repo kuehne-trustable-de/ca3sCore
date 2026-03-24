@@ -145,7 +145,6 @@ spring:
   # 2023: the spring SAML support requires these settings
   # validate the need after a spring security update
   main:
-    allow-bean-definition-overriding: true
     allow-circular-references: true
 
   # The basic settings for outbound email support

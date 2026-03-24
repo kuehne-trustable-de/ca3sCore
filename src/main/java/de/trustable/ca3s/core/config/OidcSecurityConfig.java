@@ -7,7 +7,6 @@ import de.trustable.ca3s.core.repository.AuthorityRepository;
 import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.util.PreferenceUtil;
-import org.opensaml.xml.parse.StaticBasicParserPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,12 +47,12 @@ public class OidcSecurityConfig {
 
     @Value("${ca3s.ui.languages:en,de,pl}")
     String availableLanguages;
-
+/*
     @Bean(initMethod = "initialize")
     public StaticBasicParserPool parserPool() {
         return new StaticBasicParserPool();
     }
-
+*/
     @Bean
     public CustomOAuth2LoginAuthenticationProvider oidcAuthenticationProvider() {
         return new CustomOAuth2LoginAuthenticationProvider(accessTokenResponseClient,
