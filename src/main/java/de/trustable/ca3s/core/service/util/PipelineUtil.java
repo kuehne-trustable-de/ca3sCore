@@ -983,9 +983,8 @@ public class PipelineUtil {
         }
 
         if (PipelineType.ACME.equals(pv.getType())) {
-            // ensure that at least HTTP-01 challenge is available
+
             if (!pv.getAcmeConfigItems().isAllowChallengeDNS()) {
-                pv.getAcmeConfigItems().setAllowChallengeHTTP01(true);
                 pv.getAcmeConfigItems().setAllowWildcards(false);
             }
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_HTTP01, pv.getAcmeConfigItems().isAllowChallengeHTTP01());

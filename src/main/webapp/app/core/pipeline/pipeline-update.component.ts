@@ -10,7 +10,7 @@ import {
   IARARestriction,
   IAuditView,
   IBPMNProcessInfo,
-  IBPMNProcessType,
+  IBPMNProcessType, ICAConnectorConfig,
   ICsrUsage,
   IKeyAlgoLengthOrSpec,
   IKeyUniqueness,
@@ -355,9 +355,9 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     }
 
     if (!pipeline.acmeConfigItems.allowChallengeDNS) {
-      pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
       pipeline.acmeConfigItems.allowWildcards = false;
     }
+
     if (pipeline.araRestrictions && pipeline.araRestrictions.length > 0) {
       window.console.info('pipeline.araRestrictions.length' + pipeline.araRestrictions.length);
     } else {
