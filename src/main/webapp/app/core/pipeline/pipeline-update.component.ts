@@ -379,6 +379,14 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       pipeline.networkRejectArr.push('');
     }
   }
+  public isAtLeastOneChallengeSelect(): boolean {
+    if(this.pipeline.type === 'ACME'){
+      const acmeConfigItems = this.pipeline.acmeConfigItems;
+      return acmeConfigItems.allowChallengeDNS || acmeConfigItems.allowChallengeHTTP01 || acmeConfigItems.allowChallengeAlpn
+    }
+    return true;
+  }
+
 
   public retrieveAllTenants(): void {
     this.tenantService()

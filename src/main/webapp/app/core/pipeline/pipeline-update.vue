@@ -664,6 +664,10 @@
                                :disabled="pipeline.acmeConfigItems.allowChallengeDNS === false" name="allowWildcards"
                                id="pipeline-allowWildcards" v-model="pipeline.acmeConfigItems.allowWildcards"/>
 
+                        <div v-if="!isAtLeastOneChallengeSelect()">
+                            <small class="form-text text-danger" v-text="$t('ca3SApp.pipeline.atLeastOneChallengeRequired')"></small>
+                        </div>
+
                     </div>
                     <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.eabRequired')"
@@ -986,7 +990,7 @@
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span
                         v-text="$t('entity.action.cancel')"></span>
                     </button>
-                    <button type="submit" id="save-entity" :disabled="$v.pipeline.$invalid" class="btn btn-primary">
+                    <button type="submit" id="save-entity" :disabled="$v.pipeline.$invalid || !isAtLeastOneChallengeSelect()" class="btn btn-primary">
                         <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span
                         v-text="$t('entity.action.save')"></span>
                     </button>

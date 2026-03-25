@@ -636,6 +636,7 @@
   "ca3SApp.pipeline.allowChallengeDNS": "Challenge DNS",
   "ca3SApp.pipeline.allowChallengeHTTP01": "Challenge HTTP01",
   "ca3SApp.pipeline.allowChallengeAlpn": "ALPN Challenge",
+  "ca3SApp.pipeline.atLeastOneChallengeRequired": "Please select at least one challenge",
   "ca3SApp.pipeline.allowWildcards": "Allow Wildcards",
   "ca3SApp.pipeline.approvalInfo": "Approval Info",
   "ca3SApp.pipeline.approvalRequired": "Approval Required",
