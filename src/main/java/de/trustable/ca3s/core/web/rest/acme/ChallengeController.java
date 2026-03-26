@@ -666,7 +666,7 @@ public class ChallengeController extends AcmeController {
         byte[] acmeValidationExtBytes = cert.getExtensionValue(ACME_VALIDATION_OID);
         ASN1OctetString octetString = (ASN1OctetString) ASN1OctetString.fromByteArray(acmeValidationExtBytes);
         ASN1OctetString rfc8737OctetString = (ASN1OctetString) ASN1OctetString.fromByteArray(octetString.getOctets());
-        String actualContent = Base64.getEncoder().encodeToString(rfc8737OctetString.getOctets());
+        String actualContent = Base64.getUrlEncoder().withoutPadding().encodeToString(rfc8737OctetString.getOctets());
 
         if( rfc8737OctetString.getOctets().length > 32){
             String msg = ("actualContent has unexpected length of rfc8737OctetString : "+ rfc8737OctetString.getOctets().length);

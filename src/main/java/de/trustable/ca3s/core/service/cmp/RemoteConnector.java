@@ -101,7 +101,7 @@ public class RemoteConnector implements RemoteTargetHandler {
                 if (sni != null && !sni.trim().isEmpty()) {
                     LOGGER.debug("using sni '{}' for CA '{}'", sni, requestUrlParam);
                     SSLParameters sslParameters = new SSLParameters();
-                    List sniHostNames = new ArrayList(1);
+                    List<SNIServerName> sniHostNames = new ArrayList<>(1);
                     sniHostNames.add(new SNIHostName(sni));
                     sslParameters.setServerNames(sniHostNames);
                     socketFactory = new SSLSocketFactoryWrapper(socketFactory, sslParameters);

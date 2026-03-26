@@ -10,7 +10,7 @@ import {
   IARARestriction,
   IAuditView,
   IBPMNProcessInfo,
-  IBPMNProcessType, ICAConnectorConfig,
+  IBPMNProcessType, ICAConnectorConfig, ICnAsSanRestriction,
   ICsrUsage,
   IKeyAlgoLengthOrSpec,
   IKeyUniqueness,
@@ -76,6 +76,7 @@ const validations: any = {
     },
 
     keyUniqueness: { required },
+    cnAsSanRestriction: { required },
     tosAgreementLink: {},
 
     webConfigItems: {
@@ -440,7 +441,7 @@ export class PipelineView implements IPipelineView {
     public restriction_L?: IRDNRestriction,
     public restriction_O?: IRDNRestriction,
     public restriction_OU?: IRDNRestriction,
-    public restriction_S?: IRDNRestriction,
+    public restriction_S?: IRDIKeyUniquenessNRestriction,
     public restriction_E?: IRDNRestriction,
     public restriction_SAN?: IRDNRestriction,
     public rdnRestrictions?: IRDNRestriction[],
@@ -455,7 +456,8 @@ export class PipelineView implements IPipelineView {
     public auditViewArr?: IAuditView[],
     public csrUsage?: ICsrUsage,
     public requestProxyConfigIds?: number[],
-    public keyUniqueness?: IKeyUniqueness,
+    public keyUniqueness?: ,
+    public cnAsSanRestriction?: ICnAsSanRestriction,
     public networkAcceptArr?: string[],
     public networkRejectArr?: string[]
   ) {
@@ -466,6 +468,7 @@ export class PipelineView implements IPipelineView {
     this.active = this.active || false;
 
     this.keyUniqueness = this.keyUniqueness || 'KEY_UNIQUE';
+    this.cnAsSanRestriction = this.cnAsSanRestriction || 'CN_AS_SAN_WARN_ONLY';
     this.acmeConfigItems = new AcmeConfigItems();
     this.scepConfigItems = new SCEPConfigItems();
     this.webConfigItems = new WebConfigItems();

@@ -406,6 +406,9 @@ public class PipelineTestConfiguration {
         pv_LaxRestrictions.setType(PipelineType.ACME);
         pv_LaxRestrictions.setUrlPart(ACME_REALM);
 
+        pv_LaxRestrictions.setAcmeConfigItems(new AcmeConfigItems());
+        pv_LaxRestrictions.getAcmeConfigItems().setAllowChallengeHTTP01(true);
+
         pv_LaxRestrictions.setKeyUniqueness(KeyUniqueness.KEY_REUSE);
 
         Pipeline pipelineLaxRestrictions = pipelineUtil.toPipeline(pv_LaxRestrictions);
@@ -652,6 +655,8 @@ public class PipelineTestConfiguration {
 
         AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
         acmeConfigItems.setContactEMailRejectRegEx(".*@localhost|.*@127.0.0.1|.*@servicedesk.*");
+        acmeConfigItems.setAllowChallengeHTTP01(true);
+
         pv_1CNRestrictions.setAcmeConfigItems(acmeConfigItems);
 
         Pipeline pipelineRestrictions = pipelineUtil.toPipeline(pv_1CNRestrictions);
@@ -707,6 +712,7 @@ public class PipelineTestConfiguration {
         pv_1CN_NoIP_Restrictions.setUrlPart(ACME1CNNOIP_REALM);
 
         AcmeConfigItems acmeConfigItems = new AcmeConfigItems();
+        acmeConfigItems.setAllowChallengeHTTP01(true);
         acmeConfigItems.setContactEMailRegEx("(mailto:.*@ca3s\\.org)");
         acmeConfigItems.setContactEMailRejectRegEx("(mailto:root@ca3s\\.org|mailto:mail@ca3s\\.org|mailto:service.*@ca3s\\.org)");
 

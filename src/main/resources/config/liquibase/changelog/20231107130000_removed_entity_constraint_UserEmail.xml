@@ -6,11 +6,12 @@
     <!--
         Remove the fk-constraints RequestProxyConfig -> ProtectedContent.
     -->
-    <preConditions onFail="WARN">
-        <uniqueConstraintExists tableName="jhi_user"
-                     columnNames="ux_user_email"/>
-    </preConditions>
     <changeSet id="20230415130000-1" author="ak">
+
+        <preConditions onFail="CONTINUE">
+            <uniqueConstraintExists tableName="jhi_user"
+                                    columnNames="ux_user_email"/>
+        </preConditions>
 
         <dropUniqueConstraint tableName="jhi_user"
                                  constraintName="ux_user_email"/>
