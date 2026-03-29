@@ -223,7 +223,7 @@
                                for="pipeline-key-unique"></label>
                         <help-tag role="Admin" target="pipeline.key.unique"/>
                         <select class="form-control" id="pipeline-key-unique" name="pipeline-key-unique"
-                                v-model="pipeline.keyUniqueness">
+                                v-model="$v.pipeline.keyUniqueness.$model">
                             <option v-text="$t('ca3SApp.pipeline.key.reuse.unique')" value="KEY_UNIQUE"></option>
                             <option v-text="$t('ca3SApp.pipeline.key.reuse.domainReuse')" value="DOMAIN_REUSE"></option>
                             <option v-text="$t('ca3SApp.pipeline.key.reuse.reuse')" value="KEY_REUSE"></option>
@@ -990,7 +990,7 @@
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span
                         v-text="$t('entity.action.cancel')"></span>
                     </button>
-                    <button type="submit" id="save-entity" :disabled="$v.pipeline.$invalid || !isAtLeastOneChallengeSelect()" class="btn btn-primary">
+                    <button type="submit" id="save-entity" :disabled="!isSaveable()" class="btn btn-primary">
                         <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span
                         v-text="$t('entity.action.save')"></span>
                     </button>

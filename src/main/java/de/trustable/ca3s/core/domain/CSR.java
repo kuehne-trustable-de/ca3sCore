@@ -52,8 +52,9 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
             " c.requestedOn <= :before and " +
             " c.status = 'PENDING' "
     ),
+
     @NamedQuery(name = "CSR.findPendingGroupedByDay",
-    query = "SELECT concat(YEAR(c.requestedOn), '.', MONTH(c.requestedOn), '.', DAY(c.requestedOn)), count(c) FROM CSR c WHERE " +
+    query = "SELECT c.requestedOn, count(c) FROM CSR c WHERE " +
         " c.requestedOn >= :after and " +
         " c.requestedOn <= :before and " +
         " c.status = 'PENDING' " +
@@ -61,10 +62,10 @@ import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
     ),
 
     @NamedQuery(name = "CSR.groupByRequestedMonth",
-        query = "SELECT concat(MONTH(requested_on), '.',YEAR(requested_on)), pipelineType, count(c) FROM CSR c WHERE " +
+        query = "SELECT c.requestedOn, pipelineType, count(c) FROM CSR c WHERE " +
             " c.status = 'ISSUED' and" +
             " c.requestedOn > :after" +
-            " group by concat(MONTH(requested_on), '.',YEAR(requested_on)), pipelineType"
+            " group by MONTH(c.requestedOn),YEAR(c.requestedOn), pipelineType"
     ),
 
     @NamedQuery(name = "CSR.findByStatus",
