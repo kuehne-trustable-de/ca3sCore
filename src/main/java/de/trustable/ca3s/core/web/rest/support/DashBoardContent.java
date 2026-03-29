@@ -2,13 +2,11 @@ package de.trustable.ca3s.core.web.rest.support;
 
 import java.math.BigInteger;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import de.trustable.ca3s.core.repository.CSRRepository;
 import org.slf4j.Logger;
@@ -101,15 +99,17 @@ public class DashBoardContent {
             }
         }
 
-        Instant after = now.minus(years*365 , ChronoUnit.DAYS);
+        Instant after = now.minus(years*365L , ChronoUnit.DAYS);
 
         List<Object[]> objects = csrRepository.groupByTypeRequestedMonth(after);
         LOG.debug("objects has #{} elements after {}",objects.size(), after);
 
         for( Object[] resArr: objects) {
-            String summaryMonth = resArr[0].toString();
-            String summaryType = resArr[1].toString();
-            Long count = (Long) resArr[2];
+            int currentMonth = (int)resArr[0];
+            int currentYear = (int)resArr[1];
+            String summaryMonth = currentMonth + "." + currentYear;
+            String summaryType = resArr[2].toString();
+            Long count = (Long) resArr[3];
 
             LOG.debug("resArr: {} / {} / {} of type {}", summaryMonth, summaryType, count, resArr[2].getClass().getName());
             if(monthDataMap.containsKey(summaryMonth)) {

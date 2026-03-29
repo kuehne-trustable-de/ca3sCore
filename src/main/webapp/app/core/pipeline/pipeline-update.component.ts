@@ -420,6 +420,12 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       return pi.type === type;
     });
   }
+
+  public isSaveable(): boolean{
+
+    window.console.info( '$v.pipeline.$invalid : ' + this.$v.pipeline.$invalid + ', isAtLeastOneChallengeSelect: ' + this.isAtLeastOneChallengeSelect() );
+    return !this.$v.pipeline.$invalid && this.isAtLeastOneChallengeSelect();
+  }
 }
 
 export class PipelineView implements IPipelineView {
@@ -441,7 +447,7 @@ export class PipelineView implements IPipelineView {
     public restriction_L?: IRDNRestriction,
     public restriction_O?: IRDNRestriction,
     public restriction_OU?: IRDNRestriction,
-    public restriction_S?: IRDIKeyUniquenessNRestriction,
+    public restriction_S?: IRDNRestriction,
     public restriction_E?: IRDNRestriction,
     public restriction_SAN?: IRDNRestriction,
     public rdnRestrictions?: IRDNRestriction[],
@@ -456,7 +462,7 @@ export class PipelineView implements IPipelineView {
     public auditViewArr?: IAuditView[],
     public csrUsage?: ICsrUsage,
     public requestProxyConfigIds?: number[],
-    public keyUniqueness?: ,
+    public keyUniqueness?: IKeyUniqueness,
     public cnAsSanRestriction?: ICnAsSanRestriction,
     public networkAcceptArr?: string[],
     public networkRejectArr?: string[]
