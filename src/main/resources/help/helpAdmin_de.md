@@ -256,6 +256,10 @@ Define a regular expression that the value of this part of the distinguished nam
 
 Define restriction on the subject alternative names (SAN) of the request analog to the distinguished name.
 
+#### <a id="pipeline.cn-san.restriction"></a> CN / SAN restrictions
+
+Is the CN required to be present as a SAN, too? Require it, warn only or ignore this aspect at all.
+
 #### <a id="pipeline.ara.restrictions"></a> Additional request attribute
 
 Define additional attribute required for processing of this pipeline. The aspects defined here are:

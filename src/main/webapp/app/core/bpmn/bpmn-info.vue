@@ -11,9 +11,6 @@
 
         <div class="row justify-content-center">
             <div class="col-8" :key="updateCounter">
-
-                <form name="editForm" role="form" novalidate>
-
                     <div v-if="bPNMProcessInfo">
                         <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.detail.title')"></span> {{bPNMProcessInfo.id}}</h2>
 
@@ -205,6 +202,8 @@
                             </tbody>
                         </table>
                     </div>
+
+                <form name="editForm" role="form" novalidate>
 
                     <div>
                         <button type="submit"
