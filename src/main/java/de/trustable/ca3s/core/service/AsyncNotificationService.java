@@ -61,7 +61,7 @@ public class AsyncNotificationService {
     public void notifyUserCertificateIssuedAsync(User requestor, Certificate cert, Set<String> additionalEmailSet ){
 
         try {
-            notificationService.notifyUserCertificateIssued(requestor, cert, additionalEmailSet );
+            notificationService.notifyUserCertificateIssued(requestor, cert, additionalEmailSet, true );
         } catch (MessagingException e) {
             LOG.error("problem sending user notification for issued cert", e);
         }
@@ -72,7 +72,7 @@ public class AsyncNotificationService {
     public void notifyUserCertificateRejectedAsync(User requestor, CSR csr, Set<String> additionalEmailSet ){
 
         try {
-            notificationService.notifyUserCertificateRejected(requestor, csr, additionalEmailSet );
+            notificationService.notifyUserCertificateRejected(requestor, csr, additionalEmailSet, true );
         } catch (MessagingException e) {
             LOG.error("problem sending user notification for rejected request", e);
         }
@@ -82,7 +82,7 @@ public class AsyncNotificationService {
     public void notifyUserCertificateRevokedAsync(User requestor, Certificate cert , CSR csr, Set<String> additionalEmailSet ){
 
         try {
-            notificationService.notifyCertificateRevoked(requestor, cert, csr, additionalEmailSet );
+            notificationService.notifyCertificateRevoked(requestor, cert, csr, additionalEmailSet, true );
         } catch (MessagingException e) {
             LOG.error("problem sending user notification for revoked certificate", e);
         }

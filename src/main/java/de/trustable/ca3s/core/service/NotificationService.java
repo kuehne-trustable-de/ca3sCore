@@ -201,7 +201,7 @@ public class NotificationService {
                         now));
                     expiringSoon = true;
                 }
-                if ((protectedContent.getValidTo() == null) || beforeEE.isAfter(protectedContent.getValidTo())) {
+                if ((protectedContent.getValidTo() != null) && beforeEE.isAfter(protectedContent.getValidTo())) {
                     connectorMsgList.add(new NameMessages(caConnectorConfig.getName(),
                         "email.connector.protectedContentExpires",
                         protectedContent.getValidTo()));
@@ -212,7 +212,6 @@ public class NotificationService {
                 stateOverviewConnector.incExpiringSoon();
             }
         }
-
 
         StateOverview stateOverviewPipeline = new StateOverview();
         List<NameMessages> pipelineMsgList = new ArrayList<>();
@@ -245,7 +244,8 @@ public class NotificationService {
             }
 
             Instant connectorExpiry = pipeline.getCaConnector().getExpiryDate();
-            if(Instant.MAX.isAfter(connectorExpiry)){
+//            if(Instant.MAX.isAfter(connectorExpiry)){
+            if (beforeEE.isAfter(connectorExpiry)) {
                 pipelineMsgList.add(new NameMessages(pipeline.getName(),
                     "email.pipeline.connector.expires",
                     connectorExpiry));
@@ -534,12 +534,29 @@ public class NotificationService {
         try {
             mailService.sendEmailFromTemplate(context, requestor, null, "mail/expiringUserCertificateEmail", "email.allExpiringCertificate.subject");
             if (logNotification) {
+
+                for(Certificate certificate: certListGroupedByUser.get(requestor)) {
+                    auditService.saveAuditTrace(
+                        auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_SEND_NOTIFICATION_SENT,
+                        requestor.getEmail(),
+                        "email.notifyUserOnCertificateExpiry.success",
+                        certificate,
+                        certificate.getCsr()));
+                }
                 auditService.saveAuditTrace(auditService.createAuditTraceNotificationSent(requestor.getEmail(), "email.allExpiringCertificate.subject"));
             }
 
         } catch (Throwable throwable) {
             LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestor.getEmail() + "'", throwable);
             if (logNotification) {
+                for(Certificate certificate: certListGroupedByUser.get(requestor)) {
+                    auditService.saveAuditTrace(
+                        auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_SEND_NOTIFICATION_FAILED,
+                        requestor.getEmail(),
+                        "email.notifyUserOnCertificateExpiry.failure",
+                        certificate,
+                        certificate.getCsr()));
+                }
                 auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(requestor.getEmail()));
             }
         }
@@ -570,11 +587,41 @@ public class NotificationService {
                 mailService.sendEmailFromTemplate(context, requestor, ccList.toArray(new String[0]), "mail/expiringUserCertificateEmail", "email.allExpiringCertificate.subject");
                 if (logNotification) {
                     String email = requestor.getEmail() + ", cc: " + String.join(", ",ccList);
+                    auditService.saveAuditTrace(
+                        auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_SEND_NOTIFICATION_SENT,
+                            requestor.getEmail(),
+                            "email.notifyUserOnCertificateExpiry.success",
+                            cert,
+                            cert.getCsr()));
+
+                    for (String cc : ccList) {
+                        auditService.saveAuditTrace(
+                            auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_SEND_NOTIFICATION_SENT,
+                                cc,
+                                "email.notifyCCOnCertificateExpiry.success",
+                                cert,
+                                cert.getCsr()));
+                    }
                     auditService.saveAuditTrace(auditService.createAuditTraceNotificationSent(email, "email.allExpiringCertificate.subject"));
                 }
             } catch (Throwable throwable) {
                 LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestor.getEmail() + "'", throwable);
                 if (logNotification) {
+                    auditService.saveAuditTrace(
+                        auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_SEND_NOTIFICATION_FAILED,
+                            requestor.getEmail(),
+                            "email.notifyUserOnCertificateExpiry.failure",
+                            cert,
+                            cert.getCsr()));
+
+                    for( String cc: ccList){
+                        auditService.saveAuditTrace(
+                            auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_SEND_NOTIFICATION_FAILED,
+                            cc,
+                            "email.notifyCCOnCertificateExpiry.failure",
+                            cert,
+                            cert.getCsr()));
+                    }
                     auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(requestor.getEmail()));
                 }
             }
@@ -611,8 +658,21 @@ public class NotificationService {
         context.setVariable("certificate", certificate);
         try {
             mailService.sendEmailFromTemplate(context, null, requestorEmail, null, "mail/excessiveActiveCertificates", "email.excessive.active.title");
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_EXCESSIVE_CERTIFICATES_NOTIFICATION_SENT,
+                    requestorEmail,
+                    "email.requestorOnExcessiveActiveCertificates.success",
+                    certificate,
+                    null));
+
         }catch (Throwable throwable){
             LOG.warn("Problem occurred while sending a notification eMail to requestor address '" + requestorEmail + "'", throwable);
+            auditService.saveAuditTrace(
+                auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_EXCESSIVE_CERTIFICATES_NOTIFICATION_FAILED,
+                    requestorEmail,
+                    "email.requestorOnExcessiveActiveCertificates.failure",
+                    certificate,
+                    null));
         }
 
     }
@@ -758,7 +818,10 @@ public class NotificationService {
     }
 
     @Transactional
-    public void notifyUserCertificateIssued(User requestor, Certificate cert, Set<String> additionalEmailSet ) throws MessagingException {
+    public void notifyUserCertificateIssued(User requestor,
+                                            Certificate cert,
+                                            Set<String> additionalEmailSet,
+                                            boolean logNotification) throws MessagingException {
 
         if( !doNotifyUserCertificateIssued){
             LOG.info("notifyUserCertificateIssued deactivated");
@@ -792,16 +855,38 @@ public class NotificationService {
         context.setVariable("filenamePem", downloadFilename + ".pem");
         context.setVariable("filenameFullChainPem", downloadFilename + ".full.pem");
 
-        mailService.sendEmailFromTemplate(context,
-            requestor,
-            additionalEmailSet.toArray(new String[0]),
-            "mail/acceptedRequestEmail",
-            "email.acceptedRequest.title");
+        try {
+            mailService.sendEmailFromTemplate(context,
+                requestor,
+                additionalEmailSet.toArray(new String[0]),
+                "mail/acceptedRequestEmail",
+                "email.acceptedRequest.title");
+
+            if (logNotification) {
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_CERTIFICATE_ISSUED_NOTIFICATION_SENT,
+                        requestor.getEmail(),
+                        "email.requestorOnIssuedCertificate.success",
+                        cert,
+                        cert.getCsr()));
+            }
+        }catch (Throwable throwable){
+            LOG.warn("Problem occurred while sending an issuance eMail to requestor '" + requestor.getEmail() + "'", throwable);
+
+            if(logNotification) {
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_CERTIFICATE_ISSUED_NOTIFICATION_FAILED,
+                        requestor.getEmail(),
+                        "email.requestorOnIssuedCertificate.failed",
+                        cert,
+                        cert.getCsr()));            }
+        }
     }
 
 
     @Transactional
-    public void notifyUserCertificateRejected(User requestor, CSR csr, Set<String> additionalEmailSet ) throws MessagingException {
+    public void notifyUserCertificateRejected(User requestor, CSR csr, Set<String> additionalEmailSet,
+                                              boolean logNotification) throws MessagingException {
 
         if( !doNotifyUserCertificateRejected){
             LOG.info("notifyUserCertificateRejected deactivated");
@@ -811,16 +896,39 @@ public class NotificationService {
         Locale locale = getUserLocale(requestor);
         Context context = new Context(locale);
         context.setVariable("csr", csr);
-        mailService.sendEmailFromTemplate(context, requestor,
-            additionalEmailSet.toArray(new String[0]),
-            "mail/rejectedRequestEmail",
-            "email.request.rejection.title");
+
+        try {
+            mailService.sendEmailFromTemplate(context, requestor,
+                additionalEmailSet.toArray(new String[0]),
+                "mail/rejectedRequestEmail",
+                "email.request.rejection.title");
+
+            if (logNotification) {
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_REQUEST_REJECTED_NOTIFICATION_SENT,
+                        requestor.getEmail(),
+                        "email.requestorOnRejectedRequest.success",
+                        null,
+                        csr));
+            }
+        }catch (Throwable throwable){
+            LOG.warn("Problem occurred while sending an rejection eMail to requestor '" + requestor.getEmail() + "'", throwable);
+
+            if(logNotification) {
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_REQUEST_REJECTED_NOTIFICATION_FAILED,
+                        requestor.getEmail(),
+                        "email.requestorOnRejectedRequest.failed",
+                        null,
+                        csr));            }
+        }
     }
 
 
 
     @Transactional
-    public void notifyCertificateRevoked(User requestor, Certificate cert, CSR csr, Set<String> additionalEmailSet ) throws MessagingException {
+    public void notifyCertificateRevoked(User requestor, Certificate cert, CSR csr, Set<String> additionalEmailSet,
+                                         boolean logNotification) throws MessagingException {
 
         if( !doNotifyCertificateRevoked){
             LOG.info("notifyCertificateRevoked deactivated");
@@ -836,9 +944,31 @@ public class NotificationService {
             subject = "";
         }
         String[] args = {subject, cert.getSerial(), cert.getIssuer()};
-        mailService.sendEmailFromTemplate(context, requestor,
-            additionalEmailSet.toArray(new String[0]),
-            "mail/revokedCertificateEmail", "email.revokedCertificate.title", args);
+        try {
+            mailService.sendEmailFromTemplate(context, requestor,
+                additionalEmailSet.toArray(new String[0]),
+                "mail/revokedCertificateEmail",
+                "email.revokedCertificate.title", args);
+
+            if (logNotification) {
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_CERTIFICATE_REVOKED_NOTIFICATION_SENT,
+                        requestor.getEmail(),
+                        "email.requestorOnRevokedCertificate.success",
+                        cert,
+                        csr));
+            }
+        }catch (Throwable throwable){
+            LOG.warn("Problem occurred while sending an rejection eMail to requestor '" + requestor.getEmail() + "'", throwable);
+
+            if(logNotification) {
+                auditService.saveAuditTrace(
+                    auditService.createAuditTraceNotificationAction(AuditService.AUDIT_EMAIL_CERTIFICATE_REVOKED_NOTIFICATION_FAILED,
+                        requestor.getEmail(),
+                        "email.requestorOnRevokedCertificate.failed",
+                        cert,
+                        csr));            }
+        }
     }
 
 

@@ -83,6 +83,18 @@ public class AuditService {
     public static final String AUDIT_EMAIL_SEND_NOTIFICATION_SENT = "EMAIL_SEND_NOTIFICATION_SENT";
     public static final String AUDIT_EMAIL_SEND_NOTIFICATION_FAILED = "EMAIL_SEND_NOTIFICATION_FAILED";
 
+    public static final String AUDIT_EMAIL_CERTIFICATE_ISSUED_NOTIFICATION_SENT = "EMAIL_CERTIFICATE_ISSUED_NOTIFICATION_SENT";
+    public static final String AUDIT_EMAIL_CERTIFICATE_ISSUED_NOTIFICATION_FAILED = "EMAIL_CERTIFICATE_ISSUED_NOTIFICATION_NOTIFICATION_FAILED";
+
+    public static final String AUDIT_EMAIL_CERTIFICATE_REVOKED_NOTIFICATION_SENT = "EMAIL_CERTIFICATE_REVOKED_NOTIFICATION_SENT";
+    public static final String AUDIT_EMAIL_CERTIFICATE_REVOKED_NOTIFICATION_FAILED = "EMAIL_CERTIFICATE_REVOKED_NOTIFICATION_NOTIFICATION_FAILED";
+
+    public static final String AUDIT_EMAIL_REQUEST_REJECTED_NOTIFICATION_SENT = "EMAIL_REQUEST_REJECTED_NOTIFICATION_SENT";
+    public static final String AUDIT_EMAIL_REQUEST_REJECTED_NOTIFICATION_FAILED = "EMAIL_REQUEST_REJECTED_NOTIFICATION_NOTIFICATION_FAILED";
+
+    public static final String AUDIT_EMAIL_EXCESSIVE_CERTIFICATES_NOTIFICATION_SENT = "EMAIL_EXCESSIVE_CERTIFICATES_NOTIFICATION_SENT";
+    public static final String AUDIT_EMAIL_EXCESSIVE_CERTIFICATES_NOTIFICATION_FAILED = "EMAIL_EXCESSIVE_CERTIFICATES_NOTIFICATION_FAILED";
+
     public static final String AUDIT_PREFERENCE_CREATED = "PREFERENCE_CREATED";
     public static final String AUDIT_PREFERENCE_UPDATED = "PREFERENCE_UPDATED";
 
@@ -1188,4 +1200,71 @@ public class AuditService {
         auditTraceRepository.saveAll(auditTraceList);
     }
 
+    public AuditTrace createAuditTraceNotificationAction(String template,
+                                                                        String email,
+                                                                        String notificationType,
+                                                                        Certificate cert,
+                                                                        CSR csr) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            template,
+            email,
+            null,
+            notificationType,
+            csr,
+            cert,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+/*
+    public AuditTrace createAuditTraceCertificateExpiryNotificationSent(String email,
+                                                                        String notificationType,
+                                                                        Certificate cert,
+                                                                        CSR csr) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_EMAIL_SEND_NOTIFICATION_SENT,
+            email,
+            null,
+            notificationType,
+            csr,
+            cert,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+    public AuditTrace createAuditTraceCertificateExpiryNotificationFailed(String email,
+                                                                        String notificationType,
+                                                                        Certificate cert,
+                                                                        CSR csr) {
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_EMAIL_SEND_NOTIFICATION_SENT,
+            email,
+            null,
+            notificationType,
+            csr,
+            cert,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+
+    }
+
+ */
 }

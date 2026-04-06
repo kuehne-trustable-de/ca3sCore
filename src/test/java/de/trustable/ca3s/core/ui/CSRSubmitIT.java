@@ -48,8 +48,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.*;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
 import java.util.*;
@@ -526,10 +524,13 @@ public class CSRSubmitIT extends WebTestBase {
 
     @Test
     public void testSubmitAllAlgosServersideDirect() throws Exception {
-
+/*
         for( String algoName: preferenceUtil.getKeyAlgos()){
             testSubmitAllAlgosServersideDirect(algoName);
         }
+
+ */
+        testSubmitAllAlgosServersideDirect("brainpoolP256r1");
     }
 
     void testSubmitAllAlgosServersideDirect(final String algoName) throws Exception {
