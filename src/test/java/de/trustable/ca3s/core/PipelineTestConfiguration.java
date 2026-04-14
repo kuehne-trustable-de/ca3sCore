@@ -2,10 +2,7 @@ package de.trustable.ca3s.core;
 
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.*;
-import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
-import de.trustable.ca3s.core.repository.PipelineAttributeRepository;
-import de.trustable.ca3s.core.repository.PipelineRepository;
-import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.service.dto.AcmeConfigItems;
 import de.trustable.ca3s.core.service.dto.PipelineView;
@@ -25,6 +22,7 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static de.trustable.ca3s.core.service.dto.ARAContentType.EMAIL_ADDRESS;
@@ -103,6 +101,9 @@ public class PipelineTestConfiguration {
 
     @Autowired
     private BPMNUtil bpmnUtil;
+
+    @Autowired
+    private BPMNProcessInfoRepository bpmnProcessInfoRepository;
 
     private BPMNProcessInfo simpleBPMNProcessInfo;
 
@@ -246,12 +247,11 @@ public class PipelineTestConfiguration {
 
     public BPMNProcessInfo getSimpleBPMNProcessInfo() {
 
-        if( simpleBPMNProcessInfo == null ) {
-            simpleBPMNProcessInfo = addSimpleProcess(SIMPLE_CERTIFICATE_PROCESS,
-                "SimpleCertificateProcess",
-                BPMNProcessType.CERTIFICATE_NOTIFY);
-        }
-        return simpleBPMNProcessInfo;
+        Optional<BPMNProcessInfo> optionalBPMNProcessInfo = bpmnProcessInfoRepository.findByName("SimpleCertificateProcess");
+
+        return optionalBPMNProcessInfo.orElseGet(() -> addSimpleProcess(SIMPLE_CERTIFICATE_PROCESS,
+            "SimpleCertificateProcess",
+            BPMNProcessType.CERTIFICATE_NOTIFY));
     }
 
     public CAConnectorConfig internalTestCAC() {
@@ -1181,7 +1181,6 @@ public class PipelineTestConfiguration {
     }
 
     public BPMNProcessInfo addSimpleProcess(String contentXML, String name, BPMNProcessType type) {
-
 
         String processDefinitionId = bpmnUtil.addModel(contentXML, name);
         LOGGER.debug("Deployed bpmn document with processDefinitionId {} successfully", processDefinitionId);
