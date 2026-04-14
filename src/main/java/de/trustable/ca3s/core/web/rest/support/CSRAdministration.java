@@ -187,19 +187,7 @@ public class CSRAdministration {
     			csrUtil.setStatusAndRejectionReason(csr, CsrStatus.REJECTED, adminData.getRejectionReason());
     			csrRepository.save(csr);
 
-                Set<String> additionalEmailSet = csrUtil.getAdditionalEmailRecipients(csr);
-
-                Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
-    			if( optUser.isPresent()) {
-    				User requestor = optUser.get();
-    		        if (requestor.getEmail() == null) {
-    		        	LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
-    		        }else {
-                        asyncNotificationService.notifyUserCertificateRejectedAsync(requestor, csr, additionalEmailSet );
-    		        }
-    			} else {
-    				LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
-    			}
+                csrUtil.notifyOnRejection(csr);
 
                 updateComment(adminData, csr);
                 updateARAttributes(adminData, csr);

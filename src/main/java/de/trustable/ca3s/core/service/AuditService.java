@@ -52,8 +52,10 @@ public class AuditService {
     public static final String AUDIT_ESTP_CERTIFICATE_CREATED = "EST_CERTIFICATE_CREATED";
     public static final String AUDIT_RA_CERTIFICATE_CREATED = "RA_CERTIFICATE_CREATED";
     public static final String AUDIT_REQUEST_RESTRICTIONS_FAILED = "REQUEST_RESTRICTIONS_FAILED";
-    public static final String AUDIT_REQUEST_AUTHENTICATION_SUCCEEDED = "REQUEST_AUTHENTICATION_SUCCEEDED";
-    public static final String AUDIT_REQUEST_AUTHENTICATION_FAILED = "REQUEST_AUTHENTICATION_FAILED";
+    public static final String AUDIT_REQUEST_AUTHORIZATION_STARTED = "REQUEST_AUTHORIZATION_STARTED";
+    public static final String AUDIT_REQUEST_AUTHORIZATION_SUCCEEDED = "REQUEST_AUTHORIZATION_SUCCEEDED";
+    public static final String AUDIT_REQUEST_AUTHORIZATION_FAILED = "REQUEST_AUTHORIZATION_FAILED";
+    public static final String AUDIT_REQUEST_AUTHORIZATION_REJECTED = "REQUEST_AUTHORIZATION_REJECTED";
     public static final String AUDIT_WEB_CERTIFICATE_CREATED = "WEB_CERTIFICATE_CREATED";
     public static final String AUDIT_CERTIFICATE_REVOKED = "CERTIFICATE_REVOKED";
     public static final String AUDIT_CERTIFICATE_REVOKED_BY_CRL = "CERTIFICATE_REVOKED_BY_CRL";
@@ -583,12 +585,16 @@ public class AuditService {
     }
 
     public AuditTrace createAuditTraceCSRBPMNProcessInfo(String template, CSR csr, BPMNProcessInfo bpmnProcessInfo) {
+        return createAuditTraceCSRBPMNProcessInfo(template, csr, bpmnProcessInfo, null);
+    }
+
+    public AuditTrace createAuditTraceCSRBPMNProcessInfo(String template, CSR csr, BPMNProcessInfo bpmnProcessInfo, String rejectionReason) {
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
         return createAuditTrace(nar.getName(), nar.getRole(),
             template,
             null,
             null,
-            null,
+            rejectionReason,
             csr,
             null,
             null,

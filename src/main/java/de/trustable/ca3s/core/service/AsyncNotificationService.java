@@ -5,6 +5,7 @@ import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,9 @@ public class AsyncNotificationService {
     private final UserRepository userRepository;
     private final CSRUtil csrUtil;
 
-    public AsyncNotificationService(NotificationService notificationService, UserRepository userRepository, CSRUtil csrUtil) {
+    public AsyncNotificationService(NotificationService notificationService,
+                                    UserRepository userRepository,
+                                    @Lazy CSRUtil csrUtil) {
         this.notificationService = notificationService;
         this.userRepository = userRepository;
         this.csrUtil = csrUtil;

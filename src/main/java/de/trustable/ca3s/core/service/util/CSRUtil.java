@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.*;
+import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
@@ -40,7 +41,7 @@ public class CSRUtil {
 	private static final Logger LOG = LoggerFactory.getLogger(CSRUtil.class);
 
 	private final CSRRepository csrRepository;
-
+    private final UserRepository userRepository;
     private final RDNRepository rdnRepository;
 
     private final CSRCommentRepository csrCommentRepository;
@@ -51,12 +52,15 @@ public class CSRUtil {
     private final PipelineUtil pipelineUtil;
 
     private final AuditService auditService;
+    private final AsyncNotificationService asyncNotificationService;
 
-    public CSRUtil(CSRRepository csrRepository, RDNRepository rdnRepository, CSRCommentRepository csrCommentRepository,
+    public CSRUtil(CSRRepository csrRepository, UserRepository userRepository, RDNRepository rdnRepository,
+                   CSRCommentRepository csrCommentRepository,
                    RDNAttributeRepository rdnAttRepository, CsrAttributeRepository csrAttRepository,
                    BadKeysService badKeysService,
-                   CryptoService cryptoUtil, PipelineUtil pipelineUtil, AuditService auditService) {
+                   CryptoService cryptoUtil, PipelineUtil pipelineUtil, AuditService auditService, AsyncNotificationService asyncNotificationService) {
         this.csrRepository = csrRepository;
+        this.userRepository = userRepository;
         this.rdnRepository = rdnRepository;
         this.csrCommentRepository = csrCommentRepository;
         this.rdnAttRepository = rdnAttRepository;
@@ -65,6 +69,7 @@ public class CSRUtil {
         this.cryptoUtil = cryptoUtil;
         this.pipelineUtil = pipelineUtil;
         this.auditService = auditService;
+        this.asyncNotificationService = asyncNotificationService;
     }
 /*
     public PkcsXXData validateCSR(Pkcs10RequestHolder p10ReqHolder, Pipeline pipeline,
@@ -801,6 +806,24 @@ public class CSRUtil {
 		csrAttRepository.save(cAtt);
 	}
 
+    public void notifyOnRejection(CSR csr){
+
+        Set<String> additionalEmailSet = getAdditionalEmailRecipients(csr);
+
+        Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
+        if( optUser.isPresent()) {
+            User requestor = optUser.get();
+            if (requestor.getEmail() == null) {
+                LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
+            }else {
+                asyncNotificationService.notifyUserCertificateRejectedAsync(requestor, csr, additionalEmailSet );
+            }
+        } else {
+            LOG.warn("certificate requestor '{}' unknown!", csr.getRequestedBy());
+        }
+
+
+    }
     public Set<String> getAdditionalEmailRecipients(CSR csr) {
         Set<String> additionalEmailSet = new HashSet<>();
         if (csr.getPipeline() != null) {

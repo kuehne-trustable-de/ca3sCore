@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.repository.*;
+import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.util.CryptoUtil;
@@ -189,6 +190,9 @@ class CSRUtilTest {
     RDNRepository rdnRepository = mock(RDNRepository.class);
 
     @Mock
+    UserRepository userRepository = mock(UserRepository.class);
+
+    @Mock
     CSRRepository csrRepository = mock(CSRRepository.class);
 
     @Mock
@@ -211,10 +215,20 @@ class CSRUtilTest {
     @Mock
     AuditService auditService = mock(AuditService.class);
 
-    CSRUtil csrUtil = new CSRUtil( csrRepository,  rdnRepository,  csrCommentRepository,
-         rdnAttRepository,  csrAttRepository,
-         badKeysService,
-         cryptoUtil,  pipelineUtil,  auditService);
+    @Mock
+    AsyncNotificationService asyncNotificationService = mock(AsyncNotificationService.class);
+
+    CSRUtil csrUtil = new CSRUtil( csrRepository,
+        userRepository,
+        rdnRepository,
+        csrCommentRepository,
+        rdnAttRepository,
+        csrAttRepository,
+        badKeysService,
+        cryptoUtil,
+        pipelineUtil,
+        auditService,
+        asyncNotificationService);
 
     @BeforeEach
     void setUp() throws GeneralSecurityException {
@@ -225,7 +239,6 @@ class CSRUtilTest {
         p10CNNotEqualsSanReq = convertPemToPKCS10CertificationRequest(new ByteArrayInputStream(CN_NOT_EQUALS_SAN_CSR.getBytes()));
         p10CNNotInSansReq = convertPemToPKCS10CertificationRequest(new ByteArrayInputStream(CN_NOT_IN_SANS.getBytes()));
         p10CNMatchingOneOfManySansReq = convertPemToPKCS10CertificationRequest(new ByteArrayInputStream(CN_MATCHING_ONE_OF_SANS.getBytes()));
-
     }
 
     @Test

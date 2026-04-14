@@ -52,35 +52,22 @@ public class BPMNUtil{
     public static final String HISTORIC_PROCESS_DELETION_REASON = "processOutdated";
 
     private final ConfigUtil configUtil;
-
     private final CaConnectorAdapter caConnAdapter;
-
     private final CAConnectorConfigRepository caConnConRepo;
-
 	private final CryptoUtil cryptoUtil;
-
     private final RepositoryService repoService;
-
     private final HistoryService historyService;
-
     private final BPMNProcessInfoRepository bpnmInfoRepo;
     private final BPMNProcessAttributeRepository bpnmAttributeRepo;
-
     private final ProtectedContentUtil protectedContentUtil;
-
     private final CSRRepository csrRepository;
-
+    private final CSRUtil csrUtil;
 	private final CertificateRepository certRepository;
-
     private final CertificateUtil certUtil;
-
     private final NameAndRoleUtil nameAndRoleUtil;
-
     final private AuditService auditService;
-
     final private BPMNAsyncUtil bpmnAsyncUtil;
     private final BPMNExecutor bpmnExecutor;
-
     final private AcmeAccountRepository acmeAccountRepository;
 
     @Autowired
@@ -93,7 +80,7 @@ public class BPMNUtil{
                     BPMNProcessInfoRepository bpnmInfoRepo,
                     BPMNProcessAttributeRepository bpnmAttributeRepo,
                     ProtectedContentUtil protectedContentUtil,
-                    CSRRepository csrRepository,
+                    CSRRepository csrRepository, CSRUtil csrUtil,
                     CertificateRepository certRepository,
                     CertificateUtil certUtil,
                     NameAndRoleUtil nameAndRoleUtil,
@@ -112,6 +99,7 @@ public class BPMNUtil{
         this.bpnmAttributeRepo = bpnmAttributeRepo;
         this.protectedContentUtil = protectedContentUtil;
         this.csrRepository = csrRepository;
+        this.csrUtil = csrUtil;
         this.certRepository = certRepository;
         this.certUtil = certUtil;
         this.nameAndRoleUtil = nameAndRoleUtil;
@@ -650,25 +638,28 @@ public class BPMNUtil{
             LOG.warn("execution of '" + bpmnProcessInfoRequestAuthorization.getName() + "' failed ", e);
         }
 
-        if (BpmnInput.SUCCESS.equals(bpmnOutput.getStatus())) {
+        if (CsrStatus.PENDING.toString().equals(bpmnOutput.getStatus())) {
             LOG.debug("Request authorized by BPMN process {}", bpmnOutput.getProcessInstanceId());
             auditService.saveAuditTrace(
-                auditService.createAuditTraceCSRBPMNProcessInfo(AuditService.AUDIT_REQUEST_AUTHENTICATION_SUCCEEDED, csr, bpmnProcessInfoRequestAuthorization));
-            csr.setStatus(CsrStatus.PENDING);
+                auditService.createAuditTraceCSRBPMNProcessInfo(AuditService.AUDIT_REQUEST_AUTHORIZATION_SUCCEEDED, csr,
+                    bpmnProcessInfoRequestAuthorization));
 
-        } else if (BpmnInput.FAILED.equals(bpmnOutput.getStatus())) {
+        } else if( CsrStatus.REJECTED.toString().equals(bpmnOutput.getStatus())) {
             LOG.debug("Request authorization rejected by BPMN process {}", bpmnOutput.getProcessInstanceId());
             auditService.saveAuditTrace(
-                auditService.createAuditTraceCSRBPMNProcessInfo(AuditService.AUDIT_REQUEST_AUTHENTICATION_FAILED, csr, bpmnProcessInfoRequestAuthorization));
-            csr.setStatus(CsrStatus.REJECTED);
+                auditService.createAuditTraceCSRBPMNProcessInfo(AuditService.AUDIT_REQUEST_AUTHORIZATION_REJECTED, csr,
+                    bpmnProcessInfoRequestAuthorization,
+                    bpmnOutput.getFailureReason()));
 
-        } else if (BpmnInput.PENDING.equals(bpmnOutput.getStatus())) {
-            LOG.debug("Request authorization deferred by BPMN process {}", bpmnOutput.getProcessInstanceId());
-            csr.setStatus(CsrStatus.AUTHORIZING);
+            csrUtil.notifyOnRejection(csr);
+
+        } else if (CsrStatus.AUTHORIZING.toString().equals(bpmnOutput.getStatus())) {
+            LOG.debug("Request authorization ongoing by BPMN process {}", bpmnOutput.getProcessInstanceId());
         } else {
             LOG.warn("Request authorization by BPMN process {} rejected with reason '{}' ", bpmnOutput.getProcessInstanceId(), bpmnOutput.getFailureReason());
             auditService.saveAuditTrace(
-                auditService.createAuditTraceCSRBPMNProcessInfo(AuditService.AUDIT_REQUEST_AUTHENTICATION_FAILED, csr, bpmnProcessInfoRequestAuthorization));
+                auditService.createAuditTraceCSRBPMNProcessInfo(AuditService.AUDIT_REQUEST_AUTHORIZATION_FAILED, csr,
+                    bpmnProcessInfoRequestAuthorization));
             csr.setStatus(CsrStatus.REJECTED);
         }
         csrRepository.save(csr);
