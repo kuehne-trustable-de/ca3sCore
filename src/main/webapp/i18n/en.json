@@ -935,6 +935,7 @@
   "entity.validation.min": "This field should be at least {{ min }}.",
   "entity.validation.minbytes": "This field should be at least {{ min }} bytes.",
   "entity.validation.minlength": "This field is required to be at least {{ min }} characters.",
+  "entity.validation.minmax": "This field should be at least {{min}} and cannot be more than {{max}}.",
   "entity.validation.number": "This field should be a number.",
   "entity.validation.pattern": "This field should follow pattern for '{{ pattern }}'.",
   "entity.validation.patternLogin": "This field can only contain letters, digits and e-mail addresses.",

@@ -906,6 +906,7 @@
   "entity.validation.min": "Dieses Feld muss größer als {{min}} sein.",
   "entity.validation.minbytes": "Dieses Feld sollte mehr als {{min}} bytes haben.",
   "entity.validation.minlength": "Dieses Feld muss mind. {{min}} Zeichen lang sein.",
+  "entity.validation.minmax": "Dieses Feld muss größer als {{min}} und kleiner als {{max}} sein.",
   "entity.validation.number": "Dieses Feld muss eine Zahl sein.",
   "entity.validation.pattern": "Dieses Feld muss das Muster '{{pattern}}' erfüllen.",
   "entity.validation.patternLogin": "Dieses Feld darf nur Buchstaben, Ziffern und E-Mail-Adressen enthalten.",

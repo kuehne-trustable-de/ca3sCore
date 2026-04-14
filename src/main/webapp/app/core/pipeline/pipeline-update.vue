@@ -155,6 +155,11 @@
                                    :class="{'valid': !$v.pipeline.scepConfigItems.periodDaysRenewal.$invalid, 'invalid': $v.pipeline.scepConfigItems.periodDaysRenewal.$invalid }"
                                    v-model="$v.pipeline.scepConfigItems.periodDaysRenewal.$model"/>
 
+                            <div v-if="$v.pipeline.scepConfigItems.periodDaysRenewal.$anyDirty && $v.pipeline.scepConfigItems.periodDaysRenewal.$invalid">
+                                <small class="form-text text-danger"
+                                       v-text="$t('entity.validation.minmax', { min: 0, max: 3650 })"></small>
+                            </div>
+
                             <label v-if="$v.pipeline.scepConfigItems.capabilityRenewal.$model"
                                    class="form-control-label"
                                    v-text="$t('ca3SApp.pipeline.percentageOfValidtyBeforeRenewal')"
@@ -164,6 +169,11 @@
                                    id="pipeline-percentageOfValidtyBeforeRenewal"
                                    :class="{'valid': !$v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$invalid, 'invalid': $v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$invalid }"
                                    v-model="$v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$model"/>
+
+                            <div v-if="$v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$anyDirty && $v.pipeline.scepConfigItems.percentageOfValidtyBeforeRenewal.$invalid">
+                                <small class="form-text text-danger"
+                                       v-text="$t('entity.validation.minmax', { min: 0, max: 100 })"></small>
+                            </div>
                         </div>
 
 
@@ -995,6 +1005,7 @@
                         v-text="$t('entity.action.save')"></span>
                     </button>
                 </div>
+
             </form>
         </div>
     </div>
