@@ -16,6 +16,7 @@ import de.trustable.ca3s.core.service.badkeys.BadKeysService;
 import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.dto.bpmn.BpmnInput;
 import de.trustable.ca3s.core.service.dto.bpmn.BpmnOutput;
+import de.trustable.ca3s.core.service.dto.bpmn.RequestAuthorizationInput;
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.ca3s.core.web.rest.data.CreationMode;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
@@ -693,6 +694,24 @@ public class ContentUploadProcessor {
                             csr = null;
                         }
 
+                    }
+
+                    if( csr != null && pipeline.getProcessInfoRequestAuthorization() != null){
+                        try {
+                            bpmnUtil.requestAuthorizationProcess(pipeline, new RequestAuthorizationInput(csr));
+                        } catch (GeneralSecurityException e) {
+                            LOG.warn("GeneralSecurityException when processing request authorization for CSR #{} : {}", csr.getId(), e.getMessage());
+                            csr.setStatus(CsrStatus.REJECTED);
+                            csrRepository.save(csr);
+                            return null;
+                        }
+
+                        if( !csr.getStatus().equals(CsrStatus.PENDING)){
+                            LOG.info("Request status != 'pending', defer processing!");
+                            return null;
+                        }
+                    }else{
+                        LOG.debug(" No RequestAuthorization process define in pipeline {}", pipeline);
                     }
 
 

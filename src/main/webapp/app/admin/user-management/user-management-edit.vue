@@ -27,6 +27,11 @@
                                    v-text="$t('entity.validation.required')"></small>
                             <small
                                 class="form-text text-danger"
+                                v-if="!$v.userAccount.login.minLength"
+                                v-text="$t('entity.validation.minlength', { min: 5 })"></small>
+
+                            <small
+                                class="form-text text-danger"
                                 v-if="!$v.userAccount.login.maxLength"
                                 v-text="$t('entity.validation.maxlength', { max: 50 })"></small>
 

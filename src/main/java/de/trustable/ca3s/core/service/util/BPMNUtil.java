@@ -249,25 +249,6 @@ public class BPMNUtil{
             if(pipeline != null ) {
                 caConfig = pipeline.getCaConnector();
             }
-
-            if( pipeline != null &&
-                pipeline.getProcessInfoRequestAuthorization() != null){
-                try {
-                    requestAuthorizationProcess(pipeline, new RequestAuthorizationInput(csr));
-                } catch (GeneralSecurityException e) {
-                    LOG.warn("GeneralSecurityException when processing CSR #{} : {}", csr.getId(), e.getMessage());
-                    csr.setStatus(CsrStatus.REJECTED);
-                    csrRepository.save(csr);
-                    return null;
-                }
-
-                if( !csr.getStatus().equals(CsrStatus.PENDING)){
-                    LOG.info("Request status != 'pending', defer processing!");
-                    return null;
-                }
-            }else{
-                LOG.debug(" No RequestAuthorization process define in pipeline {}", pipeline);
-            }
         }
 
 		return startCertificateCreationProcess(csr, caConfig, pipeline);
