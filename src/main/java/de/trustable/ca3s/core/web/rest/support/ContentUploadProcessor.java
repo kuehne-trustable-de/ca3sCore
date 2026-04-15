@@ -706,14 +706,12 @@ public class ContentUploadProcessor {
                             return null;
                         }
 
-                        if( !csr.getStatus().equals(CsrStatus.PENDING)){
-                            LOG.info("Request status != 'pending', defer processing!");
-                            return null;
+                        if( csr.getStatus().equals(CsrStatus.AUTHORIZING)){
+                            LOG.info("Request status == 'AUTHORIZING', defer processing!");
                         }
                     }else{
                         LOG.debug(" No RequestAuthorization process define in pipeline {}", pipeline);
                     }
-
 
                 } catch (KeyApplicableException e) {
                     LOG.info("cpUtil.buildCSR rejects key", e);

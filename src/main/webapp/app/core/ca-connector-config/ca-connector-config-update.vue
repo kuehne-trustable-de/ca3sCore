@@ -28,7 +28,7 @@
                             <option value="DIRECTORY" v-bind:label="$t('ca3SApp.CAConnectorType.DIRECTORY')"></option>
 
                             <option value="VAULT_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.VAULT_INVENTORY')"></option>
-                            <!--option value="VAULT" v-bind:label="$t('ca3SApp.CAConnectorType.VAULT')">VAULT</option-->
+                            <option value="VAULT" v-bind:label="$t('ca3SApp.CAConnectorType.VAULT')">VAULT</option>
                             <option value="EJBCA_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.EJBCA_INVENTORY')"></option>
                         </select>
 
