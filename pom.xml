@@ -183,11 +183,11 @@
         <keycloak.version>26.0.6</keycloak.version>
         <keycloak.adapter.version>25.0.3</keycloak.adapter.version>
 
-        <bouncyCastleVersion>1.83</bouncyCastleVersion>
+        <bouncyCastleVersion>1.84</bouncyCastleVersion>
 
         <spring-vault.version>2.3.4</spring-vault.version>
 
-        <cryptoUtilVersion>1.3.40</cryptoUtilVersion>
+        <cryptoUtilVersion>1.3.41</cryptoUtilVersion>
         <certBundleVersion>1.1.4</certBundleVersion>
         <cmpClientVersion>3.2.0</cmpClientVersion>
         <adcsProxyClientVersion>1.2.9</adcsProxyClientVersion>

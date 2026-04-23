@@ -129,12 +129,12 @@
                         </div>
                     </dd>
 
-                    <dt v-if="icsrView.pipeline && icsrView.pipeline.name && icsrView.pipeline.name.length > 0">
+                    <dt v-if="icsrView.pipelineName &&  icsrView.pipelineName.length > 0">
                         <span v-text="$t('ca3SApp.cSR.pipeline')"></span>
                     </dt>
-                    <dd v-if="icsrView.pipeline && icsrView.pipeline.name && icsrView.pipeline.name.length > 0">
+                    <dd v-if="icsrView.pipelineName &&  icsrView.pipelineName.length > 0">
                         <div>
-                            <router-link :to="{name: 'PipelineView', params: {pipelineId: icsrView.pipeline.id}}">{{ icsrView.pipeline.name }}</router-link>
+                            <router-link :to="{name: 'PipelineView', params: {pipelineId: icsrView.pipelineId}}">{{ icsrView.pipelineName }}</router-link>
                         </div>
                     </dd>
 

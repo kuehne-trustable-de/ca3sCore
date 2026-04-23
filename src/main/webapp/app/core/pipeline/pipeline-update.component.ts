@@ -10,7 +10,9 @@ import {
   IARARestriction,
   IAuditView,
   IBPMNProcessInfo,
-  IBPMNProcessType, ICAConnectorConfig, ICnAsSanRestriction,
+  IBPMNProcessType,
+  ICAConnectorConfig,
+  ICnAsSanRestriction,
   ICsrUsage,
   IKeyAlgoLengthOrSpec,
   IKeyUniqueness,
@@ -381,13 +383,12 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     }
   }
   public isAtLeastOneChallengeSelect(): boolean {
-    if(this.pipeline.type === 'ACME'){
+    if (this.pipeline.type === 'ACME') {
       const acmeConfigItems = this.pipeline.acmeConfigItems;
-      return acmeConfigItems.allowChallengeDNS || acmeConfigItems.allowChallengeHTTP01 || acmeConfigItems.allowChallengeAlpn
+      return acmeConfigItems.allowChallengeDNS || acmeConfigItems.allowChallengeHTTP01 || acmeConfigItems.allowChallengeAlpn;
     }
     return true;
   }
-
 
   public retrieveAllTenants(): void {
     this.tenantService()
@@ -421,20 +422,21 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     });
   }
 
-  public isSaveable(): boolean{
-
-    const objectKeys = Object.keys(this.$v.pipeline) as Array<>;
+  public isSaveable(): boolean {
+    const objectKeys = Object.keys(this.$v.pipeline) as Array<string>;
     for (let key of objectKeys) {
-//      window.console.info('key:' + key);
-      if( !key.toString().startsWith("$") ){
-//        window.console.info('key:' + key + ' has value :' + this.$v.pipeline[key]);
-        if( this.$v.pipeline[key].$invalid ){
-          window.console.info('### key:' + key.toString() + " is invalid");
+      //      window.console.info('key:' + key);
+      if (!key.toString().startsWith('$')) {
+        //        window.console.info('key:' + key + ' has value :' + this.$v.pipeline[key]);
+        if (this.$v.pipeline[key].$invalid) {
+          window.console.info('### key:' + key.toString() + ' is invalid');
         }
       }
     }
 
-    window.console.info( '$v.pipeline.$invalid : ' + this.$v.pipeline.$invalid + ', isAtLeastOneChallengeSelect: ' + this.isAtLeastOneChallengeSelect() );
+    window.console.info(
+      '$v.pipeline.$invalid : ' + this.$v.pipeline.$invalid + ', isAtLeastOneChallengeSelect: ' + this.isAtLeastOneChallengeSelect()
+    );
     return !this.$v.pipeline.$invalid && this.isAtLeastOneChallengeSelect();
   }
 }

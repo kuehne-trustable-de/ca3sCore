@@ -259,6 +259,10 @@ public class CSRView implements Serializable {
         this.approvedOn = csr.getApprovedOn();
         this.acceptedBy = csr.getAcceptedBy();
 
+        this.rejectedOn = csr.getRejectedOn();
+        this.requestedBy = csr.getRequestedBy();
+        this.rejectionReason = csr.getRejectionReason();
+
         if( csr.getComment() != null) {
             this.comment = csr.getComment().getComment();
         }
