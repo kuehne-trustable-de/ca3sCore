@@ -112,7 +112,7 @@
                                   v-on:input="alignRDNArraySize(index, valueIndex)"/>
 
                               <small v-if="rr.name === 'CN' && showContentOrSANWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex].value)"
-                                     class="form-text text-danger" v-text="$t('entity.validation.required')"></small>
+                                     class="form-text text-danger" v-text="$t('entity.validation.requiredOrSAN')"></small>
                               <small v-else-if="showRegExpWarningTV(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
                                      class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': rr.regEx})"></small>
                           </div>
