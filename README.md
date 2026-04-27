@@ -95,7 +95,7 @@ will generate open Vue Project Manager. From there, you'll be able to manage you
 
 To build the final jar and optimize the ca3s application for production, run:
 
-    ./mvnw -Pprod clean verify
+    ./mvnw -Pprod clean verify -DskipTests
 
 This will concatenate and minify the client CSS and JavaScript files. It will also modify `index.html` so it references these new files.
 To ensure everything worked, run:
