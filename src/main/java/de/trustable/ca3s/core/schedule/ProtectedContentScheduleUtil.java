@@ -4,32 +4,20 @@ import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
-import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.util.CSRUtil;
-import de.trustable.ca3s.core.service.util.PasswordUtil;
-import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
 import javax.transaction.Transactional;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Base64;
-import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Service
 public class ProtectedContentScheduleUtil {
@@ -38,15 +26,20 @@ public class ProtectedContentScheduleUtil {
 
     private final ProtectedContentRepository protContentRepository;
     final private CSRRepository csrRepository;
+    final private CAConnectorConfigRepository caConnectorConfigRepository;
+
     final private CSRUtil csrUtil;
     final private AuditService auditService;
 
 
 	public ProtectedContentScheduleUtil(ProtectedContentRepository protContentRepository,
-                                        CSRRepository csrRepository, CSRUtil csrUtil, AuditService auditService ) {
+                                        CSRRepository csrRepository, CAConnectorConfigRepository caConnectorConfigRepository,
+                                        CSRUtil csrUtil,
+                                        AuditService auditService ) {
 
         this.protContentRepository = protContentRepository;
         this.csrRepository = csrRepository;
+        this.caConnectorConfigRepository = caConnectorConfigRepository;
         this.csrUtil = csrUtil;
         this.auditService = auditService;
 
@@ -76,7 +69,17 @@ public class ProtectedContentScheduleUtil {
     @Transactional
     public void deleteExpiredElements(int maxRecordsPerTransaction) {
         Page<ProtectedContent> expiredList = protContentRepository.findByDeleteAfterPassed(PageRequest.of(0, maxRecordsPerTransaction), Instant.now());
-        if (!expiredList.isEmpty()) {
+        if (!expiredList.isEmpty()){
+            for (ProtectedContent pc : expiredList) {
+                if( ContentRelationType.CA_CONNECTOR_PW == pc.getRelationType() ||
+                    ContentRelationType.CONNECTION == pc.getRelationType() ) {
+
+                    caConnectorConfigRepository.findById(pc.getRelatedId()).ifPresent(caConnectorConfig -> {
+                        caConnectorConfig.setSecret(null);
+                        caConnectorConfigRepository.save(caConnectorConfig);
+                    });
+                }
+            }
             log.info("deleting #{} expired ProtectedContent objects", expiredList.getNumberOfElements());
             for (ProtectedContent pc : expiredList) {
                 log.debug("delete protected content due to passed deletion date: {}", pc);
