@@ -39,9 +39,9 @@ public class LDAPConfig {
                       @Value("${ca3s.auth.ldap.roles.ra:}") String rolesRAArr,
                       @Value("${ca3s.auth.ldap.roles.admin:}") String rolesAdminArr,
                       @Value("${ca3s.auth.ldap.roles.other:}") String rolesOtherArr,
-                      @Value("${ca3s.auth.ldap.attributes.firstName:firstName}") String[] attributesFirstName,
-                      @Value("${ca3s.auth.ldap.attributes.lastName:lastName}") String[] attributesLastName,
-                      @Value("${ca3s.auth.ldap.attributes.email:email}") String[] attributesEmail,
+                      @Value("${ca3s.auth.ldap.attributes.firstName:}") String[] attributesFirstName,
+                      @Value("${ca3s.auth.ldap.attributes.lastName:name}") String[] attributesLastName,
+                      @Value("${ca3s.auth.ldap.attributes.email:mail}") String[] attributesEmail,
                       @Value("${ca3s.auth.ldap.attributes.tenant:}") String[] attributesTenant,
                       @Value("${ca3s.auth.ldap.attributes.language:}") String[] attributesLanguage) {
 

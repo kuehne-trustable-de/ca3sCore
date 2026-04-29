@@ -277,7 +277,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     this.pipeline.caConnectorName = 'internal';
     this.pipeline.selectedRolesList = [{ name: 'ROLE_ADMIN' }];
     this.pipeline.selectedTenantList = [];
-    this.requestProxyConfigs = [];
+//    this.requestProxyConfigs = [];
   }
 
   public isWebPipelineType(): boolean {

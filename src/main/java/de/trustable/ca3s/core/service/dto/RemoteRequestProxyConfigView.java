@@ -39,6 +39,7 @@ public class RemoteRequestProxyConfigView implements Serializable {
             }
         }
         this.setAcmeRealmArr(realmList.toArray(new String[0]));
+
     }
 
     public Long getId() {

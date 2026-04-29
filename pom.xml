@@ -8,7 +8,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.34</version>
+    <version>1.2.35</version>
 
     <packaging>jar</packaging>
 
@@ -746,7 +746,11 @@
                 <version>3.27.7</version>
                 <scope>test</scope>
             </dependency>
-
+            <!--dependency>
+                <groupId>xalan</groupId>
+                <artifactId>xalan</artifactId>
+                <version>2.7.3</version>
+            </dependency-->
         </dependencies>
 
     </dependencyManagement>

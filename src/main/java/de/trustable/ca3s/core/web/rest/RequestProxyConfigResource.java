@@ -141,8 +141,12 @@ public class RequestProxyConfigResource {
                 Optional<RequestProxyConfig> requestProxyConfigOptional = requestProxyConfigService.findOne(requestProxyId);
                 Optional<RemoteRequestProxyConfigView> remoteRequestProxyConfigViewOptional = Optional.empty();
                 if (requestProxyConfigOptional.isPresent()) {
-                    remoteRequestProxyConfigViewOptional = Optional.of(
-                        new RemoteRequestProxyConfigView(requestProxyConfigOptional.get()));
+                    RemoteRequestProxyConfigView remoteRequestProxyConfigView =
+                        new RemoteRequestProxyConfigView(requestProxyConfigOptional.get());
+                    if( remoteRequestProxyConfigView.getAcmeRealmArr().length == 0 ){
+                        log.warn("request proxy {} has no active pipelines assigned, check config!",  requestProxyId);
+                    }
+                    remoteRequestProxyConfigViewOptional = Optional.of(remoteRequestProxyConfigView);
                 }
                 return ResponseUtil.wrapOrNotFound(remoteRequestProxyConfigViewOptional);
 

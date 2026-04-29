@@ -90,7 +90,7 @@ public class DashBoardContent {
             String monthLabel = month + "." + year;
             monthDataMap.put(monthLabel, countByType);
             labels[i] = monthLabel;
-            LOG.info("counter setup for month {}", monthLabel);
+            LOG.debug("counter setup for month {}", monthLabel);
 
             month++;
             if(month == 13){

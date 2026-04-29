@@ -185,7 +185,7 @@ public class LDAPUserProviderMapping {
 
             if (authority.getName().equalsIgnoreCase("ROLE_USER")) {
                 if (Arrays.stream(ldapConfig.getRolesUserArr()).anyMatch(role -> {
-                    LOG.info("role '{}' identifying as 'user'", role);
+                    LOG.debug("role '{}' identifying as 'user'", role);
                     if("*".equals(role)){
                         return true;
                     }
@@ -222,7 +222,7 @@ public class LDAPUserProviderMapping {
         }
         X500Name x500NameRoles = new X500Name(roles);
         boolean isPresent = Arrays.stream(x500NameRoles.getRDNs()).allMatch(rdn->(Arrays.asList(rdnArr).contains(rdn)));
-        LOG.info("role '{}' present in member RDNs", roles);
+        LOG.debug("role '{}' present in member RDNs", roles);
         return isPresent;
     }
 
@@ -271,7 +271,7 @@ public class LDAPUserProviderMapping {
                     List<String> valueList = new ArrayList<>();
                     Collections.addAll(valueList, attr.getValues());
                     ldapAttributeMap.put(attr.getName(), valueList);
-                    LOG.info("LDAP attribute '{}' to '{}'", attr.getName(), valueList);
+                    LOG.debug("LDAP attribute '{}' to '{}'", attr.getName(), valueList);
                 }
             }
         }

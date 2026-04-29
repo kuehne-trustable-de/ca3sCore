@@ -94,10 +94,19 @@ public class PipelineTestConfiguration {
     PipelineUtil pipelineUtil;
 
     @Autowired
+    private RequestProxyConfigRepository requestProxyConfigRepository;
+
+    @Autowired
     private ProtectedContentRepository protectedContentRepository;
 
     @Autowired
     private ProtectedContentUtil protectedContentUtil;
+
+    @Autowired
+    private CSRRepository csrRepository;
+
+    @Autowired
+    private AuditTraceRepository auditTraceRepository;
 
     @Autowired
     private BPMNUtil bpmnUtil;
@@ -1190,4 +1199,26 @@ public class PipelineTestConfiguration {
         return bpmnProcessInfo;
     }
 
+    @Transactional
+    public void deleteAllUnusedPipelines() {
+        for (Pipeline pipeline : pipelineRepo.findAll()) {
+            CSR sampleCSR = new CSR();
+            sampleCSR.setPipeline(pipeline);
+            Example<CSR> example = Example.of(sampleCSR);
+            if( csrRepository.findAll(example).isEmpty()){
+                auditTraceRepository.deleteAll( auditTraceRepository.findByPipeline(pipeline));
+                pipelineAttributeRepository.deleteAll(pipeline.getPipelineAttributes());
+                pipelineRepo.delete(pipeline);
+            }
+        }
+    }
+    @Transactional
+    public void deleteAllUnusedRequestProxies() {
+
+        for(RequestProxyConfig requestProxyConfig : requestProxyConfigRepository.findAll()){
+            auditTraceRepository.deleteAll( auditTraceRepository.findByRequestProxyConfig(requestProxyConfig));
+        }
+        requestProxyConfigRepository.deleteAll();
+
+    }
 }
