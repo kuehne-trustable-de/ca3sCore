@@ -57,7 +57,10 @@ public interface AuditTraceRepository extends PagingAndSortingRepository<AuditTr
                                      @Param("scepOrder") ScepOrder scepOrder);
 
     @Query(name = "AuditTrace.findByRequestProxyConfig")
+    List<AuditTrace> findByRequestProxyConfig(@Param("requestProxyConfig") RequestProxyConfig requestProxyConfig);
+
+    @Query(name = "AuditTrace.findByRequestProxyConfig")
     Page<AuditTrace> findByRequestProxyConfig(Pageable pageable,
-                                       @Param("requestProxyConfig") RequestProxyConfig requestProxyConfig);
+                                              @Param("requestProxyConfig") RequestProxyConfig requestProxyConfig);
 
 }

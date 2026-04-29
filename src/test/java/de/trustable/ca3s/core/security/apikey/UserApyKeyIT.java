@@ -11,10 +11,7 @@ import de.trustable.ca3s.core.web.rest.vm.LoginData;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
 import de.trustable.ca3s.core.web.rest.vm.TokenResponse;
 import de.trustable.util.JCAManager;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +66,13 @@ public class UserApyKeyIT {
         System.setProperty("ca3s.auth.api-key.auth-token-header-name", X_API_KEY);
 //        System.setProperty("ca3s.auth.api-key.auth-token-admin", apiKey);
 
+    }
 
+    @AfterAll
+    static void tearDown() {
+        System.clearProperty("ca3s.auth.api-key.enabled");
+        System.clearProperty("ca3s.auth.api-key.auth-token-header-name");
+        System.clearProperty("ca3s.auth.api-key.auth-token-admin");
     }
 
     @Test

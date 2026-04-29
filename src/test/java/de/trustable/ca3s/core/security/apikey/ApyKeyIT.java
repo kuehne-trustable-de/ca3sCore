@@ -1,12 +1,8 @@
 package de.trustable.ca3s.core.security.apikey;
 
 import de.trustable.ca3s.core.Ca3SApp;
-import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.util.JCAManager;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,14 +15,8 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
-import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.util.Locale;
-
-import static de.trustable.ca3s.core.web.rest.acme.AcmeController.REPLAY_NONCE_HEADER;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
@@ -59,6 +49,12 @@ public class ApyKeyIT {
         System.setProperty("ca3s.auth.api-key.auth-token-header-name", X_API_KEY);
         System.setProperty("ca3s.auth.api-key.auth-token-admin", apiKey);
 
+    }
+    @AfterAll
+    static void tearDown() {
+        System.clearProperty("ca3s.auth.api-key.enabled");
+        System.clearProperty("ca3s.auth.api-key.auth-token-header-name");
+        System.clearProperty("ca3s.auth.api-key.auth-token-admin");
     }
 
     @Test

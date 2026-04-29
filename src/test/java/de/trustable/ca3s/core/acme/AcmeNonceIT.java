@@ -5,10 +5,7 @@ import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.service.dto.acme.DirectoryResponse;
 import de.trustable.util.JCAManager;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +76,13 @@ public class AcmeNonceIT {
         System.setProperty("ca3s.dns.port", "" + dnsPort);
         LOG.info("DNS server set to {}", "localhost:" + dnsPort);
     }
+
+    @AfterAll
+    static void tearDown() {
+        System.clearProperty("ca3s.dns.server");
+        System.clearProperty("ca3s.dns.port");
+    }
+
 
     @Test
     public void testNonceRetrievalGet() throws IOException {

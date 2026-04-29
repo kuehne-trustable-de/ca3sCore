@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.util.JCAManager;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -119,8 +120,11 @@ public class AccessRestrictionsIT {
 
         knownRaResources.add("post /api/administerRequest");
         knownRaResources.add("post /api/administerCertificate");
+    }
 
-
+    @AfterAll
+    static void tearDown() {
+        System.clearProperty("springdoc.pathsToMatch");
     }
 
     @Test

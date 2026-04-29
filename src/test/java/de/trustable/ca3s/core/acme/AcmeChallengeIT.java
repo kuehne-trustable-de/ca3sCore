@@ -86,6 +86,12 @@ public class AcmeChallengeIT {
         LOG.info("DNS server set to {}", "localhost:" + dnsPort);
     }
 
+    @AfterAll
+    static void tearDown() {
+        System.clearProperty("ca3s.dns.server");
+        System.clearProperty("ca3s.dns.port");
+    }
+
     @Test
     public void testAccountKeyHandling() throws AcmeException {
 

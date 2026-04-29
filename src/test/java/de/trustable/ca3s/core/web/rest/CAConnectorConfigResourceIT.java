@@ -2,8 +2,12 @@ package de.trustable.ca3s.core.web.rest;
 
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
+import de.trustable.ca3s.core.domain.ProtectedContent;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
+import de.trustable.ca3s.core.schedule.ProtectedContentScheduleUtil;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.CAConnectorConfigService;
 import de.trustable.ca3s.core.service.util.CaConnectorAdapter;
@@ -26,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.Validator;
 
 import javax.persistence.EntityManager;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static de.trustable.ca3s.core.web.rest.TestUtil.createFormattingConversionService;
@@ -107,9 +113,14 @@ public class CAConnectorConfigResourceIT {
     @Autowired
     private AuditService auditService;
 
+    @Autowired
+    private ProtectedContentScheduleUtil protectedContentScheduleUtil;
+
+
     private MockMvc restCAConnectorConfigMockMvc;
 
     private CAConnectorConfig cAConnectorConfig;
+    private CAConnectorConfig cAConnectorConfigWithSecret;
 
     @BeforeEach
     public void setup() {
@@ -166,7 +177,20 @@ public class CAConnectorConfigResourceIT {
 
     @BeforeEach
     public void initTest() {
+
         cAConnectorConfig = createEntity(em);
+
+        cAConnectorConfigWithSecret = createEntity(em);
+        cAConnectorConfigRepository.save(cAConnectorConfigWithSecret);
+
+        ProtectedContent protectedContent = protUtil.createProtectedContent("plainText",
+        ProtectedContentType.PASSWORD,
+        ContentRelationType.CONNECTION,
+            cAConnectorConfigWithSecret.getId(),
+        100,
+        Instant.now().minus(2, ChronoUnit.DAYS) );
+
+        cAConnectorConfigWithSecret.setSecret(protectedContent);
     }
 
     @Test
@@ -176,8 +200,8 @@ public class CAConnectorConfigResourceIT {
 
         // Create the CAConnectorConfig
         restCAConnectorConfigMockMvc.perform(post("/api/ca-connector-configs")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(cAConnectorConfig)))
+                .contentType(TestUtil.APPLICATION_JSON_UTF8)
+                .content(TestUtil.convertObjectToJsonBytes(cAConnectorConfig)))
             .andExpect(status().isCreated());
 
         // Validate the CAConnectorConfig in the database
@@ -194,6 +218,17 @@ public class CAConnectorConfigResourceIT {
         assertThat(testCAConnectorConfig.getInterval()).isEqualTo(DEFAULT_INTERVAL);
 
         assertThat(testCAConnectorConfig.getPlainSecret()).isEqualTo(ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER);
+
+    }
+
+    @Test
+    @Transactional
+    public void checkCAConnectorConfigSecretDeletion() throws Exception {
+
+        assertThat(cAConnectorConfigWithSecret.getSecret()).isNotNull();
+        protectedContentScheduleUtil.deleteExpiredElements(10);
+        assertThat(cAConnectorConfigWithSecret.getSecret()).isNull();
+
     }
 
     @Test

@@ -39,7 +39,6 @@ import java.security.cert.*;
 import java.util.Collection;
 import java.util.Iterator;
 
-//@Disabled("Integration test fails for unknown reason, running it as a separate client succeeds. Maybe a classloader issue? ")
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)

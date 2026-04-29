@@ -2,10 +2,7 @@ package de.trustable.ca3s.core.security.apikey;
 
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.util.JCAManager;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,6 +49,14 @@ public class NullApyKeyIT {
         System.setProperty("ca3s.auth.api-key.auth-token-admin", apiKey);
 
     }
+
+    @AfterAll
+    static void tearDown() {
+        System.clearProperty("ca3s.auth.api-key.enabled");
+        System.clearProperty("ca3s.auth.api-key.auth-token-header-name");
+        System.clearProperty("ca3s.auth.api-key.auth-token-admin");
+    }
+
 
     @Test
     public void testValidAPIKeyGet() {

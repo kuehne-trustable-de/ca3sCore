@@ -4,7 +4,10 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.helper.AuthenticationHelper;
+import de.trustable.ca3s.core.repository.RequestProxyConfigRepository;
 import de.trustable.ca3s.core.service.dto.NamedValues;
+import de.trustable.ca3s.core.service.dto.RequestProxyConfigView;
 import de.trustable.ca3s.core.service.dto.TypedValue;
 import de.trustable.ca3s.core.test.util.UserTestSupport;
 import de.trustable.ca3s.core.ui.helper.Browser;
@@ -13,6 +16,7 @@ import de.trustable.ca3s.core.web.rest.data.CreationMode;
 import de.trustable.ca3s.core.service.dto.PkcsXXData;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
 import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
+import de.trustable.ca3s.core.web.rest.support.RequestProxyConfigAdministration;
 import de.trustable.util.JCAManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
@@ -24,6 +28,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.net.URISyntaxException;
 import java.util.Random;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -60,6 +65,7 @@ public class PipelineAdministrationIT extends WebTestBase{
     public static final By LOC_INP_PIPELINE_WILDCARDS = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-allowWildcards']");
     public static final By LOC_INP_PIPELINE_CHECK_CAA = By.xpath("//div/input [@type = 'checkbox'][@id = 'pipeline-checkCAA']");
 
+    public static final By LOC_SEL_PIPELINE_PROXY_IDS = By.xpath("//div/select [@id = 'pipeline-requestProxyIds']");
 
 //    public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='submit'][span [text() = 'Save']]");
     public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='submit' and @id = 'save-entity']");
@@ -90,6 +96,12 @@ public class PipelineAdministrationIT extends WebTestBase{
 
     @Autowired
     private ContentUploadProcessor contentUploadProcessor;
+
+    @Autowired
+    private RequestProxyConfigAdministration requestProxyConfigAdministration;
+
+    @Autowired
+    private RequestProxyConfigRepository requestProxyConfigRepository;
 
     long createdCertificateId;
     User intTestUser;
@@ -146,6 +158,12 @@ public class PipelineAdministrationIT extends WebTestBase{
 		    driver.manage().window().setSize(new Dimension(2000,768));
 		}
 	}
+    @AfterEach
+    void tearDown() {
+        ptc.deleteAllUnusedPipelines();
+        ptc.deleteAllUnusedRequestProxies();
+    }
+
 
     @Test
     public void testPipelineCreateWeb() {
@@ -447,6 +465,9 @@ public class PipelineAdministrationIT extends WebTestBase{
         click(LOC_SEL_PIPELINE_TYPE);
         selectOptionByValue(LOC_SEL_PIPELINE_TYPE, "ACME");
 
+        // no request proxies designed
+        validateNotPresent(LOC_SEL_PIPELINE_PROXY_IDS);
+
         validatePresent(LOC_INP_PIPELINE_APPROVAL_REQUIRED);
 
         validatePresent(LOC_SEL_PIPELINE_DESCRIPTION);
@@ -500,7 +521,7 @@ public class PipelineAdministrationIT extends WebTestBase{
         validatePresent(byEditPipelineName);
         click(byEditPipelineName);
 
-        // back in the created connector
+        // back in the created pipeline
         validatePresent(LOC_INP_PIPELINE_NAME);
         Assertions.assertEquals(newPipelineName, getText(LOC_INP_PIPELINE_NAME), "Expect the name of the connector");
 
@@ -515,6 +536,123 @@ public class PipelineAdministrationIT extends WebTestBase{
         Assertions.assertEquals( newPipelineUrlPart, getText(LOC_INP_PIPELINE_URL_PART));
 
         checkHelpTargets();
+
+    }
+
+    @Test
+    public void testPipelineCreateACMEProxy() throws URISyntaxException {
+
+        String proxyName = "acme test proxy";
+        String newPipelineName = "Pipeline_" + Math.random();
+        String newPipelineUrlPart = "acme_" + Math.random();
+        String newPipelineDesription = "Description_" + Math.random() + " text, lengthy ... lengthy ... very lengthy ";
+        String newPipelineListOrder = "" + (int)(10 * Math.random());
+
+        AuthenticationHelper.setAuthenticationAdmin();
+
+        RequestProxyConfigView requestProxyConfigView = new RequestProxyConfigView();
+        requestProxyConfigView.setName(proxyName);
+        requestProxyConfigView.setRequestProxyUrl("http://localhost:9090");
+        requestProxyConfigView.setActive(true);
+        requestProxyConfigView.setPlainSecret("s3cr3t!s");
+
+        requestProxyConfigAdministration.createRequestProxyConfig(requestProxyConfigView);
+
+        signIn(USER_NAME_ADMIN, USER_PASSWORD_ADMIN);
+
+        validatePresent(LOC_LNK_CONFIG_MENUE);
+        click(LOC_LNK_CONFIG_MENUE);
+
+        validatePresent(LOC_LNK_PIPELINE_MENUE);
+        click(LOC_LNK_PIPELINE_MENUE);
+
+        validatePresent(LOC_BTN_PIPELINE_NEW);
+        click(LOC_BTN_PIPELINE_NEW);
+
+        validateNotPresent(LOC_SEL_PIPELINE_PROXY_IDS);
+
+        // create new pipeline
+        validatePresent(LOC_INP_PIPELINE_NAME);
+        setText(LOC_INP_PIPELINE_NAME, newPipelineName);
+
+        validatePresent(LOC_INP_PIPELINE_NAME);
+
+        check(LOC_INP_PIPELINE_ACTIVE);
+
+        validatePresent(LOC_SEL_PIPELINE_TYPE);
+        click(LOC_SEL_PIPELINE_TYPE);
+        selectOptionByValue(LOC_SEL_PIPELINE_TYPE, "ACME");
+
+        validatePresent(LOC_SEL_PIPELINE_PROXY_IDS);
+        selectOptionByText(LOC_SEL_PIPELINE_PROXY_IDS, proxyName);
+
+        validatePresent(LOC_INP_PIPELINE_APPROVAL_REQUIRED);
+
+        validatePresent(LOC_SEL_PIPELINE_DESCRIPTION);
+        click(LOC_SEL_PIPELINE_DESCRIPTION);
+        setText(LOC_SEL_PIPELINE_DESCRIPTION, newPipelineDesription);
+
+        validatePresent(LOC_INP_PIPELINE_URL_PART);
+        click(LOC_INP_PIPELINE_URL_PART);
+        setText(LOC_INP_PIPELINE_URL_PART, newPipelineUrlPart);
+
+        validateNotPresent(LOC_INP_PIPELINE_LIST_ORDER);
+
+        validatePresent(LOC_SEL_PIPELINE_CA_CONNECTOR);
+        click(LOC_SEL_PIPELINE_CA_CONNECTOR);
+        selectOptionByText(LOC_SEL_PIPELINE_CA_CONNECTOR, "InternalTestCA" );
+
+        check(LOC_INP_PIPELINE_PENDING_ON_FAILURE);
+        check(LOC_INP_PIPELINE_IP_AS_SUBJECT);
+        check(LOC_INP_PIPELINE_IP_AS_SAN);
+
+        check(LOC_INP_PIPELINE_HTTP01);
+        check(LOC_INP_PIPELINE_ALPN);
+
+        Assertions.assertFalse(isEnabled(LOC_INP_PIPELINE_WILDCARDS));
+        check(LOC_INP_PIPELINE_DNS);
+        Assertions.assertTrue(isEnabled(LOC_INP_PIPELINE_WILDCARDS));
+
+        check(LOC_INP_PIPELINE_WILDCARDS);
+
+        check(LOC_INP_PIPELINE_CHECK_CAA);
+
+        validateNotPresent(LOC_SEL_PIPELINE_USAGE);
+
+        validateNotPresent(LOC_SEL_PIPELINE_ROLES);
+
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
+
+        validatePresent(LOC_TEXT_PIPELINES_LIST);
+
+        By byPipelineName = By.xpath("//table//td [contains(text(), '" + newPipelineName + "')]");
+        validatePresent(byPipelineName);
+
+        click(byPipelineName);
+        By byEditPipelineName = By.xpath("//table//tr [td [contains(text(), '" + newPipelineName + "')]]/td/div/button[span[contains(text(), 'Edit') or contains(text(), 'Bearbeiten')]]");
+
+        validatePresent(byEditPipelineName);
+        click(byEditPipelineName);
+
+        // back in the created pipeline
+        validatePresent(LOC_INP_PIPELINE_NAME);
+        Assertions.assertEquals(newPipelineName, getText(LOC_INP_PIPELINE_NAME), "Expect the name of the connector");
+
+        Assertions.assertEquals(newPipelineName, getText(LOC_INP_PIPELINE_NAME));
+
+        Assertions.assertEquals( newPipelineDesription, getText(LOC_SEL_PIPELINE_DESCRIPTION) );
+
+        Assertions.assertTrue(isChecked(LOC_INP_PIPELINE_ACTIVE));
+
+        validatePresent(LOC_SEL_PIPELINE_PROXY_IDS);
+        Assertions.assertEquals( proxyName, getFirstSelectedOption(LOC_SEL_PIPELINE_PROXY_IDS));
+
+        Assertions.assertEquals( "ACME", getText(LOC_SEL_PIPELINE_TYPE));
+        Assertions.assertEquals( "InternalTestCA", getText(LOC_SEL_PIPELINE_CA_CONNECTOR));
+        Assertions.assertEquals( newPipelineUrlPart, getText(LOC_INP_PIPELINE_URL_PART));
+
+        requestProxyConfigAdministration.createRequestProxyConfig(requestProxyConfigView);
 
     }
 

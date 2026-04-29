@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.util.JCAManager;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,6 +62,10 @@ public class AcmeAlgoRestrictionsIT {
         JCAManager.getInstance();
 	}
 
+    @AfterAll
+    static void tearDown() {
+        System.clearProperty("ca3s.acme.account.checkKeyRestrictions");
+    }
 
     @Test
     public void testAccountHandlingAccountKeyLength() throws AcmeException {

@@ -38,6 +38,7 @@ import java.time.Duration;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -587,6 +588,20 @@ public class LocomotiveBase {
         box.selectByValue(value);
         return this;
     }
+
+    public List<String> getSelectedOptions(By by) {
+        WebElement selectElement = waitForElement(by);
+        Select box = new Select(selectElement);
+        List<WebElement> webElements = box.getAllSelectedOptions();
+        return webElements.stream().map(WebElement::getText).collect(Collectors.toList());
+    }
+
+    public String getFirstSelectedOption(By by) {
+        WebElement selectElement = waitForElement(by);
+        Select box = new Select(selectElement);
+        return box.getFirstSelectedOption().getText();
+    }
+
 
     /* Window / Frame Switching */
 
