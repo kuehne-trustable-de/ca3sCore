@@ -832,6 +832,7 @@ public class NotificationService {
         Locale locale = getUserLocale(requestor);
         Context context = new Context(locale);
 
+        context.setVariable("cert", cert);
         context.setVariable("certId", cert.getId());
 
         String skiBase64 = certificateUtil.getCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SKI);
