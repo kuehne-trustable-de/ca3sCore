@@ -1493,6 +1493,7 @@
   "PROCESSING": "In Bearbeitung",
   "ISSUED": "Ausgestellt",
   "REJECTED": "Abgelehnt",
+  "AUTHORIZING": "Autorisierung",
   "PENDING": "Auf Freigabe wartend",
   "READY": "Fertig",
   "VALID": "Valid",

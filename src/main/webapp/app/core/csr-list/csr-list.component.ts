@@ -122,7 +122,7 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
       itemType: 'set',
       itemDefaultSelector: 'EQUAL',
       itemDefaultValue: 'PENDING',
-      values: ['PENDING', 'ISSUED', 'REJECTED', 'PROCESSING'],
+      values: ['PENDING', 'AUTHORIZING', 'ISSUED', 'REJECTED', 'PROCESSING'],
     },
     { itemName: 'subject', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },
     { itemName: 'sans', itemType: 'string', itemDefaultSelector: 'LIKE', itemDefaultValue: 'trustable' },

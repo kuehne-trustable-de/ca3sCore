@@ -1501,6 +1501,7 @@
   "PROCESSING": "Processing",
   "ISSUED": "Issued",
   "REJECTED": "Rejected",
+  "AUTHORIZING": "Authorizing",
   "PENDING": "Pending",
   "READY": "Ready",
   "VALID": "Valid",
