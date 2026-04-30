@@ -201,7 +201,7 @@ public class Ca3SApp implements InitializingBean {
             .collect(Collectors.toList());
 
         algorithms.forEach(algorithm -> {
-            log.info("Algorithm: {}", algorithm);
+            log.debug("Algorithm: {}", algorithm);
         });
         return trcmh;
 
