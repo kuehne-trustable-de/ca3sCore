@@ -770,7 +770,7 @@ public class NotificationService {
 
         List<CSR> newCsrList = new ArrayList<>();
         newCsrList.add(csr);
-
+        
         List<String> araEmailList = new ArrayList<>();
         if( csr.getPipeline() != null) {
             PipelineView pipelineView = pipelineUtil.from(csr.getPipeline());
@@ -1058,6 +1058,7 @@ public class NotificationService {
 
         for (String araAttribute : emailAttributeList) {
             String emailAttribute = csrUtil.getCSRAttribute(csr, CsrAttribute.ARA_PREFIX + araAttribute);
+            LOG.debug("added email address '{}' from csr ARA attribute '{}'", araAttribute,  emailAttribute);
             addSplittedEMailAddress(recipientList, emailAttribute);
         }
         return recipientList;
@@ -1075,6 +1076,7 @@ public class NotificationService {
         List<String> recipientList = new ArrayList<>();
         for( String araAttribute: emailAttributeList) {
             String emailAttribute = certificateUtil.getCertAttribute(cert, CsrAttribute.ARA_PREFIX + araAttribute, "");
+            LOG.debug("added email address '{}' from certificate ARA attribute '{}'", araAttribute,  emailAttribute);
             addSplittedEMailAddress(recipientList, emailAttribute);
         }
         return recipientList;

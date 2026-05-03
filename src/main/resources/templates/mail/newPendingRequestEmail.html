@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title th:text="#{email.newPendingRequestEmail.title}">New certificate request submitted</title>
+
+        <title th:if="${newCsrList.get(0).status != 'REJECTED'}" th:text="#{email.newPendingRequestEmail.title}">New certificate request submitted</title>
+        <title th:if="${newCsrList.get(0).status == 'REJECTED'}" th:text="#{email.newPendingRequestEmail.rejected.title}">New certificate request rejected</title>
+
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
         <style>
@@ -38,15 +41,15 @@
                 <th>SANs</th>
                 <th>requested by</th>
                 <th>requested on</th>
-                <!--th>details</th-->
+                <th>status</th>
             </tr>
             <tr th:each="csr : ${newCsrList}">
-                <td th:text="${csr.id}"></td>
+                <td><a th:with="url=(@{|${baseUrl}/csr-info?id=${csr.id}|})" th:href="${url}" th:text="#{email.notification.csr.RA.link}">CSR details</a></td>
                 <td th:text="${csr.subject}"></td>
                 <td th:text="${csr.sans}"></td>
                 <td th:text="${csr.requestedBy}"></td>
                 <td th:text="${#dates.format(csr.requestedOn, 'dd.MM.yyyy, HH:mm')}"></td>
-
+                <td th:text="${csr.status}"></td>
                 <!--td><a th:with="url=(@{|${baseUrl}/csr-info?id=${csr.id}|})" th:href="${url}" th:text="#{email.notification.csr.RA.link}">CSR details</a></td-->
             </tr>
         </table>

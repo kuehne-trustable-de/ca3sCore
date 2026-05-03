@@ -16,6 +16,7 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -161,6 +162,7 @@ public class CSRContentProcessorIT {
         assertEquals(PKCSDataType.CSR, pkcsXXData.getDataType());
 
         if( pkcsXXData.getWarnings() != null) {
+            Arrays.stream(pkcsXXData.getWarnings()).forEach(System.out::println);
             assertEquals(0, pkcsXXData.getWarnings().length);
         }
         assertTrue(pkcsXXData.getP10Holder().isCSRValid());
