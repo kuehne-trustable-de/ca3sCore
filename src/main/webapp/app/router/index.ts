@@ -800,313 +800,313 @@ export default new Router({
       path: '/acme-account/new',
       name: 'AcmeAccountCreate',
       component: AcmeAccountUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-account/:aCMEAccountId/edit',
       name: 'AcmeAccountEdit',
       component: AcmeAccountUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-account/:aCMEAccountId/view',
       name: 'AcmeAccountView',
       component: AcmeAccountDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/acme-contact',
       name: 'AcmeContact',
       component: AcmeContact,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-contact/new',
       name: 'AcmeContactCreate',
       component: AcmeContactUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-contact/:acmeContactId/edit',
       name: 'AcmeContactEdit',
       component: AcmeContactUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-contact/:acmeContactId/view',
       name: 'AcmeContactView',
       component: AcmeContactDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/acme-order',
       name: 'AcmeOrder',
       component: AcmeOrder,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-order/new',
       name: 'AcmeOrderCreate',
       component: AcmeOrderUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-order/:acmeOrderId/edit',
       name: 'AcmeOrderEdit',
       component: AcmeOrderUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-order/:acmeOrderId/view',
       name: 'AcmeOrderView',
       component: AcmeOrderDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/identifier',
       name: 'Identifier',
       component: Identifier,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/identifier/new',
       name: 'IdentifierCreate',
       component: IdentifierUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/identifier/:identifierId/edit',
       name: 'IdentifierEdit',
       component: IdentifierUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/identifier/:identifierId/view',
       name: 'IdentifierView',
       component: IdentifierDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/authorization',
       name: 'Authorization',
       component: Authorization,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/authorization/new',
       name: 'AuthorizationCreate',
       component: AuthorizationUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/authorization/:authorizationId/edit',
       name: 'AuthorizationEdit',
       component: AuthorizationUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/authorization/:authorizationId/view',
       name: 'AuthorizationView',
       component: AuthorizationDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/acme-challenge',
       name: 'AcmeChallenge',
       component: AcmeChallenge,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-challenge/new',
       name: 'AcmeChallengeCreate',
       component: AcmeChallengeUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-challenge/:acmeChallengeId/edit',
       name: 'AcmeChallengeEdit',
       component: AcmeChallengeUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-challenge/:acmeChallengeId/view',
       name: 'AcmeChallengeView',
       component: AcmeChallengeDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/nonce',
       name: 'Nonce',
       component: Nonce,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/nonce/new',
       name: 'NonceCreate',
       component: NonceUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/nonce/:nonceId/edit',
       name: 'NonceEdit',
       component: NonceUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/nonce/:nonceId/view',
       name: 'NonceView',
       component: NonceDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/imported-url',
       name: 'ImportedURL',
       component: ImportedURL,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/imported-url/new',
       name: 'ImportedURLCreate',
       component: ImportedURLUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/imported-url/:importedURLId/edit',
       name: 'ImportedURLEdit',
       component: ImportedURLUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/imported-url/:importedURLId/view',
       name: 'ImportedURLView',
       component: ImportedURLDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/acme-identifier',
       name: 'AcmeIdentifier',
       component: AcmeIdentifier,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-identifier/new',
       name: 'AcmeIdentifierCreate',
       component: AcmeIdentifierUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-identifier/:acmeIdentifierId/edit',
       name: 'AcmeIdentifierEdit',
       component: AcmeIdentifierUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-identifier/:acmeIdentifierId/view',
       name: 'AcmeIdentifierView',
       component: AcmeIdentifierDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/acme-authorization',
       name: 'AcmeAuthorization',
       component: AcmeAuthorization,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-authorization/new',
       name: 'AcmeAuthorizationCreate',
       component: AcmeAuthorizationUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-authorization/:acmeAuthorizationId/edit',
       name: 'AcmeAuthorizationEdit',
       component: AcmeAuthorizationUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-authorization/:acmeAuthorizationId/view',
       name: 'AcmeAuthorizationView',
       component: AcmeAuthorizationDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/acme-nonce',
       name: 'AcmeNonce',
       component: AcmeNonce,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-nonce/new',
       name: 'AcmeNonceCreate',
       component: AcmeNonceUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-nonce/:acmeNonceId/edit',
       name: 'AcmeNonceEdit',
       component: AcmeNonceUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/acme-nonce/:acmeNonceId/view',
       name: 'AcmeNonceView',
       component: AcmeNonceDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/bpnm-process-info',
       name: 'BPNMProcessInfo',
       component: BPNMProcessInfo,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/bpnm-process-info/new',
       name: 'BPNMProcessInfoCreate',
       component: BPNMProcessInfoUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/bpnm-process-info/:bPNMProcessInfoId/edit',
       name: 'BPNMProcessInfoEdit',
       component: BPNMProcessInfoUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/bpnm-process-info/:bPNMProcessInfoId/view',
       name: 'BPNMProcessInfoView',
       component: BPNMProcessInfoDetails,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     }
     ,
     {
       path: '/request-proxy-config',
       name: 'RequestProxyConfig',
       component: RequestProxyConfig,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/request-proxy-config/new',
       name: 'RequestProxyConfigCreate',
       component: RequestProxyConfigUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     {
       path: '/request-proxy-config/:requestProxyConfigId/edit',
       name: 'RequestProxyConfigEdit',
       component: RequestProxyConfigUpdate,
-      meta: { authorities: ['ROLE_USER'] }
+      meta: { authorities: ['ROLE_ADMIN'] }
     },
     // jhipster-needle-add-entity-to-router - JHipster will add entities to the router here
   ],
