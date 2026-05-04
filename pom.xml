@@ -1999,13 +1999,9 @@
                                 <password>${dockerAccessTokens}</password>
                             </auth>
                         </to>
-                        <container>
-                            <entrypoint>
-                                <shell>bash</shell>
-                                <option>-c</option>
-                                <!--arg>chmod +x /entrypoint.sh &amp;&amp; sync &amp;&amp; /entrypoint.sh</arg-->
-                                <arg>/entrypoint.sh</arg>
-                            </entrypoint>
+			<containerizingMode>packaged</containerizingMode>
+			<container>
+	                    <entrypoint>java,-jar,/app/${project.build.finalName}.jar</entrypoint>
                             <ports>
                                 <port>8080</port>
                                 <port>8442-8446</port>
@@ -2017,14 +2013,14 @@
                             <creationTime>USE_CURRENT_TIMESTAMP</creationTime>
                             <user>1000</user>
                         </container>
-                        <extraDirectories>
-                            <paths>src/main/docker/jib</paths>
-                            <permissions>
-                                <permission>
-                                    <file>/entrypoint.sh</file>
-                                    <mode>755</mode>
-                                </permission>
-                            </permissions>
+			<extraDirectories>
+                        <paths>
+                          <path>
+                            <from>target/</from>
+                            <includes>*.jar</includes>
+                            <into>/app</into>
+                          </path>
+                        </paths>
                         </extraDirectories>
                     </configuration>
                 </plugin>
