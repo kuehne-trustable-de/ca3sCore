@@ -29,6 +29,7 @@ package de.trustable.ca3s.core.service.dto.acme;
 import javax.annotation.concurrent.Immutable;
 import javax.persistence.Transient;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,8 @@ public class AccountResponse {
 	@Transient
 	transient Logger logger = LoggerFactory.getLogger(AccountResponse.class);
 
-	@JsonProperty("id")
+//	@JsonProperty("id")
+    @JsonIgnore
 	private long id;
 
 	@JsonProperty("status")

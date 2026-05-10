@@ -23,6 +23,7 @@ import de.trustable.ca3s.core.web.rest.ApiTokenController;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
 import de.trustable.ca3s.core.web.rest.vm.TokenResponse;
 import de.trustable.util.JCAManager;
+import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -321,10 +322,10 @@ public class AcmeHappyPathIT {
 	}
 
     @Test
-    @WithMockUser(username  = "user", authorities = { "USER" })
+    @WithMockUser(username  = "user1", authorities = { "USER" })
     public void testAccountEABHandling() throws AcmeException {
 
-        User user = userUtil.getUserByLogin("user");
+        User user = userUtil.getUserByLogin("user1");
 
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setValiditySeconds(3600);
@@ -420,8 +421,9 @@ public class AcmeHappyPathIT {
         URL accountLocationUrl = account.getLocation();
         LOG.info("accountLocationUrl {}", accountLocationUrl);
 
-
-        Optional<AcmeAccount> accountOptional = acmeAccountRepository.findByAccountId(Long.parseLong(account.getJSON().get("id").asString()));
+        String accountId = StringUtils.substringAfter( accountLocationUrl.toString(), "/acct/");
+        Optional<AcmeAccount> accountOptional = acmeAccountRepository.findByAccountId(Long.parseLong(accountId));
+//        Optional<AcmeAccount> accountOptional = acmeAccountRepository.findByAccountId(Long.parseLong(account.getJSON().get("id").asString()));
         Assertions.assertTrue(accountOptional.isPresent());
         AcmeAccount acmeAccount = accountOptional.get();
         Assertions.assertTrue( acmeAccount.getEabKid().startsWith("ca3s:user:"));
