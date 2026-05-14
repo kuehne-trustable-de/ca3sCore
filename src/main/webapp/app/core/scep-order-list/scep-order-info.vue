@@ -5,8 +5,6 @@
                 <h2 class="jh-entity-heading"><span v-text="$t('ca3SApp.scepOrder.home.title')">ACME Order</span> {{scepOrderView.id}}</h2>
                 <dl class="row jh-entity-details">
 
-
-
                     <dt>
                         <span v-text="$t('ca3SApp.scepOrder.transId')">transId</span>
                     </dt>
@@ -91,7 +89,6 @@
                     </dd>
 
                     <dt>
-                        hfhfhfh
                     </dt>
                     <dd>
                         <audit-tag :scepOrderId="scepOrderView.id" showLinks="true"></audit-tag>

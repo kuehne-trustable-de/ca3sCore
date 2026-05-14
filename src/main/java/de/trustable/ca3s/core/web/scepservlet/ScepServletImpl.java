@@ -190,7 +190,14 @@ public class ScepServletImpl extends ScepServlet {
             throw new OperationFailureException(FailInfo.badRequest);
         }
 
-        LOGGER.debug("doEnrol(" + csr.toString() + ", " + transId.toString() +") using pipeline '{}'", pipeline.getName());
+
+        try {
+            if(LOGGER.isDebugEnabled()) {
+                LOGGER.debug("doEnrol(" + Base64.getEncoder().encodeToString(csr.getEncoded()) + ", " + transId.toString() + ") using pipeline '{}'", pipeline.getName());
+            }
+        } catch (IOException e) {
+            LOGGER.warn("doEnrol: problem printing PKCS10CertificationRequest", e);
+        }
 
         ScepOrder scepOrder = new ScepOrder();
         scepOrder.setPipeline(pipeline);
