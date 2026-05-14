@@ -16,7 +16,7 @@
                 </b-alert>
                 <br/>
 
-                <div>
+                <div :key="updateCounter">
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.name')"
                                for="pipeline-name"></label>
@@ -117,7 +117,8 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.caConnector')"
                                for="pipeline-caConnector"></label>
                         <help-tag role="Admin" target="pipeline.ca-connector"/>
-                        <a href="">{{ pipeline.caConnectorName }} </a>
+                        <router-link :to="{name: 'ConfCaConnectorEdit', params: {cAConnectorConfigId: pipeline.caConnectorId, mode: 'edit'}}">{{ pipeline.caConnectorName }}</router-link>
+
                         <select class="form-control" id="pipeline-caConnector" name="caConnector"
                                 :class="{'valid': !$v.pipeline.caConnectorName.$invalid, 'invalid': $v.pipeline.caConnectorName.$invalid }"
                                 v-model="pipeline.caConnectorName">
@@ -244,13 +245,17 @@
                                     value="KEY_REUSE_WARN_ONLY"></option>
                         </select>
                     </div>
+                    <div v-if="$v.pipeline.keyUniqueness.$invalid">
+                        <small class="form-text text-danger"
+                               v-text="$t('entity.validation.required')"></small>
+                    </div>
 
                     <div v-if="pipeline.type === 'WEB'" class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.cn-san.restriction')"
                                for="pipeline-cn-san-restriction"></label>
                         <help-tag role="Admin" target="pipeline.cn-san.restriction"/>
                         <select class="form-control" id="pipeline-cn-san-restriction" name="pipeline-cn-san-restriction"
-                                v-model="pipeline.cnAsSanRestriction">
+                                v-model="$v.pipeline.cnAsSanRestriction.$model">
                             <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.ignore')"
                                     value="CN_AS_SAN_IGNORE"></option>
                             <option v-text="$t('ca3SApp.pipeline.cn-san.restriction.warn')"
@@ -259,6 +264,11 @@
                                     value="CN_AS_SAN_REQUIRED"></option>
                         </select>
                     </div>
+                    <div v-if="$v.pipeline.cnAsSanRestriction.$invalid">
+                        <small class="form-text text-danger"
+                               v-text="$t('entity.validation.required')"></small>
+                    </div>
+
 
                     <table v-if="pipeline.type !== 'MANUAL_UPLOAD'" class="table">
                         <thead class="thead-light">
@@ -568,6 +578,7 @@
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.ara.required')"
                                        for="pipeline-ara-required"></label>
                             </th>
+                            <th></th>
                         </tr>
                         </thead>
                         <tbody>
@@ -608,6 +619,10 @@
                             <td>
                                 <input type="checkbox" class="form-check-inline" name="pipeline-ara-required"
                                        id="pipeline-ara-required" v-model="pipeline.araRestrictions[index].required"/>
+                            </td>
+                            <td>
+                                <font-awesome-icon v-if="index > 0" icon="caret-up" v-on:click="moveAraItemUp(index)"></font-awesome-icon>
+                                <font-awesome-icon v-if="(index + 1) < pipeline.araRestrictions.length" icon="caret-down" v-on:click="moveAraItemDown(index)"></font-awesome-icon>
                             </td>
                         </tr>
                         </tbody>

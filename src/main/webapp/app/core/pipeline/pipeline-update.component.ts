@@ -152,30 +152,13 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   public domainRAs: IUser[] = [];
 
   public isSaving = false;
+  public updateCounter = 1;
 
   public networkCollapsed = true;
   public setNetworkCollapsed(networkCollapsed: boolean) {
     this.networkCollapsed = networkCollapsed;
   }
 
-  public alignARAArraySize(index: number): void {
-    window.console.info('in alignARAArraySize(' + index + ')');
-    const currentSize = this.pipeline.araRestrictions.length;
-    const name = this.pipeline.araRestrictions[index].name || '';
-
-    if (name.trim().length === 0) {
-      if (currentSize > 1) {
-        // preserve last element
-        this.pipeline.araRestrictions.splice(index, 1);
-        window.console.info('in alignARAArraySize(' + index + '): dropped empty element');
-      }
-    } else {
-      if (index + 1 === currentSize) {
-        this.pipeline.araRestrictions.push({});
-        window.console.info('in alignARAArraySize(' + index + '): appended one element');
-      }
-    }
-  }
 
   public alignNetworkAcceptArraySize(index: number): void {
     this.alignNetworkArraySize(this.pipeline.networkAcceptArr, index);
@@ -382,6 +365,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       pipeline.networkRejectArr.push('');
     }
   }
+
   public isAtLeastOneChallengeSelect(): boolean {
     if (this.pipeline.type === 'ACME') {
       const acmeConfigItems = this.pipeline.acmeConfigItems;
@@ -439,6 +423,47 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     );
     return !this.$v.pipeline.$invalid && this.isAtLeastOneChallengeSelect();
   }
+
+  public moveAraItemUp(index:number):void{
+    window.console.info('in moveAraItemUp(' + index + ')');
+    if( index > 0){
+      const tmp = this.pipeline.araRestrictions[index -1];
+      this.pipeline.araRestrictions[index -1] = this.pipeline.araRestrictions[index];
+      this.pipeline.araRestrictions[index] = tmp;
+      this.updateCounter++;
+    }
+  }
+
+  public moveAraItemDown(index:number):void{
+    window.console.info('in moveAraItemDown(' + index + ')');
+    const currentSize = this.pipeline.araRestrictions.length;
+    if( index + 1 < currentSize){
+      const tmp = this.pipeline.araRestrictions[index + 1];
+      this.pipeline.araRestrictions[index + 1] = this.pipeline.araRestrictions[index];
+      this.pipeline.araRestrictions[index] = tmp;
+      this.updateCounter++;
+    }
+  }
+
+  public alignARAArraySize(index: number): void {
+    window.console.info('in alignARAArraySize(' + index + ')');
+    const currentSize = this.pipeline.araRestrictions.length;
+    const name = this.pipeline.araRestrictions[index].name || '';
+
+    if (name.trim().length === 0) {
+      if (currentSize > 1) {
+        // preserve last element
+        this.pipeline.araRestrictions.splice(index, 1);
+        window.console.info('in alignARAArraySize(' + index + '): dropped empty element');
+      }
+    } else {
+      if (index + 1 === currentSize) {
+        this.pipeline.araRestrictions.push({});
+        window.console.info('in alignARAArraySize(' + index + '): appended one element');
+      }
+    }
+  }
+
 }
 
 export class PipelineView implements IPipelineView {

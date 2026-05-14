@@ -57,6 +57,10 @@ import { faSortAmountUp } from '@fortawesome/free-solid-svg-icons/faSortAmountUp
 import { faSortAmountDown } from '@fortawesome/free-solid-svg-icons/faSortAmountDown';
 import { faFileCsv } from '@fortawesome/free-solid-svg-icons/faFileCsv';
 
+import { faCaretUp } from '@fortawesome/free-solid-svg-icons/faCaretUp';
+import { faCaretDown } from '@fortawesome/free-solid-svg-icons/faCaretDown';
+
+
 import VueCookie from 'vue-cookie';
 import Vuelidate from 'vuelidate';
 import Vue2Filters from 'vue2-filters';
@@ -207,7 +211,9 @@ export function initFortAwesome(vue) {
     faInfoCircle,
     faSortAmountUp,
     faSortAmountDown,
-    faFileCsv
+    faFileCsv,
+    faCaretUp,
+    faCaretDown
   );
 }
 
