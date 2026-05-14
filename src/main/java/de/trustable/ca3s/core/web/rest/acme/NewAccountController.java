@@ -123,7 +123,7 @@ public class NewAccountController extends AcmeController {
 
     ResponseEntity<?> consumeWithConverter(final String requestBody, final String realm, final String forwardedHost) {
 
-        LOG.info("New ACCOUNT requested for realm {} using requestbody \n {}", realm, requestBody);
+        LOG.debug("New ACCOUNT requested for realm {} using request body \n {}", realm, requestBody);
 
         AcmeAccount acctDaoReturn;
 

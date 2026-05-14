@@ -334,8 +334,8 @@ public class CertificateAdministration {
     @PostMapping("/sendExpiringCertificateEmail")
     @Transactional
     public ResponseEntity<Integer> sendExpiringCertificateEmail() {
-        int nExpiringCerts = certExpiryScheduler.notifyRAOfficerHolderOnExpiry();
-        return new ResponseEntity<>(nExpiringCerts, HttpStatus.OK);
+        certExpiryScheduler.notifyRAOfficerHolderOnExpiry();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 //    selfAdministerCertificate

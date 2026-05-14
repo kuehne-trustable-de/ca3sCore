@@ -302,7 +302,7 @@ ca3s:
   #    https: true
 
   # settings for admin user access, binding to a specific subnet, only
-  #   adminAccess:
+  #  adminAccess:
   #     port: 8444
   #     https: true
   #     bindingHost: 192.168.32.0

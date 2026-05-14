@@ -222,7 +222,7 @@ public class CSRUtil {
             setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_MFG, algorithmInfo.getMfgName(), false);
         }
 
-		LOG.debug("RDN arr #" + p10ReqHolder.getSubjectRDNs().length);
+		LOG.debug("RDN arr #{}", p10ReqHolder.getSubjectRDNs().length);
 
 		Set<RDN> newRdns = new HashSet<>();
 
@@ -231,7 +231,7 @@ public class CSRUtil {
 			RDN rdn = new RDN();
 			rdn.csr(csr);
 
-			LOG.debug("AttributeTypeAndValue arr #" + currentRdn.size());
+			LOG.debug("AttributeTypeAndValue arr #{}", currentRdn.size());
 			Set<RDNAttribute> rdnAttributes = new HashSet<>();
 
 			AttributeTypeAndValue[] attrTVArr = currentRdn.getTypesAndValues();
@@ -319,7 +319,7 @@ public class CSRUtil {
 					rdn.setRdnAttributes(rdnAttributes);
 					newRdns.add(rdn);
 
-					LOG.info("First DNS SAN inserted as CN: " + gName.getName().toString());
+					LOG.info("First DNS SAN inserted as CN: {}", gName.getName().toString());
 					break; // just one CN !
 				}
 			}
@@ -339,11 +339,11 @@ public class CSRUtil {
 			Set<RequestAttributeValue> requestAttributes = new HashSet<>();
 			String type = attr.getAttrType().toString();
 			ASN1Set valueSet = attr.getAttrValues();
-			LOG.debug("AttributeSet type " + type + " #" + valueSet.size());
+			LOG.debug("AttributeSet type {} #{}", type, valueSet.size());
 
 			for (ASN1Encodable asn1Enc : valueSet.toArray()) {
 				String value = asn1Enc.toString();
-				LOG.debug("Attribute value " + value);
+				LOG.debug("Attribute value {}", value);
 
 				RequestAttributeValue reqAttrValue = new RequestAttributeValue();
 				reqAttrValue.setReqAttr(reqAttrs);
@@ -466,19 +466,19 @@ public class CSRUtil {
     public static void retrieveSANFromCSRAttribute(Set<GeneralName> sanSet, Attribute attrExtension ){
 
         ASN1Set valueSet = attrExtension.getAttrValues();
-        LOG.info( "ExtensionRequest / AttrValues has " + valueSet.size() + " elements" );
+        LOG.info( "ExtensionRequest / AttrValues has {} elements", valueSet.size() );
         for (ASN1Encodable asn1Enc : valueSet) {
 
             if( asn1Enc instanceof DERSequence ) {
 	            DERSequence derSeq = (DERSequence)asn1Enc;
-	            LOG.debug( "ExtensionRequest / DERSequence has "+derSeq.size()+" elements" );
+	            LOG.debug( "ExtensionRequest / DERSequence has {} elements", +derSeq.size() );
 	            extractSANsFromArray(sanSet, derSeq.toArray());
             }else if( asn1Enc instanceof DLSequence ) {
             	DLSequence dlSeq = (DLSequence)asn1Enc;
-	            LOG.debug( "ExtensionRequest / DLSequence has "+dlSeq.size()+" elements" );
+	            LOG.debug( "ExtensionRequest / DLSequence has {} elements", dlSeq.size() );
 	            extractSANsFromArray(sanSet, dlSeq.toArray());
             } else {
-                LOG.info( "asn1Enc in valueSet is of an unexpected type " + asn1Enc.getClass().getName());
+                LOG.info( "asn1Enc in valueSet is of an unexpected type {}", asn1Enc.getClass().getName());
             }
         }
 
@@ -493,43 +493,43 @@ public class CSRUtil {
 	static void extractSANsFromArray(Set<GeneralName> sanSet, ASN1Encodable[] asn1Array) {
 		for( ASN1Encodable asn1Enc : asn1Array) {
 
-			LOG.debug( "ExtensionRequest / asn1Enc2 is a " + asn1Enc.getClass().getName());
+			LOG.debug( "ExtensionRequest / asn1Enc2 is a {}", asn1Enc.getClass().getName());
 
 		    ASN1Encodable asn1EncValue;
 		    ASN1ObjectIdentifier objId;
 
             if( asn1Enc instanceof DERSequence ) {
     		    DERSequence derSeq2 = (DERSequence) asn1Enc;
-    		    LOG.debug( "ExtensionRequest / DERSequence2 has " + derSeq2.size() + " elements");
-                LOG.debug( "ExtensionRequest / DERSequence2[0] is a " + derSeq2.getObjectAt(0).getClass().getName());
-                LOG.debug( "ExtensionRequest / DERSequence2[1] is a " + derSeq2.getObjectAt(1).getClass().getName());
+    		    LOG.debug( "ExtensionRequest / DERSequence2 has {} elements", derSeq2.size());
+                LOG.debug( "ExtensionRequest / DERSequence2[0] is a {}", derSeq2.getObjectAt(0).getClass().getName());
+                LOG.debug( "ExtensionRequest / DERSequence2[1] is a {}", derSeq2.getObjectAt(1).getClass().getName());
 
     		    objId = (ASN1ObjectIdentifier) (derSeq2.getObjectAt(0));
     		    asn1EncValue = derSeq2.getObjectAt(1);
                 if( (derSeq2.size() > 2) && !(asn1EncValue instanceof DEROctetString)){
-                    LOG.debug( "ExtensionRequest / DERSequence2[2] is a " + derSeq2.getObjectAt(2).getClass().getName());
+                    LOG.debug( "ExtensionRequest / DERSequence2[2] is a {}", derSeq2.getObjectAt(2).getClass().getName());
                     asn1EncValue = derSeq2.getObjectAt(2);
                 }
 
             }else if( asn1Enc instanceof DLSequence ) {
             	DLSequence dlSeq = (DLSequence)asn1Enc;
-	            LOG.debug( "DLSequence has "+dlSeq.size()+" elements" );
-                LOG.debug( "ExtensionRequest / DLSequence[0] is a " + dlSeq.getObjectAt(0).getClass().getName());
-                LOG.debug( "ExtensionRequest / DLSequence[1] is a " + dlSeq.getObjectAt(1).getClass().getName());
+	            LOG.debug( "DLSequence has {} elements", dlSeq.size() );
+                LOG.debug( "ExtensionRequest / DLSequence[0] is a {}", dlSeq.getObjectAt(0).getClass().getName());
+                LOG.debug( "ExtensionRequest / DLSequence[1] is a {}", dlSeq.getObjectAt(1).getClass().getName());
 
     		    objId = (ASN1ObjectIdentifier) (dlSeq.getObjectAt(0));
     		    asn1EncValue = dlSeq.getObjectAt(1);
                 if( (dlSeq.size() > 2) && !(asn1EncValue instanceof DEROctetString)){
-                    LOG.debug( "ExtensionRequest / DLSequence[2] is a " + dlSeq.getObjectAt(2).getClass().getName());
+                    LOG.debug( "ExtensionRequest / DLSequence[2] is a {}", dlSeq.getObjectAt(2).getClass().getName());
                     asn1EncValue = dlSeq.getObjectAt(2);
                 }
 
             } else {
-                LOG.info( "asn1Enc in asn1Array is of an unexpected type " + asn1Enc.getClass().getName());
+                LOG.info( "asn1Enc in asn1Array is of an unexpected type {}", asn1Enc.getClass().getName());
                 continue;
             }
 
-		    LOG.debug("ExtensionRequest / DERSequence2[1] (asn1EncValue)is a " + asn1EncValue.getClass().getName());
+		    LOG.debug("ExtensionRequest / DERSequence2[1] (asn1EncValue)is a {}", asn1EncValue.getClass().getName());
 
 
 		    String attrReadableName = OidNameMapper.lookupOid(objId.getId());
@@ -539,11 +539,11 @@ public class CSRUtil {
 		        byte[] valBytes = derStr.getOctets();
 
 		        GeneralNames names = GeneralNames.getInstance(valBytes);
-		        LOG.debug("Attribute value SAN" + names);
-		        LOG.debug("SAN values #" + names.getNames().length);
+		        LOG.debug("Attribute value SAN {}", names);
+		        LOG.debug("SAN values #{}", names.getNames().length);
 
 		        for (GeneralName gnSAN : names.getNames()) {
-		        	LOG.debug( "GN " + gnSAN.getName().toString());
+		        	LOG.debug( "GN {}", gnSAN.getName().toString());
 		        	sanSet.add(gnSAN);
 		        }
 		    } else {
@@ -572,7 +572,7 @@ public class CSRUtil {
 		                    break;
 		                }
 		            } catch (IllegalAccessException | InvocationTargetException e) {
-		            	LOG.debug( "invoking " + m.getName(), e);
+		            	LOG.debug( "invoking {}", m.getName(), e);
 		            }
 		        }
 		        LOG.debug("found attrReadableName '{}' with value '{}'", attrReadableName, stringValue);
@@ -601,7 +601,7 @@ public class CSRUtil {
 
                     GeneralName[] names = gns.getNames();
                     for (GeneralName name : names) {
-                        LOG.info("Type: " + name.getTagNo() + " | Name: " + name.getName());
+                        LOG.info("Type: {} | Name: {}", name.getTagNo(), name.getName());
                         generalNameSet.add(name);
                     }
                 }

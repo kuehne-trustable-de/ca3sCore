@@ -1156,6 +1156,7 @@
   "login.messages.error.authentication.spnegoAuthenticationError": "<strong>The Domain Login failed!</strong>Contact your Administrator.",
 
   "login.messages.error.blocked": "<strong>Too many failed login attempts!</strong> Your account is blocked until {{blockedUntil}}",
+  "login.messages.error.connectsOnInappropriateEndpoint": "<strong>Login attempt on endpoint not intended for user's role!</strong>",
   "login.messages.error.noClientCertificate": "No Client Certificate",
   "login.messages.info.validatingClientCertificate": "Checking Client Certificate ...",
   "login.messages.info.sendingSMS": "Sending SMS ...",
@@ -1526,6 +1527,11 @@
   "ROLE_RA": "RA officer",
   "ROLE_RA_DOMAIN": "Domain RA officer",
   "ROLE_ADMIN": "Administrator",
+
+  "REQUEST_AUTHORIZATION_STARTED": "Authorization process started",
+  "REQUEST_AUTHORIZATION_SUCCEEDED": "Authorization process finished",
+  "REQUEST_AUTHORIZATION_APPROVED": "Authorization process '{{attribute}}' approved by '{{oldVal}}'!",
+  "REQUEST_AUTHORIZATION_REJECTED": "Authorization process '{{attribute}}' rejected by '{{oldVal}}', reason: '{{newVal}}'!",
 
   "CERTIFICATE_IMPORTED": "Certificate imported from '{{val}}'",
   "CSR_ACCEPTED": "Certificate request accepted",

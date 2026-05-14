@@ -1124,6 +1124,7 @@
   "login.messages.error.authentication": "<strong>Anmeldung fehlgeschlagen!</strong> Überprüfen Sie bitte Ihre Angaben und versuchen Sie es erneut.",
   "login.messages.error.authentication.spnegoAuthenticationError": "<strong>Domain-Anmeldung fehlgeschlagen!</strong> Kontaktieren Sie Ihren Administrator.",
   "login.messages.error.blocked": "<strong>Zu viele fehlgeschlagene Anmeldeversuche!</strong> Der Account ist bis {{blockedUntil}} gesperrt.",
+  "login.messages.error.connectsOnInappropriateEndpoint": "<strong>Anmeldeversuch an einem Endpunkt, der nicht für Ihre Rolle vorgesehen ist!</strong>",
   "login.messages.error.noClientCertificate": "Kein Nutzer-Zertifikat",
   "login.messages.info.validatingClientCertificate": "Prüfung Nutzer-Zertifikat ...",
   "login.messages.info.sendingSMS": "SMS wird versandt ...",
@@ -1518,6 +1519,11 @@
   "ROLE_RA": "RA Mitarbeiter",
   "ROLE_RA_DOMAIN": "Domain RA Mitarbeiter",
   "ROLE_ADMIN": "Administrator",
+
+  "REQUEST_AUTHORIZATION_STARTED": "Freigabeprozess gestartet",
+  "REQUEST_AUTHORIZATION_SUCCEEDED": "Freigabeprozess erfolgreich abgeschlossen",
+  "REQUEST_AUTHORIZATION_APPROVED": "Freigabeprozess '{{attribute}}' wurde von '{{oldVal}}' genehmigt!",
+  "REQUEST_AUTHORIZATION_REJECTED": "Freigabeprozess '{{attribute}}' wurde von '{{oldVal}}' abgelehnt: '{{newVal}}'!",
 
   "CERTIFICATE_IMPORTED": "Zertifikat importiert von '{{val}}'",
   "CSR_ACCEPTED": "Zertifikatsantrag freigegeben",
