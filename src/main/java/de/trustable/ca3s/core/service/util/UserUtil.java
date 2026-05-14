@@ -1,8 +1,10 @@
 package de.trustable.ca3s.core.service.util;
 
+import de.trustable.ca3s.core.config.EndpointConfigs;
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.AuthSecondFactor;
+import de.trustable.ca3s.core.exception.UserConnectsOnInappropriateEndpointException;
 import de.trustable.ca3s.core.exception.UserNotAuthenticatedException;
 import de.trustable.ca3s.core.exception.UserNotFoundException;
 import de.trustable.ca3s.core.repository.UserRepository;
@@ -28,6 +30,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -45,6 +48,7 @@ public class UserUtil {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
     private final UserRepository userRepository;
+    private final EndpointConfigs endpointConfigs;
     private final AuditService auditService;
 
     private final boolean loginByEmailAddress;
@@ -60,6 +64,7 @@ public class UserUtil {
     public UserUtil(TokenProvider tokenProvider,
                     AuthenticationManagerBuilder authenticationManagerBuilder,
                     UserRepository userRepository,
+                    EndpointConfigs endpointConfigs,
                     AuditService auditService,
                     @Value("${ca3s.ui.login.allowEmailAddress:false}") boolean loginByEmailAddress,
                     @Value("${ca3s.ui.login.ratelimit.second:0}") int rateSec,
@@ -71,6 +76,7 @@ public class UserUtil {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userRepository = userRepository;
+        this.endpointConfigs = endpointConfigs;
         this.auditService = auditService;
         this.loginByEmailAddress = loginByEmailAddress;
         this.eabKidPrefix = eabKidPrefix;
@@ -196,7 +202,7 @@ public class UserUtil {
         );
 
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
-        handleSuccesfulAuthentication(userLoginData.getLogin());
+        handleSuccessfulAuthentication(userLoginData.getLogin());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return tokenProvider.createToken(authentication, userLoginData.isRememberMe());
@@ -233,11 +239,39 @@ public class UserUtil {
 
     }
 
-    public void handleSuccesfulAuthentication(final String username) {
-        handleSuccesfulAuthentication(getUserByLogin(username), AuthSecondFactor.NONE);
+    public void checkAccessPortForRole(final User user, HttpServletRequest request){
+
+        String ENDPOINT_ERROR_MSG = "User {} tries to login with role '{}' at unsupported endpoint.";
+
+        for( Authority authority: user.getAuthorities()){
+            if( authority.getName().equals( AuthoritiesConstants.ADMIN)) {
+                if (!endpointConfigs.getAdminEndpointConfig().matchesRequest(request)) {
+                    LOG.warn(ENDPOINT_ERROR_MSG,
+                        user.getLogin(), AuthoritiesConstants.ADMIN);
+                    throw new UserConnectsOnInappropriateEndpointException("User connects on inappropriate endpoint");
+                }
+                LOG.debug("User {} has ADMIN role and uses admin port for login.", user.getLogin());
+                return;
+            }
+        }
+
+        for( Authority authority: user.getAuthorities()){
+            if( authority.getName().equals( AuthoritiesConstants.RA_OFFICER)) {
+                if (!endpointConfigs.getRaEndpointConfig().matchesRequest(request)) {
+                    LOG.warn(ENDPOINT_ERROR_MSG,
+                        user.getLogin(), AuthoritiesConstants.RA_OFFICER);
+                    throw new UserConnectsOnInappropriateEndpointException("User connects on inappropriate endpoint");
+                }
+                LOG.debug("User {} has RA-Officer role and uses ra port for login.", user.getLogin());
+            }
+        }
     }
 
-    public void handleSuccesfulAuthentication(final User user, final AuthSecondFactor authSecondFactor) {
+    public void handleSuccessfulAuthentication(final String username) {
+        handleSuccessfulAuthentication(getUserByLogin(username), AuthSecondFactor.NONE);
+    }
+
+    public void handleSuccessfulAuthentication(final User user, final AuthSecondFactor authSecondFactor) {
         String clientIP = requestUtil.getClientIP();
 
         user.setFailedLogins(0L);

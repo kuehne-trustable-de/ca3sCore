@@ -39,6 +39,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
+import static de.trustable.ca3s.core.config.EndpointConfigs.*;
 import static org.junit.Assert.fail;
 
 public class WebTestBase extends LocomotiveBase {
@@ -69,12 +70,12 @@ public class WebTestBase extends LocomotiveBase {
 
     public static final By LOC_HELP_TARGET_LIST = By.xpath("//a [starts-with(@href,'/helpTargetAdmin')]");
 
-    public static final String USER_NAME_USER = "user";
+    public static final String USER_NAME_USER = "user1";
     public static final String USER_PASSWORD_USER = "S3cr3t!S_user";
-    public static final String USER_EMAIL_USER = "user@localhost";
-    public static final String USER_NAME_RA = "ra";
+    public static final String USER_EMAIL_USER = "user1@local.org";
+    public static final String USER_NAME_RA = "raofficer";
     public static final String USER_PASSWORD_RA = "s3cr3t";
-    public static final String USER_EMAIL_RA ="ra@localhost";
+    public static final String USER_EMAIL_RA ="raofficer@local.org";
 
     public static int testPortHttp;
     public static int testPortHttps;
@@ -130,11 +131,11 @@ public class WebTestBase extends LocomotiveBase {
         testPortHttps = super.port;
 
         // assign the ports for this test to random values to avoid collisions to other instances
-        System.setProperty(Ca3SApp.SERVER_TLS_PREFIX + "port", "" + testPortHttps);
-        System.setProperty(Ca3SApp.SERVER_ADMIN_PREFIX + "port", "" + testPortHttps);
-        System.setProperty(Ca3SApp.SERVER_RA_PREFIX + "port", "" + testPortHttps);
-        System.setProperty(Ca3SApp.SERVER_ACME_PREFIX + "port", "" + testPortHttps);
-        System.setProperty(Ca3SApp.SERVER_SCEP_PREFIX + "port", "" + testPortHttp);
+        System.setProperty(SERVER_TLS_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(SERVER_ADMIN_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(SERVER_RA_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(SERVER_ACME_PREFIX + "port", "" + testPortHttps);
+        System.setProperty(SERVER_SCEP_PREFIX + "port", "" + testPortHttp);
 
         System.setProperty("ca3s.ui.test.mode", "TEST");
 

@@ -26,6 +26,7 @@
 
 package de.trustable.ca3s.core.web.rest.advice;
 
+import de.trustable.ca3s.core.exception.UserConnectsOnInappropriateEndpointException;
 import de.trustable.ca3s.core.security.IPBlockedException;
 import de.trustable.ca3s.core.security.UserCredentialsExpiredException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
@@ -36,14 +37,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.context.request.NativeWebRequest;
+import org.zalando.problem.Problem;
+import org.zalando.problem.Status;
 
 import javax.annotation.concurrent.Immutable;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-import static de.trustable.ca3s.core.web.rest.errors.RestURIs.CREDENTIALS_EXPIRED;
-import static de.trustable.ca3s.core.web.rest.errors.RestURIs.USER_BLOCKED;
+import static de.trustable.ca3s.core.web.rest.errors.RestURIs.*;
 
 /**
  * Handle the restification of an Exception
@@ -80,6 +83,16 @@ public final class BlockedCredentialsAdvice {
     public ResponseEntity<ProblemDetail> respondTo(final UserCredentialsExpiredException exception) {
 
         final ProblemDetail problem = new ProblemDetail(CREDENTIALS_EXPIRED, "Credentials expired",
+            HttpStatus.UNAUTHORIZED,
+            "", AcmeUtil.NO_INSTANCE);
+        final HttpStatus status = problem.getStatus();
+        return ResponseEntity.status(status).contentType(AcmeController.APPLICATION_PROBLEM_JSON).body(problem);
+    }
+
+    @ExceptionHandler(value = UserConnectsOnInappropriateEndpointException.class)
+    public ResponseEntity<ProblemDetail> respondTo(final UserConnectsOnInappropriateEndpointException exception) {
+
+        final ProblemDetail problem = new ProblemDetail(INAPPROPRIATE_ENDPOINT_USED, exception.getMessage(),
             HttpStatus.UNAUTHORIZED,
             "", AcmeUtil.NO_INSTANCE);
         final HttpStatus status = problem.getStatus();

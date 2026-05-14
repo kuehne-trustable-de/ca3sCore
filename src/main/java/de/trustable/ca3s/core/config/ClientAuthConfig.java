@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.config;
 
-import de.trustable.ca3s.core.Ca3SApp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,18 +8,20 @@ import org.springframework.context.annotation.Configuration;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_TLS_CLIENT_AUTH_PREFIX;
+
 @Configuration
 public class ClientAuthConfig {
 
     private final Logger LOG = LoggerFactory.getLogger(ClientAuthConfig.class);
 
-    @Value("${" + Ca3SApp.SERVER_TLS_CLIENT_AUTH_PREFIX + "port:8442}")
+    @Value("${" + SERVER_TLS_CLIENT_AUTH_PREFIX + "port:8442}")
     int tlsClientAuthPort;
 
-    @Value("${" + Ca3SApp.SERVER_TLS_CLIENT_AUTH_PREFIX + "external.port:#{null}}")
+    @Value("${" + SERVER_TLS_CLIENT_AUTH_PREFIX + "external.port:#{null}}")
     Integer tlsClientAuthExternalPort;
 
-    @Value("${" + Ca3SApp.SERVER_TLS_CLIENT_AUTH_PREFIX + "external.host:#{null}}")
+    @Value("${" + SERVER_TLS_CLIENT_AUTH_PREFIX + "external.host:#{null}}")
     String tlsClientAuthHost;
 
 

@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 /**
@@ -88,14 +89,9 @@ public class UserJWTController {
 
     @Transactional(noRollbackFor = {BadCredentialsException.class, AuthenticationException.class, InternalAuthenticationServiceException.class, UserNotAuthenticatedException.class})
     @PostMapping("/authenticate")
-    public ResponseEntity<?> authorize(@Valid @RequestBody LoginData loginData) {
+    public ResponseEntity<?> authorize(@Valid @RequestBody LoginData loginData, HttpServletRequest request) {
 
         userUtil.checkIPBlocked(loginData.getUsername());
-
-        {
-            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-            log.info("--- is already authenticated: {} for {}", authentication.isAuthenticated(), authentication.getName());
-        }
 
         try {
             User user = handleCa3sInternalUser(loginData);
@@ -108,7 +104,9 @@ public class UserJWTController {
                 return buildProblemDetailForAuthenticationFailure(loginData, "authentication failed");
             }
 
-            userUtil.handleSuccesfulAuthentication(user, loginData.getAuthSecondFactor());
+            userUtil.checkAccessPortForRole(user, request);
+
+            userUtil.handleSuccessfulAuthentication(user, loginData.getAuthSecondFactor());
 
             return getJwtTokenResponseEntity(authentication);
 

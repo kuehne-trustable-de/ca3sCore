@@ -3,9 +3,11 @@ package de.trustable.ca3s.core;
 import de.trustable.ca3s.cert.bundle.TimedRenewalCertMap;
 import de.trustable.ca3s.core.config.ApplicationProperties;
 import de.trustable.ca3s.core.config.DefaultProfileUtil;
+
+import de.trustable.ca3s.core.config.EndpointConfig;
+import de.trustable.ca3s.core.config.EndpointConfigs;
 import de.trustable.ca3s.core.security.provider.*;
 import de.trustable.ca3s.core.service.KeyGenerationService;
-import de.trustable.ca3s.core.service.util.KeyUtil;
 import de.trustable.util.JCAManager;
 import io.undertow.Undertow;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +44,6 @@ import java.security.Provider;
 import java.security.Security;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,23 +53,11 @@ public class Ca3SApp implements InitializingBean {
 
     private static final Logger log = LoggerFactory.getLogger(Ca3SApp.class);
 
-    public static final String SERVER_TLS_PREFIX = "ca3s.tlsAccess.";
-    public static final String SERVER_TLS_CLIENT_AUTH_PREFIX = "ca3s.tlsClientAuth.";
-    public static final String SERVER_ADMIN_PREFIX = "ca3s.adminAccess.";
-    public static final String SERVER_RA_PREFIX = "ca3s.raAccess.";
-    public static final String SERVER_ACME_PREFIX = "ca3s.acmeAccess.";
-    public static final String SERVER_SCEP_PREFIX = "ca3s.scepAccess.";
-    public static final String SERVER_EST_PREFIX = "ca3s.estAccess.";
-
-    public static final String DEFAULT_BINDING_HOST = "0.0.0.0";
     public static final String HTTPS_CERTIFICATE_DN_SUFFIX = "ca3s.https.certificate.dnSuffix";
     public static final String HTTPS_CERTIFICATE_FALLBACK_VALIDITY_HOURS = "ca3s.https.certificate.fallback.validityHours";
     public static final String O_TRUSTABLE_SOLUTIONS_C_DE = "O=trustable solutions, C=DE";
 
     private final Environment env;
-
-    @Autowired
-    KeyUtil keyUtil;
 
     @Autowired
     KeyGenerationService keyGenerationService;
@@ -78,6 +67,9 @@ public class Ca3SApp implements InitializingBean {
 
     @Autowired
     Ca3sClientCertTrustManager ca3sClientCertTrustManager;
+
+    @Autowired
+    EndpointConfigs endpointConfigs;
 
     public Ca3SApp(Environment env) {
         this.env = env;
@@ -214,9 +206,6 @@ public class Ca3SApp implements InitializingBean {
 
         UndertowServletWebServerFactory factory = new UndertowServletWebServerFactory();
 
-        EndpointConfigs endpointConfigs = getEndpointConfigs();
-
-
         factory.addBuilderCustomizers(new UndertowBuilderCustomizer() {
             @Override
             public void customize(Undertow.Builder builder) {
@@ -245,13 +234,13 @@ public class Ca3SApp implements InitializingBean {
                             if( epc.isClientAuth()) {
                                 builder.setSocketOption(Options.SSL_CLIENT_AUTH_MODE, SslClientAuthMode.REQUESTED);
                                 builder.addHttpsListener(epc.getPort(), epc.getBindingHost(), sslContextClientAuth);
-                                log.debug("added TLS client auth listen port {} for {}", epc.port, epc.getUsageDescription());
+                                log.debug("added TLS client auth listen port {} for {}", epc.getPort(), epc.getUsageDescription());
                             }else{
                                 builder.addHttpsListener(epc.getPort(), epc.getBindingHost(), sslContext);
-                                log.debug("added TLS listen port {} for {}", epc.port, epc.getUsageDescription());
+                                log.debug("added TLS listen port {} for {}", epc.getPort(), epc.getUsageDescription());
                             }
                         } else {
-                            log.debug("added plain text listen port {} for {}", epc.port, epc.getUsageDescription());
+                            log.debug("added plain text listen port {} for {}", epc.getPort(), epc.getUsageDescription());
                             builder.addHttpListener(epc.getPort(), epc.getBindingHost());
                         }
                     }
@@ -262,156 +251,5 @@ public class Ca3SApp implements InitializingBean {
         });
 
         return factory;
-    }
-
-    EndpointConfigs getEndpointConfigs() {
-
-        EndpointConfigs epc = new EndpointConfigs();
-
-        int httpsClientAuthPort = getPortForUsage(SERVER_TLS_CLIENT_AUTH_PREFIX, 8442);
-        epc.addConfig(httpsClientAuthPort,
-            true, true,
-            getBindingHostForUsage( SERVER_TLS_CLIENT_AUTH_PREFIX, DEFAULT_BINDING_HOST), "TLS Client Auth Port");
-
-        epc.addConfig(getPortForUsage(SERVER_TLS_PREFIX, 8443),
-            getHTTPSForUsage(SERVER_TLS_PREFIX, true),
-            getBindingHostForUsage( SERVER_TLS_PREFIX, DEFAULT_BINDING_HOST), "TLS Port");
-
-        epc.addConfig(getPortForUsage(SERVER_ADMIN_PREFIX, 8443),
-            getHTTPSForUsage(SERVER_ADMIN_PREFIX, true),
-            getBindingHostForUsage( SERVER_ADMIN_PREFIX, DEFAULT_BINDING_HOST), "Admin Port");
-
-        epc.addConfig(getPortForUsage(SERVER_RA_PREFIX, 8443),
-            getHTTPSForUsage(SERVER_RA_PREFIX, true),
-            getBindingHostForUsage( SERVER_RA_PREFIX, DEFAULT_BINDING_HOST),"RA Port");
-
-        epc.addConfig(getPortForUsage(SERVER_ACME_PREFIX, 8443),
-            getHTTPSForUsage(SERVER_ACME_PREFIX, true),
-            getBindingHostForUsage( SERVER_ACME_PREFIX, DEFAULT_BINDING_HOST), "ACME Port");
-
-        int httpPort = getPortForUsage("server.", 8080);
-        int scepPort = getPortForUsage(SERVER_SCEP_PREFIX, 8081);
-        if( scepPort != httpPort) {
-            epc.addConfig(scepPort,
-                getHTTPSForUsage(SERVER_SCEP_PREFIX, false),
-                getBindingHostForUsage( SERVER_SCEP_PREFIX, DEFAULT_BINDING_HOST), "SCEP Port");
-        }
-
-        int estPort = getPortForUsage(SERVER_EST_PREFIX, 8446);
-        if( estPort != httpsClientAuthPort) {
-            epc.addConfig(estPort,
-                getHTTPSForUsage(SERVER_EST_PREFIX, true),
-                getBindingHostForUsage( SERVER_EST_PREFIX, DEFAULT_BINDING_HOST), "EST Port");
-        }
-
-        return epc;
-    }
-
-    int getPortForUsage(final String usage, int defaultPort) {
-        int port = defaultPort;
-
-        String item = usage + "port";
-        String envPort = env.getProperty(item);
-        if( envPort == null) {
-            log.debug("Port for usage '{}' undefined, using default port #{}", item, defaultPort);
-        }else {
-            port = Integer.parseUnsignedInt(envPort);
-        }
-        return port;
-    }
-
-    boolean getHTTPSForUsage(final String usage, boolean defaultHTTPS) {
-        boolean isHttps = defaultHTTPS;
-
-        String item = usage + "https";
-        String envHttpsUsage = env.getProperty(item);
-        if( envHttpsUsage == null) {
-            log.debug("Use HTTPS for usage '{}' undefined, using default mode {}", item, defaultHTTPS);
-        }else {
-            isHttps = Boolean.parseBoolean(envHttpsUsage);
-        }
-        return isHttps;
-    }
-
-    String getBindingHostForUsage(final String usage, String defaultBindingHost) {
-        String bindingHost = defaultBindingHost;
-
-        String item = usage + "bindingHost";
-        String envBindingHost = env.getProperty(item);
-        if( envBindingHost == null) {
-            log.debug("Binding host for usage '{}' undefined, using default '{}'", item, defaultBindingHost);
-        }else {
-            bindingHost = envBindingHost;
-        }
-        return bindingHost;
-    }
-
-}
-
-class EndpointConfigs{
-
-    private static final Logger log = LoggerFactory.getLogger(EndpointConfigs.class);
-
-    HashMap<Integer,EndpointConfig> portConfigMap = new HashMap<>();
-
-    public void addConfig(int port, boolean isHttps, String bindingHost, String usageDescription) {
-        addConfig( port, isHttps, false, bindingHost, usageDescription);
-    }
-    public void addConfig(int port, boolean isHttps, boolean isClientAuth, String bindingHost, String usageDescription) {
-        if( portConfigMap.containsKey(port)) {
-            EndpointConfig existingConfig = portConfigMap.get(port);
-            if( existingConfig.isHttps() != isHttps ) {
-                log.warn("Https redefinition for port {}, ignoring definition for '{}'", port, usageDescription);
-            }
-            if( !existingConfig.getBindingHost().equalsIgnoreCase(bindingHost)) {
-                log.warn("Binding Host redefinition for port {}, ignoring definition for '{}'", port, usageDescription);
-            }
-
-            existingConfig.usageDescription += ", " + usageDescription;
-        }else {
-            portConfigMap.put(port, new EndpointConfig(port, isHttps, isClientAuth, bindingHost, usageDescription));
-        }
-    }
-
-    public HashMap<Integer, EndpointConfig> getPortConfigMap() {
-        return portConfigMap;
-    }
-
-}
-
-class EndpointConfig{
-
-    int port;
-    boolean isHttps;
-    boolean isClientAuth;
-    String bindingHost;
-    String usageDescription;
-
-    public EndpointConfig(int port, boolean isHttps, boolean isClientAuth, String bindingHost, String usageDescription) {
-        this.port = port;
-        this.isHttps = isHttps;
-        this.bindingHost = bindingHost;
-        this.usageDescription = usageDescription;
-        this.isClientAuth = isClientAuth;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    public boolean isHttps() {
-        return isHttps;
-    }
-
-    public String getBindingHost() {
-        return bindingHost;
-    }
-
-    public String getUsageDescription() {
-        return usageDescription;
-    }
-
-    public boolean isClientAuth() {
-        return isClientAuth;
     }
 }

@@ -7,5 +7,6 @@ public class RestURIs {
 
     public static final URI USER_BLOCKED = URI.create(TRUSTABLE_ERROR_URI_NAMESPACE + ":userBlocked");
     public static final URI CREDENTIALS_EXPIRED = URI.create(TRUSTABLE_ERROR_URI_NAMESPACE + ":credentialsExpired");
+    public static final URI INAPPROPRIATE_ENDPOINT_USED = URI.create(TRUSTABLE_ERROR_URI_NAMESPACE + ":connectsOnInappropriateEndpoint");
 
 }

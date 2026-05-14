@@ -5,6 +5,7 @@
                 <b-alert show variant="danger" v-if="authenticationError" v-html="$t('login.messages.error.authentication')"></b-alert>
                 <b-alert show variant="danger" v-if="spnegoAuthenticationError" v-html="$t('login.messages.error.spnego.authentication')"></b-alert>
                 <b-alert show variant="danger" v-if="isBlocked" v-html="$t('login.messages.error.blocked', { 'blockedUntil': convertDateTimeFromServer(blockedUntil) })"></b-alert>
+                <b-alert show variant="danger" v-if="isConnectsOnInappropriateEndpoint" v-html="$t('login.messages.error.connectsOnInappropriateEndpoint')"></b-alert>
 
                 <b-alert show variant="danger" v-if="isNoClientCertificate" v-html="$t('login.messages.error.noClientCertificate')"></b-alert>
                 <b-alert show variant="info" v-if="validatingClientCertificate" v-html="$t('login.messages.info.validatingClientCertificate')"></b-alert>

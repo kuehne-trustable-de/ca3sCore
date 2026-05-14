@@ -542,6 +542,10 @@ public class SecurityConfiguration{
             .antMatchers("/api/crl-expiration-notifications/*").denyAll()
             .requestMatchers(forPortAndPath(adminPort, "/api/bpmn-process-infos")).hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/bpmn-process-infos").denyAll()
+
+            .requestMatchers(forPortAndPath(adminPort, "/api/crl-url-status-views")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .antMatchers("/api/crl-url-status-views").denyAll()
+
             .requestMatchers(forPortAndPath(adminPort, "/api/audit-traces")).hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/audit-traces").denyAll()
             .requestMatchers(forPortAndPath(adminPort, "/api/algorithm-restrictions")).hasAuthority(AuthoritiesConstants.ADMIN)

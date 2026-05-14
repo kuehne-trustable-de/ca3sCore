@@ -26,6 +26,7 @@ export default class LoginForm extends Vue {
   public loginData: ILoginData = { authSecondFactor: 'NONE' };
 
   public isBlocked = false;
+  public isConnectsOnInappropriateEndpoint = false;
   public isNoClientCertificate = false;
   public validatingClientCertificate = false;
   public sendingSMS = false;
@@ -166,6 +167,7 @@ export default class LoginForm extends Vue {
 
   public authenticateCredentials(): void {
     this.isBlocked = false;
+    this.isConnectsOnInappropriateEndpoint = false;
     this.isNoClientCertificate = false;
 
     const target: string = this.loginMode === 'ldap' ? 'api/authenticateLDAP' : 'api/authenticate';
@@ -206,6 +208,8 @@ export default class LoginForm extends Vue {
             self.isBlocked = true;
             const dateObj = new Date(data.detail);
             self.blockedUntil = dateObj.toLocaleDateString() + ', ' + dateObj.toLocaleTimeString();
+          } else if (data.type === 'urn:ietf:params:trustable:error:connectsOnInappropriateEndpoint') {
+            self.isConnectsOnInappropriateEndpoint = true;
           } else {
             self.authenticationError = true;
           }
