@@ -11,7 +11,7 @@ import BPNMProcessInfoService from '../../entities/bpnm-process-info/bpnm-proces
 
 import VueBpmn from 'vue-bpmn';
 import axios, { AxiosError } from 'axios';
-import { IBpmnCheckResult, IBPMNUpload } from '@/shared/model/transfer-object.model';
+import { IBpmnCheckResult, IBPMNUpload, IBPMNProcessInfo } from '@/shared/model/transfer-object.model';
 
 const bpmnUrl = 'api/bpmn';
 
@@ -32,7 +32,7 @@ export default class BpmnInfo extends mixins(AlertMixin, Vue) {
 
   public interactionMode: string = 'EDIT';
 
-  public bPNMProcessInfo: IBPMNProcessInfoView = {};
+  public bPNMProcessInfo: IBPMNProcessInfo = {};
   public bpmnUpload: IBPMNUpload = { type: 'CA_INVOCATION' };
 
   public bpmnCheckResult: IBpmnCheckResult = {};

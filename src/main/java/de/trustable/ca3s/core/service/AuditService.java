@@ -605,6 +605,26 @@ public class AuditService {
             null,
             null);
     }
+    public AuditTrace createAuditTraceCSRBPMNProcessInfo(String template, CSR csr, BPMNProcessInfo bpmnProcessInfo,
+                                                         String processId,
+                                                         String approver,
+                                                         String rejectionReason) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            template,
+            processId,
+            approver,
+            rejectionReason,
+            csr,
+            null,
+            null,
+            null,
+            bpmnProcessInfo,
+            null,
+            null,
+            null,
+            null);
+    }
 
     public AuditTrace createAuditTraceBPMNProcessInfo(String template, String oldVal, String newVal, BPMNProcessInfo bpmnProcessInfo) {
         NameAndRole nar = nameAndRoleUtil.getNameAndRole();
