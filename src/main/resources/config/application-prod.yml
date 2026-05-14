@@ -338,7 +338,7 @@ ca3s:
       acmeOrderExpiry: 3600000
       certBundleCheck: 600000
       certRetrieval: 3600000
-      revocationCheck: 3600000
+#      revocationCheck: 3600000
 
     # define a cron pattern for regular tasks
     cron:
