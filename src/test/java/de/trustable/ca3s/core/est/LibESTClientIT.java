@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static de.trustable.ca3s.core.PipelineTestConfiguration.EST_PASSWORD;
+import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_EST_PREFIX;
 
 /**
  * Access the EST endpoint with the libEST client
@@ -158,7 +159,7 @@ public class LibESTClientIT {
         JCAManager.getInstance();
 
         serverPort = TestSocketUtils.findAvailableTcpPort();
-        System.setProperty(Ca3SApp.SERVER_EST_PREFIX + "port", "" + serverPort);
+        System.setProperty(SERVER_EST_PREFIX + "port", "" + serverPort);
 
         hostFQDN = InetAddress.getLocalHost().getHostName();
 
@@ -176,7 +177,7 @@ public class LibESTClientIT {
     }
     @AfterAll
     static void tearDown() {
-        System.clearProperty(Ca3SApp.SERVER_EST_PREFIX + "port");
+        System.clearProperty(SERVER_EST_PREFIX + "port");
     }
 
 

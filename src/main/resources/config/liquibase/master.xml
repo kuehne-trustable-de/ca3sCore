@@ -174,4 +174,6 @@
 
     <include file="config/liquibase/changelog/20260301182500_added_columns_lob_value.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/2026051118000000_modify_dummy_user.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

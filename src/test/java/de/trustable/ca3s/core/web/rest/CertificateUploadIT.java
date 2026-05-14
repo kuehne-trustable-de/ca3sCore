@@ -169,6 +169,6 @@ public class CertificateUploadIT {
     private Authentication createAuthentication() {
         Collection<GrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(AuthoritiesConstants.USER));
-        return new UsernamePasswordAuthenticationToken("user", "user", authorities);
+        return new UsernamePasswordAuthenticationToken("user1", "user", authorities);
     }
 }

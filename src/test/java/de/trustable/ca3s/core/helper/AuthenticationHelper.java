@@ -13,7 +13,7 @@ import java.util.Collection;
 public class AuthenticationHelper {
 
     public static void setAuthenticationUser(){
-        setAuthentication("user", AuthoritiesConstants.USER);
+        setAuthentication("user1", AuthoritiesConstants.USER);
     }
 
     public static void setAuthenticationAdmin(){

@@ -222,7 +222,6 @@ public class CSRSubmitIT extends WebTestBase {
 
         waitForUrl();
 
-
         ptc.getInternalWebDirectTestPipeline();
         ptc.getInternalWebDirectKeyReuseTestPipeline();
         ptc.getInternalWebRACheckTestPipeline();
@@ -524,13 +523,19 @@ public class CSRSubmitIT extends WebTestBase {
 
     @Test
     public void testSubmitAllAlgosServersideDirect() throws Exception {
-/*
+
         for( String algoName: preferenceUtil.getKeyAlgos()){
+
+            LOG.info("checking algoName: {}", algoName);
+            if( "rsa-8192".equals(algoName)){
+                LOG.info("skipping algoName: {}", algoName);
+                continue;
+            }
             testSubmitAllAlgosServersideDirect(algoName);
         }
 
- */
-        testSubmitAllAlgosServersideDirect("brainpoolP256r1");
+
+//        testSubmitAllAlgosServersideDirect("brainpoolP256r1");
     }
 
     void testSubmitAllAlgosServersideDirect(final String algoName) throws Exception {
@@ -548,7 +553,7 @@ public class CSRSubmitIT extends WebTestBase {
             .replace("+", "_")
             .replace("#", "_");
 
-       selectElementText(LOC_LNK_ACCOUNT_MENUE);
+        selectElementText(LOC_LNK_ACCOUNT_MENUE);
 
         signIn(USER_NAME_USER, USER_PASSWORD_USER, null, 500);
 
@@ -1435,7 +1440,7 @@ public class CSRSubmitIT extends WebTestBase {
         Folder inbox;
         byte[] emailBytes = new byte[6];
         rand.nextBytes(emailBytes);
-        emailAddress = username + "_" + encodeBytesToText(emailBytes) + "@localhost.com";
+        emailAddress = username + "_" + encodeBytesToText(emailBytes) + "@local.org";
 
         userUtil.updateUserByLogin( username, accountPassword, emailAddress);
 

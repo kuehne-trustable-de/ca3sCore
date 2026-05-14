@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd
+                        http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+
+
+    <changeSet id="2026051118000000-1" author="ak">
+
+        <update tableName="jhi_user">
+            <column name="email" value="system@local.org" />
+            <where>email = 'system@localhost'</where>
+        </update>
+
+        <update tableName="jhi_user">
+            <column name="email" value="anonymous@local.org" />
+            <where>email = 'anonymous@localhost'</where>
+        </update>
+
+        <update tableName="jhi_user">
+            <column name="email" value="admin@local.org" />
+            <where>email = 'admin@localhost'</where>
+        </update>
+
+        <update tableName="jhi_user">
+            <column name="login" value="user1" />
+            <column name="email" value="user1@local.org" />
+            <where>email = 'user@localhost'</where>
+        </update>
+
+        <update tableName="jhi_user">
+            <column name="login" value="raofficer" />
+            <column name="email" value="raofficer@local.org" />
+            <where>email = 'ra@localhost'</where>
+        </update>
+
+    </changeSet>
+
+
+</databaseChangeLog>

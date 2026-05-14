@@ -343,9 +343,6 @@ public class AcmeHappyPathIT {
 
         LOG.info("eab kid {}, macKey {}", tokenResponse.getEabKid(), tokenResponse.getTokenValue());
 
-//        User user = userUtil.getUserByLogin("user");
-
-
         System.out.println("connecting to " + dirUrlEAB );
         Session session = new Session(dirUrlEAB);
         Metadata meta = session.getMetadata();

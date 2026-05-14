@@ -188,7 +188,7 @@ public class ClientCertBotIT {
     }
 
     @Test
-    @WithMockUser(username  = "user", authorities = { "USER" })
+    @WithMockUser(username  = "user1", authorities = { "USER" })
     public void certbotCreateEabAccountAndOrderCertificate() throws IOException, GeneralSecurityException {
 
         boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
@@ -197,7 +197,7 @@ public class ClientCertBotIT {
             LOG.info("certbot test no available on Windows");
         } else {
 
-            User user = userUtil.getUserByLogin("user");
+            User user = userUtil.getUserByLogin("user1");
 
             TokenRequest tokenRequest = new TokenRequest();
             tokenRequest.setValiditySeconds(3600);

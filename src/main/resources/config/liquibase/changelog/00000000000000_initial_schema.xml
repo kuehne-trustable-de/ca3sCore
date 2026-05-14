@@ -14,6 +14,9 @@
     -->
     <changeSet id="00000000000001" author="jhipster">
 
+        <preConditions onFail="MARK_RAN" onError="MARK_RAN">
+        </preConditions>
+
         <createTable tableName="jhi_user">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
@@ -82,6 +85,7 @@
                   file="config/liquibase/data/user.csv"
                   separator=";"
                   tableName="jhi_user">
+
             <column name="activated" type="boolean"/>
             <column name="created_date" type="timestamp"/>
         </loadData>

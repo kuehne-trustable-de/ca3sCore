@@ -4,6 +4,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.trustable.ca3s.core.Ca3SApp;
+import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.util.JCAManager;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.Assertions;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -35,16 +35,17 @@ public class AccessRestrictionsIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccessRestrictionsIT.class);
 
-    @LocalServerPort
-    int serverPort; // random port chosen by spring test
+    static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
 
     static ArrayList<String> knownAnonymousResources = new ArrayList<>();
     static ArrayList<String> knownUserResources = new ArrayList<>();
     static ArrayList<String> knownRaResources = new ArrayList<>();
 
     @BeforeAll
-    public static void setUpBeforeClass() {
+    public static void setUpBeforeClass() throws IOException {
         JCAManager.getInstance();
+
+        accessPortTestManager.setUpEnvironment();
 
         System.setProperty("springdoc.pathsToMatch", "/**");
 
@@ -124,7 +125,10 @@ public class AccessRestrictionsIT {
 
     @AfterAll
     static void tearDown() {
+
         System.clearProperty("springdoc.pathsToMatch");
+        accessPortTestManager.tearDownEnvironment();
+
     }
 
     @Test
@@ -134,10 +138,10 @@ public class AccessRestrictionsIT {
         List<String> acceptedUserAuthenticatedList = new ArrayList<>();
         List<String> acceptedRaAuthenticatedList = new ArrayList<>();
 
-        String userToken = getLoginToken("user", "user");
-        String raToken = getLoginToken("ra", "s3cr3t");
+        String userToken = getLoginToken("user1", "user", accessPortTestManager.getTlsAccessPort());
+        String raToken = getLoginToken("raofficer", "s3cr3t", accessPortTestManager.getRaAccessPort());
 
-        URL oasUrl = new URL("http", "localhost", serverPort, "/v3/api-docs");
+        URL oasUrl = new URL("http", "localhost", accessPortTestManager.getTlsAccessPort(), "/v3/api-docs");
         LOG.debug("Opening connection to  : " + oasUrl);
 
         RestTemplate restTemplate = new RestTemplate();
@@ -209,7 +213,7 @@ public class AccessRestrictionsIT {
             .replace("{id}", "1")
             .replace("{", "").replace("}", "");
         try {
-            URL oasUrl = new URL("http", "localhost", serverPort, effectivePath);
+            URL oasUrl = new URL("http", "localhost", accessPortTestManager.getTlsAccessPort(), effectivePath);
 
             RestTemplate restTemplate = new RestTemplate();
 
@@ -262,9 +266,9 @@ public class AccessRestrictionsIT {
         LOG.info( "status {} for method: {} / path {}", responseContent.getStatusCodeValue(), method, effectivePath);
     }
 
-    private String getLoginToken(String user, String password) throws MalformedURLException {
+    private String getLoginToken(String user, String password, int accessPort) throws MalformedURLException {
 
-        URL oasUrl = new URL("http", "localhost", serverPort, "/api/authenticate");
+        URL oasUrl = new URL("http", "localhost", accessPort, "/api/authenticate");
 
         RestTemplate restTemplate = new RestTemplate();
 

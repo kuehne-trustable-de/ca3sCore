@@ -58,17 +58,9 @@ public class BPMNAdministrationIT extends WebTestBase{
     public static final By LOC_TEXT_PROCESS_LIST = By.xpath("//div/h2/span [text() = 'Process list']");
     private static final Logger LOG = LoggerFactory.getLogger(BPMNAdministrationIT.class);
 
-    private static final String USER_NAME_USER = "user";
-    private static final String USER_PASSWORD_USER = "user";
-
-    private static final String USER_NAME_RA = "ra";
-    private static final String USER_PASSWORD_RA = "s3cr3t";
-
     private static final String USER_NAME_ADMIN = "admin";
     private static final String USER_PASSWORD_ADMIN = "admin";
 
-
-    private static Random rand = new Random();
 
     static File bpmnTestFile;
     static String bpmnTestContent;

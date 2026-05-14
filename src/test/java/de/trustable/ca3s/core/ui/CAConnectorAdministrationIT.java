@@ -76,10 +76,10 @@ public class CAConnectorAdministrationIT extends WebTestBase{
     public static final By LOC_TEXT_CONNECTOR_LIST = By.xpath("//div/h2/span [text() = 'CA Connector Configs']");
     private static final Logger LOG = LoggerFactory.getLogger(CAConnectorAdministrationIT.class);
 
-    private static final String USER_NAME_USER = "user";
+    private static final String USER_NAME_USER = "user1";
     private static final String USER_PASSWORD_USER = "user";
 
-    private static final String USER_NAME_RA = "ra";
+    private static final String USER_NAME_RA = "raofficer";
     private static final String USER_PASSWORD_RA = "s3cr3t";
 
     private static final String USER_NAME_ADMIN = "admin";

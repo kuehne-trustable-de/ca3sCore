@@ -1,11 +1,13 @@
 package de.trustable.ca3s.core.config;
 
+import static de.trustable.ca3s.core.config.EndpointConfigs.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
 import java.net.ServerSocket;
 
 import de.trustable.ca3s.core.PipelineTestConfiguration;
+import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -42,12 +44,7 @@ public class SecurityConfigurationIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(SecurityConfigurationIT.class);
 
-    public static int tlsAccessPort;
-    public static int adminAccessPort;
-    public static int raAccessPort;
-    public static int acmeAccessPort;
-    public static int scepAccessPort;
-    public static int estAccessPort;
+    static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
 
     String startUrl;
     String startRAUrl;
@@ -57,44 +54,12 @@ public class SecurityConfigurationIT {
     @BeforeAll
     static void setUp() throws IOException {
 
-        tlsAccessPort = getFreePort();
-        adminAccessPort = getFreePort();
-        raAccessPort = getFreePort();
-        acmeAccessPort = getFreePort();
-        scepAccessPort = getFreePort();
-        estAccessPort = getFreePort();
-
-        System.setProperty(Ca3SApp.SERVER_TLS_PREFIX + "port", "" + tlsAccessPort);
-        System.setProperty(Ca3SApp.SERVER_ADMIN_PREFIX + "port", "" + adminAccessPort);
-        System.setProperty(Ca3SApp.SERVER_RA_PREFIX + "port", "" + raAccessPort);
-        System.setProperty(Ca3SApp.SERVER_ACME_PREFIX + "port", "" + acmeAccessPort);
-        System.setProperty(Ca3SApp.SERVER_SCEP_PREFIX + "port", "" + scepAccessPort);
-        System.setProperty(Ca3SApp.SERVER_EST_PREFIX + "port", "" + estAccessPort);
-
-        System.setProperty(Ca3SApp.SERVER_TLS_PREFIX + "https", "false");
-        System.setProperty(Ca3SApp.SERVER_ADMIN_PREFIX + "https", "false");
-        System.setProperty(Ca3SApp.SERVER_RA_PREFIX + "https", "false");
-        System.setProperty(Ca3SApp.SERVER_ACME_PREFIX + "https", "false");
-        System.setProperty(Ca3SApp.SERVER_SCEP_PREFIX + "https", "false");
-        System.setProperty(Ca3SApp.SERVER_EST_PREFIX + "https", "false");
-
+        accessPortTestManager.setUpEnvironment();
     }
 
     @AfterAll
     static void tearDown(){
-        System.clearProperty(Ca3SApp.SERVER_TLS_PREFIX + "port");
-        System.clearProperty(Ca3SApp.SERVER_ADMIN_PREFIX + "port");
-        System.clearProperty(Ca3SApp.SERVER_RA_PREFIX + "port");
-        System.clearProperty(Ca3SApp.SERVER_ACME_PREFIX + "port");
-        System.clearProperty(Ca3SApp.SERVER_SCEP_PREFIX + "port");
-        System.clearProperty(Ca3SApp.SERVER_EST_PREFIX + "port");
-
-        System.clearProperty(Ca3SApp.SERVER_TLS_PREFIX + "https");
-        System.clearProperty(Ca3SApp.SERVER_ADMIN_PREFIX + "https");
-        System.clearProperty(Ca3SApp.SERVER_RA_PREFIX + "https");
-        System.clearProperty(Ca3SApp.SERVER_ACME_PREFIX + "https");
-        System.clearProperty(Ca3SApp.SERVER_SCEP_PREFIX + "https");
-        System.clearProperty(Ca3SApp.SERVER_EST_PREFIX + "https");
+        accessPortTestManager.tearDownEnvironment();
     }
 
     static int getFreePort() throws IOException {
@@ -108,10 +73,10 @@ public class SecurityConfigurationIT {
 
     @BeforeEach
     void init() {
-        startUrl = "http://localhost:" + tlsAccessPort + "/";
-        startRAUrl = "http://localhost:" + raAccessPort + "/";
-        startAdminUrl = "http://localhost:" + adminAccessPort + "/";
-        startAcmeUrl = "http://localhost:" + acmeAccessPort + "/";
+        startUrl = "http://localhost:" + accessPortTestManager.getTlsAccessPort() + "/";
+        startRAUrl = "http://localhost:" + accessPortTestManager.getRaAccessPort() + "/";
+        startAdminUrl = "http://localhost:" + accessPortTestManager.getAdminAccessPort() + "/";
+        startAcmeUrl = "http://localhost:" + accessPortTestManager.getAcmeAccessPort() + "/";
     }
 
     @Test
@@ -148,7 +113,7 @@ public class SecurityConfigurationIT {
         // Given
         request = new HttpGet(startRAUrl + "/api/administerRequest");
 
-        request.addHeader("Authorization", "Bearer " + getJWT(LOGIN_USER_CONTENT));
+        request.addHeader("Authorization", "Bearer " + getJWT(startUrl, LOGIN_USER_CONTENT));
 
         // When
         httpResponse = HttpClientBuilder.create().build().execute(request);
@@ -161,7 +126,7 @@ public class SecurityConfigurationIT {
         // Given
         request = new HttpGet(startUrl + "/api/administerRequest");
 
-        request.addHeader("Authorization", "Bearer " + getJWT(LOGIN_RA_CONTENT));
+        request.addHeader("Authorization", "Bearer " + getJWT(startRAUrl, LOGIN_RA_CONTENT));
 
         // When
         httpResponse = HttpClientBuilder.create().build().execute(request);
@@ -173,7 +138,7 @@ public class SecurityConfigurationIT {
         // Given
         request = new HttpGet(startRAUrl + "/api/administerRequest");
 
-        request.addHeader("Authorization", "Bearer " + getJWT(LOGIN_RA_CONTENT));
+        request.addHeader("Authorization", "Bearer " + getJWT(startRAUrl, LOGIN_RA_CONTENT));
 
         // When
         httpResponse = HttpClientBuilder.create().build().execute(request);
@@ -204,7 +169,7 @@ public class SecurityConfigurationIT {
             // Given
             HttpUriRequest request = new HttpGet(adminUrl);
 
-            request.addHeader("Authorization", "Bearer " + getJWT(LOGIN_USER_CONTENT));
+            request.addHeader("Authorization", "Bearer " + getJWT(startUrl, LOGIN_USER_CONTENT));
 
             // When
             HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
@@ -218,7 +183,7 @@ public class SecurityConfigurationIT {
             // Given
             HttpUriRequest request = new HttpGet(adminUrlWrongPort);
 
-            request.addHeader("Authorization", "Bearer " + getJWT(LOGIN_ADMIN_CONTENT));
+            request.addHeader("Authorization", "Bearer " + getJWT(startAdminUrl, LOGIN_ADMIN_CONTENT));
 
             // When
             HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
@@ -233,7 +198,7 @@ public class SecurityConfigurationIT {
             // Given
             HttpUriRequest request = new HttpGet(adminUrl);
 
-            request.addHeader("Authorization", "Bearer " + getJWT(LOGIN_ADMIN_CONTENT));
+            request.addHeader("Authorization", "Bearer " + getJWT(startAdminUrl, LOGIN_ADMIN_CONTENT));
 
             // When
             HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
@@ -280,7 +245,7 @@ public class SecurityConfigurationIT {
     }
 
 
-    String getJWT(final String param) throws IOException, UnsupportedOperationException, ParseException {
+    String getJWT(final String startUrl, final String param) throws IOException, UnsupportedOperationException, ParseException {
 
         // Given
         HttpPost request = new HttpPost(startUrl + "api/authenticate");
@@ -300,6 +265,6 @@ public class SecurityConfigurationIT {
 
 
     final static String LOGIN_ADMIN_CONTENT = "{\"username\":\"admin\",\"password\":\"admin\",\"rememberMe\":null}";
-    final static String LOGIN_RA_CONTENT = "{\"username\":\"ra\",\"password\":\"s3cr3t\",\"rememberMe\":null}";
-    final static String LOGIN_USER_CONTENT = "{\"username\":\"user\",\"password\":\"user\",\"rememberMe\":null}";
+    final static String LOGIN_RA_CONTENT = "{\"username\":\"raofficer\",\"password\":\"s3cr3t\",\"rememberMe\":null}";
+    final static String LOGIN_USER_CONTENT = "{\"username\":\"user1\",\"password\":\"user\",\"rememberMe\":null}";
 }
