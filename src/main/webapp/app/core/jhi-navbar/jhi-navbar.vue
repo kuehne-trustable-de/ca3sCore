@@ -180,6 +180,11 @@
                         <span v-text="$t('global.menu.admin.configuration')">Configuration</span>
                     </b-dropdown-item-->
 
+                    <!--b-dropdown-item  to="/crl-url-list">
+                        <font-awesome-icon icon="heart" />
+                        <span v-text="$t('global.menu.admin.crlUrlStatus')"></span>
+                    </b-dropdown-item-->
+
                     <b-dropdown-item  to="/audit-list">
                         <font-awesome-icon icon="bell" />
                         <span v-text="$t('global.menu.admin.audits')"></span>

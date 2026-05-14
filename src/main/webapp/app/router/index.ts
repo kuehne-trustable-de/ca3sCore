@@ -11,6 +11,7 @@ const HelpTag = () => import('../core/help/help-tag.vue');
 const PkcsXX = () => import('../core/pkcsxx/pkcsxx.vue');
 const Preference = () => import('../core/preference/preference.vue');
 const AuditList = () => import('../core/audit/audit-list.vue');
+const CrlUrlStatus = () => import('../admin/crlUrlStatus/crlUrlStatus.vue');
 const BpmnList = () => import('../core/bpmn/bpmn-list.vue');
 const BpmnInfo = () => import('../core/bpmn/bpmn-info.vue');
 const BpmnNew = () => import('../core/bpmn/bpmn-new.vue');
@@ -302,6 +303,11 @@ export default new Router({
       path: '/preference',
       name: 'Preference',
       component: Preference
+    },
+    {
+      path: '/crl-url-list',
+      name: 'CrlUrlStatus',
+      component: CrlUrlStatus
     },
     {
       path: '/audit-list',
