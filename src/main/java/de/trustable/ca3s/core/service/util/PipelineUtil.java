@@ -284,6 +284,10 @@ public class PipelineUtil {
             pv.setRequestProxyConfigIds(pipeline.getRequestProxies().stream().mapToLong(r -> r.getId()).toArray());
         }
 
+        // set defaults, vuelidate is picky
+        pv.setCnAsSanRestriction(CN_AS_SAN_IGNORE);
+        pv.setKeyUniqueness(KeyUniqueness.KEY_UNIQUE);
+
         for (PipelineAttribute plAtt : pipeline.getPipelineAttributes()) {
 
             if (ACME_ALLOW_CHALLENGE_HTTP01.equals(plAtt.getName())) {
