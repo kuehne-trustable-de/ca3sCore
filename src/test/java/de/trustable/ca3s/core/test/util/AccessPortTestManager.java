@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.test.util;
 
-import org.junit.jupiter.api.AfterAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,7 @@ public class AccessPortTestManager {
         }
     }
 
-    public void setUpEnvironment() throws IOException {
+    public void setUpEnvironment() {
 
         System.setProperty(SERVER_TLS_PREFIX + "port", "" + tlsAccessPort);
         System.setProperty(SERVER_ADMIN_PREFIX + "port", "" + adminAccessPort);
@@ -46,6 +45,24 @@ public class AccessPortTestManager {
         System.setProperty(SERVER_ACME_PREFIX + "port", "" + acmeAccessPort);
         System.setProperty(SERVER_SCEP_PREFIX + "port", "" + scepAccessPort);
         System.setProperty(SERVER_EST_PREFIX + "port", "" + estAccessPort);
+
+        System.setProperty(SERVER_TLS_PREFIX + "https", "false");
+        System.setProperty(SERVER_ADMIN_PREFIX + "https", "false");
+        System.setProperty(SERVER_RA_PREFIX + "https", "false");
+        System.setProperty(SERVER_ACME_PREFIX + "https", "false");
+        System.setProperty(SERVER_SCEP_PREFIX + "https", "false");
+        System.setProperty(SERVER_EST_PREFIX + "https", "false");
+
+    }
+
+    public void setUpEnvironmentSinglePort() {
+
+        System.setProperty(SERVER_TLS_PREFIX + "port", "" + tlsAccessPort);
+        System.setProperty(SERVER_ADMIN_PREFIX + "port", "" + tlsAccessPort);
+        System.setProperty(SERVER_RA_PREFIX + "port", "" + tlsAccessPort);
+        System.setProperty(SERVER_ACME_PREFIX + "port", "" + tlsAccessPort);
+        System.setProperty(SERVER_SCEP_PREFIX + "port", "" + tlsAccessPort);
+        System.setProperty(SERVER_EST_PREFIX + "port", "" + tlsAccessPort);
 
         System.setProperty(SERVER_TLS_PREFIX + "https", "false");
         System.setProperty(SERVER_ADMIN_PREFIX + "https", "false");

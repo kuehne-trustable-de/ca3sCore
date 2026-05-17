@@ -110,7 +110,10 @@ public class PipelineAdministrationIT extends WebTestBase{
 	public static void setUpBeforeClass() {
 
         JCAManager.getInstance();
-	}
+
+        accessPortTestManager.setUpEnvironmentSinglePort();
+
+    }
 
 	@BeforeEach
 	void init() {

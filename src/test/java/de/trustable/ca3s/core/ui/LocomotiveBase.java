@@ -69,7 +69,9 @@ public class LocomotiveBase {
     public String baseUrl;
 
     @Value("${local.server.port}")
-    int port; //random port chosen by spring test
+    int springTestport; //random port chosen by spring test
+
+    int port = -1; //random port chosen by spring test
 
 
     File downloadDir;
@@ -250,7 +252,7 @@ public class LocomotiveBase {
                             options.addArguments("--no-sandbox");
                             options.addArguments("--disable-dev-shm-usage");
 
-                            options.setBinary("/snap/bin/chromium");
+//                            options.setBinary("/snap/bin/chromium");
 
 //                            driver = WebDriverManager.chromedriver().capabilities(options).create();
 

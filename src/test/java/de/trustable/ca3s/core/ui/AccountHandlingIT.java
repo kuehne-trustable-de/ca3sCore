@@ -7,7 +7,6 @@ import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
 import de.trustable.util.JCAManager;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.jboss.aerogear.security.otp.Totp;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -97,7 +96,7 @@ public class AccountHandlingIT extends WebTestBase {
     public static void setUpBeforeClass() throws IOException, MessagingException {
 
         JCAManager.getInstance();
-        WebDriverManager.chromedriver().setup();
+        accessPortTestManager.setUpEnvironmentSinglePort();
 
         startEmailMock();
     }

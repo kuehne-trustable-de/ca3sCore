@@ -11,10 +11,10 @@ import de.trustable.ca3s.core.service.util.PreferenceUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.ui.helper.Browser;
 import de.trustable.ca3s.core.ui.helper.Config;
+import de.trustable.ca3s.core.ui.helper.EMailInfo;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
 import de.trustable.util.Pkcs10RequestHolder;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.mail.Folder;
@@ -179,8 +178,8 @@ public class CSRSubmitIT extends WebTestBase {
 
     String randomComment;
 
-    @LocalServerPort
-    int serverPort; // random port chosen by spring test
+    String targetUrlUser;
+    String targetUrlRA;
 
     @Autowired
     PipelineTestConfiguration ptc;
@@ -213,12 +212,17 @@ public class CSRSubmitIT extends WebTestBase {
     @BeforeAll
     public static void setUpBeforeAll() throws IOException, MessagingException {
         JCAManager.getInstance();
-        WebDriverManager.chromedriver().setup();
         startEmailMock();
+        accessPortTestManager.setUpEnvironmentSinglePort();
+
     }
 
     @BeforeEach
     public void init() throws InterruptedException {
+
+        targetUrlUser = "http://localhost:" + accessPortTestManager.getTlsAccessPort();
+        targetUrlRA = "http://localhost:" + accessPortTestManager.getRaAccessPort();
+
 
         waitForUrl();
 
@@ -1203,7 +1207,6 @@ public class CSRSubmitIT extends WebTestBase {
         validatePresent(LOC_BTN_REQUEST_CERTIFICATE);
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
-
         validatePresent(LOC_TEXT_MESSAGE_NO_IP);
     }
 
@@ -1213,7 +1216,6 @@ public class CSRSubmitIT extends WebTestBase {
 
         EMailInfo userEmailInfo = getInboxForUser(USER_NAME_USER, USER_PASSWORD_USER);
         EMailInfo raEmailInfo = getInboxForUser(USER_NAME_RA, USER_PASSWORD_RA);
-
 
         signIn(USER_NAME_USER, USER_PASSWORD_USER);
 
@@ -1255,6 +1257,8 @@ public class CSRSubmitIT extends WebTestBase {
 
         String emailContent = msgReceived.getContent().toString();
         System.out.println( "msgReceived.getContent() : " + emailContent);
+
+        waitForUrl(targetUrlRA);
 
         // switch to RA officer role
         signIn(USER_NAME_RA, USER_PASSWORD_RA);
@@ -1356,6 +1360,7 @@ public class CSRSubmitIT extends WebTestBase {
         System.out.println("Download link include ski " + ski);
         assertFalse(ski.contains("%"));
 
+        waitForUrl(targetUrlUser);
         signIn(USER_NAME_USER, USER_PASSWORD_USER);
 
         click(LOC_LNK_CERTIFICATES_MENUE);
@@ -1579,29 +1584,4 @@ public class CSRSubmitIT extends WebTestBase {
     }
 
  */
-}
-
-class EMailInfo{
-
-    private final String username;
-    private final String emailAccountPassword;
-    private final Folder userFolder;
-
-    public EMailInfo(String username, String emailAccountPassword, Folder userFolder){
-        this.username = username;
-        this.emailAccountPassword = emailAccountPassword;
-        this.userFolder = userFolder;
-    }
-
-    public String getUserName() {
-        return username;
-    }
-
-    public String getEmailAccountPassword() {
-        return emailAccountPassword;
-    }
-
-    public Folder getUserFolder() {
-        return userFolder;
-    }
 }

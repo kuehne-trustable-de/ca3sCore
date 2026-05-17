@@ -26,7 +26,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Random;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Config(
@@ -80,6 +79,8 @@ public class BPMNAdministrationIT extends WebTestBase{
     @BeforeAll
 	public static void setUpBeforeClass() throws IOException {
         JCAManager.getInstance();
+
+        accessPortTestManager.setUpEnvironmentSinglePort();
 
         ClassPathResource bpmnTestResource = new ClassPathResource("bpmn/CAInvocationProcess.bpmn");
         bpmnTestFile = File.createTempFile("TestProcess", ".bpmn");

@@ -3,10 +3,10 @@ package de.trustable.ca3s.core.ui;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.sun.mail.imap.protocol.FLAGS;
-import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.test.speech.SoundOutput;
+import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import org.jboss.aerogear.security.otp.Totp;
 import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.By;
@@ -39,7 +39,6 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
-import static de.trustable.ca3s.core.config.EndpointConfigs.*;
 import static org.junit.Assert.fail;
 
 public class WebTestBase extends LocomotiveBase {
@@ -90,6 +89,9 @@ public class WebTestBase extends LocomotiveBase {
 
     protected SoundOutput soundOutput = null;
 
+    static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
+
+
     @Autowired
     UserRepository userRepository;
 
@@ -122,21 +124,27 @@ public class WebTestBase extends LocomotiveBase {
     Document tutorialDocument;
     XPath xPath;
 
-
     public WebTestBase() {
 
         super();
+        super.port = accessPortTestManager.getTlsAccessPort();
 
-        testPortHttp = super.port;
-        testPortHttps = super.port;
+/*
+        accessPortTestManager.setUpEnvironmentSinglePort();
 
+        super.port = accessPortTestManager.getTlsAccessPort();
+        testPortHttp = accessPortTestManager.getTlsAccessPort();
+        testPortHttps = accessPortTestManager.getTlsAccessPort();
+*/
+
+/*
         // assign the ports for this test to random values to avoid collisions to other instances
         System.setProperty(SERVER_TLS_PREFIX + "port", "" + testPortHttps);
         System.setProperty(SERVER_ADMIN_PREFIX + "port", "" + testPortHttps);
         System.setProperty(SERVER_RA_PREFIX + "port", "" + testPortHttps);
         System.setProperty(SERVER_ACME_PREFIX + "port", "" + testPortHttps);
         System.setProperty(SERVER_SCEP_PREFIX + "port", "" + testPortHttp);
-
+*/
         System.setProperty("ca3s.ui.test.mode", "TEST");
 
         ClassPathResource explainationsResource =  new ClassPathResource("tutorial/explanations.xml");

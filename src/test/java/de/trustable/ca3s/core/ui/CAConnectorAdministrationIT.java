@@ -14,7 +14,6 @@ import de.trustable.ca3s.core.service.dto.PkcsXXData;
 import de.trustable.ca3s.core.web.rest.data.UploadPrecheckData;
 import de.trustable.ca3s.core.web.rest.support.ContentUploadProcessor;
 import de.trustable.util.JCAManager;
-import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -25,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -107,7 +105,10 @@ public class CAConnectorAdministrationIT extends WebTestBase{
 	public static void setUpBeforeClass() {
 
         JCAManager.getInstance();
-	}
+
+        accessPortTestManager.setUpEnvironmentSinglePort();
+
+    }
 
 	@BeforeEach
 	void init() {
