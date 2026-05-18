@@ -258,6 +258,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   public isRevocable() {
 
     return (
+      this.certificateView.csrId &&
       this.certificateView.active &&
       (this.isRAOfficer() || this.isOwnCertificate())
     );

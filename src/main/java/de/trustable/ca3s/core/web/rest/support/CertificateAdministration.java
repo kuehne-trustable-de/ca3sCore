@@ -109,10 +109,11 @@ public class CertificateAdministration {
 
             try {
                 if(AdministrationType.REVOKE.equals(adminData.getAdministrationType())){
-                    revokeCertificate(cert, adminData, raOfficerName);
 
                     CSR csr = cert.getCsr();
                     if (csr != null) {
+                        revokeCertificate(cert, adminData, raOfficerName);
+
                         Optional<User> optUser = userRepository.findOneByLogin(csr.getRequestedBy());
                         if (optUser.isPresent()) {
                             User requestor = optUser.get();
@@ -125,6 +126,8 @@ public class CertificateAdministration {
                         } else {
                             LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());
                         }
+                    } else {
+                        LOG.warn("no revocation of cert #{} without a CSR", cert.getId());
                     }
                     updateComment(adminData, cert);
                     updateARAttributes(adminData, cert);
