@@ -124,7 +124,7 @@ public class UserJWTController {
 
     @Transactional(noRollbackFor = {BadCredentialsException.class, AuthenticationException.class, InternalAuthenticationServiceException.class, UserNotAuthenticatedException.class})
     @PostMapping("/authenticateLDAP")
-    public ResponseEntity<?> authorizeLDAP(@Valid @RequestBody LoginData loginData) {
+    public ResponseEntity<?> authorizeLDAP(@Valid @RequestBody LoginData loginData, HttpServletRequest request) {
 
         userUtil.checkIPBlocked(loginData.getUsername());
 
@@ -152,7 +152,10 @@ public class UserJWTController {
             if (!isCredentialsValid) {
                 return buildProblemDetailForAuthenticationFailure(loginData, "ldap authentication failed");
             }
+
             UserDetails userDetails = domainUserDetailsService.handleAuthenticatedUser(atStyleName, sAMAccountName);
+
+            userUtil.checkAccessPortForRole(userDetails.getAuthorities(), userDetails.getUsername(), request);
 
             AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken(atStyleName, atStyleName, userDetails.getAuthorities());
 

@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -36,8 +37,12 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Service
 public class UserUtil {
 
@@ -239,30 +244,45 @@ public class UserUtil {
 
     }
 
-    public void checkAccessPortForRole(final User user, HttpServletRequest request){
+    public void checkAccessPortForRole(final Collection<? extends GrantedAuthority> grantedAuthoritySet, final String login, HttpServletRequest request) {
+        Set<String> authorityNameSet =  grantedAuthoritySet.stream()
+            .map(GrantedAuthority::getAuthority)
+            .collect(Collectors.toSet());
+        checkAccessPortForRoleNameSet(authorityNameSet, login, request);
+    }
+
+    public void checkAccessPortForRole(final User user, HttpServletRequest request) {
+
+        Set<String> authorityNameSet =  user.getAuthorities().stream()
+            .map(Authority::getName)
+            .collect(Collectors.toSet());
+        checkAccessPortForRoleNameSet(authorityNameSet, user.getLogin(), request);
+    }
+
+    private void checkAccessPortForRoleNameSet(final Set<String> authorityNameSet, final String login, HttpServletRequest request){
 
         String ENDPOINT_ERROR_MSG = "User {} tries to login with role '{}' at unsupported endpoint.";
 
-        for( Authority authority: user.getAuthorities()){
-            if( authority.getName().equals( AuthoritiesConstants.ADMIN)) {
+        for( String authorityName: authorityNameSet){
+            if( authorityName.equals( AuthoritiesConstants.ADMIN)) {
                 if (!endpointConfigs.getAdminEndpointConfig().matchesRequest(request)) {
                     LOG.warn(ENDPOINT_ERROR_MSG,
-                        user.getLogin(), AuthoritiesConstants.ADMIN);
+                        login, AuthoritiesConstants.ADMIN);
                     throw new UserConnectsOnInappropriateEndpointException("User connects on inappropriate endpoint");
                 }
-                LOG.debug("User {} has ADMIN role and uses admin port for login.", user.getLogin());
+                LOG.debug("User {} has ADMIN role and uses admin port for login.", login);
                 return;
             }
         }
 
-        for( Authority authority: user.getAuthorities()){
-            if( authority.getName().equals( AuthoritiesConstants.RA_OFFICER)) {
+        for( String authorityName: authorityNameSet){
+            if( authorityName.equals( AuthoritiesConstants.RA_OFFICER)) {
                 if (!endpointConfigs.getRaEndpointConfig().matchesRequest(request)) {
                     LOG.warn(ENDPOINT_ERROR_MSG,
-                        user.getLogin(), AuthoritiesConstants.RA_OFFICER);
+                        login, AuthoritiesConstants.RA_OFFICER);
                     throw new UserConnectsOnInappropriateEndpointException("User connects on inappropriate endpoint");
                 }
-                LOG.debug("User {} has RA-Officer role and uses ra port for login.", user.getLogin());
+                LOG.debug("User {} has RA-Officer role and uses ra port for login.", login);
             }
         }
     }
