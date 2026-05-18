@@ -295,12 +295,12 @@ public class AcmeController {
 
         if (updatedAcct.getContacts().isEmpty()) {
             checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, pattern, "", false);
-            checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, patternReject, "", true);
+            checkEmailRegEx(pipeline.getUrlPart(), regexContactEMailReject, patternReject, "", true);
         } else {
             for (String contactUrl : updatedAcct.getContacts()) {
 
                 checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, pattern, contactUrl, false);
-                checkEmailRegEx(pipeline.getUrlPart(), regexContactEMail, patternReject, contactUrl, true);
+                checkEmailRegEx(pipeline.getUrlPart(), regexContactEMailReject, patternReject, contactUrl, true);
 
                 if( acctDao.getContacts().stream().anyMatch(c -> c.getContactUrl().trim().equals(contactUrl.trim()))){
                     LOG.info("contact url '{}' already known for account {}", contactUrl, acctDao.getId());
@@ -332,7 +332,7 @@ public class AcmeController {
                                         Pattern pattern,
                                         String contactUrl,
                                         boolean reject) {
-        if( reject == pattern.matcher(contactUrl).matches()) {
+        if( reject == pattern.matcher(contactUrl.toLowerCase(Locale.ROOT)).matches()) {
 
             LOG.warn("non-conformant account request for realm '{}', contact email address '{}' MUST " +
                 (reject? "NOT ": "") +

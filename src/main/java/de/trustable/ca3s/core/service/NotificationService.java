@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.service;
 
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
@@ -766,54 +767,59 @@ public class NotificationService {
     public void notifyRAOfficerOnRequest(CSR csr, List<User> raOfficerList, List<User> domainOfficerList,
                                          boolean logNotification) {
 
-        LOG.info("certificate requested, causing a new pending requests (CSR # {})", csr.getId());
+        if(CsrStatus.PENDING.equals(csr.getStatus())){
 
-        List<CSR> newCsrList = new ArrayList<>();
-        newCsrList.add(csr);
-        
-        List<String> araEmailList = new ArrayList<>();
-        if( csr.getPipeline() != null) {
-            PipelineView pipelineView = pipelineUtil.from(csr.getPipeline());
-            araEmailList = findARAEmailRecipients(pipelineView, csr);
-        }
+            LOG.info("certificate requested, causing a new pending requests (CSR # {})", csr.getId());
 
-        User requestor = userUtil.getUserByLogin(csr.getRequestedBy());
-        if( requestor != null) {
-            Locale locale = getUserLocale(requestor);
-            Context context = new Context(locale);
-            context.setVariable("newCsrList", newCsrList);
-            try {
-                mailService.sendEmailFromTemplate(context, requestor, araEmailList.toArray(new String[0]), "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
-            } catch (Throwable throwable) {
-                LOG.warn("Problem occurred while sending a notification eMail to domain officer address '" + requestor.getEmail() + "'", throwable);
-                if (logNotification) {
-                    auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(requestor.getEmail()));
+            List<CSR> newCsrList = new ArrayList<>();
+            newCsrList.add(csr);
+
+            List<String> araEmailList = new ArrayList<>();
+            if( csr.getPipeline() != null) {
+                PipelineView pipelineView = pipelineUtil.from(csr.getPipeline());
+                araEmailList = findARAEmailRecipients(pipelineView, csr);
+            }
+
+            User requestor = userUtil.getUserByLogin(csr.getRequestedBy());
+            if( requestor != null) {
+                Locale locale = getUserLocale(requestor);
+                Context context = new Context(locale);
+                context.setVariable("newCsrList", newCsrList);
+                try {
+                    mailService.sendEmailFromTemplate(context, requestor, araEmailList.toArray(new String[0]), "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
+                } catch (Throwable throwable) {
+                    LOG.warn("Problem occurred while sending a notification eMail to domain officer address '" + requestor.getEmail() + "'", throwable);
+                    if (logNotification) {
+                        auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(requestor.getEmail()));
+                    }
                 }
             }
-        }
 
-        if( !doNotifyRAOfficerOnRequest){
-            LOG.info("notifyRAOfficerOnRequest deactivated");
-            return;
-        }
+            if( !doNotifyRAOfficerOnRequest){
+                LOG.info("notifyRAOfficerOnRequest deactivated");
+                return;
+            }
 
-        List<User> officerList = new ArrayList<>(raOfficerList);
-        officerList.addAll(domainOfficerList);
+            List<User> officerList = new ArrayList<>(raOfficerList);
+            officerList.addAll(domainOfficerList);
 
-        // Notify RA officers
-        for( User raOfficer: officerList) {
-            Locale locale = getUserLocale(raOfficer);
-            Context context = new Context(locale);
-            context.setVariable("newCsrList", newCsrList);
-            try {
-                mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
-            }catch (Throwable throwable){
-                LOG.warn("Problem occurred while sending a notification eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
+            // Notify RA officers
+            for( User raOfficer: officerList) {
+                Locale locale = getUserLocale(raOfficer);
+                Context context = new Context(locale);
+                context.setVariable("newCsrList", newCsrList);
+                try {
+                    mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/newPendingRequestEmail", "email.newPendingRequestEmail.subject");
+                }catch (Throwable throwable){
+                    LOG.warn("Problem occurred while sending a notification eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
 
-                if(logNotification) {
-                    auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(raOfficer.getEmail()));
+                    if(logNotification) {
+                        auditService.saveAuditTrace(auditService.createAuditTraceNotificationFailed(raOfficer.getEmail()));
+                    }
                 }
             }
+        }else{
+            LOG.info("certificate requested, but request CSR #{} hasn't status 'PENDING', but '{}'", csr.getId(), csr.getStatus());
         }
 
     }

@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.schedule;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.repository.CSRRepository;
+import de.trustable.ca3s.core.service.NotificationService;
 import de.trustable.ca3s.core.service.dto.bpmn.RequestAuthorizationInput;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
 import org.slf4j.Logger;
@@ -34,14 +35,16 @@ public class RequestAuthorizationScheduler {
 
     private final BPMNUtil bpmnUtil;
 
+    private final NotificationService notificationService;
 
     public RequestAuthorizationScheduler(@Value("${ca3s.batch.maxRecordsPerTransaction:1000}") int maxRecordsPerTransaction,
                                          CSRRepository csrRepository,
-                                         BPMNUtil bpmnUtil) {
+                                         BPMNUtil bpmnUtil, NotificationService notificationService) {
 
         this.maxRecordsPerTransaction = maxRecordsPerTransaction;
         this.csrRepository = csrRepository;
         this.bpmnUtil = bpmnUtil;
+        this.notificationService = notificationService;
     }
 
 
@@ -60,6 +63,10 @@ public class RequestAuthorizationScheduler {
 
             try {
                 bpmnUtil.requestAuthorizationProcess(csr.getPipeline(), new RequestAuthorizationInput(csr));
+
+                if(CsrStatus.PENDING.equals(csr.getStatus())){
+                    notificationService.notifyRAOfficerOnRequest(csr);
+                }
             }catch( GeneralSecurityException gse){
                 LOG.warn("GeneralSecurityException when processing request authorization for CSR #{} : {}",
                     csr.getId(),

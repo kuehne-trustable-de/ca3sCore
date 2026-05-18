@@ -122,7 +122,8 @@ public class UserJWTController {
         }
     }
 
-    @Transactional(noRollbackFor = {BadCredentialsException.class, AuthenticationException.class, InternalAuthenticationServiceException.class, UserNotAuthenticatedException.class})
+    @Transactional(noRollbackFor = {BadCredentialsException.class,
+        AuthenticationException.class, InternalAuthenticationServiceException.class, UserNotAuthenticatedException.class})
     @PostMapping("/authenticateLDAP")
     public ResponseEntity<?> authorizeLDAP(@Valid @RequestBody LoginData loginData, HttpServletRequest request) {
 
