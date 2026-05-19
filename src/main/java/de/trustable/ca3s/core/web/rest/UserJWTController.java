@@ -1,10 +1,8 @@
 package de.trustable.ca3s.core.web.rest;
 
-import de.trustable.ca3s.core.config.LDAPConfig;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.AuthSecondFactor;
 import de.trustable.ca3s.core.exception.UserNotAuthenticatedException;
-import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.DomainUserDetailsService;
 import de.trustable.ca3s.core.security.jwt.JWTFilter;
 import de.trustable.ca3s.core.security.jwt.TokenProvider;
@@ -28,7 +26,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,39 +49,30 @@ public class UserJWTController {
     private final UserCredentialService userCredentialService;
     private final LDAPCredentialService ldapCredentialService;
     private final UserUtil userUtil;
-    private final UserRepository userRepository;
 
     private final DomainUserDetailsService domainUserDetailsService;
 
     private final TotpService totpService;
     private final SMSService smsService;
     private final ClientAuthService clientAuthService;
-    final private PasswordEncoder passwordEncoder;
-
-    private String domainSuffix;
 
     public UserJWTController(TokenProvider tokenProvider, UserService userService,
-                             UserCredentialService userCredentialService, LDAPCredentialService ldapCredentialService,
-                             UserUtil userUtil, UserRepository userRepository,
+                             UserCredentialService userCredentialService,
+                             LDAPCredentialService ldapCredentialService,
+                             UserUtil userUtil,
                              DomainUserDetailsService domainUserDetailsService,
                              TotpService totpService,
-                             SMSService smsService, ClientAuthService clientAuthService, PasswordEncoder passwordEncoder,
-                             LDAPConfig ldapConfig) {
+                             SMSService smsService,
+                             ClientAuthService clientAuthService) {
         this.tokenProvider = tokenProvider;
         this.userService = userService;
         this.userCredentialService = userCredentialService;
         this.ldapCredentialService = ldapCredentialService;
         this.userUtil = userUtil;
-        this.userRepository = userRepository;
         this.domainUserDetailsService = domainUserDetailsService;
         this.totpService = totpService;
         this.smsService = smsService;
         this.clientAuthService = clientAuthService;
-        this.passwordEncoder = passwordEncoder;
-
-        if (ldapConfig.getAdDomain() != null) {
-            domainSuffix = "@" + ldapConfig.getAdDomain().toLowerCase();
-        }
     }
 
     @Transactional(noRollbackFor = {BadCredentialsException.class, AuthenticationException.class, InternalAuthenticationServiceException.class, UserNotAuthenticatedException.class})

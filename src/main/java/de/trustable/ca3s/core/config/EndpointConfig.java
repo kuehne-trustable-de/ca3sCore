@@ -47,7 +47,14 @@ public class EndpointConfig {
     }
 
     public boolean matchesRequest(HttpServletRequest request) {
-        if( request.getServerPort() == getPort() ){
+        if( request.getServerPort() == getPort() ) {
+            LOG.debug("Server port {} matches expected port", getPort());
+            return true;
+        } else if( request.getLocalPort() == getPort() ){
+            LOG.debug("Local port {} matches expected port", getPort());
+            return true;
+        } else if( request.getRemotePort() == getPort() ){
+            LOG.debug("Remote port {} matches expected port", getPort());
             return true;
         }else{
             LOG.warn("Port {} does not match expected port {}", request.getServerPort(), getPort());
