@@ -164,7 +164,7 @@
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <jib-maven-plugin.version>3.5.1</jib-maven-plugin.version>
         <jib.allowInsecureRegistries>true</jib.allowInsecureRegistries>
-        <jib-maven-plugin.from.image>eclipse-temurin:17-jre-focal</jib-maven-plugin.from.image>
+        <jib-maven-plugin.from.image>eclipse-temurin:26.0.1_8-jre-resolute</jib-maven-plugin.from.image>
         <jib-maven-plugin.to.image>docker.io/ca3s/ca3s</jib-maven-plugin.to.image>
         <jib-maven-plugin.architecture>amd64</jib-maven-plugin.architecture>
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
