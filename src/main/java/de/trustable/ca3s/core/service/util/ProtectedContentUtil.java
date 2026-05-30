@@ -48,8 +48,8 @@ public class ProtectedContentUtil {
     public static final Instant MAX_INSTANT = Instant.parse("9990-12-30T23:59:59Z");
 
     private final ProtectedContentRepository protContentRepository;
-
     private final CertificateRepository certificateRepository;
+    private final PasswordMasker passwordMasker;
 
     private final String salt;
     private final int iterations;
@@ -57,6 +57,7 @@ public class ProtectedContentUtil {
 
 	public ProtectedContentUtil(ProtectedContentRepository protContentRepository,
                                 CertificateRepository certificateRepository,
+                                PasswordMasker passwordMasker,
                                 @Value("${protectionSecret:mJvR25yt4NHTIqe5Hz7nUHhQNUuM}") String protectionSecretFallback,
                                 @Value("${ca3s.protectionSecret:#{null}}") String protectionSecret,
                                 @Value("${ca3s.connection.salt:ca3sSalt}") String salt,
@@ -65,6 +66,7 @@ public class ProtectedContentUtil {
 
         this.protContentRepository = protContentRepository;
         this.certificateRepository = certificateRepository;
+        this.passwordMasker = passwordMasker;
 
         this.salt = salt;
         this.iterations = iterations;
@@ -91,7 +93,7 @@ public class ProtectedContentUtil {
         passwordUtil.checkPassword(protectionSecret, "Value of 'ca3s.protectionSecret'");
 
 		if( log.isDebugEnabled()) {
-			log.debug("using protection secret '{}'", PasswordUtil.maskPassword(protectionSecret) );
+			log.debug("using protection secret '{}'", passwordMasker.maskPassword(protectionSecret) );
 		}
 
         textEncryptor = new BasicTextEncryptor();

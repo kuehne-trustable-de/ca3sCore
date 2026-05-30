@@ -57,6 +57,7 @@ public class ESTService {
     private final CertificateUtil certificateUtil;
     private final ProtectedContentRepository protectedContentRepository;
     private final ProtectedContentUtil protectedContentUtil;
+    final private PasswordMasker passwordMasker;
 
 
     public ESTService(CertificateRepository certificateRepository,
@@ -65,7 +66,10 @@ public class ESTService {
                       PipelineUtil pipelineUtil,
                       CertificateProcessingUtil cpUtil,
                       AuditService auditService,
-                      CertificateUtil certificateUtil, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil) {
+                      CertificateUtil certificateUtil,
+                      ProtectedContentRepository protectedContentRepository,
+                      ProtectedContentUtil protectedContentUtil,
+                      PasswordMasker passwordMasker) {
         this.certificateRepository = certificateRepository;
         this.pipelineRepository = pipelineRepository;
         this.cryptoUtil = cryptoUtil;
@@ -76,6 +80,7 @@ public class ESTService {
         this.certificateUtil = certificateUtil;
         this.protectedContentRepository = protectedContentRepository;
         this.protectedContentUtil = protectedContentUtil;
+        this.passwordMasker = passwordMasker;
     }
 
 
@@ -337,8 +342,8 @@ public class ESTService {
             } else {
 
                 LOG.debug("Protected Content password does not match EST password '{}' != '{}'",
-                    truncatePassword(expectedPassword),
-                    truncatePassword(password));
+                    passwordMasker.maskPassword(expectedPassword),
+                    passwordMasker.maskPassword(password));
             }
         }
 
@@ -346,10 +351,4 @@ public class ESTService {
         return false;
     }
 
-    public String truncatePassword(final String password){
-        if( password == null || (password.length() < 5)){
-            return "******r3t";
-        }
-        return password.substring(password.length() - 4);
-    }
 }

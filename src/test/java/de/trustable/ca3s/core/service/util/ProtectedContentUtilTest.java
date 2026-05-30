@@ -22,6 +22,7 @@ class ProtectedContentUtilTest {
         ProtectedContentUtil subject = new ProtectedContentUtil(
             protContentRepository,
             certificateRepository,
+            new PasswordMasker(4),
             "mJvR25yt4NHTIqe5Hz7nUHhQNUuM",
             "S3cr3t#s3cr3t$s3cr3t",
                  "ca3sSalt",

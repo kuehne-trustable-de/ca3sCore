@@ -133,6 +133,10 @@ ca3s:
         description: min6NumberUpperLower
         regexp: ^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,100}$
 
+  log:
+    password:
+      mask-cleartext-len: 4
+
   auth:
     api-key:
       enabled: true

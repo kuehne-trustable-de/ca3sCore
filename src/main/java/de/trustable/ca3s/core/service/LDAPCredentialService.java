@@ -5,9 +5,9 @@ import com.unboundid.ldap.sdk.*;
 import com.unboundid.util.ssl.SSLUtil;
 import de.trustable.ca3s.core.config.LDAPConfig;
 import de.trustable.ca3s.core.security.provider.Ca3sTrustManager;
+import de.trustable.ca3s.core.service.util.PasswordMasker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
@@ -22,10 +22,12 @@ public class LDAPCredentialService {
 
     private final LDAPConfig ldapConfig;
     private final Ca3sTrustManager ca3sTrustManager;
+    final private PasswordMasker passwordMasker;
 
-    public LDAPCredentialService(AuthenticationManagerBuilder authenticationManagerBuilder, LDAPConfig ldapConfig, Ca3sTrustManager ca3sTrustManager) {
+    public LDAPCredentialService(LDAPConfig ldapConfig, Ca3sTrustManager ca3sTrustManager, PasswordMasker passwordMasker) {
         this.ldapConfig = ldapConfig;
         this.ca3sTrustManager = ca3sTrustManager;
+        this.passwordMasker = passwordMasker;
     }
 
     public boolean checkUserPasswordWithLDAP(final String username, final String principal, final String password) {
@@ -47,7 +49,7 @@ public class LDAPCredentialService {
     private boolean checkLDAPAccess(final String username, final String principal, final String password)
         throws GeneralSecurityException, LDAPException, MalformedURLException {
 
-        boolean outcome = false;
+        boolean outcome;
 
         SSLUtil sslUtil = new SSLUtil(ca3sTrustManager);
         LDAPConnectionOptions options = new LDAPConnectionOptions();
@@ -57,7 +59,7 @@ public class LDAPCredentialService {
             ldapConfig.getLdapHost(),
             ldapConfig.getLdapPort(),
             principal,
-            password,
+            passwordMasker.maskPassword(password),
             username);
 
         try(LDAPConnection conn = new LDAPConnection(sslUtil.createSSLSocketFactory(), options,
@@ -81,4 +83,5 @@ public class LDAPCredentialService {
 
         return outcome;
     }
+
 }

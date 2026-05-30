@@ -13,7 +13,7 @@ public class PasswordUtil {
     private final String passwordCheckRegExp;
     private final Pattern passwordCheckPattern;
 
-    public PasswordUtil(final String passwordCheckRegExp){
+    public PasswordUtil(final String passwordCheckRegExp) {
         this.passwordCheckRegExp = passwordCheckRegExp;
         this.passwordCheckPattern = Pattern.compile(passwordCheckRegExp);
     }
@@ -24,17 +24,11 @@ public class PasswordUtil {
 
     public void checkPassword(String password, String elementName) {
 
-            if( password != null && passwordCheckPattern.matcher(password).matches() ){
+        if (password != null && passwordCheckPattern.matcher(password).matches()) {
             LOG.debug("password matches restrictions");
-        }else{
+        } else {
             throw new PasswordRestrictionMismatchException(elementName + " does not match restriction '" + this.passwordCheckRegExp + "'");
         }
-    }
-
-    static String maskPassword(String password) {
-        final String mask = "******";
-        String paddedSecret = mask + password;
-        return mask + paddedSecret.substring(paddedSecret.length() - 4);
     }
 
 }

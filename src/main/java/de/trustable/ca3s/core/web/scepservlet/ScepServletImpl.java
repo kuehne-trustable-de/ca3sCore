@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.io.Serial;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
@@ -57,6 +58,7 @@ public class ScepServletImpl extends ScepServlet {
     /**
      *
      */
+    @Serial
     private static final long serialVersionUID = 7773233909179939491L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ScepServletImpl.class);
@@ -74,7 +76,7 @@ public class ScepServletImpl extends ScepServlet {
     final private  ProtectedContentUtil protectedContentUtil;
     final private AuditService auditService;
     final private PipelineUtil pipelineUtil;
-
+    final private PasswordMasker passwordMasker;
 
     public ThreadLocal<Pipeline> threadLocalPipeline = new ThreadLocal<>();
 
@@ -88,7 +90,7 @@ public class ScepServletImpl extends ScepServlet {
                            ProtectedContentRepository protectedContentRepository,
                            ProtectedContentUtil protectedContentUtil,
                            AuditService auditService,
-                           PipelineUtil pipelineUtil) {
+                           PipelineUtil pipelineUtil, PasswordMasker passwordMasker) {
         this.certRepository = certRepository;
         this.csrRepository = csrRepository;
         this.scepOrderRepository = scepOrderRepository;
@@ -100,6 +102,7 @@ public class ScepServletImpl extends ScepServlet {
         this.protectedContentUtil = protectedContentUtil;
         this.auditService = auditService;
         this.pipelineUtil = pipelineUtil;
+        this.passwordMasker = passwordMasker;
     }
 
     @Override
@@ -427,20 +430,13 @@ public class ScepServletImpl extends ScepServlet {
                 return; // the only successful exit !!
             } else {
                 LOGGER.debug("Protected Content password does not match SCEP password '{}' != '{}'",
-                    truncatePassword(expectedPassword),
-                    truncatePassword(password));
+                    passwordMasker.maskPassword(expectedPassword),
+                    passwordMasker.maskPassword(password));
             }
         }
 
         LOGGER.warn("no (active) password present in pipeline '" + pipeline.getName() + "' !");
         throw new OperationFailureException(FailInfo.badRequest);
-    }
-
-    public String truncatePassword(final String password){
-        if( password == null || (password.length() < 5)){
-            return "******r3t";
-        }
-        return password.substring(password.length() - 4);
     }
 
     @Override
