@@ -42,33 +42,33 @@ public class EndpointConfigs {
             getHTTPSForUsage(env, SERVER_TLS_PREFIX, true),
             getBindingHostForUsage( env, SERVER_TLS_PREFIX, DEFAULT_BINDING_HOST), "TLS Port");
 
-        adminEndpointConfig = this.addConfig(getPortForUsage(env, SERVER_ADMIN_PREFIX, 8443),
+        adminEndpointConfig = this.addConfig(getPortForUsage(env, SERVER_ADMIN_PREFIX, tlsEndpointConfig.getPort()),
             getHTTPSForUsage(env, SERVER_ADMIN_PREFIX, true),
-            getBindingHostForUsage(env, SERVER_ADMIN_PREFIX, DEFAULT_BINDING_HOST), "Admin Port");
+            getBindingHostForUsage(env, SERVER_ADMIN_PREFIX, tlsEndpointConfig.getBindingHost()), "Admin Port");
 
-        raEndpointConfig = this.addConfig(getPortForUsage(env, SERVER_RA_PREFIX, 8443),
+        raEndpointConfig = this.addConfig(getPortForUsage(env, SERVER_RA_PREFIX, tlsEndpointConfig.getPort()),
             getHTTPSForUsage(env, SERVER_RA_PREFIX, true),
-            getBindingHostForUsage(env, SERVER_RA_PREFIX, DEFAULT_BINDING_HOST),"RA Port");
+            getBindingHostForUsage(env, SERVER_RA_PREFIX, tlsEndpointConfig.getBindingHost()),"RA Port");
 
-        acmeEndpointConfig = this.addConfig(getPortForUsage(env, SERVER_ACME_PREFIX, 8443),
+        acmeEndpointConfig = this.addConfig(getPortForUsage(env, SERVER_ACME_PREFIX, tlsEndpointConfig.getPort()),
             getHTTPSForUsage(env, SERVER_ACME_PREFIX, true),
-            getBindingHostForUsage(env, SERVER_ACME_PREFIX, DEFAULT_BINDING_HOST), "ACME Port");
+            getBindingHostForUsage(env, SERVER_ACME_PREFIX, tlsEndpointConfig.getBindingHost()), "ACME Port");
 
         int httpPort = getPortForUsage(env, "server.", 8080);
         int scepPort = getPortForUsage(env, SERVER_SCEP_PREFIX, 8081);
         if( scepPort != httpPort) {
             scepEndpointConfig = this.addConfig(scepPort,
                 getHTTPSForUsage(env, SERVER_SCEP_PREFIX, false),
-                getBindingHostForUsage(env, SERVER_SCEP_PREFIX, DEFAULT_BINDING_HOST), "SCEP Port");
+                getBindingHostForUsage(env, SERVER_SCEP_PREFIX, tlsEndpointConfig.getBindingHost()), "SCEP Port");
         }else{
             scepEndpointConfig = tlsEndpointConfig;
         }
 
-        int estPort = getPortForUsage(env, SERVER_EST_PREFIX, 8446);
+        int estPort = getPortForUsage(env, SERVER_EST_PREFIX, tlsEndpointConfig.getPort());
         if( estPort != httpsClientAuthPort) {
             estEndpointConfig = this.addConfig(estPort,
                 getHTTPSForUsage(env, SERVER_EST_PREFIX, true),
-                getBindingHostForUsage(env, SERVER_EST_PREFIX, DEFAULT_BINDING_HOST), "EST Port");
+                getBindingHostForUsage(env, SERVER_EST_PREFIX, tlsEndpointConfig.getBindingHost()), "EST Port");
         }else{
             estEndpointConfig = tlsEndpointConfig;
         }
