@@ -56,10 +56,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class MetaInformation {
 
-    private String termsOfService;
-    private String website;
-    private String[] caaIdentities;
-    private boolean externalAccountRequired;
+    private String termsOfService = "";
+    private String website = "";
+    private String[] caaIdentities = new String[0];
+    private boolean externalAccountRequired = false;
 
     public String getTermsOfService() {
         return termsOfService;
