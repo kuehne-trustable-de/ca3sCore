@@ -352,6 +352,7 @@
   "ca3SApp.cAConnectorConfig.multipleMessages": "Mehrere Nachrichten pro Aufruf",
   "ca3SApp.cAConnectorConfig.implicitConfirm": "Implizite Bestätigung",
   "ca3SApp.cAConnectorConfig.msgContentType": "Content Type der Nachricht",
+  "ca3SApp.cAConnectorConfig.issuerName": "Issuer Name (Teil der CMP Anfrage)",
   "ca3SApp.cAConnectorConfig.sni": "Server Name Indication",
   "ca3SApp.cAConnectorConfig.disableHostNameVerifier": "Keine Prüfung des Hostnamens",
   "ca3SApp.cAConnectorConfig.ignoreResponseMessageVerification": "Ignorieren der Verifikation der Antwortnachricht",
