@@ -792,7 +792,7 @@ public class ChallengeController extends AcmeController {
 	}
 
     private URI locationUriOfAuthorization(final long authorizationId, final UriComponentsBuilder uriBuilder) {
-	    return authorizationResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path("..").path("/").path(Long.toString(authorizationId)).build().normalize().toUri();
+        return authorizationResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path(Long.toString(authorizationId)).build().normalize().toUri();
 	}
 
     public ResponseEntity<Void> checkChallengeValidation(AcmeChallengeValidation acmeChallengeValidation) {

@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
+import de.trustable.ca3s.core.ExternalProcessITBase;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.User;
@@ -48,7 +49,7 @@ import de.trustable.ca3s.core.PipelineTestConfiguration;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
-public class ClientCertBotIT {
+public class ClientCertBotIT extends ExternalProcessITBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientCertBotIT.class);
 
@@ -110,14 +111,10 @@ public class ClientCertBotIT {
     @Test
     public void certbotCreateAccountAndOrderCertificate() throws IOException, GeneralSecurityException {
 
-        boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
-
         if (isWindows) {
             LOG.info("certbot test no available on Windows");
         } else {
-            ProcessBuilder builderExecutabelExixts = new ProcessBuilder();
-            builderExecutabelExixts.command("which", "certbot");
-            if( executeExternalProcess(builderExecutabelExixts) != 0) {
+            if( !isInstalled("certbot")) {
                 LOG.info("'certbot' missing, please install and rerun.");
                 return;
             }
@@ -391,55 +388,5 @@ public class ClientCertBotIT {
         }
     }
 
-    /**
-	 * @param builder
-	 */
-	private int executeExternalProcess(ProcessBuilder builder) {
-
-		int exitCode = -1;
-
-		String cmd = "";
-	    for( String s:builder.command()) {
-	    	cmd += s + " ";
-	    }
-		LOG.debug("certbot command '"+ cmd +"' " );
-
-		try {
-
-//			builder.directory(new File(System.getProperty("user.home")));
-			builder.inheritIO();
-
-			Process process = builder.start();
-			StreamGobbler streamGobbler = new StreamGobbler(process.getInputStream(), System.out::println);
-            ExecutorService execSrv = Executors.newSingleThreadExecutor();
-            execSrv.submit(streamGobbler);
-
-            exitCode = process.waitFor();
-            LOG.debug("certbot exitCode '" + exitCode + "' ");
-
-            execSrv.shutdownNow();
-
-        }catch(InterruptedException | IOException ex) {
-			LOG.error("executing external process failed with exception", ex);
-		}
-
-		return exitCode;
-	}
-
-	private static class StreamGobbler implements Runnable {
-	    private InputStream inputStream;
-	    private Consumer<String> consumer;
-
-	    public StreamGobbler(InputStream inputStream, Consumer<String> consumer) {
-	        this.inputStream = inputStream;
-	        this.consumer = consumer;
-	    }
-
-	    @Override
-	    public void run() {
-	        new BufferedReader(new InputStreamReader(inputStream)).lines()
-	          .forEach(consumer);
-	    }
-	}
 
 }

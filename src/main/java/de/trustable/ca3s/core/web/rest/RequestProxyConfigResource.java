@@ -129,7 +129,7 @@ public class RequestProxyConfigResource {
      */
     @PostMapping("/request-proxy-configs/remote-config/{requestProxyId}")
     @Transactional
-    public ResponseEntity<RemoteRequestProxyConfigView> postRequestProxyConfig(@Parameter(description = "AcmeChallengeValidation wrapped in a JWS") @Valid @RequestBody String body,
+    public ResponseEntity<RemoteRequestProxyConfigView> postRequestProxyConfig(@Parameter(description = "RequestProxyConfig wrapped in a JWS") @Valid @RequestBody String body,
                                                                                @RequestHeader(value= HttpHeaders.ACCEPT, required=false) String accept,
                                                                                @PathVariable Long requestProxyId) {
         log.debug("REST request to get RequestProxyConfig : {}", requestProxyId);

@@ -55,6 +55,16 @@ public class AccessPortTestManager {
 
     }
 
+    public void setUpEnvironmentTLS() {
+        setUpEnvironment();
+        System.setProperty(SERVER_TLS_PREFIX + "https", "true");
+        System.setProperty(SERVER_ADMIN_PREFIX + "https", "true");
+        System.setProperty(SERVER_RA_PREFIX + "https", "true");
+        System.setProperty(SERVER_ACME_PREFIX + "https", "true");
+        System.setProperty(SERVER_SCEP_PREFIX + "https", "false");
+        System.setProperty(SERVER_EST_PREFIX + "https", "true");
+    }
+
     public void setUpEnvironmentSinglePort() {
 
         System.setProperty(SERVER_TLS_PREFIX + "port", "" + tlsAccessPort);

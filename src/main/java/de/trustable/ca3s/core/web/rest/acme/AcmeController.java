@@ -99,8 +99,8 @@ public class AcmeController {
 	String NEW_ORDER_RESOURCE_MAPPING = afterPrefix(
 			NewOrderController.class.getAnnotation(RequestMapping.class).value()[0]);
 	String ORDER_RESOURCE_MAPPING = afterPrefix(OrderController.class.getAnnotation(RequestMapping.class).value()[0]);
-	String CHALLENGE_RESOURCE_MAPPING = afterPrefix(
-			ChallengeController.class.getAnnotation(RequestMapping.class).value()[0]);
+    String CHALLENGE_RESOURCE_MAPPING = afterPrefix(
+        ChallengeController.class.getAnnotation(RequestMapping.class).value()[0]);
 	String CERTIFICATE_RESOURCE_MAPPING = afterPrefix(
 			AcmeCertificateController.class.getAnnotation(RequestMapping.class).value()[0]);
 
