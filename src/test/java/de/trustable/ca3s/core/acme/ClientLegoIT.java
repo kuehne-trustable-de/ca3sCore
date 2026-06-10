@@ -46,9 +46,11 @@ public class ClientLegoIT extends ExternalProcessITBase {
 
 	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
     final String ACME_EAB_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_EAB_REALM + "/directory";
+    final String ACME_ALPN_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_ALPN_DOMAIN_REUSE + "/directory";
 
     String dirUrl;
     String dirUrlEAB;
+    String dirUrlAlpn;
 
 	@Autowired
 	PipelineTestConfiguration ptc;
@@ -91,17 +93,19 @@ public class ClientLegoIT extends ExternalProcessITBase {
 
         hostname = InetAddress.getLocalHost().getHostName().toLowerCase();
 		dirUrl = "https://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_PATH_PART;
-        dirUrlEAB  = "https://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_EAB_PATH_PART;
+        dirUrlEAB = "https://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_EAB_PATH_PART;
+        dirUrlAlpn = "https://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_ALPN_PATH_PART;
 
         ptc.getInternalACMETestPipelineLaxRestrictions();
         ptc.getInternalACMETestPipelineEabRestrictions();
+        ptc.getInternalACMETestPipelineALPNLaxDomainReuseRestrictions();
 
         prefTC.getTestUserPreference();
     }
 
 
     @Test
-    public void certbotCreateAccountAndOrderCertificate() throws IOException, GeneralSecurityException {
+    public void legoCreateAccountAndOrderCertificate() throws IOException, GeneralSecurityException {
 
         if( !isInstalled(LEGO_EXE)) {
             LOG.info("'lego' missing, please install and rerun.");
@@ -122,16 +126,16 @@ public class ClientLegoIT extends ExternalProcessITBase {
         ProcessBuilder builderCreate = new ProcessBuilder();
 
         builderCreate.command(LEGO_EXE,
-                "run",
-                "--path", configFolder.toFile().getAbsolutePath(),
-                "--server", dirUrl,
-                "--tls-skip-verify",
-                "--domains", hostname,
-                "--accept-tos",
-                "--email", "foo@foo.de",
-                "--http",
-                "--http.address", ":" + prefTC.getHttpChallengePort(),
-                "--key-type", "rsa4096");
+            "run",
+            "--path", configFolder.toFile().getAbsolutePath(),
+            "--server", dirUrl,
+            "--tls-skip-verify",
+            "--domains", hostname,
+            "--accept-tos",
+            "--email", "foo@foo.de",
+            "--http",
+            "--http.address", ":" + prefTC.getHttpChallengePort(),
+            "--key-type", "rsa4096");
 
         int exitCodeCreate = executeExternalProcess(builderCreate);
         Assertions.assertEquals(0, exitCodeCreate, "expects an exit code == 0");
@@ -161,8 +165,77 @@ public class ClientLegoIT extends ExternalProcessITBase {
         Assertions.assertEquals(0, exitCodeRevoke, "expects an exit code == 0");
 
         Optional<Certificate> certRevokedOpt = certificateUtil.findCertificateById(cert.getId());
+        Assertions.assertTrue(certRevokedOpt.isPresent(), "Expecting to find certificate");
         Assertions.assertTrue(certRevokedOpt.get().isRevoked(), "Expected status change to revoked");
 
+        int exitCodeRevoke2 = executeExternalProcess(builderRevoke);
+        Assertions.assertEquals(1, exitCodeRevoke2, "trying to revoke an already revoked cert. Expecting exit code == 1");
+
+    }
+
+    @Test
+    public void legoCreateAccountAndOrderCertificatebyALPN() throws IOException, GeneralSecurityException {
+
+        if( !isInstalled(LEGO_EXE)) {
+            LOG.info("'lego' missing, please install and rerun.");
+            return;
+        }
+
+
+        Path webrootFolder = directory.resolve("webroot");
+        Path configFolder= directory.resolve("config");
+        Path workFolder= directory.resolve("work");
+        Path logFolder= directory.resolve("log");
+
+        Assertions.assertTrue(webrootFolder.toFile().mkdirs(), "expecting successful creation of webroot");
+        Assertions.assertTrue(configFolder.toFile().mkdirs(), "expecting successful creation of config folder");
+        Assertions.assertTrue(workFolder.toFile().mkdirs(), "expecting successful creation of work folder");
+        Assertions.assertTrue(logFolder.toFile().mkdirs(), "expecting successful creation of log folder");
+
+        ProcessBuilder builderCreate = new ProcessBuilder();
+
+        builderCreate.command(LEGO_EXE,
+            "run",
+            "--path", configFolder.toFile().getAbsolutePath(),
+            "--server", dirUrlAlpn,
+            "--tls-skip-verify",
+            "--domains", hostname,
+            "--accept-tos",
+            "--email", "foo@foo.de",
+            "--tls",
+//            "--tls.address", ":" + prefTC.ge .getHttpChallengePort(),
+            "--key-type", "rsa4096");
+
+        int exitCodeCreate = executeExternalProcess(builderCreate);
+        Assertions.assertEquals(0, exitCodeCreate, "expects an exit code == 0");
+
+        File crtFile = new File( configFolder.toFile(), "certificates" + File.separator + hostname + ".crt" );
+        LOG.info("crtFile : {}", crtFile.getAbsolutePath());
+        Assertions.assertTrue(crtFile.exists(), "expecting certificate file exists");
+
+        X509Certificate x509Certificate = (X509Certificate) factory.generateCertificate(new FileInputStream(crtFile));
+        Certificate cert = certificateUtil.getCertificateByX509(x509Certificate);
+        Assertions.assertEquals(hostname, cert.getSans());
+        Assertions.assertTrue(cert.isActive(), "freshly created certificate expected to be active");
+
+        ProcessBuilder builderRevoke = new ProcessBuilder();
+
+        builderRevoke.command(LEGO_EXE,
+            "certificates", "revoke",
+            "--path", configFolder.toFile().getAbsolutePath(),
+            "--server", dirUrl,
+            "--tls-skip-verify",
+            "--cert.name", hostname,
+            "--reason", "4",
+            "--email", "foo@foo.de");
+
+
+        int exitCodeRevoke = executeExternalProcess(builderRevoke);
+        Assertions.assertEquals(0, exitCodeRevoke, "expects an exit code == 0");
+
+        Optional<Certificate> certRevokedOpt = certificateUtil.findCertificateById(cert.getId());
+        Assertions.assertTrue(certRevokedOpt.isPresent(), "Expecting to find certificate");
+        Assertions.assertTrue(certRevokedOpt.get().isRevoked(), "Expected status change to revoked");
 
         int exitCodeRevoke2 = executeExternalProcess(builderRevoke);
         Assertions.assertEquals(1, exitCodeRevoke2, "trying to revoke an already revoked cert. Expecting exit code == 1");

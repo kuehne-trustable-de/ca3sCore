@@ -47,6 +47,7 @@ public class PipelineTestConfiguration {
     private static final String PIPELINE_NAME_ACME_DOMAIN_REUSE = "acmeDomainReuse";
     private static final String PIPELINE_NAME_ACME_DOMAIN_REUSE_WARN= "acmeDomainReuseWarn";
     private static final String PIPELINE_NAME_ACME_KEY_UNIQUE_WARN= "acmeKeyUniqueWarn";
+    private static final String PIPELINE_NAME_ACME_ALPN_DOMAIN_REUSE = "acmeAlpnKeyUniqueWarn";
     private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
     private static final String PIPELINE_NAME_ACME_EAB = "acmeEab";
     private static final String PIPELINE_NAME_ACME_DNS = "acmeDNS";
@@ -59,6 +60,7 @@ public class PipelineTestConfiguration {
     private static final String PIPELINE_NAME_SCEP1CN = "scep1CN";
     public static final String ACME_REALM = "acmeTest";
     public static final String ACME_REALM_DOMAIN_REUSE  = "acmeTestDomainReuse";
+    public static final String ACME_REALM_ALPN_DOMAIN_REUSE  = "acmeTestAlpnDomainReuse";
     public static final String ACME_REALM_DOMAIN_REUSE_WARN  = "acmeTestDomainReuseWarn";
     public static final String ACME_REALM_KEY_UNIQUE_WARN  = "acmeTestKeyUniqueWarn";
 
@@ -445,6 +447,36 @@ public class PipelineTestConfiguration {
         pv_LaxDomainReuseRestrictions.setId(null);
         pv_LaxDomainReuseRestrictions.setName(PIPELINE_NAME_ACME_DOMAIN_REUSE);
         pv_LaxDomainReuseRestrictions.setUrlPart(ACME_REALM_DOMAIN_REUSE);
+        pv_LaxDomainReuseRestrictions.setKeyUniqueness(KeyUniqueness.DOMAIN_REUSE);
+
+        Pipeline pipelineLaxDomainReuseRestrictions = pipelineUtil.toPipeline(pv_LaxDomainReuseRestrictions);
+        pipelineRepo.save(pipelineLaxDomainReuseRestrictions);
+        return pipelineLaxDomainReuseRestrictions;
+    }
+
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineALPNLaxDomainReuseRestrictions() {
+
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_ALPN_DOMAIN_REUSE);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_ALPN_DOMAIN_REUSE);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseRestrictions =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseRestrictions.setId(null);
+        pv_LaxDomainReuseRestrictions.setName(PIPELINE_NAME_ACME_ALPN_DOMAIN_REUSE);
+        pv_LaxDomainReuseRestrictions.setUrlPart(ACME_REALM_ALPN_DOMAIN_REUSE);
+        pv_LaxDomainReuseRestrictions.getAcmeConfigItems().setAllowChallengeAlpn(true);
+        pv_LaxDomainReuseRestrictions.getAcmeConfigItems().setAllowChallengeHTTP01(false);
         pv_LaxDomainReuseRestrictions.setKeyUniqueness(KeyUniqueness.DOMAIN_REUSE);
 
         Pipeline pipelineLaxDomainReuseRestrictions = pipelineUtil.toPipeline(pv_LaxDomainReuseRestrictions);
