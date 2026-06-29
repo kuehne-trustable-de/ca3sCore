@@ -824,6 +824,7 @@ public class CSRUtil {
 
 
     }
+
     public Set<String> getAdditionalEmailRecipients(CSR csr) {
         Set<String> additionalEmailSet = new HashSet<>();
         if (csr.getPipeline() != null) {
@@ -843,7 +844,7 @@ public class CSRUtil {
 
                 if (email != null) {
                     LOG.debug("Email ara attribute {} has value '{}' added", attributeName, email);
-                    additionalEmailSet.add(email);
+                    NotificationService.addSplittedEMailAddress(additionalEmailSet, email);
                 }
             }
         }
