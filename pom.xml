@@ -1288,6 +1288,16 @@
             <groupId>de.trustable</groupId>
             <artifactId>cryptoUtil</artifactId>
             <version>${cryptoUtilVersion}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>bcpkix-jdk18on</artifactId>
+                    <groupId>org.bouncycastle</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>bcprov-jdk18on</artifactId>
+                    <groupId>org.bouncycastle</groupId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
