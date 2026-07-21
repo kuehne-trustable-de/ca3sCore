@@ -122,6 +122,9 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
     @Query(name = "Certificate.findActiveCertificateBySerial")
     List<Certificate> findActiveCertificateBySerial(@Param("serial") String serial);
 
+    @Query(name = "Certificate.findActiveCertificateWithCSRWithoutRevocationCA")
+    Page<Certificate> findActiveCertificateWithCSRWithoutRevocationCA(Pageable pageable);
+
     @Query(name = "Certificate.findTimestampNotExistForCA")
     List<Certificate> findTimestampNotExistForCA(@Param("caName") String caName, @Param("timestamp") String timestamp);
 

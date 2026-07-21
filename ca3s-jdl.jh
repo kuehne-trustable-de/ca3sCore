@@ -54,7 +54,14 @@ entity RequestProxyConfig{
 
 @skipClient
 entity CertificateComment{
-  comment TextBlob required
+    comment TextBlob required
+}
+
+@skipClient
+entity Attachment{
+    attachment Blob required
+    mimetype String required
+    deleteAfter Instant
 }
 
 @skipClient

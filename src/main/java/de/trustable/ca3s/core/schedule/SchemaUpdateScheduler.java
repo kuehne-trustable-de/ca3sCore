@@ -98,6 +98,10 @@ public class SchemaUpdateScheduler {
         LOG.info("updateCSRAttributes took {} ms", Duration.between(now, Instant.now()));
 
         now = Instant.now();
+        updateCertificateRevocationCA();
+        LOG.info("updateCertificateRevocationCA took {} ms", Duration.between(now, Instant.now()));
+
+        now = Instant.now();
         updateAcmeOrder();
         LOG.info("updateAcmeOrder took {} ms", Duration.between(now, Instant.now()));
 
@@ -208,6 +212,35 @@ public class SchemaUpdateScheduler {
 
     }
 
+    public void updateCertificateRevocationCA() {
+
+        Page<Certificate> certificateList = certificateRepo.findActiveCertificateWithCSRWithoutRevocationCA(PageRequest.of(0, maxRecordsPerTransaction));
+
+        LOG.info("{} Certificates without revocation CA", certificateList.getNumberOfElements());
+
+        int count = 0;
+        for (Certificate cert : certificateList) {
+
+            if( cert.getCsr() != null &&
+                cert.getCsr().getPipeline() != null &&
+                cert.getCsr().getPipeline().getCaConnector() != null){
+
+                cert.setRevocationCA(cert.getCsr().getPipeline().getCaConnector());
+                certificateRepo.save(cert);
+                LOG.info("set revocation CA to pipeline's CA for cert id {}", cert.getId());
+
+            }else {
+                LOG.info("revocation CA not set because pipeline's CA is null for cert id {}", cert.getId());
+            }
+
+            if (count++ > maxRecordsPerTransaction) {
+                LOG.info("limited update of certificate revocation CA to {} per call", maxRecordsPerTransaction);
+                break;
+            }
+        }
+    }
+
+
     private void fixIPSan(CSR csr) throws UnknownHostException {
         for( CsrAttribute attr: csr.getCsrAttributes()){
             String value = null;
@@ -303,6 +336,7 @@ public class SchemaUpdateScheduler {
         }
 
     }
+
     public void updateProtectedContent() {
 
         Page<ProtectedContent> protectedContentList = protectedContentRepository.findByProtectedContentStatusIsNull(PageRequest.of(0, maxRecordsPerTransaction));
@@ -326,6 +360,7 @@ public class SchemaUpdateScheduler {
             LOG.info("ProtectedContent status updated of {} items", count);
         }
     }
+
     public void updatePipeline() {
 
         int version = preferenceUtil.getPipelineSchemaVersion();

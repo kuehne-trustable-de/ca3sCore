@@ -91,6 +91,7 @@ public class TokenProvider {
             .setExpiration(validity)
             .compact();
     }
+
     public String createToken(final String subject, final String b46Ski) {
 
         long now = (new Date()).getTime();

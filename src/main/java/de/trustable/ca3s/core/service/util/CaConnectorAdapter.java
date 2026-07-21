@@ -191,32 +191,43 @@ public class CaConnectorAdapter {
 	public void revokeCertificate(Certificate certificateDao, CRLReason crlReason, Date revocationDate,
 			CAConnectorConfig caConfig ) throws GeneralSecurityException {
 
+        if (certificateDao.getRevocationCA() != null) {
+            revokeCertificateUsingCaConfig(certificateDao, crlReason, revocationDate, certificateDao.getRevocationCA() );
+        }
+
 		if (caConfig == null) {
 			throw new GeneralSecurityException("CA connector not selected !");
 		}
 
-		if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType ADCS at {} revokes certificate id {}", caConfig.getCaUrl(), certificateDao.getId());
-			adcsConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
+        revokeCertificateUsingCaConfig(certificateDao, crlReason, revocationDate, caConfig );
 
-		} else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType CMP at {} revokes certificate id {}", caConfig.getCaUrl(), certificateDao.getId());
-			cmpConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
+    }
 
-		} else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
-			LOGGER.debug("CAConnectorType INTERNAL revokes certificate id {}", certificateDao.getId());
-			internalConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
+    private void revokeCertificateUsingCaConfig(Certificate certificateDao, CRLReason crlReason, Date revocationDate,
+                                  CAConnectorConfig caConfig ) throws GeneralSecurityException {
 
-		} else {
-			throw new GeneralSecurityException("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
-		}
-	}
+        if (CAConnectorType.ADCS.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType ADCS at {} revokes certificate id {}", caConfig.getCaUrl(), certificateDao.getId());
+            adcsConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
 
-    /**
-     * get the current status for each ca connectors
-     *
-     * @return the list of id / status pairs
-     */
+        } else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType CMP at {} revokes certificate id {}", caConfig.getCaUrl(), certificateDao.getId());
+            cmpConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
+
+        } else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
+            LOGGER.debug("CAConnectorType INTERNAL revokes certificate id {}", certificateDao.getId());
+            internalConnector.revokeCertificate(certificateDao, crlReason, revocationDate, caConfig);
+
+        } else {
+            throw new GeneralSecurityException("unexpected ca connector type '" + caConfig.getCaConnectorType() + "' !");
+        }
+    }
+
+        /**
+         * get the current status for each ca connectors
+         *
+         * @return the list of id / status pairs
+         */
     public List<CAConnectorStatus> getCAConnectorStatus(){
 	    return caConnectorStatus;
     }

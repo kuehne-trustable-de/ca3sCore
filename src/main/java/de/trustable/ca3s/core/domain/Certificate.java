@@ -185,6 +185,13 @@ import javax.validation.constraints.*;
             " c.active = TRUE "
     ),
 
+    @NamedQuery(name = "Certificate.findActiveCertificateWithCSRWithoutRevocationCA",
+        query = "SELECT distinct c FROM Certificate c WHERE " +
+            " c.active = TRUE and" +
+            " c.revocationCA is null and" +
+            " c.csr is not null"
+    ),
+
     @NamedQuery(name = "Certificate.findCrlURLForActiveCertificates",
         query = "SELECT distinct certAtt.value FROM Certificate c JOIN c.certificateAttributes certAtt WHERE " +
             " certAtt.name = 'CRL_URL' and " +

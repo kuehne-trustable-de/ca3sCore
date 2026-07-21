@@ -118,6 +118,7 @@ public class BPMNAsyncUtil {
         int retryCount = Integer.parseInt(counterString);
 
         Map<String, Object> variables = new HashMap<>();
+        variables.put("certificate", certificate);
         variables.put("certificateId", certificate.getId().toString());
 
         SecurityContext securityContext = SecurityContextHolder.getContext();

@@ -1061,7 +1061,6 @@ public class NotificationService {
             addSplittedEMailAddress(recipientList, additionalEmailRecipients);
         }
 
-
         for (String araAttribute : emailAttributeList) {
             String emailAttribute = csrUtil.getCSRAttribute(csr, CsrAttribute.ARA_PREFIX + araAttribute);
             LOG.debug("added email address '{}' from csr ARA attribute '{}'", araAttribute,  emailAttribute);
