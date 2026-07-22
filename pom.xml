@@ -8,7 +8,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.39</version>
+    <version>1.2.40</version>
 
     <packaging>jar</packaging>
 
@@ -183,7 +183,7 @@
         <keycloak.version>26.0.6</keycloak.version>
         <keycloak.adapter.version>25.0.3</keycloak.adapter.version>
 
-        <bouncyCastleVersion>1.84</bouncyCastleVersion>
+        <bouncyCastleVersion>1.85</bouncyCastleVersion>
 
         <spring-vault.version>2.3.4</spring-vault.version>
 
@@ -235,7 +235,7 @@
         <greenmail.version>1.6.15</greenmail.version>
 
         <xml.maven.saxon.version>12.9</xml.maven.saxon.version>
-        <xml.maven.plugin.version>1.2.0</xml.maven.plugin.version>
+        <xml.maven.plugin.version>1.2.1</xml.maven.plugin.version>
 
         <dependencyCheck.version>12.2.2</dependencyCheck.version>
         <dependencyCheck.skip>false</dependencyCheck.skip>
@@ -354,7 +354,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>2.4</version>
+                <version>2.6</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->
@@ -716,7 +716,7 @@
                 <groupId>org.apache.httpcomponents.client5</groupId>
                 <artifactId>httpclient5</artifactId>
                 <!--version>5.1.4</version-->
-                <version>5.4.4</version>
+                <version>5.6.2</version>
             </dependency>
             <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents.core5/httpcore5 -->
             <dependency>
@@ -784,7 +784,7 @@
         <dependency>
             <groupId>io.swagger.core.v3</groupId>
             <artifactId>swagger-annotations</artifactId>
-            <version>2.2.41</version>
+            <version>2.2.52</version>
         </dependency>
 
         <!-- ToDo still relevant ?? -->
