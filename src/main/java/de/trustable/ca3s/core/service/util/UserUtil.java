@@ -315,10 +315,10 @@ public class UserUtil {
         }
 
         User user = getUserByLogin(username);
-        Long failedLogins = user.getFailedLogins() + 1;
+        Long failedLogins = user.getFailedLogins() == null ? 1: user.getFailedLogins() + 1;
         int blockedForSec = 600;
-        LOG.warn("User {} failed login count incremented to {}.", user.getLogin(), failedLogins);
         user.setFailedLogins(failedLogins);
+        LOG.warn("User {} failed login count incremented to {}.", user.getLogin(), failedLogins);
         if( failedLogins > 5){
             Instant blockedUntilDate = Instant.now().plus(blockedForSec, ChronoUnit.SECONDS);
             user.setBlockedUntilDate( blockedUntilDate);
