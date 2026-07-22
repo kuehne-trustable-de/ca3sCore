@@ -45,7 +45,7 @@
 						<button class="addRemoveSelector" float="right" v-if="index > 0" v-on:click="removeSelector(index)">
 							<font-awesome-icon icon="minus"></font-awesome-icon>
 						</button>
-            <a v-if="index === 0" href="downloadCSV" @click.prevent="downloadCSV()" float="right"><font-awesome-icon icon="file-csv"></font-awesome-icon></a>
+                        <a v-if="index === 0" href="downloadCSV" @click.prevent="downloadCSV()" float="right"><font-awesome-icon icon="file-csv"></font-awesome-icon></a>
 					</div>
 				</div>
 
@@ -58,12 +58,12 @@
 							  >{{ $t(row.status) }}<router-link v-if="row.certificateId" :to="{name: 'CertInfo', params: {certificateId: row.certificateId}}" >&nbsp;<font-awesome-icon icon="id-card" /></router-link></td>
 							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.subject }}</td>
 							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ toLocalDate(row.requestedOn) }}</td>
-              <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.requestedBy }}</td>
-              <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.acceptedBy }}</td>
-              <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.pipelineName }}</td>
-              <!--td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.pipelineId }}</td-->
-              <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.pipelineType }}</td>
-              <!--td><router-link :to="{name: 'CsrInfo', params: {csrId: row.id}}" >{{ row.processingCA }}</router-link></td-->
+                            <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.requestedBy }}</td>
+                            <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.acceptedBy }}</td>
+                            <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.pipelineName }}</td>
+                            <!--td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.pipelineId }}</td-->
+                            <td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.pipelineType }}</td>
+                            <!--td><router-link :to="{name: 'CsrInfo', params: {csrId: row.id}}" >{{ row.processingCA }}</router-link></td-->
 							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.x509KeySpec }}</td>
 							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.publicKeyAlgorithm }}</td>
 							<td @click="$router.push({name: 'CsrInfo', params: {csrId: row.id}})" >{{ row.signingAlgorithm }}</td>

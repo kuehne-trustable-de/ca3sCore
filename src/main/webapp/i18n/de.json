@@ -274,6 +274,7 @@
   "ca3SApp.bPNMProcessInfo.type.CA_INVOCATION": "Zertifikatserstellung",
   "ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION": "Anfrage-Autorisierung",
   "ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION": "Zertifikatserstellung",
+  "ca3SApp.bPNMProcessInfo.type.CSR_DECISION_RESULT": "Anfrage-Ergebnis",
   "ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION": "Zertifikats-Rückruf",
   "ca3SApp.bPNMProcessInfo.type.CERTIFICATE_NOTIFY": "Zertifikats-Benachrichtigung",
   "ca3SApp.bPNMProcessInfo.type.ACME_ACCOUNT_AUTHORIZATION": "Konto-Autorisierung",
@@ -682,6 +683,7 @@
   "ca3SApp.pipeline.processInfoRequestAuthorization": "Prozess 'Anfrage-Autorisierung'",
   "ca3SApp.pipeline.processInfoRequestElementValidiation": "Prozess ' Validierung Anfrageelemente'",
   "ca3SApp.pipeline.processInfoAccountAuthorization": "Prozess 'Konto-Autorisierung'",
+  "ca3SApp.pipeline.processInfoCsrDecisionResult": "Process 'Anfrage-Entscheidung'",
 
   "ca3SApp.pipeline.regExMatch": "Regulärer Ausdruck",
   "ca3SApp.pipeline.s.cardinality": "Kardinalität 'ST'",

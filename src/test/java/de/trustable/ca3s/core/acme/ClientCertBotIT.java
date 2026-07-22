@@ -88,13 +88,6 @@ public class ClientCertBotIT extends ExternalProcessITBase {
 
     @BeforeEach
 	void init() throws IOException {
-/*
-        File tmpFile = File.createTempFile("test_", "certbotIT");
-        Assertions.assertTrue( tmpFile.exists(), "expected tmpFile exists");
-        Assertions.assertTrue( tmpFile.canWrite(), "expected tmpFile is writable");
-
-        directory = tmpFile.toPath();
-*/
         ptc.getInternalACMETestPipelineLaxRestrictions();
 
         hostname = InetAddress.getLocalHost().getHostName().toLowerCase();
@@ -112,7 +105,7 @@ public class ClientCertBotIT extends ExternalProcessITBase {
     public void certbotCreateAccountAndOrderCertificate() throws IOException, GeneralSecurityException {
 
         if (isWindows) {
-            LOG.info("certbot test no available on Windows");
+            LOG.info("certbot test not available on Windows");
         } else {
             if( !isInstalled("certbot")) {
                 LOG.info("'certbot' missing, please install and rerun.");
@@ -147,17 +140,17 @@ public class ClientCertBotIT extends ExternalProcessITBase {
             );
 
             int exitCodeCreate = executeExternalProcess(builderCreate);
-            assertEquals("expects an exit code == 0", 0, exitCodeCreate);
+            Assertions.assertEquals(0, exitCodeCreate, "expects an exit code == 0");
 
             File fullchainPemFile = new File( configFolder.toFile(), "live" + File.separator + hostname + File.separator + "fullchain.pem" );
             LOG.info("fullchainPemFile : {}", fullchainPemFile.getAbsolutePath());
-            assertTrue("expecting pem chain exists", fullchainPemFile.exists());
+            Assertions.assertTrue(fullchainPemFile.exists(), "expecting pem chain exists");
 
 
             X509Certificate x509Certificate = CryptoUtil.convertPemToCertificate(Files.readString(fullchainPemFile.toPath()));
             Certificate cert = certificateUtil.getCertificateByX509(x509Certificate);
-            assertEquals( hostname, cert.getSans());
-            assertTrue( "freshly created certificate expected to be active", cert.isActive());
+            Assertions.assertEquals(hostname, cert.getSans());
+            Assertions.assertTrue(cert.isActive(), "freshly created certificate expected to be active");
 
             ProcessBuilder builderRevoke = new ProcessBuilder();
             builderRevoke.command("certbot",
@@ -172,14 +165,13 @@ public class ClientCertBotIT extends ExternalProcessITBase {
             );
 
             int exitCodeRevoke = executeExternalProcess(builderRevoke);
-            assertEquals("expects an exit code == 0", 0, exitCodeRevoke);
+            Assertions.assertEquals(0, exitCodeRevoke, "expects an exit code == 0");
 
             Optional<Certificate> certRevokedOpt = certificateUtil.findCertificateById(cert.getId());
-            assertTrue( "Expected status change to revoked", certRevokedOpt.get().isRevoked());
-
+            Assertions.assertTrue(certRevokedOpt.get().isRevoked(), "Expected status change to revoked");
 
             int exitCodeRevoke2 = executeExternalProcess(builderRevoke);
-            assertEquals("trying to revoke an already revoked cert. Expecting exit code == 1", 1, exitCodeRevoke2);
+            Assertions.assertEquals(1, exitCodeRevoke2, "trying to revoke an already revoked cert. Expecting exit code == 1");
 
         }
     }
@@ -273,17 +265,17 @@ public class ClientCertBotIT extends ExternalProcessITBase {
             );
 
             int exitCodeCreate = executeExternalProcess(builderCreate);
-            assertEquals("expects an exit code == 0", 0, exitCodeCreate);
+            Assertions.assertEquals(0, exitCodeCreate, "expects an exit code == 0");
 
             File fullchainPemFile = new File( configFolder.toFile(), "live" + File.separator + hostname + File.separator + "fullchain.pem" );
             LOG.info("fullchainPemFile : {}", fullchainPemFile.getAbsolutePath());
-            assertTrue("expecting pem chain exists", fullchainPemFile.exists());
+            Assertions.assertTrue(fullchainPemFile.exists(), "expecting pem chain exists");
 
 
             X509Certificate x509Certificate = CryptoUtil.convertPemToCertificate(Files.readString(fullchainPemFile.toPath()));
             Certificate cert = certificateUtil.getCertificateByX509(x509Certificate);
-            assertEquals( hostname, cert.getSans());
-            assertTrue( "freshly created certificate expected to be active", cert.isActive());
+            Assertions.assertEquals(hostname, cert.getSans());
+            Assertions.assertTrue(cert.isActive(), "freshly created certificate expected to be active");
 
             ProcessBuilder builderRevoke = new ProcessBuilder();
             builderRevoke.command("certbot",
@@ -298,14 +290,14 @@ public class ClientCertBotIT extends ExternalProcessITBase {
             );
 
             int exitCodeRevoke = executeExternalProcess(builderRevoke);
-            assertEquals("expects an exit code == 0", 0, exitCodeRevoke);
+            Assertions.assertEquals(0, exitCodeRevoke, "expects an exit code == 0");
 
             Optional<Certificate> certRevokedOpt = certificateUtil.findCertificateById(cert.getId());
-            assertTrue( "Expected status change to revoked", certRevokedOpt.get().isRevoked());
+            Assertions.assertTrue(certRevokedOpt.get().isRevoked(), "Expected status change to revoked");
 
 
             int exitCodeRevoke2 = executeExternalProcess(builderRevoke);
-            assertEquals("trying to revoke an already revoked cert. Expecting exit code == 1", 1, exitCodeRevoke2);
+            Assertions.assertEquals(1, exitCodeRevoke2, "trying to revoke an already revoked cert. Expecting exit code == 1");
 
         }
     }
@@ -351,7 +343,7 @@ public class ClientCertBotIT extends ExternalProcessITBase {
 
 
             int exitCodeCreate = executeExternalProcess(builderCreate);
-            assertEquals("expects an exit code == 0", 0, exitCodeCreate);
+            Assertions.assertEquals(0, exitCodeCreate, "expects an exit code == 0");
 /*
             File fullchainPemFile = new File( configFolder.toFile(), "live" + File.separator + hostname + File.separator + "fullchain.pem" );
             LOG.info("fullchainPemFile : {}", fullchainPemFile.getAbsolutePath());

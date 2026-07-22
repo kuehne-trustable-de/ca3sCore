@@ -63,7 +63,6 @@ public class ClientWinAcmeIT extends ExternalProcessITBase {
     public final String CLIENT_EXE = "C:\\Users\\kuehn\\win-acme\\wacs.exe";
     String hostname;
 
-    //    @TempDir
     Path directory = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), UUID.randomUUID().toString());
 
     final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
@@ -132,7 +131,12 @@ public class ClientWinAcmeIT extends ExternalProcessITBase {
     @Test
     public void winACMECreateAccountAndOrderCertificate() throws IOException, GeneralSecurityException {
 
-        if (!isInstalled(CLIENT_EXE, "--version")) {
+        if (!isWindows) {
+            LOG.info("win-acme test available on Windows, only");
+            return;
+        }
+
+        if( !isInstalled(CLIENT_EXE, "--version")) {
             fail("'win-acme' missing, please install and rerun.");
         }
 

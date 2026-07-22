@@ -419,7 +419,8 @@ public class NotificationService {
         Instant beforeEE = now.plus(maxExpiry, ChronoUnit.DAYS);
         List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE);
 
-        return notifyRequestorOnExpiry(testUser, logNotification,
+        return notifyRequestorOnExpiry(testUser,
+            logNotification,
             expiringEECertList,
             maxExpiry,
             false);

@@ -817,13 +817,14 @@ public class ChallengeController extends AcmeController {
                 return ResponseEntity.badRequest().build();
             }
 
-            if( ChallengeStatus.INVALID.equals(acmeChallengeValidation.getStatus()) ){
-                challengeDao.setValidated(Instant.now());
+            challengeDao.setValidated(Instant.now());
+            if( !acmeChallengeValidation.getError().trim().isEmpty()){
                 challengeDao.setLastError(acmeChallengeValidation.getError());
+            }
+
+            if( ChallengeStatus.INVALID.equals(acmeChallengeValidation.getStatus()) ){
                 challengeDao.setStatus(ChallengeStatus.INVALID);
-                challengeRepository.save(challengeDao);
             }else if( ChallengeStatus.VALID.equals(acmeChallengeValidation.getStatus()) ){
-                challengeDao.setValidated(Instant.now());
 
                 if( AcmeChallenge.CHALLENGE_TYPE_HTTP_01.equals(challengeDao.getType())) {
 
@@ -854,10 +855,9 @@ public class ChallengeController extends AcmeController {
                 }else{
                     LOG.warn("Unexpected type '{}' of challenge{}", challengeDao.getType(), challengeDao.getId());
                 }
-
-                challengeRepository.save(challengeDao);
-                acmeOrderUtil.alignOrderState(order);
             }
+            challengeRepository.save(challengeDao);
+            acmeOrderUtil.alignOrderState(order);
         }
         return ResponseEntity.ok().build();
     }

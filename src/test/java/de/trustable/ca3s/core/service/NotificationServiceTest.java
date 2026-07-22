@@ -13,6 +13,7 @@ class NotificationServiceTest {
     void addSplittedEMailAddress() {
 
         List<String> testList = new ArrayList<>();
+        NotificationService.addSplittedEMailAddress(testList, null);
         NotificationService.addSplittedEMailAddress(testList, "");
         NotificationService.addSplittedEMailAddress(testList, "    ");
 

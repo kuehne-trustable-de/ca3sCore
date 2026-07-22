@@ -42,6 +42,7 @@ logging:
     de.trustable.ca3s.core.service.dir: WARN
     de.trustable.ca3s.core.service.util.CertificateUtil: DEBUG
     de.trustable.ca3s.core.service.util.CRLUtil: DEBUG
+    de.trustable.ca3s.core.service.util.CSRUtil: DEBUG
     de.trustable.ca3s.core.security.provider: DEBUG
     de.trustable.ca3s.core.repository.CSRSpecifications: WARN
     de.trustable.ca3s.core.repository.CertificateSpecifications: WARN

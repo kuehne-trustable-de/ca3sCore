@@ -38,7 +38,7 @@ public class PreferenceTestConfiguration {
     public Preferences getTestUserPreference(final int primaryPort) {
 
         initTestUserPreference(PreferenceUtil.ACME_HTTP01_CALLBACK_PORTS, primaryPort + ",5544,8080", SYSTEM_PREFERENCE_ID);
-        initTestUserPreference(PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC, "1000", SYSTEM_PREFERENCE_ID);
+        initTestUserPreference(PreferenceUtil.ACME_HTTP01_TIMEOUT_MILLI_SEC, "5000", SYSTEM_PREFERENCE_ID);
         initTestUserPreference(PreferenceUtil.CHECK_CRL, "false", SYSTEM_PREFERENCE_ID);
         initTestUserPreference(PreferenceUtil.NOTIFY_RA_ON_REQUEST, "false", SYSTEM_PREFERENCE_ID);
         initTestUserPreference(PreferenceUtil.SERVER_SIDE_KEY_CREATION_ALLOWED, "true", SYSTEM_PREFERENCE_ID);

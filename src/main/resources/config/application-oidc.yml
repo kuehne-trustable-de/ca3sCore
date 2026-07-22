@@ -180,8 +180,10 @@ spring:
       client:
         registration:
           keycloak:
-            client-id: oidcTestClient
-            client-secret: hbk3Q7BV22ESQvSrIJP8VR87kbAsvgsP
+            client-id: ca3s-oidc
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+#            client-id: oidcTestClient
+#            client-secret: hbk3Q7BV22ESQvSrIJP8VR87kbAsvgsP
 #            authorization-grant-type: authorization_code
 #            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           google:
@@ -192,7 +194,8 @@ spring:
             client-secret: 7dd1ea6b69d174b36e8abb9d184c1b4dd7536d83
         provider:
           keycloak:
-            issuer-uri:  http://10.152.183.139/realms/testRealm
+            issuer-uri:  http://10.152.183.139/realms/master
+#            issuer-uri:  http://10.152.183.139/realms/testRealm
 #            authorization-uri: http://10.152.183.139/realms/master/protocol/openid-connect/auth
 #            token-uri: http://10.152.183.139/realms/master/protocol/openid-connect/token
 #            user-info-uri: http://10.152.183.139/realms/master/protocol/openid-connect/userinfo
@@ -622,7 +625,7 @@ ca3s:
       user: 'ROLE_ca3s-oidc_ca3s user'
       domainra:
       ra:
-      admin:
+      admin: 'ca3s admin'
       other: ROLE_ca3s-oidc_someOtherRole,kara
 
     # The expressions operate on a map with some normalized items:
@@ -643,8 +646,8 @@ ca3s:
       roles:
         other: "get('given_name')"
 
-    provider-name: google
+#    provider-name: google
 #    provider-name: github
-#    provider-name: keycloak
+    provider-name: keycloak
 
 

@@ -484,7 +484,7 @@ public class AcmeController {
 	 */
 	protected ResponseEntity<?> buildProblemResponseEntity(AcmeProblemException e) {
 
-		LOG.debug("returning ACME problem ", e);
+		LOG.info("returning ACME problem ", e);
 		final HttpHeaders problemHeaders = new HttpHeaders();
 		problemHeaders.setContentType(ProblemDetail.APPLICATION_PROBLEM_JSON);
 		return ResponseEntity.status(e.getProblem().getStatus()).headers(problemHeaders).body(e.getProblem());

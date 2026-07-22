@@ -252,7 +252,10 @@ public class LocomotiveBase {
                             options.addArguments("--no-sandbox");
                             options.addArguments("--disable-dev-shm-usage");
 
-//                            options.setBinary("/snap/bin/chromium");
+                            String browserBinary = System.getProperty("ca3s.ui.test.browser.binary");
+                            if(browserBinary != null && !browserBinary.isEmpty()){
+                                options.setBinary(browserBinary);
+                            }
 
 //                            driver = WebDriverManager.chromedriver().capabilities(options).create();
 

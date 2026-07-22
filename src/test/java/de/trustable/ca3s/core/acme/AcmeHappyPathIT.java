@@ -71,8 +71,9 @@ import static org.shredzone.acme4j.Identifier.TYPE_IP;
 public class AcmeHappyPathIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(AcmeHappyPathIT.class);
+    public static final String TEST_USER = "user1";
 
-	@LocalServerPort
+    @LocalServerPort
 	int serverPort; // random port chosen by spring test
 
     final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
@@ -322,10 +323,10 @@ public class AcmeHappyPathIT {
 	}
 
     @Test
-    @WithMockUser(username  = "user1", authorities = { "USER" })
+    @WithMockUser(username  = TEST_USER, authorities = { "USER" })
     public void testAccountEABHandling() throws AcmeException {
 
-        User user = userUtil.getUserByLogin("user1");
+        User user = userUtil.getUserByLogin(TEST_USER);
 
         TokenRequest tokenRequest = new TokenRequest();
         tokenRequest.setValiditySeconds(3600);
@@ -423,7 +424,7 @@ public class AcmeHappyPathIT {
 //        Optional<AcmeAccount> accountOptional = acmeAccountRepository.findByAccountId(Long.parseLong(account.getJSON().get("id").asString()));
         Assertions.assertTrue(accountOptional.isPresent());
         AcmeAccount acmeAccount = accountOptional.get();
-        Assertions.assertTrue( acmeAccount.getEabKid().startsWith("ca3s:user:"));
+        Assertions.assertTrue( acmeAccount.getEabKid().startsWith("ca3s:"+TEST_USER+":"));
         Assertions.assertEquals(user.getId(), acmeAccount.getEabUser().getId());
         Assertions.assertEquals(2, acmeAccount.getContacts().size());
         Assertions.assertTrue(acmeAccount.getContacts().stream().anyMatch(con -> con.getContactUrl().equals("mailto:acmeTest@ca3s.org")));

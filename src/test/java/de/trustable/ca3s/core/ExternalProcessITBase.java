@@ -19,21 +19,37 @@ public class ExternalProcessITBase {
     public boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
     public boolean isInstalled(final String executableName) {
-        return isInstalled(executableName, null);
+        return isInstalled(executableName, (String) null);
     }
 
     public boolean isInstalled(final String executableName, final String noopArgs) {
+
         ProcessBuilder builderExecutabelExixts = new ProcessBuilder();
         if (isWindows) {
-            builderExecutabelExixts.command(executableName, noopArgs);
+            if( noopArgs == null) {
+                builderExecutabelExixts.command(executableName);
+            }else{
+                builderExecutabelExixts.command(executableName, noopArgs);
+            }
+        } else {
+            if( noopArgs == null) {
+                builderExecutabelExixts.command("which", executableName);
+            }else {
+                builderExecutabelExixts.command("which", executableName, noopArgs);
+            }
+        }
 
+        return isInstalled(executableName, builderExecutabelExixts);
+    }
+
+    public boolean isInstalled(final String executableName, final ProcessBuilder builderExecutabelExixts) {
+        if (isWindows) {
             int status = executeExternalProcess(builderExecutabelExixts);
             if (status == 9009 || status == -1) {
                 LOG.info("'{]' missing, please install and rerun.", executableName);
                 return false;
             }
         } else {
-            builderExecutabelExixts.command("which", executableName, noopArgs);
             if (executeExternalProcess(builderExecutabelExixts) != 0) {
                 LOG.info("'{]' missing, please install and rerun.", executableName);
                 return false;
