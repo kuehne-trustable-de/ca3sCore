@@ -401,6 +401,10 @@ public class PipelineUtil {
             webConfigItems.setProcessInfoNameRequestAuthorization(pipeline.getProcessInfoRequestAuthorization().getName());
         }
 
+        if (pipeline.getProcessInfoCSRDecisionResult() != null) {
+            webConfigItems.setProcessInfoNameCSRDecisionResult(pipeline.getProcessInfoCSRDecisionResult().getName());
+        }
+
         if (pipeline.getProcessInfoAccountAuthorization() != null) {
             acmeConfigItems.setProcessInfoNameAccountAuthorization(pipeline.getProcessInfoAccountAuthorization().getName());
         }
@@ -845,6 +849,30 @@ public class PipelineUtil {
                 auditList.add(auditService.createAuditTracePipelineAttribute("REQUEST_AUTHORIZATION_PROCESS", oldProcessNameRequestAuthorization, "", p));
             }
         }
+
+        // CSR decision result
+        String oldProcessNameCSRDecisionResult = "";
+        if (p.getProcessInfoCSRDecisionResult() != null) {
+            oldProcessNameCSRDecisionResult = p.getProcessInfoCSRDecisionResult().getName();
+        }
+
+        List<BPMNProcessInfo> bpmnProcessInfoCSRDecisionResultList = new ArrayList<>();
+        if(pv.getWebConfigItems() != null && pv.getWebConfigItems().getProcessInfoNameCSRDecisionResult() != null ) {
+            bpmnProcessInfoCSRDecisionResultList = bpmnPIRepository.findByNameOrderedBylastChange(pv.getWebConfigItems().getProcessInfoNameCSRDecisionResult());
+        }
+        if(!bpmnProcessInfoCSRDecisionResultList.isEmpty()) {
+            BPMNProcessInfo bpi = bpmnProcessInfoCSRDecisionResultList.get(0);
+            p.setProcessInfoCSRDecisionResult(bpi);
+            if (!bpi.getName().equals(oldProcessNameCSRDecisionResult)) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("CSR_DECISION_RESULT_PROCESS", oldProcessNameCSRDecisionResult, bpi.getName(), p));
+            }
+        } else {
+            p.setProcessInfoCSRDecisionResult(null);
+            if (!oldProcessNameCSRDecisionResult.isEmpty()) {
+                auditList.add(auditService.createAuditTracePipelineAttribute("CSR_DECISION_RESULT_PROCESS", oldProcessNameCSRDecisionResult, "", p));
+            }
+        }
+
 
         // Process Account Authorization
         String oldProcessNameAccountAuthorization = "";

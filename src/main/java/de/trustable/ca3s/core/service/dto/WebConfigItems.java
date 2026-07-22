@@ -16,6 +16,7 @@ public class WebConfigItems implements Serializable{
 
     private String processInfoNameRequestAuthorization;
     private String processInfoNameRequestElementValidiation;
+    private String processInfoNameCSRDecisionResult;
 
     private Boolean issuesSecondFactorClientCert;
 
@@ -70,4 +71,11 @@ public class WebConfigItems implements Serializable{
         this.issuesSecondFactorClientCert = issuesSecondFactorClientCert;
     }
 
+    public String getProcessInfoNameCSRDecisionResult() {
+        return processInfoNameCSRDecisionResult;
+    }
+
+    public void setProcessInfoNameCSRDecisionResult(String processInfoNameCSRDecisionResult) {
+        this.processInfoNameCSRDecisionResult = processInfoNameCSRDecisionResult;
+    }
 }

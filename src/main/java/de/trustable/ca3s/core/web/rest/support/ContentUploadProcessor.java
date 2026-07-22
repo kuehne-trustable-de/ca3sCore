@@ -269,7 +269,7 @@ public class ContentUploadProcessor {
 
             Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
             if( optPipeline.isPresent() && optPipeline.get().getProcessInfoNotify() != null) {
-                bpmnUtil.notifyOnCertificate(optPipeline.get().getProcessInfoNotify(), cert.getId());
+                bpmnUtil.notifyOnCertificateStatusChange(optPipeline.get().getProcessInfoNotify(), cert.getId());
             }
 
             return new ResponseEntity<>(p10ReqData, HttpStatus.CREATED);

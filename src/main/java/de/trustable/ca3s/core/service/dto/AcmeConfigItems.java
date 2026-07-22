@@ -21,6 +21,7 @@ public class AcmeConfigItems implements Serializable {
     private String processInfoNameAccountAuthorization;
     private String processInfoNameOrderValidation;
     private String processInfoNameChallengeValidation;
+    private String processInfoNameCsrDecisionResult;
     private boolean externalAccountRequired;
 
 
@@ -106,6 +107,14 @@ public class AcmeConfigItems implements Serializable {
 	public void setProcessInfoNameChallengeValidation(String processInfoNameChallengeValidation) {
 		this.processInfoNameChallengeValidation = processInfoNameChallengeValidation;
 	}
+
+    public String getProcessInfoNameCsrDecisionResult() {
+        return processInfoNameCsrDecisionResult;
+    }
+
+    public void setProcessInfoNameCsrDecisionResult(String processInfoNameCsrDecisionResult) {
+        this.processInfoNameCsrDecisionResult = processInfoNameCsrDecisionResult;
+    }
 
     public String getContactEMailRegEx() {
         return contactEMailRegEx;

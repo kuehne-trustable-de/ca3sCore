@@ -118,6 +118,10 @@ public class Pipeline implements Serializable {
     @JsonIgnoreProperties({"pipelines", "secret"})
     private BPMNProcessInfo processInfoAccountAuthorization;
 
+    @ManyToOne
+    @JsonIgnoreProperties({"pipelines", "secret"})
+    private BPMNProcessInfo processInfoCsrDecisionResult;
+
     @ManyToMany
     @JoinTable(
         name = "rel_pipeline__algorithms",
@@ -373,6 +377,13 @@ public class Pipeline implements Serializable {
         return this;
     }
 
+    public BPMNProcessInfo getProcessInfoCSRDecisionResult() {
+        return processInfoCsrDecisionResult;
+    }
+
+    public void setProcessInfoCSRDecisionResult(BPMNProcessInfo processInfoCsrDecisionResult) {
+        this.processInfoCsrDecisionResult = processInfoCsrDecisionResult;
+    }
 
     public Set<AlgorithmRestriction> getAlgorithms() {
         return this.algorithms;

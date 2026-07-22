@@ -1,5 +1,9 @@
 package de.trustable.ca3s.core.service.dto.bpmn;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +28,11 @@ public class BpmnInput {
         variables.put("action", action);
         variables.put("failureReason", failureReason);
         variables.put("status", status);
+
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        if( securityContext != null) {
+            variables.put("currentAuth", securityContext.getAuthentication());
+        }
 
         addVariables(variables);
 

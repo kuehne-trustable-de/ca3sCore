@@ -176,4 +176,6 @@
 
     <include file="config/liquibase/changelog/2026051118000000_modify_dummy_user.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20260703180000_added_relation_pipeline_bpmn_csr_decision.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>

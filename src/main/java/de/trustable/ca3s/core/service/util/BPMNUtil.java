@@ -17,10 +17,7 @@ import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.BPMNProcessInfoView;
 import de.trustable.ca3s.core.service.dto.acme.AccountRequest;
-import de.trustable.ca3s.core.service.dto.bpmn.AcmeAccountAuthorizationInput;
-import de.trustable.ca3s.core.service.dto.bpmn.BpmnInput;
-import de.trustable.ca3s.core.service.dto.bpmn.BpmnOutput;
-import de.trustable.ca3s.core.service.dto.bpmn.RequestAuthorizationInput;
+import de.trustable.ca3s.core.service.dto.bpmn.*;
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.camunda.bpm.engine.BadUserRequestException;
@@ -291,7 +288,7 @@ public class BPMNUtil{
 		            if( reason != null && !reason.toString().isEmpty()) {
 		            	failureReason = processInstance.getVariables().get("failureReason").toString();
 		            }else{
-                        notifyOnCertificate(pipeline.getProcessInfoNotify(), certificate.getId());
+                        notifyOnCertificateStatusChange(pipeline.getProcessInfoNotify(), certificate.getId());
                     }
 
 					// catch all (runtime) Exception
@@ -306,7 +303,7 @@ public class BPMNUtil{
                     status = "Created";
 
                     if(pipeline != null && certificate != null){
-                        notifyOnCertificate(pipeline.getProcessInfoNotify(), certificate.getId());
+                        notifyOnCertificateStatusChange(pipeline.getProcessInfoNotify(), certificate.getId());
                     }
 
                 } catch (GeneralSecurityException e) {
@@ -376,6 +373,11 @@ public class BPMNUtil{
         return bpmnExecutor.executeBPMNProcessByName(processName, variables);
     }
 
+    public ProcessInstanceWithVariables checkCSRDecisionResultProcess(String processName, CSR csr) {
+        Map<String, Object> variables = buildVariableMapFromCSR(csr, null);
+        return bpmnExecutor.executeBPMNProcessByName(processName, variables);
+    }
+
     public ProcessInstanceWithVariables checkBatchProcess(final String processName)  {
 
         Map<String, Object> variables = new HashMap<>();
@@ -405,7 +407,7 @@ public class BPMNUtil{
         }
     }
 
-    public ProcessInstanceWithVariables checkAcmeAccountAuthorizationProzess(final String processName, final String accountId) {
+    public ProcessInstanceWithVariables checkAcmeAccountAuthorizationProcess(final String processName, final String accountId) {
 
         Map<String, Object> variables = new HashMap<>();
         Optional<AcmeAccount> acmeAccountOptional = acmeAccountRepository.findById(Long.parseLong(accountId));
@@ -526,7 +528,7 @@ public class BPMNUtil{
                         failureReason = processInstance.getVariables().get("failureReason").toString();
                     }
 
-                    notifyOnCertificate(bpmnProcessInfoNotify, certificate.getId());
+                    notifyOnCertificateStatusChange(bpmnProcessInfoNotify, certificate.getId());
 
                     // catch all (runtime) Exception
                 } catch (Exception e) {
@@ -539,7 +541,7 @@ public class BPMNUtil{
                     Optional<CAConnectorConfig> caConfigOpt = caConnConRepo.findById(Long.parseLong(caConnectorId));
                     if( caConfigOpt.isPresent()) {
                         caConnAdapter.revokeCertificate(certificate, crlReason, revocationDate, caConfigOpt.get());
-                        notifyOnCertificate(bpmnProcessInfoNotify, certificate.getId());
+                        notifyOnCertificateStatusChange(bpmnProcessInfoNotify, certificate.getId());
                         status = "Revoked";
                     }else{
                         failureReason = "caConnectorId '" + caConnectorId + "' is unknown";
@@ -698,8 +700,75 @@ public class BPMNUtil{
         }
     }
 
+    public void notifyOnCSRDecisionResult(final CSR csr) {
 
-    public void notifyOnCertificate(BPMNProcessInfo processInfo, long certificateId) {
+        if(csr.getPipeline() != null && csr.getPipeline().getProcessInfoCSRDecisionResult() != null) {
+            BPMNProcessInfo processInfo = csr.getPipeline().getProcessInfoCSRDecisionResult();
+            if (processInfo.getProcessId() != null) {
+                if (!TransactionSynchronizationManager.isActualTransactionActive()) {
+                    LOG.warn("notifyOnCSRDecisionResult: no transaction active !");
+                }
+
+                Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+                LOG.info("notifyOnCSRDecisionResult: '{}', {} for auth {}", processInfo.getProcessId(), csr.getId(), auth);
+
+                executeAfterTransactionCommits(() -> {
+                    bpmnAsyncUtil.onCSRDecisionResult(processInfo, csr.getId(), auth);
+                    });
+            } else {
+                LOG.info("notifyOnCSRDecisionResult: no notify process defined ");
+            }
+        }
+    }
+
+
+    /**
+     *
+     * @param csrDecisionResultInput
+     * @throws GeneralSecurityException
+     *
+    public void startCSRDecisionResultProcess(final CSRDecisionResultInput csrDecisionResultInput) throws GeneralSecurityException  {
+
+        if( csrDecisionResultInput == null) {
+            throw new GeneralSecurityException("csrDecisionResultInput for CSRDecisionResult MUST be provided");
+        }
+
+        if( csrDecisionResultInput.getCsr() == null) {
+            throw new GeneralSecurityException("CSR MUST be provided" );
+        }
+
+        Pipeline pipeline = csrDecisionResultInput.getCsr().getPipeline();
+        if( pipeline == null) {
+            throw new GeneralSecurityException("pipeline for CSRDecisionResult MUST be provided" );
+        }
+
+        BpmnOutput bpmnOutput;
+
+        BPMNProcessInfo bpmnProcessInfoCSRDecisionResult = pipeline.getProcessInfoCSRDecisionResult();
+        if( bpmnProcessInfoCSRDecisionResult == null){
+            return;
+        }
+
+        // BPMN call
+        try {
+            ProcessInstanceWithVariables processInstance = bpmnExecutor.executeBPMNProcessByBPMNProcessInfo(bpmnProcessInfoCSRDecisionResult,
+                csrDecisionResultInput.getVariables());
+
+            bpmnOutput = new BpmnOutput(processInstance);
+            LOG.info("startCSRDecisionResultProcess ProcessInstance: {} exited with status {}",
+                bpmnOutput.getProcessInstanceId(),
+                bpmnOutput.getStatus());
+
+            // catch all (runtime) Exception
+        } catch (Exception e) {
+            bpmnOutput = new BpmnOutput(e);
+            LOG.warn("execution of '" + bpmnProcessInfoCSRDecisionResult.getName() + "' failed ", e);
+        }
+
+    }
+*/
+
+    public void notifyOnCertificateStatusChange(BPMNProcessInfo processInfo, long certificateId) {
         if (processInfo != null && processInfo.getProcessId() != null) {
             if( !TransactionSynchronizationManager.isActualTransactionActive()){
                 LOG.warn("notifyOnCertificate: no transaction active !");
@@ -709,7 +778,7 @@ public class BPMNUtil{
             LOG.info("notifyOnCertificate: '{}', {} for auth {}", processInfo.getProcessId(), certificateId, auth);
 
             executeAfterTransactionCommits(() -> {
-                bpmnAsyncUtil.onChange(processInfo.getProcessId(), certificateId, auth);
+                bpmnAsyncUtil.onCertificateStatusChange(processInfo.getName(), certificateId, auth);
             });
         }else{
             LOG.info("notifyOnCertificate: no notify process defined ");

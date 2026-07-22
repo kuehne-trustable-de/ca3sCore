@@ -1,9 +1,13 @@
 package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.domain.BPMNProcessInfo;
+import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
+import de.trustable.ca3s.core.repository.CSRRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
+import de.trustable.ca3s.core.service.dto.bpmn.CSRDecisionResultInput;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +28,8 @@ import java.util.*;
 
 import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_CERTIFICATE_NOTIFICATION;
 import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_CERTIFICATE_NOTIFICATION_COUNTER;
+import static de.trustable.ca3s.core.domain.CsrAttribute.ATTRIBUTE_CSR_DECISION_NOTIFICATION;
+import static de.trustable.ca3s.core.domain.CsrAttribute.ATTRIBUTE_CSR_DECISION_NOTIFICATION_COUNTER;
 
 @Service
 public class BPMNAsyncUtil {
@@ -32,20 +38,32 @@ public class BPMNAsyncUtil {
     public static final String NOTIFICATION_SEPARATOR = ":";
 
     private final BPMNExecutor bpmnExecutor;
+    private final CSRAsyncUtil csrAsyncUtil;
     private final CertificateAsyncUtil certificateAsyncUtil;
     private final CertificateRepository certificateRepository;
     private final CertificateUtil certificateUtil;
+    private final CSRRepository csrRepository;
+    private final CSRUtil cSRUtil;
 
-    public BPMNAsyncUtil(BPMNExecutor bpmnExecutor, CertificateAsyncUtil certificateAsyncUtil, CertificateRepository certificateRepository, CertificateUtil certificateUtil) {
+    public BPMNAsyncUtil(BPMNExecutor bpmnExecutor,
+                         CertificateAsyncUtil certificateAsyncUtil,
+                         CertificateRepository certificateRepository,
+                         CertificateUtil certificateUtil,
+                         CSRAsyncUtil csrAsyncUtil,
+                         CSRRepository csrRepository,
+                         CSRUtil cSRUtil) {
         this.bpmnExecutor = bpmnExecutor;
+        this.csrAsyncUtil = csrAsyncUtil;
         this.certificateAsyncUtil = certificateAsyncUtil;
         this.certificateRepository = certificateRepository;
         this.certificateUtil = certificateUtil;
+        this.csrRepository = csrRepository;
+        this.cSRUtil = cSRUtil;
     }
 
     @Async
     @Transactional
-    public void onChange(String processName, Long certificateId, Authentication auth) {
+    public void onCertificateStatusChange(String processName, Long certificateId, Authentication auth) {
 
         LOG.info("******************  Async call to onChange( '{}', {})", processName, certificateId);
 
@@ -66,6 +84,24 @@ public class BPMNAsyncUtil {
 
     }
 
+    @Async
+    @Transactional
+    public void onCSRDecisionResult(BPMNProcessInfo processInfo, Long csrId, Authentication auth) {
+
+        LOG.info("******************  Async call to onCSRDecisionResult( '{}', {})", processInfo.getName(), csrId);
+
+        Optional<CSR> optionalCsr = csrRepository.findById(csrId);
+        if( optionalCsr.isEmpty()){
+            return;
+        }
+
+        CSR csr = optionalCsr.get();
+        cSRUtil.setCsrAttribute(csr, ATTRIBUTE_CSR_DECISION_NOTIFICATION, processInfo.getName(), false);
+        cSRUtil.setCsrAttribute(csr, ATTRIBUTE_CSR_DECISION_NOTIFICATION_COUNTER, "0", false);
+
+        processCSRDecisionResult( csr, auth);
+    }
+
     private void executeAfterTransactionCompletes(Certificate certificate) {
         LOG.info( "********* register transaction sync 'afterComplete'");
 
@@ -78,6 +114,23 @@ public class BPMNAsyncUtil {
                 }else{
                     LOG.info( "in afterCompletion:  increment notification counter");
                     certificateAsyncUtil.incrementNotificationCounter(certificate);
+                }
+            }
+        });
+    }
+
+    private void executeAfterTransactionCompletes(CSR csr) {
+        LOG.info( "********* register transaction sync 'afterComplete'");
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            public void afterCompletion(int status) {
+                LOG.info( "in afterCompletion:  {}", status);
+                if( status == TransactionSynchronization.STATUS_COMMITTED){
+                    LOG.debug( "in afterCompletion: drop notification attributes");
+                    csrAsyncUtil.deleteNotificationCounter(csr);
+                }else{
+                    LOG.info( "in afterCompletion:  increment notification counter");
+                    csrAsyncUtil.incrementNotificationCounter(csr);
                 }
             }
         });
@@ -140,7 +193,66 @@ public class BPMNAsyncUtil {
                 retryCount++;
                 String msg = "Exception while calling bpmn process '" + processName + "' fails, incrementing retryCount to " + retryCount;
                 LOG.info(msg, processException);
-                certificateUtil.setCertAttribute(certificate, ATTRIBUTE_CERTIFICATE_NOTIFICATION, processName + NOTIFICATION_SEPARATOR + retryCount, false);
+            }
+        }finally{
+            String currentAuthName = currentAuth == null ? null : currentAuth.getName();
+            LOG.info("Restoring authentication to : {}", currentAuthName);
+            securityContext.setAuthentication(currentAuth);
+        }
+    }
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void processCSRDecisionResult( CSR csr, Authentication auth) {
+
+        LOG.info("******************  processCSRDecisionResult({}, {})", csr.getId(), (auth == null ? null:auth.getName()));
+
+        Authentication effectiveAuth;
+        if( auth == null){
+
+            if( csr != null ){
+                effectiveAuth = createUserAuthentication(csr.getRequestedBy());
+                LOG.info("running processCSRDecisionResult as requestedBy user '{}'", effectiveAuth);
+            }else {
+                effectiveAuth = createUserAuthentication(Constants.SYSTEM_ACCOUNT);
+                LOG.info("running processCSRDecisionResult as fallback user '{}'", effectiveAuth);
+            }
+        }else{
+            effectiveAuth = auth;
+        }
+
+        executeAfterTransactionCompletes(csr);
+
+        String processName = cSRUtil.getCSRAttribute(csr, ATTRIBUTE_CSR_DECISION_NOTIFICATION);
+        if( processName == null){
+            return;
+        }
+
+        String counterString = cSRUtil.getCSRAttribute(csr, ATTRIBUTE_CSR_DECISION_NOTIFICATION_COUNTER);
+        if( counterString == null){
+            return;
+        }
+
+        int retryCount = Integer.parseInt(counterString);
+
+        CSRDecisionResultInput csrDecisionResultInput = new CSRDecisionResultInput(csr);
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication currentAuth = securityContext.getAuthentication();
+
+        try {
+            LOG.info("Setting authentication to : {}", effectiveAuth.getName());
+            securityContext.setAuthentication(effectiveAuth);
+
+            try {
+                ProcessInstanceWithVariables processInstance = bpmnExecutor.executeBPMNProcessByName(processName,
+                    csrDecisionResultInput.getVariables());
+
+                if( processInstance != null) {
+                    String status = processInstance.getVariables().get("status").toString();
+                    LOG.info("ProcessInstance '{}' terminates with status {}", processInstance.getId(), status);
+                }
+            } catch (Exception processException) {
+                retryCount++;
+                String msg = "Exception while calling bpmn process '" + processName + "' fails, incrementing retryCount to " + retryCount;
+                LOG.info(msg, processException);
             }
         }finally{
             String currentAuthName = currentAuth == null ? null : currentAuth.getName();

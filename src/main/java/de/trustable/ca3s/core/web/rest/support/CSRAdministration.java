@@ -1,9 +1,6 @@
 package de.trustable.ca3s.core.web.rest.support;
 
-import de.trustable.ca3s.core.domain.CSR;
-import de.trustable.ca3s.core.domain.Certificate;
-import de.trustable.ca3s.core.domain.CsrAttribute;
-import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.CsrStatus;
 import de.trustable.ca3s.core.exception.CAFailureException;
 import de.trustable.ca3s.core.repository.CSRRepository;
@@ -63,6 +60,7 @@ public class CSRAdministration {
 
     private final AuditService auditService;
 
+    private final BPMNUtil bpmnUtil;
     private final AsyncNotificationService asyncNotificationService;
     private final ProtectedContentUtil protectedContentUtil;
     private final PreferenceUtil preferenceUtil;
@@ -78,7 +76,7 @@ public class CSRAdministration {
                              PipelineUtil pipelineUtil,
                              UserRepository userRepository,
                              UserUtil userUtil,
-                             AuditService auditService,
+                             AuditService auditService, BPMNUtil bpmnUtil,
                              AsyncNotificationService asyncNotificationService,
                              ProtectedContentUtil protectedContentUtil,
                              PreferenceUtil preferenceUtil,
@@ -92,6 +90,7 @@ public class CSRAdministration {
         this.userRepository = userRepository;
         this.userUtil = userUtil;
         this.auditService = auditService;
+        this.bpmnUtil = bpmnUtil;
         this.asyncNotificationService = asyncNotificationService;
         this.protectedContentUtil = protectedContentUtil;
         this.preferenceUtil = preferenceUtil;
@@ -148,6 +147,9 @@ public class CSRAdministration {
 
                 auditService.saveAuditTrace(auditService.createAuditTraceCsrAccepted(csr));
 
+                // call process to handle the acceptance
+                bpmnUtil.notifyOnCSRDecisionResult(csr);
+
                 Certificate cert;
                 try{
                     cert = cpUtil.processCertificateRequestImmediate( csr, userName, AuditService.AUDIT_RA_CERTIFICATE_CREATED );
@@ -187,13 +189,17 @@ public class CSRAdministration {
     			csrUtil.setStatusAndRejectionReason(csr, CsrStatus.REJECTED, adminData.getRejectionReason());
     			csrRepository.save(csr);
 
-                csrUtil.notifyOnRejection(csr);
-
                 updateComment(adminData, csr);
                 updateARAttributes(adminData, csr);
                 csrUtil.setCSRComment(csr, adminData.getComment());
 
                 auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr));
+
+                // send email to requestor
+                csrUtil.notifyOnRejection(csr);
+
+                // call process to handle the rejection
+                bpmnUtil.notifyOnCSRDecisionResult(csr);
 
                 CSRAdministrationResponse csrAdministrationResponse = new CSRAdministrationResponse();
                 csrAdministrationResponse.setAdministrationType(adminData.getAdministrationType());

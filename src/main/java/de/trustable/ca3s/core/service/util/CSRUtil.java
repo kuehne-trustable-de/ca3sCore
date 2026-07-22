@@ -22,6 +22,7 @@ import org.bouncycastle.asn1.x509.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -54,11 +55,17 @@ public class CSRUtil {
     private final AuditService auditService;
     private final AsyncNotificationService asyncNotificationService;
 
-    public CSRUtil(CSRRepository csrRepository, UserRepository userRepository, RDNRepository rdnRepository,
+    public CSRUtil(CSRRepository csrRepository,
+                   UserRepository userRepository,
+                   RDNRepository rdnRepository,
                    CSRCommentRepository csrCommentRepository,
-                   RDNAttributeRepository rdnAttRepository, CsrAttributeRepository csrAttRepository,
+                   RDNAttributeRepository rdnAttRepository,
+                   CsrAttributeRepository csrAttRepository,
                    BadKeysService badKeysService,
-                   CryptoService cryptoUtil, PipelineUtil pipelineUtil, AuditService auditService, AsyncNotificationService asyncNotificationService) {
+                   CryptoService cryptoUtil,
+                   PipelineUtil pipelineUtil,
+                   AuditService auditService,
+                   AsyncNotificationService asyncNotificationService) {
         this.csrRepository = csrRepository;
         this.userRepository = userRepository;
         this.rdnRepository = rdnRepository;
@@ -805,6 +812,26 @@ public class CSRUtil {
 
 		csrAttRepository.save(cAtt);
 	}
+
+    @Transactional
+    public void deleteCsrAttribute(CSR csr, String name) {
+
+        Set<CsrAttribute> newSet = new HashSet<>();
+
+        for (CsrAttribute csrAttr : csr.getCsrAttributes()) {
+            if (csrAttr.getName().equals(name)) {
+                LOG.info("deleting csrAttribute {}", csrAttr);
+                csrAttRepository.delete(csrAttr);
+            }else{
+                newSet.add(csrAttr);
+            }
+
+        }
+        csr.setCsrAttributes(newSet);
+        csrRepository.save(csr);
+
+    }
+
 
     public void notifyOnRejection(CSR csr){
 

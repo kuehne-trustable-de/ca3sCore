@@ -906,6 +906,24 @@
                     </div>
 
                     <div class="form-group"
+                         v-if="$v.pipeline.type.$model === 'WEB' && getBPNMProcessInfosByType('CSR_DECISION_RESULT').length > 0">
+                        <label class="form-control-label"
+                               v-text="$t('ca3SApp.pipeline.processInfoCsrDecisionResult')"
+                               for="pipeline-processInfoCsrDecisionResult"></label>
+                        <help-tag role="Admin" target="pipeline.process.csr-decision-result"/>
+                        <select class="form-control" id="pipeline-processInfoCsrDecisionResult" name="processInfoCsrDecisionResult"
+                                v-model="pipeline.webConfigItems.processInfoNameCSRDecisionResult">
+                            <option v-bind:value="null"></option>
+                            <option
+                                v-bind:value="pipeline.processInfo && bPNMProcessInfoOption.id === pipeline.processInfo.id ? pipeline.processInfo.name : bPNMProcessInfoOption.name"
+                                v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CSR_DECISION_RESULT')"
+                                :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
+                            </option>
+                        </select>
+                    </div>
+
+
+                    <div class="form-group"
                          v-if="$v.pipeline.type.$model === 'ACME' && getBPNMProcessInfosByType('ACME_ACCOUNT_AUTHORIZATION').length > 0">
                         <label class="form-control-label"
                                v-text="$t('ca3SApp.pipeline.processInfoAccountAuthorization')"

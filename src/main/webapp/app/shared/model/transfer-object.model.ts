@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-03-11 19:31:42.
+// Generated using typescript-generator version 3.2.1263 on 2026-07-07 13:44:22.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -288,11 +288,11 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedTypedValue[];
-  skiUrlSafe?: string;
-  auditPresent?: boolean;
   serversideKeyGeneration?: boolean;
   fullChainAvailable?: boolean;
   issuingActiveCertificates?: boolean;
+  skiUrlSafe?: string;
+  auditPresent?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -694,6 +694,7 @@ export interface IAcmeConfigItems extends ISerializable {
   processInfoNameAccountAuthorization?: string;
   processInfoNameOrderValidation?: string;
   processInfoNameChallengeValidation?: string;
+  processInfoNameCsrDecisionResult?: string;
   externalAccountRequired?: boolean;
 }
 
@@ -719,6 +720,7 @@ export interface IWebConfigItems extends ISerializable {
   notifyDomainRAOfficerOnPendingRequest?: boolean;
   processInfoNameRequestAuthorization?: string;
   processInfoNameRequestElementValidiation?: string;
+  processInfoNameCSRDecisionResult?: string;
   issuesSecondFactorClientCert?: boolean;
 }
 
@@ -840,6 +842,7 @@ export interface IPipeline extends ISerializable {
   requestProxies?: IRequestProxyConfig[];
   tenants?: ITenant[];
   authorities?: IAuthority[];
+  processInfoCSRDecisionResult?: IBPMNProcessInfo;
 }
 
 export interface IKeyAlgoLengthOrSpec {
@@ -1054,7 +1057,7 @@ export type IKDFType = "PBKDF2";
 
 export type IScepOrderStatus = "PENDING" | "READY" | "INVALID";
 
-export type IBPMNProcessType = "CA_INVOCATION" | "CERTIFICATE_CREATION" | "CERTIFICATE_REVOCATION" | "CERTIFICATE_NOTIFY" | "REQUEST_ELEMENT_VALIDATION" | "REQUEST_AUTHORIZATION" | "ACME_ACCOUNT_AUTHORIZATION" | "SEND_SMS" | "TIMED";
+export type IBPMNProcessType = "CA_INVOCATION" | "CERTIFICATE_CREATION" | "CERTIFICATE_REVOCATION" | "CERTIFICATE_NOTIFY" | "CSR_DECISION_RESULT" | "REQUEST_ELEMENT_VALIDATION" | "REQUEST_AUTHORIZATION" | "ACME_ACCOUNT_AUTHORIZATION" | "SEND_SMS" | "TIMED";
 
 export type ICAConnectorType = "INTERNAL" | "CMP" | "ADCS" | "ADCS_CERTIFICATE_INVENTORY" | "DIRECTORY" | "VAULT" | "VAULT_INVENTORY" | "EJBCA_INVENTORY" | "MANUAL_UPLOAD" | "ACME_CLIENT";
 

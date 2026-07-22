@@ -28,6 +28,7 @@
                                 v-model="bpmnUpload.type" >
                             <option value="CERTIFICATE_CREATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_CREATION')"></option>
                             <option value="CERTIFICATE_NOTIFY" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_NOTIFY')"></option>
+                            <option value="CSR_DECISION_RESULT" v-text="$t('ca3SApp.bPNMProcessInfo.type.CSR_DECISION_RESULT')" ></option>
                             <option value="CERTIFICATE_REVOCATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.CERTIFICATE_REVOCATION')" ></option>
                             <option value="REQUEST_AUTHORIZATION" v-text="$t('ca3SApp.bPNMProcessInfo.type.REQUEST_AUTHORIZATION')" ></option>
                             <option value="SEND_SMS" v-text="$t('ca3SApp.bPNMProcessInfo.type.SEND_SMS')" ></option>
@@ -114,7 +115,7 @@
                         <h3 class="jh-entity-heading"><span v-text="$t('ca3SApp.bPNMProcessInfo.check.subtitle')"></span></h3>
                     </div>
 
-                    <div class="form-group" v-if="(interactionMode == 'TEST') && bpmnUpload.type === 'CERTIFICATE_CREATION'">
+                    <div class="form-group" v-if="(interactionMode == 'TEST') && (bpmnUpload.type === 'CERTIFICATE_CREATION' || bpmnUpload.type === 'CSR_DECISION_RESULT')">
                         <label class="form-control-label" v-text="$t('ca3SApp.bPNMProcessInfo.check.csrId')" ></label>
                         <input type="text" class="form-control form-check-inline valid" name="bpmn.check.csrId" id="bpmn.check.csrId"
                                required="true"

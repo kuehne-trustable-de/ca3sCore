@@ -280,7 +280,7 @@ public class BPMNUpDownloadController {
                                                                       @PathVariable final String accountId){
 
         LOG.info("Call bpmn request for process id {}", processId);
-        ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkAcmeAccountAuthorizationProzess(processId, accountId);
+        ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkAcmeAccountAuthorizationProcess(processId, accountId);
 
         ResponseEntity result = handleProcessResponse(processInstanceWithVariables);
         if (result != null) return result;
