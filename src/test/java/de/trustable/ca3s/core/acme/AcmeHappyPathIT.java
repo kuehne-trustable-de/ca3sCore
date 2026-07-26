@@ -48,7 +48,6 @@ import org.springframework.test.context.ActiveProfiles;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -62,6 +61,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
+import static de.trustable.ca3s.core.acme.AcmeChallengeIT.logMetaInfo;
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.shredzone.acme4j.Identifier.TYPE_IP;
@@ -199,9 +199,7 @@ public class AcmeHappyPathIT {
         Session session = new Session(dirUrl);
         Metadata meta = session.getMetadata();
 
-        URI tos = meta.getTermsOfService();
-        URL website = meta.getWebsite();
-        LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -271,9 +269,7 @@ public class AcmeHappyPathIT {
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();
 
-		URI tos = meta.getTermsOfService();
-		URL website = meta.getWebsite();
-		LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
 		KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -348,9 +344,7 @@ public class AcmeHappyPathIT {
         Session session = new Session(dirUrlEAB);
         Metadata meta = session.getMetadata();
 
-        URI tos = meta.getTermsOfService();
-        URL website = meta.getWebsite();
-        LOG.info("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -471,9 +465,7 @@ public class AcmeHappyPathIT {
             Session session = new Session(dirUrlnetworkReject127_0_0_X);
             Metadata meta = session.getMetadata();
 
-            URI tos = meta.getTermsOfService();
-            URL website = meta.getWebsite();
-            LOG.info("TermsOfService {}, website {}", tos, website);
+            logMetaInfo(meta);
 
             try {
                 new AccountBuilder()
@@ -514,9 +506,7 @@ public class AcmeHappyPathIT {
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();
 
-		URI tos = meta.getTermsOfService();
-		URL website = meta.getWebsite();
-		LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
 		KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -545,15 +535,13 @@ public class AcmeHappyPathIT {
 
 			if (auth.getStatus() == Status.PENDING) {
 
-				Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+                Optional<Http01Challenge> challengeOpt = auth.findChallenge(Http01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
 
-				if( challenge != null) {
-                    provideAuthEndpoint(challenge, order, prefTC);
-                    challenge.trigger();
+                Http01Challenge challenge = challengeOpt.get();
+                provideAuthEndpoint(challenge, order, prefTC);
+                challenge.trigger();
 
-                } else {
-                    LOG.warn("http01 Challenge not found for order");
-                }
 			}
 		}
 
@@ -624,9 +612,7 @@ public class AcmeHappyPathIT {
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();
 
-		URI tos = meta.getTermsOfService();
-		URL website = meta.getWebsite();
-		LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         Session sessionDomainReuseRealm = new Session(dirUrlDomainReuse);
         KeyPair domainReuseRealmAccountKeyPair = KeyPairUtils.createKeyPair(2048);
@@ -933,7 +919,10 @@ public class AcmeHappyPathIT {
             LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
             if (auth.getStatus() == Status.PENDING) {
 
-                Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+                Optional<Http01Challenge> challengeOpt = auth.findChallenge(Http01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                Http01Challenge challenge = challengeOpt.get();
 
                 int MAX_TRIAL = 10;
                 for( int retry = 0; retry < MAX_TRIAL; retry++) {
@@ -963,10 +952,7 @@ public class AcmeHappyPathIT {
 			Session session = new Session(dirUrl);
 			Metadata meta = session.getMetadata();
 
-
-			URI tos = meta.getTermsOfService();
-			URL website = meta.getWebsite();
-			LOG.debug("TermsOfService {}, website {}", tos, website);
+            logMetaInfo(meta);
 
 			KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -986,9 +972,13 @@ public class AcmeHappyPathIT {
 			for (Authorization auth : order.getAuthorizations()) {
 				if (auth.getStatus() == Status.PENDING) {
 					LOG.debug("auth {}", auth);
-					Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
 
-					provideAuthEndpoint(challenge, order, prefTC);
+                    Optional<Http01Challenge> challengeOpt = auth.findChallenge(Http01Challenge.TYPE);
+                    Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                    Http01Challenge challenge = challengeOpt.get();
+
+                    provideAuthEndpoint(challenge, order, prefTC);
 
 					challenge.trigger();
 				}

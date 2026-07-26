@@ -26,6 +26,9 @@
 
 package de.trustable.ca3s.core.web.rest.acme;
 
+import de.trustable.ca3s.challenge.ChallengeValidator;
+import de.trustable.ca3s.challenge.exception.ChallengeDNSException;
+import de.trustable.ca3s.challenge.exception.ChallengeDNSIdentifierException;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.repository.AcmeChallengeRepository;
@@ -106,9 +109,13 @@ public class ChallengeController extends AcmeController {
 
     private final SimpleResolver dnsResolver;
 
+    private final String[] issuerDomainNameArray;
+
     private final AuditService auditService;
 
     private final AcmeOrderUtil acmeOrderUtil;
+    private final ChallengeValidator challengeValidator;
+
     private final RateLimiterService rateLimiterService;
     private final RandomUtil randomUtil;
 
@@ -119,10 +126,13 @@ public class ChallengeController extends AcmeController {
                                AuditService auditService,
                                @Value("${ca3s.acme.alpn.ports:443}") int[] alpnPorts,
                                @Value("${ca3s.dns.server:}") String resolverHost,
+                               @Value("${ca3s.acme.issuerDomainNames:acme.ca3s.org}") String[] issuerDomainNameArray,
                                @Value("${ca3s.dns.port:53}") int resolverPort,
-                               AcmeOrderUtil acmeOrderUtil, @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
+                               AcmeOrderUtil acmeOrderUtil,
+                               @Value("${ca3s.acme.ratelimit.second:0}") int rateSec,
                                @Value("${ca3s.acme.ratelimit.minute:20}") int rateMin,
-                               @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour, RandomUtil randomUtil)
+                               @Value("${ca3s.acme.ratelimit.hour:0}") int rateHour,
+                               RandomUtil randomUtil)
         throws UnknownHostException {
 
         this.challengeRepository = challengeRepository;
@@ -132,10 +142,21 @@ public class ChallengeController extends AcmeController {
         this.alpnPorts = alpnPorts;
         this.dnsResolver = new SimpleResolver(resolverHost);
         this.randomUtil = randomUtil;
+        this.issuerDomainNameArray = issuerDomainNameArray;
         this.dnsResolver.setPort(resolverPort);
         LOG.info("Applying default DNS resolver {}", this.dnsResolver.getAddress());
 
         this.rateLimiterService = new RateLimiterService("Challenge", rateSec, rateMin, rateHour);
+
+        long timeoutMilliSec = preferenceUtil.getAcmeHTTP01TimeoutMilliSec();
+        int[] ports = preferenceUtil.getgetAcmeHTTP01CallbackPortArray();
+
+        this.challengeValidator = new ChallengeValidator(resolverHost,resolverPort,
+            timeoutMilliSec,
+            ports,
+            3,
+            alpnPorts );
+
     }
 
     @RequestMapping(value = "/{challengeId}", method = GET, produces = APPLICATION_JSON_VALUE)
@@ -205,7 +226,7 @@ public class ChallengeController extends AcmeController {
                 if( Instant.now().isAfter(order.getExpires())){
                     LOG.debug("order of this challenge {} already expired", challengeId);
                 }else {
-                    isChallengeSolved(challengeDao);
+                    isChallengeSolved(challengeDao, realm, forwardedHost);
                 }
 
                 ChallengeResponse challengeResponse = buildChallengeResponse(challengeDao, getEffectiveUriComponentsBuilder(realm, forwardedHost));
@@ -220,7 +241,7 @@ public class ChallengeController extends AcmeController {
         }
     }
 
-    public boolean isChallengeSolved(AcmeChallenge challengeDao) {
+    public boolean isChallengeSolved(AcmeChallenge challengeDao, String realm, String forwardedHost) {
         boolean useProxy = challengeDao.getAcmeAuthorization().getOrder()
             .getAttributes().stream().anyMatch(att -> AcmeOrderAttribute.REQUEST_PROXY_ID_USED.equals(att.getName()));
 
@@ -230,7 +251,7 @@ public class ChallengeController extends AcmeController {
             LOG.debug("challenge {} may be validated by proxy", challengeDao.getId());
             return false;
         } else {
-            boolean solved = checkChallenge(challengeDao);
+            boolean solved = checkChallenge(challengeDao, realm, forwardedHost);
             if (solved) {
                 LOG.debug("validation of challenge {} of type '{}' succeeded", challengeDao.getId(), challengeDao.getType());
             } else {
@@ -240,7 +261,7 @@ public class ChallengeController extends AcmeController {
         }
     }
 
-    public boolean checkChallenge(AcmeChallenge challengeDao) {
+    public boolean checkChallenge(AcmeChallenge challengeDao, String realm, String forwardedHost) {
 
 
         LOG.debug( "checking challenge {}", challengeDao.getId());
@@ -257,6 +278,13 @@ public class ChallengeController extends AcmeController {
             }
         }else if( AcmeChallenge.CHALLENGE_TYPE_DNS_01.equals(challengeDao.getType())){
             if (checkChallengeDNS(challengeDao)) {
+                newChallengeState = ChallengeStatus.VALID;
+                solved = true;
+            } else {
+                newChallengeState = ChallengeStatus.PENDING;
+            }
+        }else if( AcmeChallenge.CHALLENGE_TYPE_DNS_PERSIST_01.equals(challengeDao.getType())){
+            if (checkChallengeDNSPersist(challengeDao, realm, forwardedHost)) {
                 newChallengeState = ChallengeStatus.VALID;
                 solved = true;
             } else {
@@ -346,6 +374,63 @@ public class ChallengeController extends AcmeController {
         }
     }
 
+
+    private boolean checkChallengeDNSPersist(AcmeChallenge challengeDao, String realm, String forwardedHost) {
+
+        String[] issuerDomainNameArray = challengeDao.getIssuerDomainNames().split(",");
+
+        String domain = challengeDao.getAcmeAuthorization().getValue();
+        AcmeAccount account = challengeDao.getAcmeAuthorization().getOrder().getAccount();
+        URI accountUri = locationUriOfAccount(account.getAccountId(), getEffectiveUriComponentsBuilder(realm, forwardedHost));
+
+        try {
+            Collection<String> dnsEntryList = challengeValidator.retrieveChallengeDNSPersist(domain);
+
+            for(String issuerDomainName : issuerDomainNameArray) {
+                if (checkDNSPersist(dnsEntryList, issuerDomainName, accountUri)){
+                    return true;
+                }
+            }
+
+        } catch (ChallengeDNSIdentifierException | ChallengeDNSException e) {
+            String msg = "problem accessing DNS service : " + e.getMessage();
+            LOG.info(msg);
+            challengeDao.setLastError(msg);
+        }
+
+        return false;
+    }
+
+    private static boolean checkDNSPersist(Collection<String> dnsEntryList, String caIssuerName, URI accountUri) {
+        for( String dnsEntry : dnsEntryList){
+            PersistentRecord persistentRecord = new PersistentRecord(dnsEntry);
+
+            if (!caIssuerName.equals(persistentRecord.getCaIssuer())) {
+                continue;
+            }
+
+            if (!accountUri.toString().equals(persistentRecord.getAccountUri())) {
+                continue;
+            }
+
+            if (persistentRecord.getPersistUntilMilliSec() != null) {
+                long now = System.currentTimeMillis();
+
+                if (now >= persistentRecord.getPersistUntilMilliSec()) {
+                    continue;
+                }
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+/*
+    private URI locationUriOf(final long accountId, final UriComponentsBuilder uriBuilder) {
+        return accountResourceUriBuilderFrom(uriBuilder.path("..")).path("/").path(Long.toString(accountId)).build().normalize().toUri();
+    }
+*/
     private void logChallengeValidationOutcome(boolean matches, AcmeChallenge challengeDao, String matchMsg, String mismatchMsg) {
         AcmeOrder acmeOrder = challengeDao.getAcmeAuthorization().getOrder();
         if(matches) {
@@ -380,25 +465,8 @@ public class ChallengeController extends AcmeController {
 
     private boolean checkChallengeHttp(AcmeChallenge challengeDao) {
 
-		int[] ports = {80, 5544, 8800};
-
-		long timeoutMilliSec = preferenceUtil.getAcmeHTTP01TimeoutMilliSec();
-		String portList = preferenceUtil.getAcmeHTTP01CallbackPorts();
-
-		if(portList != null && !portList.trim().isEmpty()) {
-			String[] parts = portList.split(",");
-			ports = new int[parts.length];
-		    for( int i = 0; i < parts.length; i++) {
-		    	ports[i] = -1;
-		    	try {
-		    		ports[i] = Integer.parseInt(parts[i].trim());
-		    		LOG.debug("checkChallengeHttp port number '" + ports[i] + "' configured for HTTP callback");
-		    	} catch( NumberFormatException nfe) {
-					LOG.warn("checkChallengeHttp port number parsing fails for '" + ports[i] + "', ignoring", nfe);
-		    	}
-		    }
-
-		}
+        long timeoutMilliSec = preferenceUtil.getAcmeHTTP01TimeoutMilliSec();
+        int[] ports = preferenceUtil.getgetAcmeHTTP01CallbackPortArray();
 
         AcmeOrder acmeOrder = challengeDao.getAcmeAuthorization().getOrder();
 	    String token = challengeDao.getToken();
@@ -793,7 +861,11 @@ public class ChallengeController extends AcmeController {
 
     private URI locationUriOfAuthorization(final long authorizationId, final UriComponentsBuilder uriBuilder) {
         return authorizationResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path(Long.toString(authorizationId)).build().normalize().toUri();
-	}
+    }
+
+    private URI locationUriOfAccount(final long accountId, final UriComponentsBuilder uriBuilder) {
+        return accountResourceUriBuilderFrom(uriBuilder.path("../..")).path("/").path(Long.toString(accountId)).build().normalize().toUri();
+    }
 
     public ResponseEntity<Void> checkChallengeValidation(AcmeChallengeValidation acmeChallengeValidation) {
 
@@ -837,12 +909,30 @@ public class ChallengeController extends AcmeController {
                     }
                 }else if( AcmeChallenge.CHALLENGE_TYPE_DNS_01.equals(challengeDao.getType())){
                     String expectedContent = buildKeyAuthorizationHashBase64(challengeDao);
+
                     if(Arrays.asList(acmeChallengeValidation.getResponses()).contains(expectedContent)) {
                         LOG.info("proxy validated dns-01 challenge id '{}' successfully", challengeDao.getId());
                         challengeDao.setStatus(ChallengeStatus.VALID);
                     }else{
                         LOG.info("proxy failed validation of dns-01 challenge id '{}'", challengeDao.getId());
                     }
+
+                }else if( AcmeChallenge.CHALLENGE_TYPE_DNS_PERSIST_01.equals(challengeDao.getType())){
+
+                    String caIssuerName = issuerDomainNameArray[0];
+                    AcmeAccount account = challengeDao.getAcmeAuthorization().getOrder().getAccount();
+                    // check forwardedHost on acmeProxy
+                    URI accountUri = locationUriOfAccount(account.getAccountId(), getEffectiveUriComponentsBuilder(order.getRealm(), null));
+
+                    if (checkDNSPersist(Arrays.asList(acmeChallengeValidation.getResponses()),
+                        caIssuerName,
+                        accountUri)) {
+                        LOG.info("proxy validated dns-persist-01 challenge id '{}' successfully", challengeDao.getId());
+                        challengeDao.setStatus(ChallengeStatus.VALID);
+                    }else{
+                        LOG.info("proxy failed validation of dns-persist-01 challenge id '{}'", challengeDao.getId());
+                    }
+
                 }else if( AcmeChallenge.CHALLENGE_TYPE_ALPN_01.equals(challengeDao.getType())){
                     String expectedContent = buildKeyAuthorizationHashBase64(challengeDao);
                     if(Arrays.asList(acmeChallengeValidation.getResponses()).contains(expectedContent)) {
@@ -860,5 +950,63 @@ public class ChallengeController extends AcmeController {
             acmeOrderUtil.alignOrderState(order);
         }
         return ResponseEntity.ok().build();
+    }
+
+    private static class PersistentRecord{
+
+        private String caIssuer;
+        private String accountUri;
+        private Long persistUntilMilliSec;
+
+        PersistentRecord(String value) {
+            String[] parts = value.replace("\"", "").split(";");
+
+            caIssuer = null;
+            accountUri = null;
+            persistUntilMilliSec = null;
+
+            for (String part : parts) {
+                String item = part.trim();
+
+                if (item.isEmpty()) {
+                    continue;
+                }
+
+                if (!item.contains("=")) {
+                    // First field is the CA issuer identity.
+                    if (caIssuer == null) {
+                        caIssuer = item;
+                    }
+                    continue;
+                }
+
+                String[] kv = item.split("=", 2);
+                String key = kv[0].trim();
+                String val = kv[1].trim();
+
+                switch (key) {
+                    case "accounturi" -> accountUri = val;
+
+                    case "persistUntil" ->
+                        persistUntilMilliSec = Long.parseLong(val) * 1000L;
+
+                    default -> {
+                        // Ignore extension fields for forward compatibility.
+                    }
+                }
+            }
+        }
+
+        public String getCaIssuer() {
+            return caIssuer;
+        }
+
+        public String getAccountUri() {
+            return accountUri;
+        }
+
+        public Long getPersistUntilMilliSec() {
+            return persistUntilMilliSec;
+        }
     }
 }

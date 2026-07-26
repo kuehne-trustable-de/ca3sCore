@@ -7,7 +7,9 @@ import de.trustable.util.JCAManager;
 import org.junit.jupiter.api.*;
 import org.shredzone.acme4j.*;
 import org.shredzone.acme4j.Order;
+import org.shredzone.acme4j.challenge.Challenge;
 import org.shredzone.acme4j.challenge.Dns01Challenge;
+import org.shredzone.acme4j.challenge.DnsPersist01Challenge;
 import org.shredzone.acme4j.challenge.Http01Challenge;
 import org.shredzone.acme4j.exception.AcmeException;
 import org.shredzone.acme4j.exception.AcmeRateLimitedException;
@@ -29,6 +31,7 @@ import java.security.KeyPair;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,8 +49,10 @@ public class AcmeChallengeIT {
 
     final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
     final String ACME_DNS_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_DNS_REALM + "/directory";
+    final String ACME_DNS_PERSIST_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_DNS_PERSIST_REALM + "/directory";
     String dirUrl;
     String dirUrlDNS;
+    String dirUrlDNSPersist;
 
     HttpChallengeHelper httpChallengeHelper;
 
@@ -64,10 +69,13 @@ public class AcmeChallengeIT {
 	void init() {
         dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
         dirUrlDNS = "http://localhost:" + serverPort + ACME_DNS_PATH_PART;
+        dirUrlDNSPersist = "http://localhost:" + serverPort + ACME_DNS_PERSIST_PATH_PART;
         LOG.info("ptc: {}", ptc);
         try {
             ptc.getInternalACMETestPipelineLaxRestrictions();
             ptc.getInternalACMETestPipelineDNSLaxRestrictions();
+            ptc.getInternalACMETestPipelineDNSPersistLaxRestrictions();
+
             prefTC.getTestUserPreference();
             httpChallengeHelper = new HttpChallengeHelper(prefTC.getHttpChallengePort());
             dnsChallengeHelper = new DnsChallengeHelper(dnsPort);
@@ -98,9 +106,7 @@ public class AcmeChallengeIT {
         Session session = new Session(dirUrl);
         Metadata meta = session.getMetadata();
 
-        URI tos = meta.getTermsOfService();
-        URL website = meta.getWebsite();
-        LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -142,9 +148,7 @@ public class AcmeChallengeIT {
         Session session = new Session(dirUrl);
         Metadata meta = session.getMetadata();
 
-        URI tos = meta.getTermsOfService();
-        URL website = meta.getWebsite();
-        LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -184,9 +188,10 @@ public class AcmeChallengeIT {
             LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
             if (auth.getStatus() == Status.PENDING) {
 
-                Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
-                Assertions.assertNotNull(challenge, "expected to find a challenge");
+                Optional<Challenge> challengeOpt = auth.findChallenge(Http01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
 
+                Challenge challenge = challengeOpt.get();
                 LOG.debug("challenge status (pre): {}", challenge.getStatus());
 
                 challenge.trigger();
@@ -210,8 +215,10 @@ public class AcmeChallengeIT {
             LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
             if (auth.getStatus() == Status.PENDING) {
 
-                Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
-                Assertions.assertNotNull(challenge, "expected to find a challenge");
+                Optional<Http01Challenge> challengeOpt = auth.findChallenge(Http01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                Http01Challenge challenge = challengeOpt.get();
 
                 LOG.debug("correct response would be {}, but it's prepended with 'xxx' ...", challenge.getAuthorization());
 
@@ -241,7 +248,10 @@ public class AcmeChallengeIT {
 
             if (auth.getStatus() == Status.PENDING) {
 
-                Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+                Optional<Http01Challenge> challengeOpt = auth.findChallenge(Http01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                Http01Challenge challenge = challengeOpt.get();
 
                 if( challenge != null) {
                     httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), true);
@@ -281,9 +291,7 @@ public class AcmeChallengeIT {
         Session session = new Session(dirUrl);
         Metadata meta = session.getMetadata();
 
-        URI tos = meta.getTermsOfService();
-        URL website = meta.getWebsite();
-        LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -324,7 +332,10 @@ public class AcmeChallengeIT {
 
             if (auth.getStatus() == Status.PENDING) {
 
-                Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+                Optional<Http01Challenge> challengeOpt = auth.findChallenge(Http01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                Http01Challenge challenge = challengeOpt.get();
 
                 if( challenge != null) {
                     httpChallengeHelper.provideAuthEndpoint(challenge.getToken(), challenge.getAuthorization(), true);
@@ -359,7 +370,9 @@ public class AcmeChallengeIT {
             } catch (AcmeServerException acmeServerException) {
                 assertTrue(acmeServerException.getMessage().startsWith("failed to find requested hostname 'foo.com' (from CSR) in authorization for order"),
                     "failed to find requested hostname 'foo.com' (from CSR) in authorization for order ");
-                order.update();
+
+                // refresh order ??
+
                 Assertions.assertEquals(Status.INVALID, order.getStatus());
             }
 
@@ -368,15 +381,19 @@ public class AcmeChallengeIT {
         Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
     }
 
+    public static void logMetaInfo(Metadata meta) {
+        Optional<URI> tosOpt = meta.getTermsOfService();
+        Optional<URL> websiteOpt = meta.getWebsite();
+        LOG.debug("TermsOfService {}, website {}", tosOpt, websiteOpt);
+    }
+
     @Test
     public void testHttpChallengeRateLimit() throws AcmeException, IOException, InterruptedException {
 
         Session session = new Session(dirUrl);
         Metadata meta = session.getMetadata();
 
-        URI tos = meta.getTermsOfService();
-        URL website = meta.getWebsite();
-        LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -417,7 +434,10 @@ public class AcmeChallengeIT {
 
             if (auth.getStatus() == Status.PENDING) {
 
-                Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
+                Optional<Http01Challenge> challengeOpt = auth.findChallenge(Http01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                Http01Challenge challenge = challengeOpt.get();
 
                 try {
                     for (int i = 0; i < 100; i++) {
@@ -439,9 +459,7 @@ public class AcmeChallengeIT {
         Session session = new Session(dirUrlDNS);
         Metadata meta = session.getMetadata();
 
-        URI tos = meta.getTermsOfService();
-        URL website = meta.getWebsite();
-        LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -478,10 +496,12 @@ public class AcmeChallengeIT {
             LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
             if (auth.getStatus() == Status.PENDING) {
 
-                Dns01Challenge challenge = auth.findChallenge(Dns01Challenge.TYPE);
-                Assertions.assertNotNull(challenge, "expected to find a challenge");
+                Optional<Dns01Challenge> challengeOpt = auth.findChallenge(Dns01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
 
-                dnsChallengeHelper.setChallengeDetails( challenge.getDigest(), auth.getIdentifier().getValue());
+                Dns01Challenge challenge = challengeOpt.get();
+
+                dnsChallengeHelper.setDNSChallengeDetails( challenge.getDigest(), auth.getIdentifier().getValue());
                 dnsChallengeHelper.start();
 
                 try {
@@ -517,6 +537,175 @@ public class AcmeChallengeIT {
         account.deactivate();
 
         Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
+    }
+
+    @Test
+    public void testDnsPersistChallengeHandling() throws AcmeException, IOException {
+
+        String domain = "localhost";
+
+        Session session = new Session(dirUrlDNSPersist);
+        Metadata meta = session.getMetadata();
+
+        logMetaInfo(meta);
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        Account account = new AccountBuilder()
+            .addContact("mailto:acmeTestDns@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(accountKeyPair)
+            .create(session);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
+
+        URL accountLocationUrl = account.getLocation();
+        LOG.debug("accountLocationUrl {}", accountLocationUrl);
+
+
+        Account retrievedAccount = new AccountBuilder()
+            .onlyExisting()         // Do not create a new account
+            .useKeyPair(accountKeyPair)
+            .create(session);
+
+        Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to find the same account (URL)");
+
+        // #########################
+        // http endpoint serving wrong content
+        // #########################
+
+        Order order = account.newOrder()
+            .domains(domain)
+            .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+            .create();
+
+        // challenge an authorization that will not succeed
+        for (Authorization auth : order.getAuthorizations()) {
+            LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+            if (auth.getStatus() == Status.PENDING) {
+
+                Optional<DnsPersist01Challenge> challengeOpt = auth.findChallenge(DnsPersist01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                DnsPersist01Challenge challenge = challengeOpt.get();
+
+
+                dnsChallengeHelper.addDNSPersistChallengeDetails(
+                    "\"acme.ca3s.org; accounturi=" + accountLocationUrl.toString() + "\"",
+                    auth.getIdentifier().getValue());
+                dnsChallengeHelper.addDNSPersistChallengeDetails(
+                    "\"letsencrypt.org; accounturi=" + accountLocationUrl.toString() + "\"",
+                    auth.getIdentifier().getValue());
+
+                dnsChallengeHelper.start();
+
+                try {
+                    challenge.trigger();
+                    Assertions.assertEquals(Status.VALID, challenge.getStatus());
+                }finally {
+                    dnsChallengeHelper.stop();
+                }
+
+                dnsChallengeHelper.stop();
+            }
+
+        }
+
+
+        CSRBuilder csrb = new CSRBuilder();
+        csrb.addDomain("localhost");
+        csrb.setOrganization("The Example Organization");
+        csrb.sign(accountKeyPair); // should be detected !!
+        byte[] csr = csrb.getEncoded();
+
+        for(Authorization auth: order.getAuthorizations()){
+            System.out.println( " ################ "  + auth.getIdentifier().toString() + "" + auth.getLocation() );
+        }
+
+        try{
+            order.execute(csr);
+            Assertions.fail("AcmeServerException expected");
+        }catch( AcmeServerException acmeServerException){
+            Assertions.assertEquals("Public key of CSR already in use by account", acmeServerException.getMessage());
+        }
+
+        account.deactivate();
+
+        Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
+    }
+
+    @Test
+    public void testDnsPersistChallengeInvalid() throws AcmeException, IOException {
+
+        String domain = "localhost";
+
+        Session session = new Session(dirUrlDNSPersist);
+        Metadata meta = session.getMetadata();
+
+        logMetaInfo(meta);
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        Account account = new AccountBuilder()
+            .addContact("mailto:acmeTestDns@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(accountKeyPair)
+            .create(session);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
+
+        URL accountLocationUrl = account.getLocation();
+        LOG.debug("accountLocationUrl {}", accountLocationUrl);
+
+
+        Account retrievedAccount = new AccountBuilder()
+            .onlyExisting()         // Do not create a new account
+            .useKeyPair(accountKeyPair)
+            .create(session);
+
+        Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to find the same account (URL)");
+
+        // #########################
+        // http endpoint serving wrong content
+        // #########################
+
+        Order order = account.newOrder()
+            .domains(domain)
+            .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+            .create();
+
+        // challenge an authorization that will not succeed
+        for (Authorization auth : order.getAuthorizations()) {
+            LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+            if (auth.getStatus() == Status.PENDING) {
+
+                Optional<DnsPersist01Challenge> challengeOpt = auth.findChallenge(DnsPersist01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                DnsPersist01Challenge challenge = challengeOpt.get();
+
+
+                dnsChallengeHelper.addDNSPersistChallengeDetails(
+                    "\"letsencrypt.org; accounturi=" + accountLocationUrl.toString() + "\"",
+                    auth.getIdentifier().getValue());
+                dnsChallengeHelper.addDNSPersistChallengeDetails(
+                    "\"acme.ca3s.org; accounturi=http://localhost:44085/acme/acmeTestDNSPersistent/acct/00000000000000\"",
+                    auth.getIdentifier().getValue());
+
+                dnsChallengeHelper.start();
+
+                try {
+                    challenge.trigger();
+                    Assertions.assertEquals(Status.PENDING, challenge.getStatus());
+                }finally {
+                    dnsChallengeHelper.stop();
+                }
+
+                dnsChallengeHelper.stop();
+            }
+
+        }
+
     }
 
     void buildOrder(Account account, int n) throws AcmeException {

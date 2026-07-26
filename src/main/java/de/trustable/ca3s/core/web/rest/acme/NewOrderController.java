@@ -278,6 +278,7 @@ public class NewOrderController extends AcmeController {
     private final PipelineUtil pipelineUtil;
     private final String resolverHost;
     private final int orderValiditySec;
+    private final String[] issuerDomainNameArray;
 
 
     public NewOrderController(AcmeOrderRepository orderRepository,
@@ -286,7 +287,8 @@ public class NewOrderController extends AcmeController {
                               AcmeIdentifierRepository identRepository,
                               PipelineUtil pipelineUtil,
                               @Value("${ca3s.dns.server:}") String resolverHost,
-                              @Value("${ca3s.acme.order.validity.seconds:600}") int orderValiditySec) {
+                              @Value("${ca3s.acme.order.validity.seconds:600}") int orderValiditySec,
+                              @Value("${ca3s.acme.issuerDomainNames:acme.ca3s.org}") String[] issuerDomainNameArray) {
 
         this.orderRepository = orderRepository;
         this.orderAttributeRepository = orderAttributeRepository;
@@ -296,6 +298,7 @@ public class NewOrderController extends AcmeController {
         this.pipelineUtil = pipelineUtil;
         this.resolverHost = resolverHost;
         this.orderValiditySec = orderValiditySec;
+        this.issuerDomainNameArray = issuerDomainNameArray;
     }
 
 
@@ -453,6 +456,11 @@ public class NewOrderController extends AcmeController {
                     challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_DNS_01, identDao.getValue(), authorizationDao, requestProxyConfig));
                     challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_DNS_01);
                 }
+                if( acmeConfigItems.isAllowChallengeDNSPersist() ) {
+                    LOG.debug("Offering DNS-Persist-01 challenge");
+                    challenges.add(createChallenge(AcmeChallenge.CHALLENGE_TYPE_DNS_PERSIST_01, identDao.getValue(), authorizationDao, requestProxyConfig, issuerDomainNameArray));
+                    challengeTypeSet.add(AcmeChallenge.CHALLENGE_TYPE_DNS_PERSIST_01);
+                }
             }else{
                 LOG.debug("DNS-01 challenge skipped, no dns resolver configured.");
                 if( isWildcardRequest ) {
@@ -565,6 +573,17 @@ public class NewOrderController extends AcmeController {
         return challengeDao;
     }
 
+    private AcmeChallenge createChallenge(String type,
+                                          String value,
+                                          AcmeAuthorization authorizationDao,
+                                          final RequestProxyConfig requestProxyConfig,
+                                          String[] issuerDomainNames) {
+        AcmeChallenge challengeDao = createChallenge(type, value, authorizationDao, requestProxyConfig);
+        challengeDao.setIssuerDomainNames(String.join(",", issuerDomainNames));
+        challengeRepository.save(challengeDao);
+
+        return challengeDao;
+    }
 /*
   @RequestMapping(method = POST, consumes = APPLICATION_JWS_VALUE)
   public ResponseEntity<Authorization> consumingPostedJws(@RequestBody final String requestBody) {

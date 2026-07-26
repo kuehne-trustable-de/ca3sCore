@@ -681,6 +681,12 @@
                         <input type="checkbox" class="form-check-inline" name="allowChallengeDNS"
                                id="pipeline-allowChallengeDNS" v-model="pipeline.acmeConfigItems.allowChallengeDNS"/>
 
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowChallengeDNSPersist')"
+                               for="pipeline-allowChallengeDNSPersist"></label>
+                        <help-tag role="Admin" target="pipeline.acme.allow-challenge-dns-persist"/>
+                        <input type="checkbox" class="form-check-inline" name="allowChallengeDNSPersist"
+                               id="pipeline-allowChallengeDNSPersist" v-model="pipeline.acmeConfigItems.allowChallengeDNSPersist"/>
+
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.allowWildcards')"
                                for="pipeline-allowWildcards"></label>
                         <help-tag role="Admin" target="pipeline.acme.allow-wildcards"/>

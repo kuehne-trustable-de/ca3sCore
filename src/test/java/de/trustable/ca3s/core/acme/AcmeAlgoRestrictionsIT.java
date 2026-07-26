@@ -22,10 +22,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.net.URI;
-import java.net.URL;
 import java.security.KeyPair;
 
+import static de.trustable.ca3s.core.acme.AcmeChallengeIT.logMetaInfo;
 import static org.junit.Assert.fail;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -73,9 +72,7 @@ public class AcmeAlgoRestrictionsIT {
         Session session = new Session(dirUrl);
         Metadata meta = session.getMetadata();
 
-        URI tos = meta.getTermsOfService();
-        URL website = meta.getWebsite();
-        LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         try {
             KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
@@ -96,9 +93,7 @@ public class AcmeAlgoRestrictionsIT {
         Session session = new Session(dirUrl);
         Metadata meta = session.getMetadata();
 
-        URI tos = meta.getTermsOfService();
-        URL website = meta.getWebsite();
-        LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         KeyPair accountKeyPair = KeyPairUtils.createKeyPair(4096);
 

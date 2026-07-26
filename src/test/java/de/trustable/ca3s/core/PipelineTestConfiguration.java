@@ -51,6 +51,8 @@ public class PipelineTestConfiguration {
     private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
     private static final String PIPELINE_NAME_ACME_EAB = "acmeEab";
     private static final String PIPELINE_NAME_ACME_DNS = "acmeDNS";
+    private static final String PIPELINE_NAME_ACME_DNS_PERSIST = "acmeDNSPersist";
+
     private static final String PIPELINE_NAME_ACME_REJECT_127_0_0_X = "acmeReject127_0_0_x";
     private static final String PIPELINE_NAME_ACME_ACCEPT_10_10_X_X = "acmeAccept10_10_x_x";
 
@@ -67,6 +69,7 @@ public class PipelineTestConfiguration {
     public static final String ACME1CN_REALM = "acmeTest1CN";
     public static final String ACME_EAB_REALM = "acmeTestEab";
     public static final String ACME_DNS_REALM = "acmeTestDNS";
+    public static final String ACME_DNS_PERSIST_REALM = "acmeTestDNSPersistent";
     public static final String ACME_REJECT_127_0_0_X_REALM = "acmeTestReject_127_0_0_X";
     public static final String ACME_ACCEPT_10_10_X_X_REALM = "acmeTestAccept_10_10_X_X";
     public static final String ACME1CNNOIP_REALM = "acmeTest1CNNoIP";
@@ -584,6 +587,35 @@ public class PipelineTestConfiguration {
         pv_LaxDomainReuseWarn.setUrlPart(ACME_DNS_REALM);
 
         pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeDNS(true);
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeHTTP01(false);
+
+        Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipelineLaxEab);
+        return pipelineLaxEab;
+    }
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineDNSPersistLaxRestrictions() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_DNS_PERSIST);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_DNS_PERSIST);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_DNS_PERSIST);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_DNS_PERSIST_REALM);
+
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeDNS(false);
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeDNSPersist(true);
         pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeHTTP01(false);
 
         Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);

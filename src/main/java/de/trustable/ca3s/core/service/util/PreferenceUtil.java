@@ -96,6 +96,28 @@ public class PreferenceUtil {
     	return "5544";
     }
 
+    public int [] getgetAcmeHTTP01CallbackPortArray() {
+        int[] ports = {80, 5544, 8800};
+        String portList = getAcmeHTTP01CallbackPorts();
+
+        if(portList != null && !portList.trim().isEmpty()) {
+            String[] parts = portList.split(",");
+            ports = new int[parts.length];
+            for( int i = 0; i < parts.length; i++) {
+                ports[i] = -1;
+                try {
+                    ports[i] = Integer.parseInt(parts[i].trim());
+                    log.debug("checkChallengeHttp port number '" + ports[i] + "' configured for HTTP callback");
+                } catch( NumberFormatException nfe) {
+                    log.warn("checkChallengeHttp port number parsing fails for '" + ports[i] + "', ignoring", nfe);
+                }
+            }
+
+        }
+        return ports;
+    }
+
+
     public String[] getKeyAlgos() {
 
         Optional<UserPreference> optPref = userPreferenceService.findPreferenceForUserId(PreferenceUtil.SELECTED_SIGNING_ALGOS, SYSTEM_PREFERENCE_ID);

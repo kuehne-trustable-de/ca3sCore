@@ -12,6 +12,7 @@ public class AcmeConfigItems implements Serializable {
     private boolean allowChallengeHTTP01;
     private boolean allowChallengeAlpn;
 	private boolean allowChallengeDNS;
+    private boolean allowChallengeDNSPersist;
 	private boolean allowWildcards;
     private boolean checkCAA;
     private boolean notifyContactsOnError;
@@ -31,11 +32,15 @@ public class AcmeConfigItems implements Serializable {
 		return allowChallengeHTTP01;
 	}
 
-	public boolean isAllowChallengeDNS() {
-		return allowChallengeDNS;
-	}
+    public boolean isAllowChallengeDNS() {
+        return allowChallengeDNS;
+    }
 
-	public boolean isAllowWildcards() {
+    public boolean isAllowChallengeDNSPersist() {
+        return allowChallengeDNSPersist;
+    }
+
+    public boolean isAllowWildcards() {
 		return allowWildcards;
 	}
 
@@ -80,11 +85,15 @@ public class AcmeConfigItems implements Serializable {
 		this.allowChallengeHTTP01 = allowChallengeHTTP01;
 	}
 
-	public void setAllowChallengeDNS(boolean allowChallengeDNS) {
-		this.allowChallengeDNS = allowChallengeDNS;
-	}
+    public void setAllowChallengeDNS(boolean allowChallengeDNS) {
+        this.allowChallengeDNS = allowChallengeDNS;
+    }
 
-	public void setAllowWildcards(boolean allowWildcards) {
+    public void setAllowChallengeDNSPersist(boolean allowChallengeDNSPersist) {
+        this.allowChallengeDNSPersist = allowChallengeDNSPersist;
+    }
+
+    public void setAllowWildcards(boolean allowWildcards) {
 		this.allowWildcards = allowWildcards;
 	}
 
@@ -139,4 +148,6 @@ public class AcmeConfigItems implements Serializable {
     public void setExternalAccountRequired(boolean externalAccountRequired) {
         this.externalAccountRequired = externalAccountRequired;
     }
+
+
 }

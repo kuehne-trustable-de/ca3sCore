@@ -29,12 +29,13 @@ import org.takes.http.FtBasic;
 import java.io.IOException;
 import java.net.BindException;
 import java.net.InetAddress;
-import java.net.URI;
 import java.net.URL;
 import java.security.KeyPair;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Optional;
 
+import static de.trustable.ca3s.core.acme.AcmeChallengeIT.logMetaInfo;
 import static org.junit.Assert.*;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -77,9 +78,7 @@ public class AcmeRestrictionsIT {
         Session session = new Session(dirUrl);
         Metadata meta = session.getMetadata();
 
-        URI tos = meta.getTermsOfService();
-        URL website = meta.getWebsite();
-        LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
         for( String contact: rejectedContacts) {
             try {
@@ -91,7 +90,7 @@ public class AcmeRestrictionsIT {
                     .agreeToTermsOfService()
                     .useKeyPair(accountKeyPair)
                     .create(session);
-                fail("account with rejected email address MUST NOT be created");
+                Assertions.fail("account with rejected email address MUST NOT be created");
             } catch (AcmeServerException acmeServerException) {
 
             }
@@ -106,7 +105,7 @@ public class AcmeRestrictionsIT {
                     .agreeToTermsOfService()
                     .useKeyPair(accountKeyPair)
                     .create(session);
-                fail("account with a valid and a rejected email address MUST NOT be created");
+                Assertions.fail("account with a valid and a rejected email address MUST NOT be created");
             } catch (AcmeServerException acmeServerException) {
 
             }
@@ -119,9 +118,7 @@ public class AcmeRestrictionsIT {
 		Session session = new Session(dirUrl);
 		Metadata meta = session.getMetadata();
 
-		URI tos = meta.getTermsOfService();
-		URL website = meta.getWebsite();
-		LOG.debug("TermsOfService {}, website {}", tos, website);
+        logMetaInfo(meta);
 
 		KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
@@ -161,25 +158,24 @@ public class AcmeRestrictionsIT {
 				LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
 				if (auth.getStatus() == Status.PENDING) {
 
-					Http01Challenge challenge = auth.findChallenge(Http01Challenge.TYPE);
-					if( challenge != null) {
+                    Optional<Http01Challenge> challengeOpt = auth.findChallenge(Http01Challenge.TYPE);
+                    Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
 
-                        int MAX_TRIAL = 10;
-                        for (int retry = 0; retry < MAX_TRIAL; retry++) {
-                            try {
-                                provideAuthEndpoint(challenge);
-                                break;
-                            } catch (BindException be) {
-                                LOG.warn("bind exception, waiting for port to become available");
-                            }
-                            if (retry == MAX_TRIAL - 1) {
-                                LOG.warn("callback port not available");
-                            }
+                    Http01Challenge challenge = challengeOpt.get();
+
+                    int MAX_TRIAL = 10;
+                    for (int retry = 0; retry < MAX_TRIAL; retry++) {
+                        try {
+                            provideAuthEndpoint(challenge);
+                            break;
+                        } catch (BindException be) {
+                            LOG.warn("bind exception, waiting for port to become available");
                         }
-                        challenge.trigger();
-                    }else{
-                        LOG.warn("no available for given auth");
+                        if (retry == MAX_TRIAL - 1) {
+                            LOG.warn("callback port not available");
+                        }
                     }
+                    challenge.trigger();
 				}
 			}
 

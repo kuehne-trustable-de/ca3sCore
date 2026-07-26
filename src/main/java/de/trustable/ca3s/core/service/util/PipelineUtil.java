@@ -137,6 +137,7 @@ public class PipelineUtil {
     public static final String ACME_ALLOW_CHALLENGE_HTTP01 = "ACME_ALLOW_CHALLENGE_HTTP01";
     public static final String ACME_ALLOW_CHALLENGE_ALPN = "ACME_ALLOW_CHALLENGE_ALPN";
     public static final String ACME_ALLOW_CHALLENGE_DNS = "ACME_ALLOW_CHALLENGE_DNS";
+    public static final String ACME_ALLOW_CHALLENGE_DNS_PERSIST = "ACME_ALLOW_CHALLENGE_DNS_PERSIST";
 
     public static final String ACME_ALLOW_CHALLENGE_WILDCARDS = "ACME_ALLOW_WILDCARDS";
 
@@ -296,6 +297,8 @@ public class PipelineUtil {
                 acmeConfigItems.setAllowChallengeAlpn(Boolean.parseBoolean(plAtt.getValue()));
             } else if (ACME_ALLOW_CHALLENGE_DNS.equals(plAtt.getName())) {
                 acmeConfigItems.setAllowChallengeDNS(Boolean.parseBoolean(plAtt.getValue()));
+            } else if (ACME_ALLOW_CHALLENGE_DNS_PERSIST.equals(plAtt.getName())) {
+                acmeConfigItems.setAllowChallengeDNSPersist(Boolean.parseBoolean(plAtt.getValue()));
             } else if (ACME_ALLOW_CHALLENGE_WILDCARDS.equals(plAtt.getName())) {
                 acmeConfigItems.setAllowWildcards(Boolean.parseBoolean(plAtt.getValue()));
             } else if (ACME_CHECK_CAA.equals(plAtt.getName())) {
@@ -1022,6 +1025,7 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_HTTP01, pv.getAcmeConfigItems().isAllowChallengeHTTP01());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_ALPN, pv.getAcmeConfigItems().isAllowChallengeAlpn());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_DNS, pv.getAcmeConfigItems().isAllowChallengeDNS());
+            addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_DNS_PERSIST, pv.getAcmeConfigItems().isAllowChallengeDNSPersist());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_WILDCARDS, pv.getAcmeConfigItems().isAllowWildcards());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_CHECK_CAA, pv.getAcmeConfigItems().isCheckCAA());
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_NAME_CAA, pv.getAcmeConfigItems().getCaNameCAA());

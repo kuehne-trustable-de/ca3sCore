@@ -204,7 +204,7 @@ public class AuthorizationController extends AcmeController {
         for (AcmeChallenge challDao : authDao.getChallenges()) {
 
             if (iterateChallengesOnGet) {
-                challengeController.isChallengeSolved(challDao);
+                challengeController.isChallengeSolved(challDao, realm, forwardedHost);
             }
             if (challDao.getStatus() == ChallengeStatus.VALID) {
                 authStatus = AcmeOrderStatus.VALID;

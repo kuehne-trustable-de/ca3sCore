@@ -3,12 +3,9 @@ package de.trustable.ca3s.core.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.util.CryptoUtil;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 
@@ -72,6 +69,10 @@ public class AcmeChallenge implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private ChallengeStatus status;
+
+    @Lob
+    @Column(name = "issuer_domain_names", nullable = true)
+    private String issuerDomainNames;
 
     @ManyToOne
     @JsonIgnoreProperties(value = { "secret" }, allowSetters = true)
@@ -183,6 +184,14 @@ public class AcmeChallenge implements Serializable {
         this.status = status;
     }
 
+    public String getIssuerDomainNames() {
+        return issuerDomainNames;
+    }
+
+    public void setIssuerDomainNames(String issuerDomainNames) {
+        this.issuerDomainNames = issuerDomainNames;
+    }
+
     public AcmeAuthorization getAcmeAuthorization() {
         return this.acmeAuthorization;
     }
@@ -240,6 +249,7 @@ public class AcmeChallenge implements Serializable {
 
     public static final String CHALLENGE_TYPE_HTTP_01 = "http-01";
     public static final String CHALLENGE_TYPE_DNS_01 = "dns-01";
+    public static final String CHALLENGE_TYPE_DNS_PERSIST_01 = "dns-persist-01";
     public static final String CHALLENGE_TYPE_ALPN_01 = "tls-alpn-01";
 
 }

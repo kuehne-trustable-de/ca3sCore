@@ -83,7 +83,6 @@
         <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx256m</argLine>
         <m2e.apt.activation>jdt_apt</m2e.apt.activation>
         <run.addResources>false</run.addResources>
-
         <maven.autoPublish>true</maven.autoPublish>
 
         <packaging.executable>false</packaging.executable>
@@ -140,6 +139,9 @@
         <archunit-junit5.version>1.4.1</archunit-junit5.version>
 
         <mapstruct.version>1.6.3</mapstruct.version>
+
+        <acmeChallengeHandler.version>1.1.0</acmeChallengeHandler.version>
+
         <!-- Plugin versions -->
         <checksum-maven-plugin.version>1.11</checksum-maven-plugin.version>
         <maven-antrun-plugin.version>3.2.0</maven-antrun-plugin.version>
@@ -194,7 +196,8 @@
         <adcsUtilVersion>1.2.9</adcsUtilVersion>
 
         <nimbus-jose-jwt-version>10.7</nimbus-jose-jwt-version>
-        <acme4jVersion>2.16</acme4jVersion>
+        <acme4jVersion>5.1.0</acme4jVersion>
+        <acme4jUtilVersion>2.16</acme4jUtilVersion>
         <jose4jVersion>0.9.6</jose4jVersion>
         <takesVersion>1.25.0</takesVersion>
         <jscepVersion>2.5.8</jscepVersion>
@@ -466,13 +469,18 @@
                 <artifactId>bcpkix-jdk18on</artifactId>
                 <version>${bouncyCastleVersion}</version>
             </dependency>
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bouncyCastleVersion}</version>
+            </dependency>
 
             <!-- tmp overwrite of very od bc version -->
-            <dependency>
+            <!--dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk15on</artifactId>
                 <version>1.70</version>
-            </dependency>
+            </dependency-->
 
             <dependency>
                 <groupId>org.apiguardian</groupId>
@@ -857,6 +865,12 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>de.trustable.ca3s</groupId>
+            <artifactId>acmeChallengeHandler</artifactId>
+            <version>${acmeChallengeHandler.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/dnsjava/dnsjava -->
@@ -1435,7 +1449,7 @@
         <dependency>
             <groupId>org.shredzone.acme4j</groupId>
             <artifactId>acme4j-utils</artifactId>
-            <version>${acme4jVersion}</version>
+            <version>${acme4jUtilVersion}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
