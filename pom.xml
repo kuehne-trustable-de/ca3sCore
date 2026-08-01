@@ -193,7 +193,7 @@
         <certBundleVersion>1.1.4</certBundleVersion>
         <cmpClientVersion>3.2.0</cmpClientVersion>
         <adcsProxyClientVersion>1.2.9</adcsProxyClientVersion>
-        <adcsUtilVersion>1.2.9</adcsUtilVersion>
+        <adcsUtilVersion>1.2.18</adcsUtilVersion>
 
         <nimbus-jose-jwt-version>10.7</nimbus-jose-jwt-version>
         <acme4jVersion>5.1.0</acme4jVersion>
