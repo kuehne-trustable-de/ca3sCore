@@ -12,6 +12,16 @@
                             <span>{{certificateView.subject}}</span>
                         </dd>
 
+                        <dt v-if="isAdmin() && certificateView.scepRecipient">
+                            <span v-text="$t('ca3SApp.certificate.scepRecipient')"></span>
+                        </dt>
+                        <dd v-if="isAdmin() && certificateView.scepRecipient">
+                              <router-link :to="{name: 'ConfPipelineEdit', params: {pipelineId: certificateView.scepRecipient, mode: 'edit'}}" >
+                                  <span v-text="$t('ca3SApp.scepOrder.pipeline')"></span>
+                              </router-link>
+                        </dd>
+
+
                         <dt v-if="certificateView.revoked">
                             <span v-text="$t('ca3SApp.certificate.revokedSince')"></span>
                         </dt>
