@@ -1,5 +1,9 @@
 package de.trustable.ca3s.core.service.util;
 
+import de.trustable.ca3s.core.domain.CSR;
+import de.trustable.ca3s.core.domain.CsrAttribute;
+import de.trustable.ca3s.core.domain.RDN;
+import de.trustable.ca3s.core.domain.RDNAttribute;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AsyncNotificationService;
 import de.trustable.ca3s.core.service.AuditService;
@@ -11,8 +15,10 @@ import de.trustable.util.Pkcs10RequestHolder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
 import org.bouncycastle.asn1.pkcs.Attribute;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -25,8 +31,7 @@ import java.security.GeneralSecurityException;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 class CSRUtilTest {
@@ -348,4 +353,86 @@ class CSRUtilTest {
         assertFalse(csrUtil.isCNinSANSet(cryptoUtil.parseCertificateRequest(p10CNNotEqualsSanReq.getEncoded())));
 
     }
+    @Test
+    public void testCnOrFirstSan(){
+
+        CSR csr = new CSR();
+
+        String result = CSRUtil.getCnOrFirstSan(csr);
+
+        assertEquals("(noCommonName)", result);
+
+        RDN cnRDN = buildRDN(BCStyle.CN, "cn.foo.com");
+        RDN cRDN = buildRDN(BCStyle.C, "DE");
+
+        csr.setRdns(Set.of(cRDN));
+        result = CSRUtil.getCnOrFirstSan(csr);
+        assertEquals("(noCommonName)", result);
+
+        csr.setRdns(Set.of(cRDN, cnRDN));
+        result = CSRUtil.getCnOrFirstSan(csr);
+        assertEquals("cn.foo.com", result);
+
+        CsrAttribute csrAttrSan1 = new CsrAttribute();
+        csrAttrSan1.setName(CsrAttribute.ATTRIBUTE_TYPED_SAN);
+        csrAttrSan1.setValue("DNS:san1.foo.com");
+
+        CsrAttribute csrAttrSan2 = new CsrAttribute();
+        csrAttrSan2.setName(CsrAttribute.ATTRIBUTE_TYPED_SAN);
+        csrAttrSan2.setValue("DNS:san2.foo.com");
+
+        CsrAttribute csrAttrSanIP = new CsrAttribute();
+        csrAttrSanIP.setName(CsrAttribute.ATTRIBUTE_TYPED_SAN);
+        csrAttrSanIP.setValue("IP:192.168.1.2");
+
+        CsrAttribute csrAttrSanOther = new CsrAttribute();
+        csrAttrSanOther.setName(CsrAttribute.ATTRIBUTE_TYPED_SAN);
+        csrAttrSanOther.setValue("URI:baz.de");
+
+        CsrAttribute csrAttrRequestor = new CsrAttribute();
+        csrAttrRequestor.setName(CsrAttribute.ATTRIBUTE_REQUESTED_BY);
+        csrAttrRequestor.setValue("requestor");
+
+        csr.setRdns(Set.of());
+        csr.setCsrAttributes(Set.of(csrAttrRequestor));
+        result = CSRUtil.getCnOrFirstSan(csr);
+        assertEquals("(noCommonName)", result);
+
+        csr.setRdns(Set.of());
+        csr.setCsrAttributes(Set.of(csrAttrSanIP, csrAttrRequestor));
+        result = CSRUtil.getCnOrFirstSan(csr);
+        assertEquals("IP:192.168.1.2", result);
+
+        csr.setCsrAttributes(Set.of(csrAttrSan1, csrAttrSan2, csrAttrRequestor));
+
+        csr.setRdns(Set.of(cnRDN));
+        result = CSRUtil.getCnOrFirstSan(csr);
+        assertEquals("cn.foo.com", result);
+
+        csr.setRdns(Set.of(cRDN));
+        result = CSRUtil.getCnOrFirstSan(csr);
+        assertTrue("san1.foo.com".equals(result) || "san2.foo.com".equals(result));
+
+        csr.setRdns(Set.of(cRDN, cnRDN));
+        result = CSRUtil.getCnOrFirstSan(csr);
+        assertEquals("cn.foo.com", result);
+
+        csr.setRdns(Set.of(cRDN));
+        csr.setCsrAttributes(Set.of(csrAttrRequestor));
+        result = CSRUtil.getCnOrFirstSan(csr);
+        assertEquals("(noCommonName)", result);
+
+    }
+
+    RDN buildRDN(ASN1ObjectIdentifier oid, String value) {
+        RDN cnRDN = new RDN();
+        Set<RDNAttribute> rdnAttList = new HashSet<>();
+        RDNAttribute rndAttCn = new RDNAttribute();
+        rndAttCn.setAttributeType(oid.getId());
+        rndAttCn.setAttributeValue(value);
+        rdnAttList.add(rndAttCn);
+        cnRDN.setRdnAttributes(rdnAttList);
+        return cnRDN;
+    }
+
 }

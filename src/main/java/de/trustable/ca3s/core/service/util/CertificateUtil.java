@@ -2338,17 +2338,39 @@ public class CertificateUtil {
     }
 
     public static String getCnOrFirstSan(final Certificate cert) {
+        return getCnOrFirstSan(cert.getCertificateAttributes());
+    }
 
-        for (CertificateAttribute certificateAttribute : cert.getCertificateAttributes()) {
+    public static String getCnOrFirstSan(final Set<CertificateAttribute> certificateAttributeList) {
+
+        String sanDNS = null;
+        String sanOther = null;
+
+        for (CertificateAttribute certificateAttribute : certificateAttributeList) {
 
             if (CertificateAttribute.ATTRIBUTE_RDN_CN.equals(certificateAttribute.getName())) {
                 if (certificateAttribute.getValue() != null) {
                     return certificateAttribute.getValue();
                 }
             }
-            if (CertificateAttribute.ATTRIBUTE_SAN.equals(certificateAttribute.getName())) {
-                return certificateAttribute.getValue();
+            if (CsrAttribute.ATTRIBUTE_TYPED_SAN.equals(certificateAttribute.getName())) {
+                String value = certificateAttribute.getValue();
+                if( value.startsWith("DNS:") && sanDNS == null) {
+                    sanDNS = value.substring(4);
+                }else {
+                    if (sanOther == null) {
+                        sanOther = value;
+                    }
+                }
+
             }
+        }
+
+        if(sanDNS != null) {
+            return sanDNS;
+        }
+        if(sanOther != null) {
+            return sanOther;
         }
         return "(noCommonName)";
     }

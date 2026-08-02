@@ -680,11 +680,29 @@ public class CSRUtil {
             }
         }
 
+        String sanDNS = null;
+        String sanOther = null;
+
         for (CsrAttribute csrAttribute : csr.getCsrAttributes()) {
 
-            if (CertificateAttribute.ATTRIBUTE_SAN.equals(csrAttribute.getName())) {
-                return csrAttribute.getValue();
+            if (CsrAttribute.ATTRIBUTE_TYPED_SAN.equals(csrAttribute.getName())) {
+                String value = csrAttribute.getValue();
+                if( value.startsWith("DNS:") && sanDNS == null) {
+                    sanDNS = value.substring(4);
+                }else {
+                    if (sanOther == null) {
+                        sanOther = value;
+                    }
+                }
+
             }
+        }
+
+        if(sanDNS != null) {
+            return sanDNS;
+        }
+        if(sanOther != null) {
+            return sanOther;
         }
         return "(noCommonName)";
     }
@@ -737,7 +755,15 @@ public class CSRUtil {
 		return null;
 	}
 
-
+    public List<String> getCSRAttributes(CSR csrDao, String name) {
+        List<String> values = new ArrayList<>();
+        for( CsrAttribute csrAttr:csrDao.getCsrAttributes()) {
+            if( csrAttr.getName().equals(name)) {
+                values.add(csrAttr.getValue());
+            }
+        }
+        return values;
+    }
 
 	public void insertNameAttributes(CSR csr, String attributeName, LdapName ldapName) {
 		List<Rdn> rdnList = ldapName.getRdns();
