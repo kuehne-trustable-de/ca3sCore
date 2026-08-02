@@ -34,8 +34,6 @@ public class AcmeNonceIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(AcmeNonceIT.class);
 
-    static int dnsPort = 0;
-
     @LocalServerPort
 	int serverPort; // random port chosen by spring test
 
@@ -70,17 +68,10 @@ public class AcmeNonceIT {
 	@BeforeAll
 	public static void setUpBeforeClass() {
 		JCAManager.getInstance();
-
-        dnsPort = SocketUtils.findAvailableTcpPort(45000);
-        System.setProperty("ca3s.dns.server", "localhost");
-        System.setProperty("ca3s.dns.port", "" + dnsPort);
-        LOG.info("DNS server set to {}", "localhost:" + dnsPort);
     }
 
     @AfterAll
     static void tearDown() {
-        System.clearProperty("ca3s.dns.server");
-        System.clearProperty("ca3s.dns.port");
     }
 
 

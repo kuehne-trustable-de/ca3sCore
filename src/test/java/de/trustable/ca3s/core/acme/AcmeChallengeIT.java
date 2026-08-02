@@ -31,6 +31,7 @@ import java.security.KeyPair;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.EnumSet;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -56,7 +57,7 @@ public class AcmeChallengeIT {
 
     HttpChallengeHelper httpChallengeHelper;
 
-    DnsChallengeHelper dnsChallengeHelper;
+    static DnsChallengeHelper dnsChallengeHelper;
 
 
     @Autowired
@@ -78,7 +79,6 @@ public class AcmeChallengeIT {
 
             prefTC.getTestUserPreference();
             httpChallengeHelper = new HttpChallengeHelper(prefTC.getHttpChallengePort());
-            dnsChallengeHelper = new DnsChallengeHelper(dnsPort);
         }catch( Exception ex ){
             ex.printStackTrace();
         }
@@ -92,10 +92,18 @@ public class AcmeChallengeIT {
         System.setProperty("ca3s.dns.server", "localhost");
         System.setProperty("ca3s.dns.port", "" + dnsPort);
         LOG.info("DNS server set to {}", "localhost:" + dnsPort);
+
+        dnsChallengeHelper = new DnsChallengeHelper(dnsPort);
+        dnsChallengeHelper.start();
+        LOG.info("Started DNS server");
+
     }
 
     @AfterAll
     static void tearDown() {
+        dnsChallengeHelper.stop();
+        LOG.info("Stopped DNS server");
+
         System.clearProperty("ca3s.dns.server");
         System.clearProperty("ca3s.dns.port");
     }
@@ -371,14 +379,27 @@ public class AcmeChallengeIT {
                 assertTrue(acmeServerException.getMessage().startsWith("failed to find requested hostname 'foo.com' (from CSR) in authorization for order"),
                     "failed to find requested hostname 'foo.com' (from CSR) in authorization for order ");
 
-                // refresh order ??
-
+                waitForFinalStatus(order);
                 Assertions.assertEquals(Status.INVALID, order.getStatus());
             }
 
         account.deactivate();
 
         Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
+    }
+
+    private static void waitForFinalStatus(Order order) throws AcmeException {
+        for( int i = 0; i < 10; i++){
+            if(EnumSet.of(Status.VALID, Status.INVALID).contains(order.getStatus())) {
+                return;
+            }
+            try {
+                Thread.sleep(500L);
+            }catch(InterruptedException e){
+                Thread.currentThread().interrupt();
+            }
+            order.fetch();
+        }
     }
 
     public static void logMetaInfo(Metadata meta) {
@@ -502,16 +523,10 @@ public class AcmeChallengeIT {
                 Dns01Challenge challenge = challengeOpt.get();
 
                 dnsChallengeHelper.setDNSChallengeDetails( challenge.getDigest(), auth.getIdentifier().getValue());
-                dnsChallengeHelper.start();
 
-                try {
-                    challenge.trigger();
-                    Assertions.assertEquals(Status.VALID, challenge.getStatus());
-                }finally {
-                    dnsChallengeHelper.stop();
-                }
-
-                dnsChallengeHelper.stop();
+                challenge.trigger();
+                waitForFinalStatus(order);
+                Assertions.assertEquals(Status.VALID, challenge.getStatus());
             }
 
         }
@@ -595,18 +610,10 @@ public class AcmeChallengeIT {
                     auth.getIdentifier().getValue());
                 dnsChallengeHelper.addDNSPersistChallengeDetails(
                     "\"letsencrypt.org; accounturi=" + accountLocationUrl.toString() + "\"",
-                    auth.getIdentifier().getValue());
+                auth.getIdentifier().getValue());
 
-                dnsChallengeHelper.start();
-
-                try {
-                    challenge.trigger();
-                    Assertions.assertEquals(Status.VALID, challenge.getStatus());
-                }finally {
-                    dnsChallengeHelper.stop();
-                }
-
-                dnsChallengeHelper.stop();
+                challenge.trigger();
+                Assertions.assertEquals(Status.VALID, challenge.getStatus());
             }
 
         }
@@ -692,16 +699,8 @@ public class AcmeChallengeIT {
                     "\"acme.ca3s.org; accounturi=http://localhost:44085/acme/acmeTestDNSPersistent/acct/00000000000000\"",
                     auth.getIdentifier().getValue());
 
-                dnsChallengeHelper.start();
-
-                try {
-                    challenge.trigger();
-                    Assertions.assertEquals(Status.PENDING, challenge.getStatus());
-                }finally {
-                    dnsChallengeHelper.stop();
-                }
-
-                dnsChallengeHelper.stop();
+                challenge.trigger();
+                Assertions.assertEquals(Status.PENDING, challenge.getStatus());
             }
 
         }

@@ -169,7 +169,8 @@ public class AcmeHappyPathIT {
         Session session = new Session(dirUrlOtherRealm);
         Metadata meta = session.getMetadata();
         Assertions.assertNotNull(meta.getTermsOfService(), "Expecting a ToS URI to be present");
-        Assertions.assertEquals("http://to.agreement.link/index.html", meta.getTermsOfService().toString());
+        Assertions.assertTrue(meta.getTermsOfService().isPresent(), "Expecting Optional ToS URI to be present");
+        Assertions.assertEquals("http://to.agreement.link/index.html", meta.getTermsOfService().get().toString());
 
         KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
 
