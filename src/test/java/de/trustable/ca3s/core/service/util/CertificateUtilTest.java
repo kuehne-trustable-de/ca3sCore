@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.service.util;
 
-import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.CsrAttribute;
 import org.bouncycastle.asn1.x509.GeneralName;
@@ -12,8 +11,6 @@ import javax.naming.InvalidNameException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
-
-import static org.junit.Assert.assertEquals;
 
 public class CertificateUtilTest {
 
@@ -27,7 +24,7 @@ public class CertificateUtilTest {
 //        System.out.println("Normalized name: " + a);
 //        System.out.println("Normalized name: " + b);
 
-        assertEquals("normalizing names expected to be identical ", a, b);
+        Assertions.assertEquals(a, b, "normalizing names expected to be identical ");
     }
 
 
@@ -35,41 +32,35 @@ public class CertificateUtilTest {
     public void testNameHandling() {
 
         GeneralName[] generalNames = CertificateUtil.splitSANString(" foo.de, bar.de , baz.de", null);
-        assertEquals(" expected to see 3 GeneralNames ", 3, generalNames.length);
+        Assertions.assertEquals(3, generalNames.length, " expected to see 3 GeneralNames ");
 
         GeneralName[] generalNames1 = CertificateUtil.splitSANString(" foo.de, bar.de , baz.de", "  ");
-        assertEquals(" expected to see 3 GeneralNames ", 3, generalNames1.length);
+        Assertions.assertEquals(3, generalNames1.length, " expected to see 3 GeneralNames ");
 
         GeneralName[] generalNames2 = CertificateUtil.splitSANString(" foo.de, bar.de , baz.de", "foo.de");
-        assertEquals(" expected to see 3 GeneralNames ", 3, generalNames2.length);
+        Assertions.assertEquals(3, generalNames2.length, " expected to see 3 GeneralNames ");
 
         GeneralName[] generalNames3 = CertificateUtil.splitSANString(" foo.de, bar.de , baz.de", "foo.eu");
-        assertEquals(" expected to see 4 GeneralNames ", 4, generalNames3.length);
+        Assertions.assertEquals(4, generalNames3.length, " expected to see 4 GeneralNames ");
 
         GeneralName[] generalNames4 = CertificateUtil.splitSANString(" foo.de, bar.de , baz.de, 127.0.0.1", "foo.de");
-        assertEquals(" expected to see 4 GeneralNames ", 4, generalNames4.length);
+        Assertions.assertEquals(4, generalNames4.length, " expected to see 4 GeneralNames ");
 //        for( GeneralName gn:generalNames4){ System.out.println("4: " + gn);}
-        assertEquals(" expected to see 1 GeneralName of type DNS", 3,
-            Arrays.stream(generalNames4).filter(n -> n.getTagNo() == GeneralName.dNSName).count());
-        assertEquals(" expected to see 1 GeneralName of type IP", 1,
-            Arrays.stream(generalNames4).filter(n -> n.getTagNo() == GeneralName.iPAddress).count());
+        Assertions.assertEquals(3, Arrays.stream(generalNames4).filter(n -> n.getTagNo() == GeneralName.dNSName).count(), " expected to see 1 GeneralName of type DNS");
+        Assertions.assertEquals(1, Arrays.stream(generalNames4).filter(n -> n.getTagNo() == GeneralName.iPAddress).count(), " expected to see 1 GeneralName of type IP");
 
         GeneralName[] generalNames5 = CertificateUtil.splitSANString(" foo.de, bar.de , baz.de, foo.de ", " 127.0.0.1 ");
-        assertEquals(" expected to see 4 GeneralNames ", 4, generalNames5.length);
+        Assertions.assertEquals(4, generalNames5.length, " expected to see 4 GeneralNames ");
 //        for( GeneralName gn:generalNames5){ System.out.println("5: " + gn);}
 
-        assertEquals(" expected to see 1 GeneralName of type DNS", 3,
-            Arrays.stream(generalNames5).filter(n -> n.getTagNo() == GeneralName.dNSName).count());
-        assertEquals(" expected to see 1 GeneralName of type IP", 1,
-            Arrays.stream(generalNames5).filter(n -> n.getTagNo() == GeneralName.iPAddress).count());
+        Assertions.assertEquals(3, Arrays.stream(generalNames5).filter(n -> n.getTagNo() == GeneralName.dNSName).count(), " expected to see 1 GeneralName of type DNS");
+        Assertions.assertEquals(1, Arrays.stream(generalNames5).filter(n -> n.getTagNo() == GeneralName.iPAddress).count(), " expected to see 1 GeneralName of type IP");
 
         GeneralName[] generalNames6 = CertificateUtil.splitSANString(" foo.de, bar.de , baz.de, foo.de ", " 2001:0db8:85a3:08d3:1319:8a2e:0370:7344 ");
-        assertEquals(" expected to see 4 GeneralNames ", 4, generalNames6.length);
+        Assertions.assertEquals(4, generalNames6.length, " expected to see 4 GeneralNames ");
 //        for( GeneralName gn:generalNames6){ System.out.println("5: " + gn);}
-        assertEquals(" expected to see 1 GeneralName of type DNS", 3,
-            Arrays.stream(generalNames6).filter(n -> n.getTagNo() == GeneralName.dNSName).count());
-        assertEquals(" expected to see 1 GeneralName of type IP", 1,
-            Arrays.stream(generalNames6).filter(n -> n.getTagNo() == GeneralName.iPAddress).count());
+        Assertions.assertEquals(3, Arrays.stream(generalNames6).filter(n -> n.getTagNo() == GeneralName.dNSName).count(), " expected to see 1 GeneralName of type DNS");
+        Assertions.assertEquals(1, Arrays.stream(generalNames6).filter(n -> n.getTagNo() == GeneralName.iPAddress).count(), " expected to see 1 GeneralName of type IP");
 
     }
 

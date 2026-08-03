@@ -44,7 +44,6 @@ public class NotificationService {
     private final PipelineUtil pipelineUtil;
     private final ProtectedContentUtil protectedContentUtil;
     private final CertificateUtil certificateUtil;
-    private final CSRUtil csrUtil;
     private final MailService mailService;
     private final AuditService auditService;
     private final int nDaysExpiryEE;
@@ -89,7 +88,6 @@ public class NotificationService {
                                @Value("${ca3s.notify.raOfficerOnRequest:true}") boolean doNotifyRAOfficerOnRequest,
                                @Value("${ca3s.notify.raOfficerOnUserRevocation:true}") boolean doNotifyRAOfficerOnUserRevocation,
                                @Value("${ca3s.notify.requestorOnExcessiveActiveCertificates:true}") boolean doNotifyRequestorOnExcessiveActiveCertificates,
-                               @Lazy CSRUtil csrUtil,
                                UserUtil userUtil) {
         this.certificateRepo = certificateRepo;
         this.csrRepo = csrRepo;
@@ -97,7 +95,6 @@ public class NotificationService {
         this.pipelineUtil = pipelineUtil;
         this.certificateUtil = certificateUtil;
         this.protectedContentUtil = protectedContentUtil;
-        this.csrUtil = csrUtil;
         this.userUtil = userUtil;
         this.mailService = mailService;
         this.auditService = auditService;
@@ -1046,7 +1043,7 @@ public class NotificationService {
     }
 
 
-    private List<String> findARAEmailRecipients(final PipelineView pipelineView, final CSR csr) {
+    public static List<String> findARAEmailRecipients(final PipelineView pipelineView, final CSR csr) {
 
         List<String> emailAttributeList = new ArrayList<>();
         List<String> recipientList = new ArrayList<>();
@@ -1063,14 +1060,16 @@ public class NotificationService {
         }
 
         for (String araAttribute : emailAttributeList) {
-            String emailAttribute = csrUtil.getCSRAttribute(csr, CsrAttribute.ARA_PREFIX + araAttribute);
-            LOG.debug("added email address '{}' from csr ARA attribute '{}'", araAttribute,  emailAttribute);
-            addSplittedEMailAddress(recipientList, emailAttribute);
+            List<String> emailAttributeValueList = CSRUtil.getCSRAttributes(csr, CsrAttribute.ARA_PREFIX + araAttribute);
+            for (String emailAttributeValue : emailAttributeValueList) {
+                LOG.debug("added email address '{}' from csr ARA attribute '{}'", araAttribute, emailAttributeValue);
+                addSplittedEMailAddress(recipientList, emailAttributeValue);
+            }
         }
         return recipientList;
     }
 
-    private List<String> findARAEmailRecipients(final PipelineView pipelineView, final Certificate cert){
+    public static List<String> findARAEmailRecipients(final PipelineView pipelineView, final Certificate cert){
 
         List<String> emailAttributeList = new ArrayList<>();
         for( ARARestriction araRestriction : pipelineView.getAraRestrictions()){
@@ -1081,9 +1080,11 @@ public class NotificationService {
 
         List<String> recipientList = new ArrayList<>();
         for( String araAttribute: emailAttributeList) {
-            String emailAttribute = certificateUtil.getCertAttribute(cert, CsrAttribute.ARA_PREFIX + araAttribute, "");
-            LOG.debug("added email address '{}' from certificate ARA attribute '{}'", araAttribute,  emailAttribute);
-            addSplittedEMailAddress(recipientList, emailAttribute);
+            List<String> emailAttributeValueList =  CertificateUtil.getCertAttributes(cert, CsrAttribute.ARA_PREFIX + araAttribute);
+            for(String emailAttributeValue: emailAttributeValueList){
+                LOG.debug("added email address '{}' from certificate ARA attribute '{}'", araAttribute,  emailAttributeValue);
+                addSplittedEMailAddress(recipientList, emailAttributeValue);
+            }
         }
         return recipientList;
     }

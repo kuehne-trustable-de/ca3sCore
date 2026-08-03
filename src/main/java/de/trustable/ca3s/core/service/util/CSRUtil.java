@@ -182,7 +182,7 @@ public class CSRUtil {
 
 		csr.setSubject(p10ReqHolder.getSubject());
 
-		/**
+		/*
 		 * produce a readable form of algorithms
 		 */
         String sigAlgName = OidNameMapper.lookupOid(p10ReqHolder.getSigningAlgorithm());
@@ -746,7 +746,7 @@ public class CSRUtil {
 	 * @param name
 	 * @return
 	 */
-	public String getCSRAttribute(CSR csrDao, String name) {
+	public static String getCSRAttribute(CSR csrDao, String name) {
 		for( CsrAttribute csrAttr:csrDao.getCsrAttributes()) {
 			if( csrAttr.getName().equals(name)) {
 				return csrAttr.getValue();
@@ -755,7 +755,7 @@ public class CSRUtil {
 		return null;
 	}
 
-    public List<String> getCSRAttributes(CSR csrDao, String name) {
+    public static List<String> getCSRAttributes(CSR csrDao, String name) {
         List<String> values = new ArrayList<>();
         for( CsrAttribute csrAttr:csrDao.getCsrAttributes()) {
             if( csrAttr.getName().equals(name)) {

@@ -784,7 +784,7 @@ public class CertificateUtil {
 
         for(NamedTypedValue nv: araAttributeArr){
 
-            if( !certificateAttributeSet.stream().anyMatch(certAtt ->( org.apache.commons.lang3.StringUtils.equals(certAtt.getName(), CsrAttribute.ARA_PREFIX + nv.getName())))){
+            if(certificateAttributeSet.stream().noneMatch(certAtt ->( org.apache.commons.lang3.StringUtils.equals(certAtt.getName(), CsrAttribute.ARA_PREFIX + nv.getName())))){
 
                 auditService.saveAuditTrace(
                     auditService.createAuditTraceCertificateAttribute(nv.getName(), "", nv.getValue(), cert));
@@ -840,7 +840,7 @@ public class CertificateUtil {
             }
 
             String subject = x509Cert.getSubjectX500Principal().toString();
-            if (subject != null && subject.trim().length() > 0) {
+            if (subject != null && !subject.trim().isEmpty()) {
 
                 try {
                     InetAddressValidator inv = InetAddressValidator.getInstance();
@@ -886,7 +886,7 @@ public class CertificateUtil {
                             LOG.info("unexpected content type in SANS : {}", altName.get(1).toString());
                         }
 
-                        if (allSans.length() > 0) {
+                        if (!allSans.isEmpty()) {
                             allSans += ";";
                         }
                         allSans += sanValue;
@@ -1201,11 +1201,8 @@ public class CertificateUtil {
 
     public static boolean isHashRequired(final String algoName) {
         String algoNameLC = algoName.toLowerCase();
-        if( algoNameLC.startsWith("dilithium") ||
-            algoNameLC.startsWith("falcon")){
-            return false;
-        }
-        return true;
+        return !algoNameLC.startsWith("dilithium") &&
+            !algoNameLC.startsWith("falcon");
     }
 
     /**
@@ -1420,7 +1417,7 @@ public class CertificateUtil {
          */
     }
 
-    public List<String> getCertAttributes(Certificate certDao, String name) {
+    public static List<String> getCertAttributes(Certificate certDao, String name) {
         List<String> stringList = new ArrayList<>();
 
         for (CertificateAttribute certAttr : certDao.getCertificateAttributes()) {
@@ -2428,10 +2425,10 @@ public class CertificateUtil {
             generalNameList.add(buildGeneralNameFromName(hostname));
         }
 
-        for(int i = 0;i < sanArr.length;i++){
-            GeneralName generalName = buildGeneralNameFromName(sanArr[i]);
+        for (String s : sanArr) {
+            GeneralName generalName = buildGeneralNameFromName(s);
 
-            if( !generalNameList.contains(generalName)) {
+            if (!generalNameList.contains(generalName)) {
                 generalNameList.add(generalName);
             }
         }
@@ -2578,7 +2575,7 @@ public class CertificateUtil {
 
         List<ProtectedContent> protContentList = protUtil.retrieveProtectedContent(ProtectedContentType.PASSWORD,
             ContentRelationType.CSR, csr.getId());
-        if (protContentList.size() == 0) {
+        if (protContentList.isEmpty()) {
             throw new GeneralSecurityException("problem downloading keystore content for csr id " + csr.getId() + ": no keystore passphrase available ");
         }
 
@@ -2645,8 +2642,8 @@ public class CertificateUtil {
 
     public static class KeyStoreAndPassphrase{
 
-        private KeyStore keyStore;
-        private char[] passphraseChars;
+        private final KeyStore keyStore;
+        private final char[] passphraseChars;
 
         public KeyStoreAndPassphrase(KeyStore keyStore, char[] passphraseChars){
             this.keyStore = keyStore;
