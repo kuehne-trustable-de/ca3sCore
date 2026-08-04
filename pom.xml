@@ -136,7 +136,7 @@
         <json.version>2.10.0</json.version>
         <validation-api.version>2.0.1.Final</validation-api.version>
         <!--archunit-junit5.version>0.23.1</archunit-junit5.version-->
-        <archunit-junit5.version>1.4.1</archunit-junit5.version>
+        <archunit-junit5.version>1.5.0</archunit-junit5.version>
 
         <mapstruct.version>1.6.3</mapstruct.version>
 
