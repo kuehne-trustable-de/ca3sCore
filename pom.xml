@@ -199,7 +199,7 @@
         <acme4jVersion>5.1.0</acme4jVersion>
         <acme4jUtilVersion>2.16</acme4jUtilVersion>
         <jose4jVersion>0.9.6</jose4jVersion>
-        <takesVersion>1.25.0</takesVersion>
+        <takesVersion>1.26.0</takesVersion>
         <jscepVersion>2.5.8</jscepVersion>
         <jasyptVersion>1.9.3</jasyptVersion>
 
