@@ -186,6 +186,7 @@
         <keycloak.adapter.version>25.0.3</keycloak.adapter.version>
 
         <bouncyCastleVersion>1.85.2</bouncyCastleVersion>
+        <bouncyCastlePkixVersion>1.85</bouncyCastlePkixVersion>
 
         <spring-vault.version>2.3.4</spring-vault.version>
 
@@ -235,7 +236,7 @@
 
         <kerby.version>2.1.2</kerby.version>
         <embedded-ldap.version>0.9.0</embedded-ldap.version>
-        <greenmail.version>2.1.12</greenmail.version>
+        <greenmail.version>1.6.15</greenmail.version>
 
         <xml.maven.saxon.version>12.10</xml.maven.saxon.version>
         <xml.maven.plugin.version>1.2.1</xml.maven.plugin.version>
@@ -467,7 +468,7 @@
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcpkix-jdk18on</artifactId>
-                <version>${bouncyCastleVersion}</version>
+                <version>${bouncyCastlePkixVersion}</version>
             </dependency>
             <dependency>
                 <groupId>org.bouncycastle</groupId>
