@@ -185,7 +185,7 @@
         <keycloak.version>26.0.6</keycloak.version>
         <keycloak.adapter.version>25.0.3</keycloak.adapter.version>
 
-        <bouncyCastleVersion>1.85</bouncyCastleVersion>
+        <bouncyCastleVersion>1.85.2</bouncyCastleVersion>
 
         <spring-vault.version>2.3.4</spring-vault.version>
 
