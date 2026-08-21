@@ -533,7 +533,7 @@ public class BPMNUtil{
                     // catch all (runtime) Exception
                 } catch (Exception e) {
                     failureReason = e.getLocalizedMessage();
-                    LOG.warn("execution of '" + bpmnProcessInfo.getName() + "' failed ", e);
+                    LOG.warn("execution of '{}' failed ", bpmnProcessInfo.getName(), e);
                 }
             } else {
                 // direct call
@@ -883,7 +883,7 @@ public class BPMNUtil{
     }
 
     public void handleAttributes( BPMNProcessAttribute[] bpmnProcessAttributes, List<AuditTrace> auditList, BPMNProcessInfo bpmnProcessInfo) {
-        if(bpmnProcessAttributes ==null) {
+        if (bpmnProcessAttributes == null) {
             bpmnProcessAttributes = new BPMNProcessAttribute[0];
         }
 
@@ -895,46 +895,50 @@ public class BPMNUtil{
             for (BPMNProcessAttribute attributeOld : bpmnProcessInfo.getBpmnProcessAttributes()) {
                 if (attributeNew.getName().equals(attributeOld.getName())) {
                     // update
-                    if( Boolean.TRUE.equals(attributeNew.getProtectedContent())){
+                    if (Boolean.TRUE.equals(attributeNew.getProtectedContent())) {
                         changeProtectedAttribute(attributeNew, attributeOld, bpmnProcessInfo, auditList);
-                    }else {
+                    } else {
                         changeAttribute(attributeNew, attributeOld, bpmnProcessInfo, auditList);
                     }
                     isNewAttribute = false;
                 }
             }
             if (isNewAttribute) {
-                if( Boolean.TRUE.equals(attributeNew.getProtectedContent())){
+                if (Boolean.TRUE.equals(attributeNew.getProtectedContent())) {
                     changeProtectedAttribute(attributeNew, null, bpmnProcessInfo, auditList);
-                }else {
+                } else {
                     changeAttribute(attributeNew, null, bpmnProcessInfo, auditList);
                 }
             }
         }
 
-        LOG.debug( "in toBPMNProcessInfo, process attributes");
-        for( BPMNProcessAttribute attributeOld: bpmnProcessInfo.getBpmnProcessAttributes()){
+        List<BPMNProcessAttribute> bpmnProcessAttributeDeleteList = new ArrayList<>();
+        LOG.debug("in toBPMNProcessInfo, process attributes");
+        for (BPMNProcessAttribute attributeOld : bpmnProcessInfo.getBpmnProcessAttributes()) {
             boolean isDeletedAttribute = true;
-            for( BPMNProcessAttribute attributeNew: bpmnProcessAttributes){
-                if( StringUtils.isBlank(attributeNew.getName()) ){
+            for (BPMNProcessAttribute attributeNew : bpmnProcessAttributes) {
+                if (StringUtils.isBlank(attributeNew.getName())) {
                     continue;
                 }
-                if( attributeNew.getName().equals(attributeOld.getName()) ){
+                if (attributeNew.getName().equals(attributeOld.getName())) {
                     // update
                     isDeletedAttribute = false;
                 }
             }
-            if( isDeletedAttribute ){
+            if (isDeletedAttribute) {
 
-                if( Boolean.TRUE.equals(attributeOld.getProtectedContent())){
-                    changeProtectedAttribute(null, attributeOld, bpmnProcessInfo, auditList);
-                }else {
-                    changeAttribute(null, attributeOld, bpmnProcessInfo, auditList);
-                }
+                bpmnProcessAttributeDeleteList.add(attributeOld);
+            }
+        }
+
+        for (BPMNProcessAttribute attributeDelete : bpmnProcessAttributeDeleteList) {
+            if (Boolean.TRUE.equals(attributeDelete.getProtectedContent())) {
+                changeProtectedAttribute(null, attributeDelete, bpmnProcessInfo, auditList);
+            } else {
+                changeAttribute(null, attributeDelete, bpmnProcessInfo, auditList);
             }
         }
     }
-
 
     private void changeAttribute(BPMNProcessAttribute attributeNew, BPMNProcessAttribute attributeOld, BPMNProcessInfo bpmnProcessInfo,
                                  List<AuditTrace> auditList) {
