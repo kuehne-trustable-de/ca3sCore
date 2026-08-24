@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.Authority;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
+import de.trustable.ca3s.core.exception.UserNotFoundException;
 import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
@@ -24,6 +25,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import tech.jhipster.security.RandomUtil;
 import tech.jhipster.web.util.HeaderUtil;
 import tech.jhipster.web.util.PaginationUtil;
 import tech.jhipster.web.util.ResponseUtil;
@@ -117,8 +119,17 @@ public class UserResource {
         } else if (enforceEmailUniqueness && userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).isPresent()) {
             throw new EmailAlreadyUsedException();
         } else {
+
+            String resetKey = RandomUtil.generateActivationKey();
+
             User newUser = userService.createUser(userDTO);
-            mailService.sendCreationEmail(newUser);
+
+            mailService.sendPasswordResetMail(
+                userService.requestPasswordReset(newUser.getLogin(), resetKey)
+                    .orElseThrow(UserNotFoundException::new),
+                resetKey );
+
+
             return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
                 .headers(HeaderUtil.createAlert(applicationName,  "userManagement.created", newUser.getLogin()))
                 .body(newUser);
