@@ -125,14 +125,28 @@ public class UserService {
         if( protectedContents.isEmpty()){
             log.info("No User found for reset key: {}", key);
         }else{
+            if( protectedContents.size() > 1 ){
+                log.warn("Multiple users found for reset key: {}", key);
+            }
 
-            for( ProtectedContent protectedContent: protectedContents){
+            for( ProtectedContent protectedContent: protectedContents) {
                 // no further use of this key
                 protectedContent.setLeftUsages(0);
+            }
+
+            for( ProtectedContent protectedContent: protectedContents){
                 Optional<User> optUser = userRepository.findById(protectedContent.getRelatedId());
                 if(optUser.isPresent()) {
                     User user = optUser.get();
                     user.setPassword(passwordEncoder.encode(newPassword));
+
+                    user.setLastModifiedDate(Instant.now());
+                    user.setLastModifiedBy(user.getLogin());
+                    user.setFailedLogins(0L);
+                    user.setLastloginDate(Instant.now());
+                    user.setBlockedUntilDate(null);
+                    userRepository.save(user);
+
                     this.clearUserCaches(user);
                     log.debug("Passwort reset for user: {}", user);
                     return Optional.of(user);
@@ -282,7 +296,7 @@ public class UserService {
      * @param secondFactorRequired  required to use a second authentication factor.
      * @param langKey   language key.
      * @param imageUrl  image URL of user.
-     * @param tenantId
+     * @param tenantId  tenant id of the user. If no tenant is present, the user may operate on any.
      */
     public void updateUser(String firstName, String lastName, String email, String phone, boolean secondFactorRequired, String langKey, String imageUrl, Long tenantId) {
         SecurityUtils.getCurrentUserLogin()
@@ -733,9 +747,7 @@ public class UserService {
             userRepository.findById(userDTO.getId()).ifPresent(
                 user -> {
                     userDTO.setAuthorities(user.getAuthorities().stream().map(
-                        authority -> {
-                            return authority.getName();
-                        }
+                        authority -> authority.getName()
                     ).collect(Collectors.toSet()));
                     Tenant tenant = user.getTenant();
                     if( tenant != null) {

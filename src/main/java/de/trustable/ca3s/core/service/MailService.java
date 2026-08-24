@@ -213,11 +213,12 @@ public class MailService {
             "email.activation.title",
             activationKey);
     }
-
+/*
     public void sendCreationEmail(User user) throws MessagingException {
         log.debug("Sending creation email to '{}'", user.getEmail());
         sendEmailFromTemplate(user, "mail/creationEmail", "email.activation.title", "");
     }
+*/
 
     public void sendPasswordResetMail(User user, String resetKey) throws MessagingException {
         log.debug("Sending password reset email to '{}'", user.getEmail());
