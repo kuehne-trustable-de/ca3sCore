@@ -38,6 +38,8 @@ public class CaConnectorConfigUtil {
     public static final String ATT_DISABLE_HOST_NAME_VERIFIER = "DISABLE_HOST_NAME_VERIFIER";
     public static final String ATT_FILL_EMPTY_SUBJECT_WITH_SAN = "FILL_EMPTY_SUBJECT_WITH_SAN";
 
+    public static final String ATT_ALLOW_CRL_ON_HOLD = "ALLOW_CRL_ON_HOLD";
+
     public static final String ATT_ATTRIBUTE_KDF_TYPE = "KDF_TYPE";
     public static final String ATT_ATTRIBUTE_KDF_SALT = "KDF_SALT";
     public static final String ATT_ATTRIBUTE_KDF_CYCLES= "KDF_CYCLES";
@@ -45,7 +47,7 @@ public class CaConnectorConfigUtil {
     public static final String ATT_ATTRIBUTE_KDF_API_KEY_CYCLES= "KDF_API_KEY_CYCLES";
     public static final String ATT_ATTRIBUTE_ROLE = "ROLE";
 
-    Logger LOG = LoggerFactory.getLogger(CaConnectorConfigUtil.class);
+    static Logger LOG = LoggerFactory.getLogger(CaConnectorConfigUtil.class);
 
     private final CAConnectorConfigRepository cAConnectorConfigRepository;
     final private ProtectedContentRepository protectedContentRepository;
@@ -106,6 +108,7 @@ public class CaConnectorConfigUtil {
         // backward compliant defaults
         cv.setMultipleMessages(false);
         cv.setImplicitConfirm(true);
+        cv.setAllowCrlOnHold(false);
 
         AuthenticationParameter authenticationParameter = new  AuthenticationParameter();
         authenticationParameter.setKdfType(KDFType.PBKDF2);
@@ -149,7 +152,10 @@ public class CaConnectorConfigUtil {
                 authenticationParameter.setApiKeyCycles(Integer.parseInt(cfgAtt.getValue()));
             }else if (ATT_ATTRIBUTE_ROLE.equals(cfgAtt.getName())) {
                 cv.setRole(cfgAtt.getValue());
+            }else if (ATT_ALLOW_CRL_ON_HOLD.equals(cfgAtt.getName())) {
+                cv.setAllowCrlOnHold(Boolean.parseBoolean(cfgAtt.getValue()));
             }
+
         }
 
         cv.setaTaVArr(aTaVList.toArray(new NamedValue[0]));
@@ -387,6 +393,8 @@ public class CaConnectorConfigUtil {
         boolean hasApiKeyCycles = false;
         boolean hasRole = false;
 
+        boolean isAllowdeCrlOnHold = false;
+
 
         for( CAConnectorConfigAttribute configAttribute : caConnectorConfig.getCaConnectorAttributes()){
 
@@ -441,6 +449,14 @@ public class CaConnectorConfigUtil {
                     configAttribute.setValue(Boolean.toString(cv.isFillEmptySubjectWithSAN()));
                 }
                 hasFillEmptySubjectWithSAN = true;
+
+            }else if ( ATT_ALLOW_CRL_ON_HOLD.equals(configAttribute.getName())) {
+
+                if(!Objects.equals( cv.isAllowCrlOnHold(), Boolean.parseBoolean(configAttribute.getValue()))){
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_ALLOW_CRL_ON_HOLD, configAttribute.getValue(), Boolean.toString(cv.isAllowCrlOnHold()), caConnectorConfig));
+                    configAttribute.setValue(Boolean.toString(cv.isFillEmptySubjectWithSAN()));
+                }
+                isAllowdeCrlOnHold = true;
 
             }else if (ATT_ATTRIBUTE_KDF_TYPE.equals(configAttribute.getName())) {
                 if( !hasDerivedSecret(cv)) {
@@ -533,6 +549,11 @@ public class CaConnectorConfigUtil {
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_FILL_EMPTY_SUBJECT_WITH_SAN_CHANGED, null, Boolean.toString(cv.isFillEmptySubjectWithSAN()), caConnectorConfig));
             createAttribute(ATT_FILL_EMPTY_SUBJECT_WITH_SAN, Boolean.toString(cv.isIgnoreResponseMessageVerification()), caConnectorConfig);
         }
+        if( !isAllowdeCrlOnHold){
+            auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_ALLOW_CRL_ON_HOLD, null, Boolean.toString(cv.isAllowCrlOnHold()), caConnectorConfig));
+            createAttribute(ATT_ALLOW_CRL_ON_HOLD, Boolean.toString(cv.isAllowCrlOnHold()), caConnectorConfig);
+        }
+
         if (!hasRole) {
             auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_ROLE_CHANGED, null, cv.getRole(), caConnectorConfig));
             createAttribute(ATT_ATTRIBUTE_ROLE, cv.getRole(), caConnectorConfig);
@@ -583,7 +604,7 @@ public class CaConnectorConfigUtil {
         caConnectorConfig.getCaConnectorAttributes().add(caConnectorConfigAttribute);
     }
 
-    public String getCAConnectorConfigAttribute(CAConnectorConfig caConnectorConfig, String name, String defaultValue) {
+    public static String getCAConnectorConfigAttribute(CAConnectorConfig caConnectorConfig, String name, String defaultValue) {
 
         for (CAConnectorConfigAttribute conAtt : caConnectorConfig.getCaConnectorAttributes()) {
             if (name.equals(conAtt.getName())) {
@@ -593,7 +614,7 @@ public class CaConnectorConfigUtil {
         return defaultValue;
     }
 
-    public int getCAConnectorConfigAttribute(CAConnectorConfig caConnectorConfig, String name, int defaultValue) {
+    public static int getCAConnectorConfigAttribute(CAConnectorConfig caConnectorConfig, String name, int defaultValue) {
 
         for (CAConnectorConfigAttribute conAtt : caConnectorConfig.getCaConnectorAttributes()) {
             if (name.equals(conAtt.getName())) {
@@ -607,7 +628,7 @@ public class CaConnectorConfigUtil {
         return defaultValue;
     }
 
-    public Boolean getCAConnectorConfigAttribute(CAConnectorConfig caConnectorConfig, String name, boolean defaultValue) {
+    public static Boolean getCAConnectorConfigAttribute(CAConnectorConfig caConnectorConfig, String name, boolean defaultValue) {
 
         for (CAConnectorConfigAttribute conAtt : caConnectorConfig.getCaConnectorAttributes()) {
             if (name.equals(conAtt.getName())) {

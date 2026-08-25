@@ -9,6 +9,7 @@ import de.trustable.ca3s.core.service.dto.PipelineView;
 import de.trustable.ca3s.core.service.dto.RDNRestriction;
 import de.trustable.ca3s.core.service.dto.SCEPConfigItems;
 import de.trustable.ca3s.core.service.util.BPMNUtil;
+import de.trustable.ca3s.core.service.util.CaConnectorConfigUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import org.apache.logging.log4j.LogManager;
@@ -34,10 +35,12 @@ import static de.trustable.ca3s.core.service.util.PipelineUtil.RESTR_C_REGEXMATC
 public class PipelineTestConfiguration {
 
     private static final String INTERNAL_TEST_CA = "InternalTestCA";
+    private static final String INTERNAL_TEST_CA_HOLDABLE = "InternalTestCAHoldable";
 
     public static final Logger LOGGER = LogManager.getLogger(PipelineTestConfiguration.class);
 
     public static final String PIPELINE_NAME_WEB_DIRECT_ISSUANCE = "TLS Server direct issuance";
+    public static final String PIPELINE_NAME_WEB_DIRECT_ISSUANCE_HOLDABLE = "TLS Server direct issuance with onHold option";
     public static final String PIPELINE_NAME_WEB_DIRECT_ISSUANCE_KEY_REUSE = "TLS Server direct issuance key reuse";
     public static final String PIPELINE_NAME_WEB_RA_ISSUANCE = "TLS Server officer issuance";
     public static final String PIPELINE_NAME_WEB_UPLOAD = "Manual certificate upload";
@@ -49,9 +52,11 @@ public class PipelineTestConfiguration {
     private static final String PIPELINE_NAME_ACME_KEY_UNIQUE_WARN= "acmeKeyUniqueWarn";
     private static final String PIPELINE_NAME_ACME_ALPN_DOMAIN_REUSE = "acmeAlpnKeyUniqueWarn";
     private static final String PIPELINE_NAME_ACME1CN = "acme1CN";
+    private static final String PIPELINE_NAME_ACME_LAX = "acmeLax";
     private static final String PIPELINE_NAME_ACME_EAB = "acmeEab";
     private static final String PIPELINE_NAME_ACME_DNS = "acmeDNS";
     private static final String PIPELINE_NAME_ACME_DNS_PERSIST = "acmeDNSPersist";
+    private static final String PIPELINE_NAME_ACME_DNS_PERSIST_WILDCARD = "acmeDNSPersistWildcard";
 
     private static final String PIPELINE_NAME_ACME_REJECT_127_0_0_X = "acmeReject127_0_0_x";
     private static final String PIPELINE_NAME_ACME_ACCEPT_10_10_X_X = "acmeAccept10_10_x_x";
@@ -67,9 +72,11 @@ public class PipelineTestConfiguration {
     public static final String ACME_REALM_KEY_UNIQUE_WARN  = "acmeTestKeyUniqueWarn";
 
     public static final String ACME1CN_REALM = "acmeTest1CN";
+    public static final String ACME_LAX_REALM = "acmeTestLax";
     public static final String ACME_EAB_REALM = "acmeTestEab";
     public static final String ACME_DNS_REALM = "acmeTestDNS";
     public static final String ACME_DNS_PERSIST_REALM = "acmeTestDNSPersistent";
+    public static final String ACME_DNS_PERSIST_WILDCARD_REALM = "acmeTestDNSPersistentWildcard";
     public static final String ACME_REJECT_127_0_0_X_REALM = "acmeTestReject_127_0_0_X";
     public static final String ACME_ACCEPT_10_10_X_X_REALM = "acmeTestAccept_10_10_X_X";
     public static final String ACME1CNNOIP_REALM = "acmeTest1CNNoIP";
@@ -88,6 +95,9 @@ public class PipelineTestConfiguration {
 
     @Autowired
     CAConnectorConfigRepository cacRepo;
+
+    @Autowired
+    CAConnectorConfigAttributeRepository caConnectorConfigAttributeRepository;
 
     @Autowired
     PipelineRepository pipelineRepo;
@@ -283,7 +293,6 @@ public class PipelineTestConfiguration {
         }
 
         CAConnectorConfig newCAC = new CAConnectorConfig();
-//		newCAC.setId(CONFIG_ID);
         newCAC.setName(INTERNAL_TEST_CA);
         newCAC.setCaConnectorType(CAConnectorType.INTERNAL);
         newCAC.setDefaultCA(true);
@@ -292,8 +301,39 @@ public class PipelineTestConfiguration {
         cacRepo.save(newCAC);
         LOGGER.info("CAConnectorConfig for 'Internal' created");
         return newCAC;
+    }
 
+    public CAConnectorConfig internalHoldableTestCAC() {
 
+        CAConnectorConfig exampleCCC = new CAConnectorConfig();
+        exampleCCC.setName(INTERNAL_TEST_CA_HOLDABLE);
+        Example<CAConnectorConfig> example = Example.of(exampleCCC);
+
+        List<CAConnectorConfig> existingConfigList = cacRepo.findAll(example);
+
+        if (!existingConfigList.isEmpty()) {
+            LOGGER.info("CAConnectorConfig for 'Internal' already present");
+            return existingConfigList.get(0);
+        }
+
+        CAConnectorConfig newCAC = new CAConnectorConfig();
+        newCAC.setName(INTERNAL_TEST_CA_HOLDABLE);
+        newCAC.setCaConnectorType(CAConnectorType.INTERNAL);
+        newCAC.setDefaultCA(false);
+        newCAC.setActive(true);
+        newCAC.setCheckActive(false);
+        cacRepo.save(newCAC);
+
+        CAConnectorConfigAttribute caConnectorConfigAttribute = new CAConnectorConfigAttribute();
+        caConnectorConfigAttribute.setName(CaConnectorConfigUtil.ATT_ALLOW_CRL_ON_HOLD);
+        caConnectorConfigAttribute.setValue("true");
+        caConnectorConfigAttribute.setCaConnector(newCAC);
+        newCAC.getCaConnectorAttributes().add(caConnectorConfigAttribute);
+        caConnectorConfigAttributeRepository.saveAll(newCAC.getCaConnectorAttributes());
+        cacRepo.save(newCAC);
+
+        LOGGER.info("CAConnectorConfig for 'Internal' created");
+        return newCAC;
     }
 
     @Transactional
@@ -618,10 +658,42 @@ public class PipelineTestConfiguration {
         pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeDNSPersist(true);
         pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeHTTP01(false);
 
-        Pipeline pipelineLaxEab = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
-        pipelineRepo.save(pipelineLaxEab);
-        return pipelineLaxEab;
+        Pipeline pipeline = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipeline);
+        return pipeline;
     }
+
+
+    @Transactional
+    public Pipeline getInternalACMETestPipelineDNSPersistWildcardLaxRestrictions() {
+        Pipeline examplePipeline = new Pipeline();
+        examplePipeline.setName(PIPELINE_NAME_ACME_DNS_PERSIST_WILDCARD);
+        examplePipeline.setActive(true);
+        Example<Pipeline> example = Example.of(examplePipeline);
+        List<Pipeline> existingPLList = pipelineRepo.findAll(example);
+
+        if (!existingPLList.isEmpty()) {
+            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_ACME_DNS_PERSIST_WILDCARD);
+            return existingPLList.get(0);
+        }
+
+        PipelineView pv_LaxDomainReuseWarn =
+            pipelineUtil.from(getInternalACMETestPipelineLaxRestrictions());
+
+        pv_LaxDomainReuseWarn.setId(null);
+        pv_LaxDomainReuseWarn.setName(PIPELINE_NAME_ACME_DNS_PERSIST_WILDCARD);
+        pv_LaxDomainReuseWarn.setUrlPart(ACME_DNS_PERSIST_WILDCARD_REALM);
+
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeDNS(false);
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeDNSPersist(true);
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowWildcards(true);
+        pv_LaxDomainReuseWarn.getAcmeConfigItems().setAllowChallengeHTTP01(false);
+
+        Pipeline pipeline = pipelineUtil.toPipeline(pv_LaxDomainReuseWarn);
+        pipelineRepo.save(pipeline);
+        return pipeline;
+    }
+
 
     @Transactional
     public Pipeline getInternalACMETestPipelineNetwort127_0_0_xRejectRestrictions() {
@@ -674,8 +746,6 @@ public class PipelineTestConfiguration {
         pipelineRepo.save(pipelineLaxEab);
         return pipelineLaxEab;
     }
-
-
 
 
     @Transactional
@@ -737,6 +807,7 @@ public class PipelineTestConfiguration {
         return pipelineRestrictions;
     }
 
+
     @Transactional
     public Pipeline getInternalACMETestPipeline_1_CN_ONLY_NO_IP_Restrictions() {
 
@@ -796,32 +867,41 @@ public class PipelineTestConfiguration {
         return pipelineRestrictions;
     }
 
-
     @Transactional
     public Pipeline getInternalWebDirectTestPipeline() {
 
+        return getInternalWebDirectTestPipeline(PIPELINE_NAME_WEB_DIRECT_ISSUANCE, "test", internalTestCAC());
+    }
+
+    @Transactional
+    public Pipeline getInternalWebDirectHoldableTestPipeline() {
+
+        return getInternalWebDirectTestPipeline(PIPELINE_NAME_WEB_DIRECT_ISSUANCE_HOLDABLE, "testHoldable", internalHoldableTestCAC());
+    }
+
+    private Pipeline getInternalWebDirectTestPipeline(String name, String urlPart, CAConnectorConfig caConnectorConfig) {
+
         Pipeline examplePipeline = new Pipeline();
-        examplePipeline.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+        examplePipeline.setName(name);
         examplePipeline.setActive(true);
         Example<Pipeline> example = Example.of(examplePipeline);
         List<Pipeline> existingPLList = pipelineRepo.findAll(example);
 
         if (!existingPLList.isEmpty()) {
-            LOGGER.info("Pipeline '{}' already present", PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
-
+            LOGGER.info("Pipeline '{}' already present", name);
             return existingPLList.get(0);
         }
 
-        LOGGER.info("------------ Creating pipeline '{}' ... ", PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+        LOGGER.info("------------ Creating pipeline '{}' ... ", name);
 
         Pipeline pipelineWeb = new Pipeline();
         pipelineWeb.setActive(true);
         pipelineWeb.setApprovalRequired(false);
 
-        pipelineWeb.setCaConnector(internalTestCAC());
-        pipelineWeb.setName(PIPELINE_NAME_WEB_DIRECT_ISSUANCE);
+        pipelineWeb.setCaConnector(caConnectorConfig);
+        pipelineWeb.setName(name);
         pipelineWeb.setType(PipelineType.WEB);
-        pipelineWeb.setUrlPart("test");
+        pipelineWeb.setUrlPart(urlPart);
 
         pipelineWeb.setAuthorities(authoritySet);
 
@@ -846,6 +926,13 @@ public class PipelineTestConfiguration {
 
         addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE, "{{user.email}}");
         addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE_READ_ONLY, "true");
+
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_NAME", "info");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_ARAContentType", "NO_TYPE");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_TEMPLATE", "");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_REGEXMATCH", "false");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_TEMPLATE_READ_ONLY", "false");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_REQUIRED", "false");
 
         pipelineWeb.setProcessInfoNotify(getSimpleBPMNProcessInfo());
 

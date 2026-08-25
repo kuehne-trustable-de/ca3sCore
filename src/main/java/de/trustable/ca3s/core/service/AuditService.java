@@ -59,6 +59,8 @@ public class AuditService {
     public static final String AUDIT_WEB_CERTIFICATE_CREATED = "WEB_CERTIFICATE_CREATED";
     public static final String AUDIT_CERTIFICATE_REVOKED = "CERTIFICATE_REVOKED";
     public static final String AUDIT_CERTIFICATE_REVOKED_BY_CRL = "CERTIFICATE_REVOKED_BY_CRL";
+    public static final String AUDIT_CERTIFICATE_ON_HOLD = "CERTIFICATE_ON_HOLD";
+    public static final String AUDIT_CERTIFICATE_REMOVE_FROM_CRL = "CERTIFICATE_REMOVE_FROM_CRL";
     public static final String AUDIT_MANUAL_CERTIFICATE_IMPORTED = "MANUAL_CERTIFICATE_IMPORTED";
     public static final String AUDIT_ADCS_CERTIFICATE_IMPORTED = "ADCS_CERTIFICATE_IMPORTED";
     public static final String AUDIT_TLS_CERTIFICATE_IMPORTED = "TLS_CERTIFICATE_IMPORTED";
@@ -172,6 +174,8 @@ public class AuditService {
     public static final String AUDIT_VAULT_CERTIFICATE_IMPORTED = "AUDIT_VAULT_CERTIFICATE_IMPORTED";
     public static final String AUDIT_ROLE_CHANGED = "AUDIT_ROLE_CHANGED";
     public static final String AUDIT_FILL_EMPTY_ROLE_CHANGED = "AUDIT_FILL_EMPTY_ROLE_CHANGED";
+    public static final String AUDIT_ALLOW_CRL_ON_HOLD = "AUDIT_ALLOW_CRL_ON_HOLD";
+    public static final String AUDIT_USER_ACTIVATED = "AUDIT_USER_ACTIVATED";
     private static final String AUDIT_USER_LOGIN_SUCEEDED = "AUDIT_USER_LOGIN_SUCEEDED";
     private static final String AUDIT_USER_LOGIN_FAILED = "AUDIT_USER_LOGIN_FAILED";
     private static final String AUDIT_USER_LOGIN_BLOCKED = "AUDIT_USER_LOGIN_BLOCKED";
@@ -1140,13 +1144,25 @@ public class AuditService {
                                        final BPMNProcessInfo processInfo ){
 
         return createAuditTrace(actor, actorRole, template,
-        null,
-        oldVal, newVal,
-        csr,
-        certificate,
-        pipeline,
-        caConnector,
-        processInfo,null, null,null, null);
+            null,
+            oldVal, newVal,
+            csr,
+            certificate,
+            pipeline,
+            caConnector,
+            processInfo,null, null,null, null);
+    }
+
+    public AuditTrace createAuditTraceUser(final String actor, final String actorRole, final String template){
+
+        return createAuditTrace(actor, actorRole, template,
+            null,
+            null, null,
+            null,
+            null,
+            null,
+            null,
+            null,null, null,null, null);
     }
 
     public AuditTrace createAuditTrace(final String actor, final String actorRole, final String template,

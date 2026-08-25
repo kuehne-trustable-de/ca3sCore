@@ -301,19 +301,26 @@ public class CaInternalConnector {
 	public void revokeCertificate(Certificate cert, CRLReason crlReason, Date revocationDate,
 			CAConnectorConfig caConfig) {
 
-		if (cert.isRevoked()) {
+		if (cert.isRevoked() && !"certificateHold".equals(cert.getRevocationReason())) {
 			LOG.warn("failureReason: " +
 					"certificate with id '" + cert.getId() + "' already revoked.");
 		}
 
-		String crlReasonStr = cryptoUtil.crlReasonAsString(crlReason);
+        String crlReasonStr = cryptoUtil.crlReasonAsString(crlReason);
 		LOG.debug("crlReason : " + crlReasonStr);
 
-		cert.setActive(false);
-		cert.setRevoked(true);
-		cert.setRevokedSince(Instant.now());
-		cert.setRevocationReason(crlReasonStr);
-
+        if( "removeFromCRL".equals(crlReasonStr) && "certificateHold".equals(cert.getRevocationReason())) {
+            LOG.debug("remove certificate from CRL, reactivating the certificate #{}", cert.getId());
+            cert.setActive(true);
+            cert.setRevoked(false);
+            cert.setRevokedSince(null);
+            cert.setRevocationReason(null);
+        }else {
+            cert.setActive(false);
+            cert.setRevoked(true);
+            cert.setRevokedSince(Instant.now());
+            cert.setRevocationReason(crlReasonStr);
+        }
 		certRepository.save(cert);
 
 	}

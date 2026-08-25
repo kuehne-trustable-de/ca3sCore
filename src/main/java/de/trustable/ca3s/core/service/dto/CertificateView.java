@@ -4,6 +4,7 @@ import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvIgnore;
 import com.opencsv.bean.CsvRecurse;
 import de.trustable.ca3s.core.domain.*;
+import de.trustable.ca3s.core.service.util.CaConnectorConfigUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.slf4j.Logger;
@@ -257,6 +258,9 @@ public class CertificateView implements Serializable {
     private Instant crlNextUpdate;
 
     @CsvIgnore
+    private boolean allowCrlOnHold;
+
+    @CsvIgnore
     private String certB64;
 
     @CsvIgnore
@@ -355,6 +359,12 @@ public class CertificateView implements Serializable {
 
                 orderAttributeMap = PipelineUtil.buildAttributeOrderMap(csr.getPipeline());
                 typedAttributeMap = PipelineUtil.buildTypedAttributeMap(csr.getPipeline());
+
+                if( csr.getPipeline().getCaConnector() != null) {
+
+                    this.setAllowCrlOnHold(
+                        CaConnectorConfigUtil.getCAConnectorConfigAttribute(csr.getPipeline().getCaConnector(), CaConnectorConfigUtil.ATT_ALLOW_CRL_ON_HOLD, false));
+                }
 
             }
         } else {
@@ -1285,6 +1295,14 @@ public class CertificateView implements Serializable {
 
     public void setCrlExpirationNotificationId(Long crlExpirationNotificationId) {
         this.crlExpirationNotificationId = crlExpirationNotificationId;
+    }
+
+    public boolean isAllowCrlOnHold() {
+        return allowCrlOnHold;
+    }
+
+    public void setAllowCrlOnHold(boolean allowCrlOnHold) {
+        this.allowCrlOnHold = allowCrlOnHold;
     }
 
     public Boolean getIssuingActiveCertificates() {

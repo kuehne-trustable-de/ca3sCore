@@ -349,6 +349,8 @@
   "ca3SApp.cAConnectorConfig.selector": "Selector",
   "ca3SApp.cAConnectorConfig.template": "Template",
   "ca3SApp.cAConnectorConfig.updated": "A CA Connector Config is updated with identifier {{ param }}",
+  "ca3SApp.cAConnectorConfig.allowCrlOnHold": "Support for CRL state 'certificateHold'",
+
   "ca3SApp.cAConnectorConfig.tlsAuthentication": "TLS client authentication (enter certificate id)",
   "ca3SApp.cAConnectorConfig.messageProtectionPassphrase": "Message protection by passphrase",
   "ca3SApp.cAConnectorConfig.messageProtection": "Message protection by certificate (enter certificate id)",
@@ -488,6 +490,16 @@
   "ca3SApp.certificate.download.PEM": "Download certificate as PEM",
   "ca3SApp.certificate.active.issued": ", active certificates issued",
   "ca3SApp.certificate.no.revocation.active.issued": "No revocation with active issued certificates!",
+
+  "ca3SApp.certificate.revocation.reason.description.certificateHold": "The certificate is placed on temporary hold.",
+  "ca3SApp.certificate.revocation.reason.description.removeFromCRL": "Removes an active 'certificateHold' status.",
+  "ca3SApp.certificate.revocation.reason.description.keyCompromise": "The subject's private key has been compromised or is suspected to be compromised.",
+  "ca3SApp.certificate.revocation.reason.description.cACompromise": "The CA's private key has been compromised or is suspected to be compromised.",
+  "ca3SApp.certificate.revocation.reason.description.affiliationChanged": "The subject's affiliation or identity information has changed or isn't  valid any longer.",
+  "ca3SApp.certificate.revocation.reason.description.superseded": "The certificate has been replaced by a new certificate.",
+  "ca3SApp.certificate.revocation.reason.description.cessationOfOperation": "The certificate is no longer needed because the associated service or operation has ceased.",
+  "ca3SApp.certificate.revocation.reason.description.privilegeWithdrawn": "At least one privilege associated with the certificate has been withdrawn.",
+  "ca3SApp.certificate.revocation.reason.description.unspecified": "Used when the certificate holder does not disclose or cannot determine the exact reason.",
 
   "ca3SApp.audit.subtitle.audit.list": "Audit List",
   "ca3SApp.audit.createdOn": "Created on",
@@ -908,6 +920,9 @@
   "entity.action.edit": "Edit",
   "entity.action.update": "Save",
   "entity.action.updateCrl": "Check CRL",
+  "entity.action.removeCertificateFromCRL": "Remove from CRL",
+  "entity.action.onHold": "Set 'onHold'",
+
   "entity.action.open": "Open",
   "entity.action.reject": "Reject Request",
   "entity.action.revoke": "Revoke",

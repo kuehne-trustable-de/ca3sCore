@@ -68,9 +68,14 @@
                     <div class="form-group">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.active')" for="ca-connector-config-active"></label> <help-tag role="Admin" target="ca-connector.active"/>
                         <input type="checkbox" class="form-check" name="active" id="ca-connector-config-active"
-                            :class="{'valid': !$v.cAConnectorConfig.active.$invalid, 'invalid': $v.cAConnectorConfig.active.$invalid }" v-model="$v.cAConnectorConfig.active.$model" />
+                               :class="{'valid': !$v.cAConnectorConfig.active.$invalid, 'invalid': $v.cAConnectorConfig.active.$invalid }" v-model="$v.cAConnectorConfig.active.$model" />
                     </div>
 
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'ADCS' || $v.cAConnectorConfig.caConnectorType.$model === 'CMP'|| $v.cAConnectorConfig.caConnectorType.$model === 'INTERNAL'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.allowCrlOnHold')" for="ca-connector-config-allowCrlOnHold"></label> <help-tag role="Admin" target="ca-connector.allowCrlOnHold"/>
+                        <input type="checkbox" class="form-check" name="allowCrlOnHold" id="ca-connector-config-allowCrlOnHold"
+                               v-model="$v.cAConnectorConfig.allowCrlOnHold.$model" />
+                    </div>
 
                     <div class="form-group" v-if="($v.cAConnectorConfig.caConnectorType.$model === 'ADCS' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY' ) && hasADCSInstanceDetails() ">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.caname')" for="ca-connector-config-caname"></label>

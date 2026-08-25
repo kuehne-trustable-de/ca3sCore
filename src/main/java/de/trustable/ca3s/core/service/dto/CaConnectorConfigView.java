@@ -51,6 +51,8 @@ public class CaConnectorConfigView implements Serializable {
     private boolean fillEmptySubjectWithSAN = true;
     private Instant expiryDate;
 
+    private boolean allowCrlOnHold = false;
+
     private AuthenticationParameter authenticationParameter;
 
     public Long getId() {
@@ -260,5 +262,13 @@ public class CaConnectorConfigView implements Serializable {
 
     public void setAuthenticationParameter(AuthenticationParameter authenticationParameter) {
         this.authenticationParameter = authenticationParameter;
+    }
+
+    public boolean isAllowCrlOnHold() {
+        return allowCrlOnHold;
+    }
+
+    public void setAllowCrlOnHold(boolean allowCrlOnHold) {
+        this.allowCrlOnHold = allowCrlOnHold;
     }
 }

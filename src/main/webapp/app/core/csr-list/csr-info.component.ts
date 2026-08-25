@@ -236,10 +236,8 @@ export default class CsrInfo extends mixins(AlertMixin, JhiDataUtils) {
   }
 
   public isARAReadOnly(){
-    if(this.isEditable() && this.icsrView.status === 'PENDING'){
-      return "";
-    }
-    return "readOnly";
+    return !(this.isEditable() && this.icsrView.status === 'PENDING');
+
   }
 
   public isAdmin() {

@@ -347,6 +347,8 @@
   "ca3SApp.cAConnectorConfig.template": "Template",
   "ca3SApp.cAConnectorConfig.updated": "CA Konnektorkonfiguration aktualisiert mit ID {{ param }}",
 
+  "ca3SApp.cAConnectorConfig.allowCrlOnHold": "Status 'certificateHold' in der CRL unterstützt",
+
   "ca3SApp.cAConnectorConfig.tlsAuthentication": "Authentisierung als TLS-Client",
   "ca3SApp.cAConnectorConfig.messageProtectionPassphrase": "Nachrichtenschutz per Passphrase",
   "ca3SApp.cAConnectorConfig.messageProtection": "Nachrichtenschutz mit Zertifikat",
@@ -486,6 +488,16 @@
   "ca3SApp.certificate.download.PEM": "Zertifikatsdownload (PEM)",
   "ca3SApp.certificate.active.issued": ", Aktive Zertifikate ausgestellt",
   "ca3SApp.certificate.no.revocation.active.issued": "Kein Rückruf möglich, aktive, ausgestellte Zertifikate vorhanden!",
+
+  "ca3SApp.certificate.revocation.reason.description.certificateHold": "Das Zertifikat wird nur vorübergehend, nicht endgültig gesperrt.",
+  "ca3SApp.certificate.revocation.reason.description.removeFromCRL": "Hebt einen aktuellen 'certificateHold'-Status auf.",
+  "ca3SApp.certificate.revocation.reason.description.keyCompromise": "Der private Schlüssel des Endbenutzerzertifikats wurde kompromittiert oder eine Kompromittierung wird vermutet.",
+  "ca3SApp.certificate.revocation.reason.description.cACompromise": "Der private Schlüssel einer Zertifizierungsstelle (CA) wurde kompromittiert oder eine Kompromittierung wird vermutet.",
+  "ca3SApp.certificate.revocation.reason.description.affiliationChanged": "Die Zugehörigkeit / Zuordnung / Aufgabe oder Identität des Zertifikatsinhabers hat sich geändert.",
+  "ca3SApp.certificate.revocation.reason.description.superseded": "Das Zertifikat wurde (vor Ablauf) durch ein Nachfolgezertifikat ersetzt.",
+  "ca3SApp.certificate.revocation.reason.description.cessationOfOperation": "Das Zertifikat wird nicht mehr benötigt, da z.B, der zug. Dienst eingestellt wurde.",
+  "ca3SApp.certificate.revocation.reason.description.privilegeWithdrawn": "Mindestens eine, im Zertifikat bestätigte Berechtigung wurde entzogen.",
+  "ca3SApp.certificate.revocation.reason.description.unspecified": "Allgemeiner Widerruf, wenn keine genauere Ursache bekannt ist oder sie soll nicht angegeben / veröffentlicht werden soll.",
 
   "ca3SApp.audit.subtitle.audit.list": "Audit Einträge",
 
@@ -880,6 +892,8 @@
   "entity.action.edit": "Bearbeiten",
   "entity.action.update": "Speichern",
   "entity.action.updateCrl": "CRL Abgleich",
+  "entity.action.removeCertificateFromCRL": "von CRL entfernen",
+  "entity.action.onHold": "Temp. Sperrung (onHold)",
   "entity.action.open": "Öffnen",
   "entity.action.reject": "Anfrage ablehnen",
   "entity.action.revoke": "Widerrufen",

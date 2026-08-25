@@ -82,18 +82,22 @@ public class AsyncNotificationService {
     }
 
     @Async
-    public void notifyUserCertificateRevokedAsync(User requestor, Certificate cert , CSR csr, Set<String> additionalEmailSet ){
+    public void notifyUserCertificateRevokedAsync(User requestor, Certificate cert , CSR csr,
+                                                  boolean removeFromCrl,
+                                                  Set<String> additionalEmailSet ){
 
         try {
-            notificationService.notifyCertificateRevoked(requestor, cert, csr, additionalEmailSet, true );
+            notificationService.notifyCertificateRevoked(requestor, cert, csr,
+                removeFromCrl,
+                additionalEmailSet, true );
         } catch (MessagingException e) {
             LOG.error("problem sending user notification for revoked certificate", e);
         }
     }
 
     @Async
-    public void notifyRAOfficerOnUserRevocation(Certificate cert){
-        notificationService.notifyRAOfficerOnUserRevocation( cert );
+    public void notifyRAOfficerOnUserRevocation(Certificate cert, boolean removeFromCrl){
+        notificationService.notifyRAOfficerOnUserRevocation( cert, removeFromCrl );
     }
 
 }

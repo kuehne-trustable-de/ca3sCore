@@ -1,7 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title th:text="#{email.revokedCertificate.title(${cert.subject})}">Certificate revoked</title>
+        <title th:if="${removeFromCrl}"
+            th:text="#{email.removedFromCRL.title(${cert.subject})}">Certificate removed from CRL</title>
+        <title th:if="${'certificateHold' == cert.getRevocationReason()}"
+               th:text="#{email.certificateOnHold.title(${cert.subject})}">Certificate onHold</title>
+        <title th:if="${'removeFromCRL' != cert.getRevocationReason() && 'certificateHold' != cert.getRevocationReason()}"
+            th:text="#{email.revokedCertificate.title(${cert.subject})}">Certificate revoked</title>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <link rel="shortcut icon" th:href="@{|${baseUrl}/favicon.ico|}" />
     </head>
@@ -9,9 +14,20 @@
         <p th:text="#{email.notification.greeting(${user.login})}">
             Dear
         </p>
-        <p th:text="#{email.certificate.revoked.text1(${cert.subject}, ${#dates.format(cert.revokedSince, 'dd.MM.yyyy, HH:mm')}, ${cert.revocationReason})}">
-            Your certificate ${cert.subject} was revoked on ${cert.revokedSince} by the Registration officer for reason ${cert.revocationReason}!
+        <p th:if="${removeFromCrl}"
+            th:text="#{email.certificate.removedFromCRL.text1(${cert.subject}, ${#dates.format(cert.revokedSince, 'dd.MM.yyyy, HH:mm')}, ${cert.revocationReason})}">
+            the certificate ''{0}'' was removed from the CRL on {1} by the Registration Officer. It can be used as usual, again.
         </p>
+        <p th:if="${'certificateHold' == cert.getRevocationReason()}"
+            th:text="#{email.certificate.onHold.text1(${cert.subject}, ${#dates.format(cert.revokedSince, 'dd.MM.yyyy, HH:mm')}, ${cert.revocationReason})}">
+            the certificate ''{0}'' was temporarly revoked on {1} by the Registration Officer!
+        </p>
+
+        <p th:if="${!removeFromCrl && 'certificateHold' != cert.getRevocationReason()}"
+            th:text="#{email.certificate.revoked.text1(${cert.subject}, ${#dates.format(cert.revokedSince, 'dd.MM.yyyy, HH:mm')}, ${cert.revocationReason})}">
+            the certificate ${cert.subject} was revoked on ${cert.revokedSince} by the Registration officer for reason ${cert.revocationReason}!
+        </p>
+
         <p>
             <a
                th:with="url=(@{|${baseUrl}/cert-info?certificateId=${cert.id}|})"

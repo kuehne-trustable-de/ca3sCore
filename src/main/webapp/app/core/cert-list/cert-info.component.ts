@@ -257,9 +257,19 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
 
   public isRevocable() {
 
+    if(this.certificateView.revocationReason === "keyCompromise" ||
+      this.certificateView.revocationReason === "cACompromise" ||
+      this.certificateView.revocationReason === "affiliationChanged" ||
+      this.certificateView.revocationReason === "superseded" ||
+      this.certificateView.revocationReason === "cessationOfOperation" ||
+      this.certificateView.revocationReason === "privilegeWithdrawn" ||
+      this.certificateView.revocationReason === "unspecified" ){
+      return false;
+    }
+
     return (
       this.certificateView.csrId &&
-      this.certificateView.active &&
+//      this.certificateView.active &&
       (this.isRAOfficer() || this.isOwnCertificate())
     );
   }
@@ -280,6 +290,15 @@ public isNotificationBlockable(){
   public isRemovableFromCRL() {
     return (
       this.certificateView.revocationReason === 'certificateHold' &&
+      this.certificateView.validTo &&
+      //      ( this.certificate.validTo.getMilliseconds() < Date.now()) &&
+      (this.isRAOfficer() || this.isOwnCertificate())
+    );
+  }
+
+  public isChangeableToOnHold() {
+    return (
+      !this.certificateView.revocationReason &&
       this.certificateView.validTo &&
       //      ( this.certificate.validTo.getMilliseconds() < Date.now()) &&
       (this.isRAOfficer() || this.isOwnCertificate())
@@ -350,10 +369,25 @@ public isNotificationBlockable(){
     this.sendAdministrationAction('api/administerCertificate');
   }
 
+  public certificateOnHold() {
+    this.copyCertificateDataToAdminData();
+    this.certificateAdminData.administrationType = 'CERTIFICATE_ON_HOLD';
+
+    if (this.isOwnCertificate()) {
+      this.sendAdministrationAction('api/withdrawOwnCertificate');
+    } else {
+      this.sendAdministrationAction('api/administerCertificate');
+    }
+  }
+
   public removeCertificateFromCRL() {
     this.copyCertificateDataToAdminData();
-    this.certificateAdminData.administrationType = 'REVOKE';
-    this.sendAdministrationAction('api/administerCertificate');
+    this.certificateAdminData.administrationType = 'REMOVE_FROM_CRL';
+    if (this.isOwnCertificate()) {
+      this.sendAdministrationAction('api/withdrawOwnCertificate');
+    } else {
+      this.sendAdministrationAction('api/administerCertificate');
+    }
   }
 
   public revokeCertificate() {

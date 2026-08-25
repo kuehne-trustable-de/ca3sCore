@@ -2,6 +2,8 @@ package de.trustable.ca3s.core.security;
 
 import de.trustable.ca3s.core.config.Constants;
 import java.util.Optional;
+
+import de.trustable.ca3s.core.config.WellKnownUser;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +15,6 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
 
     @Override
     public Optional<String> getCurrentAuditor() {
-        return Optional.of(SecurityUtils.getCurrentUserLogin().orElse(Constants.SYSTEM));
+        return Optional.of(SecurityUtils.getCurrentUserLogin().orElse(WellKnownUser.SYSTEM_USER.toString()));
     }
 }

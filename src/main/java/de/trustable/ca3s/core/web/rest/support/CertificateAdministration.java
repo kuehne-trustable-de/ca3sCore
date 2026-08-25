@@ -88,7 +88,7 @@ public class CertificateAdministration {
     }
 
     /**
-     * {@code POST  /administerCertificate} : revoke a certificate.
+     * {@code POST  /administerCertificate} : perform action on a certificate , e.g. revoke .
      *
      * @param adminData a structure holding some crypto-related content, e.g. CSR, certificate, P12 container
      * @return the {@link ResponseEntity} .
@@ -108,7 +108,15 @@ public class CertificateAdministration {
     		Certificate cert = optCert.get();
 
             try {
-                if(AdministrationType.REVOKE.equals(adminData.getAdministrationType())){
+                if(AdministrationType.REVOKE.equals(adminData.getAdministrationType()) ||
+                    AdministrationType.REMOVE_FROM_CRL.equals(adminData.getAdministrationType()) ||
+                    AdministrationType.CERTIFICATE_ON_HOLD.equals(adminData.getAdministrationType()) ){
+
+                    if( AdministrationType.REMOVE_FROM_CRL.equals(adminData.getAdministrationType())){
+                        adminData.setRevocationReason("removeFromCRL");
+                    }else if( AdministrationType.CERTIFICATE_ON_HOLD.equals(adminData.getAdministrationType())){
+                        adminData.setRevocationReason("certificateHold");
+                    }
 
                     CSR csr = cert.getCsr();
                     if (csr != null) {
@@ -121,7 +129,9 @@ public class CertificateAdministration {
                                 LOG.debug("Email doesn't exist for user '{}'", requestor.getLogin());
                             } else {
                                 Set<String> additionalEmailSet = csrUtil.getAdditionalEmailRecipients(cert.getCsr());
-                                asyncNotificationService.notifyUserCertificateRevokedAsync(requestor, cert, csr, additionalEmailSet );
+                                asyncNotificationService.notifyUserCertificateRevokedAsync(requestor, cert, csr,
+                                    AdministrationType.REMOVE_FROM_CRL.equals(adminData.getAdministrationType()),
+                                    additionalEmailSet);
                             }
                         } else {
                             LOG.info("certificate requestor '{}' unknown!", csr.getRequestedBy());
@@ -249,7 +259,18 @@ public class CertificateAdministration {
     	Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     	String userName = auth.getName();
 
-    	Optional<Certificate> optCert = certificateRepository.findById(adminData.getCertificateId());
+        if(AdministrationType.REVOKE.equals(adminData.getAdministrationType()) ||
+            AdministrationType.REMOVE_FROM_CRL.equals(adminData.getAdministrationType()) ||
+            AdministrationType.CERTIFICATE_ON_HOLD.equals(adminData.getAdministrationType()) ) {
+
+            if (AdministrationType.REMOVE_FROM_CRL.equals(adminData.getAdministrationType())) {
+                adminData.setRevocationReason("removeFromCRL");
+            } else if (AdministrationType.CERTIFICATE_ON_HOLD.equals(adminData.getAdministrationType())) {
+                adminData.setRevocationReason("certificateHold");
+            }
+        }
+
+        Optional<Certificate> optCert = certificateRepository.findById(adminData.getCertificateId());
     	if( optCert.isPresent()) {
 
     		Certificate certificate = optCert.get();
@@ -268,9 +289,10 @@ public class CertificateAdministration {
             try {
 	    		revokeCertificate(certificate, adminData, userName);
 
-                asyncNotificationService.notifyRAOfficerOnUserRevocation(certificate);
+                asyncNotificationService.notifyRAOfficerOnUserRevocation(certificate,
+                    AdministrationType.REMOVE_FROM_CRL.equals(adminData.getAdministrationType()));
 
-	    		return new ResponseEntity<>(adminData.getCertificateId(), HttpStatus.OK);
+	    		return new ResponseEntity<>(certificate.getId(), HttpStatus.OK);
 
 			} catch (GeneralSecurityException e) {
 	    		return ResponseEntity.badRequest().build();
@@ -291,41 +313,40 @@ public class CertificateAdministration {
      */
 	private void revokeCertificate(Certificate cert, final CertificateAdministrationData adminData, final String revokingUser) throws GeneralSecurityException {
 
+        String revocationReason = adminData.getRevocationReason();
+        CRLReason crlReason = cryptoUtil.crlReasonFromString(revocationReason);
 
-		if (cert.isRevoked()) {
+
+        if (cert.isRevoked() && (!"removeFromCRL".equals(revocationReason))) {
 			LOG.warn("failureReason: " +
 					"certificate with id '" + cert.getId() + "' already revoked.");
 		}
-
-        auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_REVOKED, cert));
-
-        CRLReason crlReason = cryptoUtil.crlReasonFromString(adminData.getRevocationReason());
 
 		String crlReasonStr = cryptoUtil.crlReasonAsString(crlReason);
 		LOG.debug("crlReason : " + crlReasonStr + " from " + adminData.getRevocationReason());
 
 		Date revocationDate = new Date();
-
 		bpmnUtil.startCertificateRevocationProcess(cert, crlReason, revocationDate);
 
-		// @todo isn't this already done in the process?
-		cert.setActive(false);
-		cert.setRevoked(true);
-		cert.setRevokedSince(Instant.now());
-		cert.setRevocationReason(crlReasonStr);
-
-		if( adminData.getComment() != null && adminData.getComment().trim().length() > 0) {
+		if( adminData.getComment() != null && !adminData.getComment().trim().isEmpty()) {
 			cert.setAdministrationComment(adminData.getComment());
 		}
-		certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_REVOKED_BY, revokingUser, false);
+
+        if( "removeFromCRL".equals(revocationReason) ) {
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_REMOVE_FROM_CRL, cert));
+        }else if( "certificateHold".equals(revocationReason) ) {
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_ON_HOLD, cert));
+        }else{
+            certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_REVOKED_BY, revokingUser, false);
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_REVOKED, cert));
+        }
 
 		/*
 		 * @ todo
 		 */
-		cert.setRevocationExecutionId("39");
+		// cert.setRevocationExecutionId("39");
 
 		certificateRepository.save(cert);
-
 	}
 
 
@@ -393,9 +414,7 @@ public class CertificateAdministration {
 
 
     private void updateARAttributes(CertificateAdministrationData adminData, Certificate cert ) {
-
-        // update of attributes of a given certificate not supported
-//        certUtil.updateARAttributes(adminData.getArAttributeArr(), cert);
+        certUtil.updateARAttributes(adminData.getArAttributeArr(), cert);
     }
 
 }

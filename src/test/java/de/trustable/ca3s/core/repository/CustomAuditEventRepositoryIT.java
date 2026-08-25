@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.config.WellKnownUser;
 import de.trustable.ca3s.core.config.audit.AuditEventConverter;
 import de.trustable.ca3s.core.domain.PersistentAuditEvent;
 import org.junit.jupiter.api.BeforeEach;
@@ -146,7 +147,7 @@ public class CustomAuditEventRepositoryIT {
     public void addAuditEventWithAnonymousUser() {
         Map<String, Object> data = new HashMap<>();
         data.put("test-key", "test-value");
-        AuditEvent event = new AuditEvent(Constants.ANONYMOUS_USER, "test-type", data);
+        AuditEvent event = new AuditEvent(WellKnownUser.ANONYMOUS_USER.toString(), "test-type", data);
         customAuditEventRepository.add(event);
         List<PersistentAuditEvent> persistentAuditEvents = persistenceAuditEventRepository.findAll();
         assertThat(persistentAuditEvents).hasSize(0);

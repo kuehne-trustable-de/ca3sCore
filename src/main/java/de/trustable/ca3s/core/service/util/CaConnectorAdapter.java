@@ -193,6 +193,7 @@ public class CaConnectorAdapter {
 
         if (certificateDao.getRevocationCA() != null) {
             revokeCertificateUsingCaConfig(certificateDao, crlReason, revocationDate, certificateDao.getRevocationCA() );
+            return;
         }
 
 		if (caConfig == null) {

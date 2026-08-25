@@ -39,6 +39,7 @@ const validations: any = {
     defaultCA: {},
     trustSelfsignedCertificates: {},
     active: {},
+    allowCrlOnHold: {},
     selector: {},
     role: {
       required,

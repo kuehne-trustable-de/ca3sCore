@@ -363,7 +363,7 @@
                         <div v-if="isRevocable()" class="form-group">
                             <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="cert-revocationReason"></label> <help-tag target="ca3SApp.certificate.download.revocationReason"/>
                             <select class="form-control" id="cert-revocationReason" name="revocationReason"  v-model="certificateAdminData.revocationReason">
-                                <option v-bind:value="'certificateHold'">certificateHold</option>
+                                <option v-bind:value="''"></option>
                                 <option v-bind:value="'keyCompromise'">keyCompromise</option>
                                 <option v-bind:value="'cACompromise'">cACompromise</option>
                                 <option v-bind:value="'affiliationChanged'">affiliationChanged</option>
@@ -372,6 +372,9 @@
                                 <option v-bind:value="'privilegeWithdrawn'">privilegeWithdrawn</option>
                                 <option v-bind:value="'unspecified'">unspecified</option>
                             </select>
+                        </div>
+                        <div class="form-group" v-if="isRevocable() && certificateAdminData.revocationReason">
+                            <div class="readonly_comment" v-text="$t('ca3SApp.certificate.revocation.reason.description.' + certificateAdminData.revocationReason)"></div>
                         </div>
 
                         <div class="form-group">
@@ -415,11 +418,6 @@
                             <font-awesome-icon icon="pencil-alt"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.updateCrl')"></span>
                         </button>
 
-                        <button type="button" id="removeFromCRL" v-if="isRemovableFromCRL()"
-                                class="btn btn-secondary" v-on:click="removeCertificateFromCRL()">
-                            <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.removeCertificateFromCRL')"></span>
-                        </button>
-
                         <!--button type="button" id="revoke" v-if="isRAOfficer() && !isOwnCertificate() && isRevocable()" class="btn btn-secondary" v-on:click="revokeCertificate()">
                             <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.revoke')">Revoke</span>
                         </button>
@@ -428,7 +426,21 @@
                             <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.withdraw')">Withdraw</span>
                         </button-->
 
-                        <b-button v-if="(isRAOfficer() || isOwnCertificate()) && isRevocable()"
+                        <button type="button" id="removeFromCRL" v-if="certificateView.allowCrlOnHold && isRemovableFromCRL()"
+                                class="btn btn-secondary" v-on:click="removeCertificateFromCRL()">
+                            <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.removeCertificateFromCRL')"></span>
+                        </button>
+
+                        <b-button v-if="certificateView.allowCrlOnHold && isChangeableToOnHold()"
+                                  variant="danger"
+                                  class="btn"
+                                  id="onHold"
+                                  v-on:click="certificateOnHold()">
+                            <font-awesome-icon icon="times"></font-awesome-icon>
+                            <span class="d-none d-md-inline" v-text="$t('entity.action.onHold')"></span>
+                        </b-button>
+
+                        <b-button v-if="(isRAOfficer() || isOwnCertificate()) && isRevocable() && certificateAdminData.revocationReason"
                                   variant="danger"
                                   class="btn"
                                   id="revoke"

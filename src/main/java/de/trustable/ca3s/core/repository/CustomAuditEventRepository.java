@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.repository;
 
 import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.config.WellKnownUser;
 import de.trustable.ca3s.core.config.audit.AuditEventConverter;
 import de.trustable.ca3s.core.domain.PersistentAuditEvent;
 
@@ -52,7 +53,7 @@ public class CustomAuditEventRepository implements AuditEventRepository {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void add(AuditEvent event) {
         if (!AUTHORIZATION_FAILURE.equals(event.getType()) &&
-            !Constants.ANONYMOUS_USER.equals(event.getPrincipal())) {
+            !WellKnownUser.ANONYMOUS_USER.toString().equals(event.getPrincipal())) {
 
             PersistentAuditEvent persistentAuditEvent = new PersistentAuditEvent();
             persistentAuditEvent.setPrincipal(event.getPrincipal());
