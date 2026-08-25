@@ -44,7 +44,7 @@
 
           cvList.each { it -&gt;
 
-            for( de.trustable.ca3s.core.service.dto.NamedValue nv: it.getArArr()){
+            for( de.trustable.ca3s.core.service.dto.NamedTypedValue nv: it.getArArr()){
               println( "add Attribute: " + nv.getName() + " -&gt; " + nv.getValue());
             }
 

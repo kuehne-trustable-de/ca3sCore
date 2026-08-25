@@ -1,6 +1,6 @@
 package de.trustable.ca3s.core.service.util;
 
-import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.config.WellKnownUser;
 import de.trustable.ca3s.core.domain.BPMNProcessInfo;
 import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
@@ -150,7 +150,7 @@ public class BPMNAsyncUtil {
                 effectiveAuth = createUserAuthentication(certificate.getCsr().getRequestedBy());
                 LOG.info("running processChange as requestedBy user '{}'", effectiveAuth);
             }else {
-                effectiveAuth = createUserAuthentication(Constants.SYSTEM_ACCOUNT);
+                effectiveAuth = createUserAuthentication( WellKnownUser.SYSTEM_USER.toString());
                 LOG.info("running processChange as fallback user '{}'", effectiveAuth);
             }
         }else{
@@ -212,7 +212,7 @@ public class BPMNAsyncUtil {
                 effectiveAuth = createUserAuthentication(csr.getRequestedBy());
                 LOG.info("running processCSRDecisionResult as requestedBy user '{}'", effectiveAuth);
             }else {
-                effectiveAuth = createUserAuthentication(Constants.SYSTEM_ACCOUNT);
+                effectiveAuth = createUserAuthentication(WellKnownUser.SYSTEM_USER.toString());
                 LOG.info("running processCSRDecisionResult as fallback user '{}'", effectiveAuth);
             }
         }else{

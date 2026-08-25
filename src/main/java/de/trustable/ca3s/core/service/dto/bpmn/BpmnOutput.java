@@ -2,6 +2,7 @@ package de.trustable.ca3s.core.service.dto.bpmn;
 
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
 
+import java.util.Collections;
 import java.util.Map;
 
 public class BpmnOutput {
@@ -16,7 +17,7 @@ public class BpmnOutput {
     }
 
     public BpmnOutput( ProcessInstanceWithVariables processInstance){
-        this(processInstance.getVariables());
+        this(processInstance == null ? (Map<String, Object>)Collections.EMPTY_MAP :  processInstance.getVariables());
         this.processInstanceId = processInstance.getProcessInstanceId();
     }
 
