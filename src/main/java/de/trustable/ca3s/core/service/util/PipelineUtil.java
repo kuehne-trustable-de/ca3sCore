@@ -1,6 +1,7 @@
 package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.config.Constants;
+import de.trustable.ca3s.core.config.WellKnownUser;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.*;
 import de.trustable.ca3s.core.repository.*;
@@ -1019,7 +1020,9 @@ public class PipelineUtil {
 
         if (PipelineType.ACME.equals(pv.getType())) {
 
-            if (!pv.getAcmeConfigItems().isAllowChallengeDNS()) {
+            if( !(pv.getAcmeConfigItems().isAllowChallengeDNS() || pv.getAcmeConfigItems().isAllowChallengeDNSPersist() ) ){
+
+                LOG.debug("PipelineAttributes : AllowWildcards allowed with DNS-type challenges, only.");
                 pv.getAcmeConfigItems().setAllowWildcards(false);
             }
             addPipelineAttribute(pipelineAttributes, p, auditList, ACME_ALLOW_CHALLENGE_HTTP01, pv.getAcmeConfigItems().isAllowChallengeHTTP01());
@@ -1939,7 +1942,7 @@ public class PipelineUtil {
             null
         );
 
-        String requestorName = Constants.SYSTEM_ACCOUNT;
+        String requestorName = WellKnownUser.SYSTEM_USER.toString();
         CSR csr = cpUtil.buildCSR(p10ReqPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline);
         csrRepository.save(csr);
 
@@ -1990,6 +1993,7 @@ public class PipelineUtil {
         }
         return false;
     }
+
 
     public boolean isCnAndSanApplicable(Pipeline pipeline,
                                          Pkcs10RequestHolder p10ReqHolder,
