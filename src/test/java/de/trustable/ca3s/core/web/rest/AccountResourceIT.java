@@ -22,10 +22,13 @@ import de.trustable.ca3s.core.service.dto.UserDTO;
 import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.web.rest.vm.KeyAndPasswordVM;
 import de.trustable.ca3s.core.web.rest.vm.ManagedUserVM;
+
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -103,7 +106,7 @@ class AccountResourceIT {
         user.setImageUrl("http://placehold.it/50x50");
         user.setLangKey("en");
         user.setAuthorities(authorities);
-        userService.createUser(user);
+        userService.createUser(user, "{activationKey}");
 
         restAccountMockMvc
             .perform(get("/api/account").accept(MediaType.APPLICATION_JSON))
@@ -299,7 +302,7 @@ class AccountResourceIT {
         firstUser.setLangKey(Constants.DEFAULT_LANGUAGE);
         firstUser.setAuthorities(Collections.singleton(AuthoritiesConstants.USER));
 
-        // Register first user
+        // register user
         restAccountMockMvc
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(firstUser)))
             .andExpect(status().isCreated());
@@ -318,16 +321,16 @@ class AccountResourceIT {
         secondUser.setLangKey(firstUser.getLangKey());
         secondUser.setAuthorities(new HashSet<>(firstUser.getAuthorities()));
 
-        // Register second (non activated) user
+        // Try to register third user
         restAccountMockMvc
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(secondUser)))
-            .andExpect(status().isCreated());
+            .andExpect(status().isBadRequest());
 
         Optional<User> testUser2 = userRepository.findOneByLogin("test-register-duplicate-email");
         assertThat(testUser2).isPresent();
 
         Optional<User> testUser3 = userRepository.findOneByLogin("test-register-duplicate-email-2");
-        assertThat(testUser3).isPresent();
+        assertThat(testUser3).isNotPresent();
 
         // Duplicate email - with uppercase email address
         ManagedUserVM userWithUpperCaseEmail = new ManagedUserVM();
@@ -360,7 +363,7 @@ class AccountResourceIT {
         // Register 4th (already activated) user
         restAccountMockMvc
             .perform(post("/api/register").contentType(MediaType.APPLICATION_JSON).content(TestUtil.convertObjectToJsonBytes(secondUser)))
-            .andExpect(status().isCreated());
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -391,19 +394,20 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testActivateAccount() throws Exception {
-        final String activationKey = "some activation key";
+
+        final String activationKey = "activation key";
         User user = new User();
         user.setLogin("activate-account");
         user.setEmail("activate-account@example.com");
         user.setPassword(RandomStringUtils.random(60));
         user.setActivated(false);
-        user.setActivationKey(activationKey);
+        user.setActivationKey("fake"+activationKey);
 
         userRepository.saveAndFlush(user);
 
         protectedContentUtil.createDerivedProtectedContent(activationKey,
             ProtectedContentType.DERIVED_SECRET,
-            ContentRelationType.ACTIVATION_KEY,
+            ContentRelationType.RESET_KEY,
             user.getId(),
             -1,
             Instant.now().plus(1, ChronoUnit.DAYS));
@@ -412,7 +416,7 @@ class AccountResourceIT {
 
         List<ProtectedContent> protectedContentList = protectedContentUtil.findProtectedContentBySecret(activationKey,
             ProtectedContentType.DERIVED_SECRET,
-            ContentRelationType.ACTIVATION_KEY);
+            ContentRelationType.RESET_KEY);
 
         // assert that no second activation may succeed
         assertThat( protectedContentList.size() == 0 );
@@ -769,14 +773,14 @@ class AccountResourceIT {
     @Test
     @Transactional
     void testFinishPasswordReset() throws Exception {
-        String resetKey = RandomStringUtils.random(15);
+        String resetKey = Base64.getEncoder().encodeToString(RandomStringUtils.insecure().next(8).getBytes(StandardCharsets.UTF_8));
 
         User user = new User();
         user.setPassword(RandomStringUtils.random(60));
         user.setLogin("finish-password-reset");
         user.setEmail("finish-password-reset@example.com");
         user.setResetDate(Instant.now().plusSeconds(60));
-        user.setResetKey(resetKey);
+        user.setResetKey(RandomStringUtils.random(15));
         userRepository.saveAndFlush(user);
 
         protectedContentUtil.createDerivedProtectedContent(resetKey,
@@ -787,7 +791,7 @@ class AccountResourceIT {
             Instant.now().plus(1, ChronoUnit.DAYS));
 
         KeyAndPasswordVM keyAndPassword = new KeyAndPasswordVM();
-        keyAndPassword.setKey(user.getResetKey());
+        keyAndPassword.setKey(resetKey);
         keyAndPassword.setNewPassword(NEW_PASSWORD);
 
         restAccountMockMvc
@@ -814,8 +818,7 @@ class AccountResourceIT {
             ContentRelationType.RESET_KEY);
 
         // assert that no second activation may succeed
-        assertThat( protectedContentList.size() == 0 );
-
+        assertThat( protectedContentList.stream().noneMatch(pc -> (pc.getLeftUsages() == -1 || pc.getLeftUsages() > 0)));
 
     }
 

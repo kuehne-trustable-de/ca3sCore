@@ -43,6 +43,7 @@ public class AccountHandlingIT extends WebTestBase {
     public static final By LOC_LNK_ACCOUNT = By.xpath("//li/a [@href='#account-menu']");
 
     public static final By LOC_TEXT_REGISTER_HEADER = By.xpath("//div/h1 [text() = 'Registration']");
+    public static final By LOC_DIV_DANGER = By.xpath("//div[@class='alert alert-danger']");
 
     public static final By LOC_INP_LOGIN_VALUE = By.xpath("//div/input [@name = 'login']");
     public static final By LOC_INP_EMAIL_VALUE = By.xpath("//div/input [@name = 'email']");
@@ -354,6 +355,8 @@ public class AccountHandlingIT extends WebTestBase {
         waitForElement(LOC_LNK_ACCOUNT_SIGN_IN_MENUE);
 
         signIn(loginName, loginPassword);
+
+        validateNotPresent(LOC_DIV_DANGER);
 
         logOut();
 

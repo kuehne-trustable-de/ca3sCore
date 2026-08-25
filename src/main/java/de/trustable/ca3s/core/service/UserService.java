@@ -59,6 +59,7 @@ public class UserService {
     private final PasswordUtil passwordUtil;
     private final CertificateUtil certificateUtil;
     private final SMSService smsService;
+    private final AuditService auditService;
 
     final private EntityManager entityManager;
     private final int activationKeyValidity;
@@ -73,7 +74,7 @@ public class UserService {
                        CacheManager cacheManager,
                        @Value("${ca3s.ui.password.check.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String passwordCheckRegExp,
                        CertificateUtil certificateUtil,
-                       SMSService smsService,
+                       SMSService smsService, AuditService auditService,
                        EntityManager entityManager,
                        @Value("${ca3s.ui.password.activation.keyValidity:7}") int activationKeyValidity) {
 
@@ -89,6 +90,7 @@ public class UserService {
         this.passwordUtil = new PasswordUtil(passwordCheckRegExp);
         this.certificateUtil = certificateUtil;
         this.smsService = smsService;
+        this.auditService = auditService;
         this.entityManager = entityManager;
         this.activationKeyValidity = activationKeyValidity;
     }
@@ -96,21 +98,31 @@ public class UserService {
     public Optional<User> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
 
-        List<ProtectedContent> protectedContents = findActivationKeys(ContentRelationType.ACTIVATION_KEY, key);
+//        List<ProtectedContent> protectedContents = findActivationKeys(ContentRelationType.ACTIVATION_KEY, key);
+        List<ProtectedContent> protectedContents = findActivationKeys(ContentRelationType.RESET_KEY, key);
         if( protectedContents.isEmpty()){
             log.info("No User found for activation key: {}", key);
         }else{
 
             for( ProtectedContent protectedContent: protectedContents){
                 // no further use of this key
-                protectedContent.setLeftUsages(0);
+//                protectedContent.setLeftUsages(0);
+//                protContentRepository.save(protectedContent);
+//                log.debug("De-activating for protected content #{}", protectedContent.getId());
 
                 Optional<User> optUser = userRepository.findById(protectedContent.getRelatedId());
                 if(optUser.isPresent()) {
                     User user = optUser.get();
-                    user.setActivated(true);
-                    this.clearUserCaches(user);
-                    log.debug("Activated user: {}", user);
+                    if(user.isActivated()){
+                        log.warn("Re-Activating active user: {}", user);
+                    }else {
+                        user.setActivated(true);
+                        this.clearUserCaches(user);
+                        log.debug("Activated user: {}", user);
+
+                        auditService.saveAuditTrace(auditService.createAuditTraceUser(user.getLogin(), "",
+                                AuditService.AUDIT_USER_ACTIVATED));
+                    }
                     return Optional.of(user);
                 }
             }
@@ -132,9 +144,8 @@ public class UserService {
             for( ProtectedContent protectedContent: protectedContents) {
                 // no further use of this key
                 protectedContent.setLeftUsages(0);
-            }
+                protContentRepository.save(protectedContent);
 
-            for( ProtectedContent protectedContent: protectedContents){
                 Optional<User> optUser = userRepository.findById(protectedContent.getRelatedId());
                 if(optUser.isPresent()) {
                     User user = optUser.get();
@@ -148,7 +159,7 @@ public class UserService {
                     userRepository.save(user);
 
                     this.clearUserCaches(user);
-                    log.debug("Passwort reset for user: {}", user);
+                    log.debug("Password reset for user: {}", user);
                     return Optional.of(user);
                 }
             }
@@ -180,15 +191,22 @@ public class UserService {
                 throw new UsernameAlreadyUsedException();
             }
         });
-/*
+
+        /*
+        variant: drop existing user with same email
         userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).ifPresent(existingUser -> {
             boolean removed = removeNonActivatedUser(existingUser);
             if (!removed) {
                 throw new EmailAlreadyUsedException();
             }
         });
+         */
 
- */
+        userRepository.findOneByEmailIgnoreCase(userDTO.getEmail()).ifPresent(existingUser -> {
+            throw new EmailAlreadyUsedException();
+        });
+
+
         User newUser = new User();
         String encryptedPassword = passwordEncoder.encode(password);
         newUser.setLogin(userDTO.getLogin().toLowerCase());
@@ -217,11 +235,14 @@ public class UserService {
 
         newUser = userRepository.save(newUser);
         this.clearUserCaches(newUser);
-        log.debug("Created Information for User: {}", newUser);
+        log.debug("registered Information for User: {} with activationKey {}",
+            newUser,
+            activationKey);
 
         protectedContentUtil.createDerivedProtectedContent(activationKey,
             ProtectedContentType.DERIVED_SECRET,
-            ContentRelationType.ACTIVATION_KEY,
+//            ContentRelationType.ACTIVATION_KEY,
+            ContentRelationType.RESET_KEY,
             newUser.getId(),
             -1,
             Instant.now().plus(activationKeyValidity, ChronoUnit.DAYS));
@@ -246,7 +267,7 @@ public class UserService {
         return true;
     }
 
-    public User createUser(UserDTO userDTO) {
+    public User createUser(UserDTO userDTO, final String activationKey) {
         User user = new User();
         user.setLogin(userDTO.getLogin().toLowerCase());
         user.setFirstName(userDTO.getFirstName());
@@ -282,7 +303,18 @@ public class UserService {
 
         userRepository.save(user);
         this.clearUserCaches(user);
-        log.debug("Created Information for User: {}", user);
+
+        log.debug("Created Information for User: {} with activationKey {}",
+            user,
+            activationKey);
+
+        protectedContentUtil.createDerivedProtectedContent(activationKey,
+            ProtectedContentType.DERIVED_SECRET,
+            ContentRelationType.RESET_KEY,
+            user.getId(),
+            -1,
+            Instant.now().plus(activationKeyValidity, ChronoUnit.DAYS));
+
         return user;
     }
 

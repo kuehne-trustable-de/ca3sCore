@@ -120,15 +120,9 @@ public class UserResource {
             throw new EmailAlreadyUsedException();
         } else {
 
-            String resetKey = RandomUtil.generateActivationKey();
-
-            User newUser = userService.createUser(userDTO);
-
-            mailService.sendPasswordResetMail(
-                userService.requestPasswordReset(newUser.getLogin(), resetKey)
-                    .orElseThrow(UserNotFoundException::new),
-                resetKey );
-
+            String activationKey = RandomUtil.generateActivationKey();
+            User newUser = userService.createUser(userDTO, activationKey);
+            mailService.sendCreationEmail(newUser, activationKey);
 
             return ResponseEntity.created(new URI("/api/users/" + newUser.getLogin()))
                 .headers(HeaderUtil.createAlert(applicationName,  "userManagement.created", newUser.getLogin()))
