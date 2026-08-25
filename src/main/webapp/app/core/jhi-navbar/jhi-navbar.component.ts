@@ -269,7 +269,7 @@ export default class JhiNavbar extends mixins(AlertMixin) {
     if (!this.$store.getters.authenticated) {
       return false;
     }
-    if (this.username === 'anonymous') {
+    if (this.username === 'anonymoususer' || this.username === 'anonymous') {
       return false;
     }
     return this.$store.getters.authenticated;
