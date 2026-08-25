@@ -75,6 +75,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static de.trustable.ca3s.core.service.util.PipelineUtil.ACME_ALLOW_CHALLENGE_WILDCARDS;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
@@ -214,6 +215,7 @@ public class OrderController extends AcmeController {
 
         // check for existence of a pipeline for the realm
         Pipeline pipeline = getPipelineForRealm(realm);
+        boolean isWildcardSupported = pipelineUtil.getPipelineAttribute(pipeline, ACME_ALLOW_CHALLENGE_WILDCARDS, false);
         AcmeAccount acctDao;
         AcmeOrder orderDao = null;
         Pkcs10RequestHolder p10Holder;
@@ -283,10 +285,19 @@ public class OrderController extends AcmeController {
                     for (String san : snSet) {
                         boolean bSanFound = false;
                         for (AcmeAuthorization authDao : orderDao.getAcmeAuthorizations()) {
-                            if (san.equalsIgnoreCase(authDao.getValue())) {
-                                LOG.debug("san '{}' part of order {} in authorization {}", san, orderDao.getOrderId(), authDao);
-                                bSanFound = true;
-                                break;
+
+                            if(isWildcardSupported) {
+                                if ( matchesWildcardDomain(san, authDao.getValue())){
+                                    LOG.debug("san '{}' wildcard-matches order {} in authorization {}", san, orderDao.getOrderId(), authDao);
+                                    bSanFound = true;
+                                    break;
+                                }
+                            } else {
+                                if (san.equalsIgnoreCase(authDao.getValue())) {
+                                    LOG.debug("san '{}' part of order {} in authorization {}", san, orderDao.getOrderId(), authDao);
+                                    bSanFound = true;
+                                    break;
+                                }
                             }
                         }
                         if (!bSanFound) {
@@ -628,4 +639,34 @@ public class OrderController extends AcmeController {
 
     }
 
+    private boolean matchesWildcardDomain(String domain, String pattern) {
+        if (domain == null || pattern == null) {
+            return false;
+        }
+
+        domain = domain.toLowerCase(java.util.Locale.ROOT).replaceFirst("\\.$", "");
+        pattern = pattern.toLowerCase(java.util.Locale.ROOT).replaceFirst("\\.$", "");
+
+        // Exact match
+        if (!pattern.startsWith("*.")) {
+            LOG.debug("matching domain '{}' with pattern '{}' without wildcard: {}", domain, pattern, domain.equals(pattern));
+            return domain.equals(pattern);
+        }
+
+        // Wildcard must represent exactly one DNS label
+        String suffix = pattern.substring(2);
+
+        if (!domain.endsWith("." + suffix)) {
+            LOG.debug("matching domain '{}' with pattern '{}' fails, suffix mismatch", domain, pattern);
+            return false;
+        }
+
+        String prefix = domain.substring(0, domain.length() - suffix.length() - 1);
+
+        // *.example.com matches www.example.com
+        // but NOT example.com
+        // and NOT www.test.example.com
+        LOG.debug("matching domain '{}' with pattern '{}' using wildcard matching: {}", domain, pattern, !prefix.isEmpty() && !prefix.contains("."));
+        return !prefix.isEmpty() && !prefix.contains(".");
+    }
 }

@@ -387,9 +387,13 @@ public class ChallengeController extends AcmeController {
             Collection<String> dnsEntryList = challengeValidator.retrieveChallengeDNSPersist(domain);
 
             for(String issuerDomainName : issuerDomainNameArray) {
-                if (checkDNSPersist(dnsEntryList, issuerDomainName, accountUri)){
-                    return true;
+                Set<PersistentRecord> persistentRecordSet = checkDNSPersist(dnsEntryList, issuerDomainName, accountUri);
+
+                if( persistentRecordSet.stream().anyMatch(persistentRecord -> ("wildcard".equals(persistentRecord.getPolicy())))){
+                    challengeDao.getAcmeAuthorization().setValidForWildCard(true);
                 }
+
+                return !persistentRecordSet.isEmpty();
             }
 
         } catch (ChallengeDNSIdentifierException | ChallengeDNSException e) {
@@ -401,7 +405,17 @@ public class ChallengeController extends AcmeController {
         return false;
     }
 
-    private static boolean checkDNSPersist(Collection<String> dnsEntryList, String caIssuerName, URI accountUri) {
+/*
+    private URI locationUriOf(final long accountId, final UriComponentsBuilder uriBuilder) {
+        return accountResourceUriBuilderFrom(uriBuilder.path("..")).path("/").path(Long.toString(accountId)).build().normalize().toUri();
+    }
+*/
+
+    private static Set<PersistentRecord> checkDNSPersist(Collection<String> dnsEntryList, String caIssuerName, URI accountUri) {
+
+        long now = System.currentTimeMillis();
+
+        Set<PersistentRecord> persistentRecordSet = new HashSet<>();
         for( String dnsEntry : dnsEntryList){
             PersistentRecord persistentRecord = new PersistentRecord(dnsEntry);
 
@@ -414,23 +428,17 @@ public class ChallengeController extends AcmeController {
             }
 
             if (persistentRecord.getPersistUntilMilliSec() != null) {
-                long now = System.currentTimeMillis();
-
                 if (now >= persistentRecord.getPersistUntilMilliSec()) {
                     continue;
                 }
             }
 
-            return true;
-        }
-        return false;
-    }
+            LOG.debug("read DNS record: {}", persistentRecord);
 
-/*
-    private URI locationUriOf(final long accountId, final UriComponentsBuilder uriBuilder) {
-        return accountResourceUriBuilderFrom(uriBuilder.path("..")).path("/").path(Long.toString(accountId)).build().normalize().toUri();
+            persistentRecordSet.add(persistentRecord);
+        }
+        return persistentRecordSet;
     }
-*/
     private void logChallengeValidationOutcome(boolean matches, AcmeChallenge challengeDao, String matchMsg, String mismatchMsg) {
         AcmeOrder acmeOrder = challengeDao.getAcmeAuthorization().getOrder();
         if(matches) {
@@ -924,9 +932,15 @@ public class ChallengeController extends AcmeController {
                     // check forwardedHost on acmeProxy
                     URI accountUri = locationUriOfAccount(account.getAccountId(), getEffectiveUriComponentsBuilder(order.getRealm(), null));
 
-                    if (checkDNSPersist(Arrays.asList(acmeChallengeValidation.getResponses()),
+                    Set<PersistentRecord> persistentRecordSet = checkDNSPersist(Arrays.asList(acmeChallengeValidation.getResponses()),
                         caIssuerName,
-                        accountUri)) {
+                        accountUri);
+
+                    if( persistentRecordSet.stream().anyMatch(persistentRecord -> ("wildcard".equals(persistentRecord.getPolicy())))){
+                        challengeDao.getAcmeAuthorization().setValidForWildCard(true);
+                    }
+
+                    if( !persistentRecordSet.isEmpty()){
                         LOG.info("proxy validated dns-persist-01 challenge id '{}' successfully", challengeDao.getId());
                         challengeDao.setStatus(ChallengeStatus.VALID);
                     }else{
@@ -956,6 +970,7 @@ public class ChallengeController extends AcmeController {
 
         private String caIssuer;
         private String accountUri;
+        private String policy;
         private Long persistUntilMilliSec;
 
         PersistentRecord(String value) {
@@ -963,6 +978,7 @@ public class ChallengeController extends AcmeController {
 
             caIssuer = null;
             accountUri = null;
+            policy = null;
             persistUntilMilliSec = null;
 
             for (String part : parts) {
@@ -990,6 +1006,9 @@ public class ChallengeController extends AcmeController {
                     case "persistUntil" ->
                         persistUntilMilliSec = Long.parseLong(val) * 1000L;
 
+                    case "policy" ->
+                        policy = val;
+
                     default -> {
                         // Ignore extension fields for forward compatibility.
                     }
@@ -1005,8 +1024,22 @@ public class ChallengeController extends AcmeController {
             return accountUri;
         }
 
+        public String getPolicy() {
+            return policy;
+        }
+
         public Long getPersistUntilMilliSec() {
             return persistUntilMilliSec;
+        }
+
+        @Override
+        public String toString() {
+            return "PersistentRecord{" +
+                "caIssuer='" + caIssuer + '\'' +
+                ", accountUri='" + accountUri + '\'' +
+                ", policy='" + policy + '\'' +
+                ", persistUntilMilliSec=" + persistUntilMilliSec +
+                '}';
         }
     }
 }

@@ -178,6 +178,6 @@
 
     <include file="config/liquibase/changelog/20260703180000_added_relation_pipeline_bpmn_csr_decision.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20260723180000_added_challenge_columns_lob_value.xml" relativeToChangelogFile="false"/>
-
+    <include file="config/liquibase/changelog/20260731180000_added_authorization_columns_valid_for_wildcard.xml" relativeToChangelogFile="false"/>
 
 </databaseChangeLog>

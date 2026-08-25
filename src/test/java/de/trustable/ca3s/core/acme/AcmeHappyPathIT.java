@@ -81,6 +81,8 @@ public class AcmeHappyPathIT {
     final String ACME_DOMAIN_REUSE_WARN_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_DOMAIN_REUSE_WARN + "/directory";
     final String ACME_KEY_UNIQUE_WARN_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_KEY_UNIQUE_WARN + "/directory";
     final String ACME_PATH_PART_OTHER_REALM = "/acme/" + PipelineTestConfiguration.ACME1CN_REALM + "/directory";
+    final String ACME_PATH_PART_OTHER_LAX_REALM = "/acme/" + PipelineTestConfiguration.ACME_REALM_DOMAIN_REUSE + "/directory";
+
     final String ACME_EAB_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_EAB_REALM + "/directory";
     final String ACME_REJECT_127_0_0_X_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REJECT_127_0_0_X_REALM + "/directory";
     final String ACME_ACCEPT_10_10_X_X_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_ACCEPT_10_10_X_X_REALM + "/directory";
@@ -89,6 +91,7 @@ public class AcmeHappyPathIT {
     String dirUrlDomainReuseWarn;
     String dirUrlKeyUniqueWarn;
     String dirUrlOtherRealm;
+    String dirUrlOtherLaxRealm;
     String dirUrlEAB;
     String dirUrlnetworkReject127_0_0_X;
     String dirUrlnetworkAccept10_10_X_X;
@@ -138,6 +141,8 @@ public class AcmeHappyPathIT {
         dirUrlnetworkAccept10_10_X_X = "http://localhost:" + serverPort + ACME_ACCEPT_10_10_X_X_PATH_PART;
 
         dirUrlOtherRealm = "http://localhost:" + serverPort + ACME_PATH_PART_OTHER_REALM;
+        dirUrlOtherLaxRealm = "http://localhost:" + serverPort + ACME_PATH_PART_OTHER_LAX_REALM;
+
 		ptc.getInternalACMETestPipelineLaxRestrictions();
         ptc.getInternalACMETestPipeline_1_CN_ONLY_Restrictions();
         ptc.getInternalACMETestPipelineLaxDomainReuseRestrictions();
@@ -652,6 +657,19 @@ public class AcmeHappyPathIT {
             .create(sessionOtherRealm);
 
 
+
+        System.out.println("connecting to " + dirUrlOtherLaxRealm);
+        Session sessionOtherLaxRealm = new Session(dirUrlOtherLaxRealm);
+
+        KeyPair otherLaxRealmAccountKeyPair = KeyPairUtils.createKeyPair(2048);
+        Account otherLaxRealmAccount = new AccountBuilder()
+            .addContact("mailto:otherLaxRealmmy@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(otherLaxRealmAccountKeyPair)
+            .create(sessionOtherLaxRealm);
+
+
+
         KeyPair dummyAccountKeyPair = KeyPairUtils.createKeyPair(2048);
         Account dummyAccount = new AccountBuilder()
             .addContact("mailto:acmeDummy@ca3s.org")
@@ -830,7 +848,7 @@ public class AcmeHappyPathIT {
 
         // use a different account with a different realm, rejecting key reuse
         {
-            Order order = otherRealmAccount.newOrder()
+            Order order = otherLaxRealmAccount.newOrder()
                 .domains("localhost")
                 .create();
 

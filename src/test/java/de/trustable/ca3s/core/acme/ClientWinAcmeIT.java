@@ -217,7 +217,7 @@ public class ClientWinAcmeIT extends ExternalProcessITBase {
 
         boolean isWindows = System.getProperty("os.name").toLowerCase().startsWith("windows");
 
-        if (isWindows) {
+        if (!isWindows) {
             LOG.info("certbot test no available on Windows");
         } else {
 

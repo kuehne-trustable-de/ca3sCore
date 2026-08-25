@@ -39,6 +39,10 @@ public class AcmeAuthorization implements Serializable {
     @Column(name = "value_", nullable = false)
     private String value;
 
+    @NotNull
+    @Column(name = "valid_for_wildcard", nullable = false)
+    private boolean validForWildCard;
+
     @OneToMany(mappedBy = "acmeAuthorization")
     @JsonIgnoreProperties(value = { "acmeAuthorization" }, allowSetters = true)
     private Set<AcmeChallenge> challenges = new HashSet<>();
@@ -99,6 +103,15 @@ public class AcmeAuthorization implements Serializable {
 
     public void setValue(String value) {
         this.value = value;
+    }
+
+
+    public boolean isValidForWildCard() {
+        return validForWildCard;
+    }
+
+    public void setValidForWildCard(boolean validForWildCard) {
+        this.validForWildCard = validForWildCard;
     }
 
     public Set<AcmeChallenge> getChallenges() {
@@ -174,4 +187,5 @@ public class AcmeAuthorization implements Serializable {
             ", value='" + getValue() + "'" +
             "}";
     }
+
 }

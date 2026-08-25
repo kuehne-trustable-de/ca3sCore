@@ -51,9 +51,11 @@ public class AcmeChallengeIT {
     final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
     final String ACME_DNS_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_DNS_REALM + "/directory";
     final String ACME_DNS_PERSIST_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_DNS_PERSIST_REALM + "/directory";
+    final String ACME_DNS_PERSIST_WILDCARD_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_DNS_PERSIST_WILDCARD_REALM + "/directory";
     String dirUrl;
     String dirUrlDNS;
     String dirUrlDNSPersist;
+    String dirUrlDNSPersistWildcard;
 
     HttpChallengeHelper httpChallengeHelper;
 
@@ -71,11 +73,14 @@ public class AcmeChallengeIT {
         dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
         dirUrlDNS = "http://localhost:" + serverPort + ACME_DNS_PATH_PART;
         dirUrlDNSPersist = "http://localhost:" + serverPort + ACME_DNS_PERSIST_PATH_PART;
+        dirUrlDNSPersistWildcard = "http://localhost:" + serverPort + ACME_DNS_PERSIST_WILDCARD_PATH_PART;
+
         LOG.info("ptc: {}", ptc);
         try {
             ptc.getInternalACMETestPipelineLaxRestrictions();
             ptc.getInternalACMETestPipelineDNSLaxRestrictions();
             ptc.getInternalACMETestPipelineDNSPersistLaxRestrictions();
+            ptc.getInternalACMETestPipelineDNSPersistWildcardLaxRestrictions();
 
             prefTC.getTestUserPreference();
             httpChallengeHelper = new HttpChallengeHelper(prefTC.getHttpChallengePort());
@@ -586,7 +591,7 @@ public class AcmeChallengeIT {
         Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to find the same account (URL)");
 
         // #########################
-        // http endpoint serving wrong content
+        // dns endpoint serving wrong content
         // #########################
 
         Order order = account.newOrder()
@@ -594,7 +599,7 @@ public class AcmeChallengeIT {
             .notAfter(Instant.now().plus(Duration.ofDays(20L)))
             .create();
 
-        // challenge an authorization that will not succeed
+        // challenge an authorization that will succeed
         for (Authorization auth : order.getAuthorizations()) {
             LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
             if (auth.getStatus() == Status.PENDING) {
@@ -610,14 +615,12 @@ public class AcmeChallengeIT {
                     auth.getIdentifier().getValue());
                 dnsChallengeHelper.addDNSPersistChallengeDetails(
                     "\"letsencrypt.org; accounturi=" + accountLocationUrl.toString() + "\"",
-                auth.getIdentifier().getValue());
+                    auth.getIdentifier().getValue());
 
                 challenge.trigger();
                 Assertions.assertEquals(Status.VALID, challenge.getStatus());
             }
-
         }
-
 
         CSRBuilder csrb = new CSRBuilder();
         csrb.addDomain("localhost");
@@ -642,7 +645,7 @@ public class AcmeChallengeIT {
     }
 
     @Test
-    public void testDnsPersistChallengeInvalid() throws AcmeException, IOException {
+    public void testDnsPersistChallengeHandlingPersistUntil() throws AcmeException, IOException {
 
         String domain = "localhost";
 
@@ -672,9 +675,252 @@ public class AcmeChallengeIT {
         Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
         Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to find the same account (URL)");
 
-        // #########################
-        // http endpoint serving wrong content
-        // #########################
+        Order order = account.newOrder()
+            .domains(domain)
+            .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+            .create();
+
+        dnsChallengeHelper.entryAndValueList.clear();
+
+        long untilExpired = Instant.now().getEpochSecond() - 5L;
+
+        // challenge an authorization that will succeed
+        for (Authorization auth : order.getAuthorizations()) {
+            LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+            if (auth.getStatus() == Status.PENDING) {
+
+                Optional<DnsPersist01Challenge> challengeOpt = auth.findChallenge(DnsPersist01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                DnsPersist01Challenge challenge = challengeOpt.get();
+
+
+                dnsChallengeHelper.addDNSPersistChallengeDetails(
+                    "\"acme.ca3s.org; accounturi=" + accountLocationUrl.toString() + "; persistUntil=" + untilExpired + "; policy=xyz123\"",
+                    auth.getIdentifier().getValue());
+
+                dnsChallengeHelper.addDNSPersistChallengeDetails(
+                    "\"letsencrypt.org; accounturi=" + accountLocationUrl.toString() + "\"",
+                    auth.getIdentifier().getValue());
+
+                challenge.trigger();
+                Assertions.assertEquals(Status.PENDING, challenge.getStatus());
+            }
+        }
+
+        long until = Instant.now().getEpochSecond() + 5L;
+
+        // challenge an authorization that will succeed
+        for (Authorization auth : order.getAuthorizations()) {
+            LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+            if (auth.getStatus() == Status.PENDING) {
+
+                Optional<DnsPersist01Challenge> challengeOpt = auth.findChallenge(DnsPersist01Challenge.TYPE);
+                Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                DnsPersist01Challenge challenge = challengeOpt.get();
+
+
+                dnsChallengeHelper.addDNSPersistChallengeDetails(
+                    "\"acme.ca3s.org; accounturi=" + accountLocationUrl.toString() + "; persistUntil=" + until + "; policy=xyz123\"",
+                    auth.getIdentifier().getValue());
+
+                dnsChallengeHelper.addDNSPersistChallengeDetails(
+                    "\"letsencrypt.org; accounturi=" + accountLocationUrl.toString() + "\"",
+                    auth.getIdentifier().getValue());
+
+                challenge.trigger();
+                Assertions.assertEquals(Status.VALID, challenge.getStatus());
+            }
+        }
+
+        KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        CSRBuilder csrb = new CSRBuilder();
+        csrb.addDomain("localhost");
+        csrb.setOrganization("The Example Organization");
+        csrb.sign(domainKeyPair);
+        byte[] csr = csrb.getEncoded();
+
+        for(Authorization auth: order.getAuthorizations()){
+            System.out.println( " ################ "  + auth.getIdentifier().toString() + " / " + auth.getLocation() );
+        }
+
+        order.execute(csr);
+        Certificate acmeCert = order.getCertificate();
+        Assertions.assertNotNull(acmeCert, "Expected to receive a certificate");
+
+        account.deactivate();
+
+        Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
+    }
+
+    @Test
+    public void testDnsPersistChallengeHandlingPolicyWildcard() throws AcmeException, IOException {
+
+        String domain = "*.localhost";
+
+        Session session = new Session(dirUrlDNSPersistWildcard);
+        Metadata meta = session.getMetadata();
+
+        logMetaInfo(meta);
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        Account account = new AccountBuilder()
+            .addContact("mailto:acmeTestDns@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(accountKeyPair)
+            .create(session);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
+
+        URL accountLocationUrl = account.getLocation();
+        LOG.debug("accountLocationUrl {}", accountLocationUrl);
+
+
+        Account retrievedAccount = new AccountBuilder()
+            .onlyExisting()         // Do not create a new account
+            .useKeyPair(accountKeyPair)
+            .create(session);
+
+        Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to find the same account (URL)");
+
+        // try a wildcard mismatch
+        {
+            Order order = account.newOrder()
+                .domains(domain)
+                .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+                .create();
+
+            long until = System.currentTimeMillis() + 5000L;
+
+            // challenge an authorization that will succeed
+            for (Authorization auth : order.getAuthorizations()) {
+                LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+                if (auth.getStatus() == Status.PENDING) {
+
+                    Optional<DnsPersist01Challenge> challengeOpt = auth.findChallenge(DnsPersist01Challenge.TYPE);
+                    Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                    DnsPersist01Challenge challenge = challengeOpt.get();
+
+
+                    dnsChallengeHelper.addDNSPersistChallengeDetails(
+                        "\"acme.ca3s.org; accounturi=" + accountLocationUrl.toString() + "; persistUntil=" + until + "; policy=wildcard\"",
+                        auth.getIdentifier().getValue());
+
+                    dnsChallengeHelper.addDNSPersistChallengeDetails(
+                        "\"letsencrypt.org; accounturi=" + accountLocationUrl.toString() + "\"",
+                        auth.getIdentifier().getValue());
+
+                    challenge.trigger();
+                    Assertions.assertEquals(Status.VALID, challenge.getStatus());
+                }
+            }
+
+            KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+
+            CSRBuilder csrb = new CSRBuilder();
+            csrb.addDomain("www.foo.localhost");
+            csrb.setOrganization("The Example Organization");
+            csrb.sign(domainKeyPair);
+            byte[] csr = csrb.getEncoded();
+
+            for (Authorization auth : order.getAuthorizations()) {
+                System.out.println(" ################ " + auth.getIdentifier().toString() + " / " + auth.getLocation());
+            }
+
+            try{
+                order.execute(csr);
+                Assertions.fail("AcmeServerException expected");
+            }catch( AcmeServerException acmeServerException){
+                Assertions.assertTrue( acmeServerException.getMessage().startsWith("failed to find requested hostname 'www.foo.localhost' (from CSR) in authorization"));
+            }
+        }
+
+        // successful validation
+        {
+            Order order = account.newOrder()
+                .domains(domain)
+                .notAfter(Instant.now().plus(Duration.ofDays(20L)))
+                .create();
+
+            long until = System.currentTimeMillis() + 5000L;
+
+            // challenge an authorization that will succeed
+            for (Authorization auth : order.getAuthorizations()) {
+                LOG.debug("checking auth id {} for {} with status {}", auth.getIdentifier(), auth.getLocation(), auth.getStatus());
+                if (auth.getStatus() == Status.PENDING) {
+
+                    Optional<DnsPersist01Challenge> challengeOpt = auth.findChallenge(DnsPersist01Challenge.TYPE);
+                    Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
+
+                    DnsPersist01Challenge challenge = challengeOpt.get();
+
+
+                    dnsChallengeHelper.addDNSPersistChallengeDetails(
+                        "\"acme.ca3s.org; accounturi=" + accountLocationUrl.toString() + "; persistUntil=" + until + "; policy=wildcard\"",
+                        auth.getIdentifier().getValue());
+
+                    dnsChallengeHelper.addDNSPersistChallengeDetails(
+                        "\"letsencrypt.org; accounturi=" + accountLocationUrl.toString() + "\"",
+                        auth.getIdentifier().getValue());
+
+                    challenge.trigger();
+                    Assertions.assertEquals(Status.VALID, challenge.getStatus());
+                }
+            }
+            KeyPair domainKeyPair = KeyPairUtils.createKeyPair(2048);
+
+            CSRBuilder csrb = new CSRBuilder();
+            csrb.addDomain("foo.localhost");
+            csrb.setOrganization("The Example Organization");
+            csrb.sign(domainKeyPair);
+            byte[] csr = csrb.getEncoded();
+
+            for (Authorization auth : order.getAuthorizations()) {
+                System.out.println(" ################ " + auth.getIdentifier().toString() + " / " + auth.getLocation());
+            }
+
+            order.execute(csr);
+            Certificate acmeCert = order.getCertificate();
+            Assertions.assertNotNull(acmeCert, "Expected to receive a certificate");
+        }
+        account.deactivate();
+
+        Assertions.assertEquals(Status.DEACTIVATED, account.getStatus(), "account status 'deactivated' expected");
+    }
+
+    @Test
+    public void testDnsPersistChallengeInvalid() throws AcmeException, IOException {
+
+        String domain = "localhost";
+
+        Session session = new Session(dirUrlDNSPersist);
+        Metadata meta = session.getMetadata();
+
+        logMetaInfo(meta);
+
+        KeyPair accountKeyPair = KeyPairUtils.createKeyPair(2048);
+
+        Account account = new AccountBuilder()
+            .addContact("mailto:acmeTestDns@ca3s.org")
+            .agreeToTermsOfService()
+            .useKeyPair(accountKeyPair)
+            .create(session);
+        Assertions.assertNotNull(account, "created account MUST NOT be null");
+
+        URL accountLocationUrl = account.getLocation();
+        LOG.debug("accountLocationUrl {}", accountLocationUrl);
+
+        Account retrievedAccount = new AccountBuilder()
+            .onlyExisting()         // Do not create a new account
+            .useKeyPair(accountKeyPair)
+            .create(session);
+
+        Assertions.assertNotNull(retrievedAccount, "created account MUST NOT be null");
+        Assertions.assertEquals(accountLocationUrl, retrievedAccount.getLocation(), "expected to find the same account (URL)");
 
         Order order = account.newOrder()
             .domains(domain)
@@ -699,18 +945,14 @@ public class AcmeChallengeIT {
                     "\"acme.ca3s.org; accounturi=http://localhost:44085/acme/acmeTestDNSPersistent/acct/00000000000000\"",
                     auth.getIdentifier().getValue());
 
+                dnsChallengeHelper.addDNSPersistChallengeDetails(
+                    "\"acme.ca3s.org; accounturi=" + accountLocationUrl.toString() + "; persistUntil=1767225600\"",
+                    auth.getIdentifier().getValue());
+
                 challenge.trigger();
                 Assertions.assertEquals(Status.PENDING, challenge.getStatus());
             }
-
         }
-
     }
 
-    void buildOrder(Account account, int n) throws AcmeException {
-        account.newOrder()
-            .domains("example_"+n+".org")
-            .notAfter(Instant.now().plus(Duration.ofDays(20L)))
-            .create();
-    }
 }

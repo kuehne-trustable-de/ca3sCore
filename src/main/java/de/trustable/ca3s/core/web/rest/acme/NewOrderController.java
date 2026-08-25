@@ -541,14 +541,12 @@ public class NewOrderController extends AcmeController {
         acmeOrderAttributeSet.add(acmeOrderAttribute);
     }
 
-
-
     private boolean isWildcardRequest(String ident) {
         boolean isWildcardRequest;
         Name name;
         try {
             Name tempName = Name.fromString(ident, Name.root);
-            name = Name.fromString(IDN.toASCII(tempName.toString(), IDN.USE_STD3_ASCII_RULES));
+            name = Name.fromString(IDN.toASCII(tempName.toString()));
         } catch (TextParseException e) {
             throw new IllegalArgumentException("DNS identifier value '" + ident + "'", e);
         }
