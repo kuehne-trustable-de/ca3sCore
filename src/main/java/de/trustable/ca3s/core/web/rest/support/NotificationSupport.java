@@ -204,7 +204,7 @@ public class NotificationSupport {
         if (optUser.isPresent()) {
             User requestor = optUser.get();
             Certificate cert = certificateRepository.getOne(Long.parseLong(certId));
-            notificationService.notifyCertificateRevoked(requestor, cert, cert.getCsr(), Collections.emptySet(), false);
+            notificationService.notifyCertificateRevoked(requestor, cert, cert.getCsr(), false, Collections.emptySet(), false);
         }
     }
 
@@ -219,7 +219,7 @@ public class NotificationSupport {
         Optional<User> optUser = userRepository.findOneByLogin(nameAndRoleUtil.getNameAndRole().getName());
         if (optUser.isPresent()) {
             Certificate cert = certificateRepository.getOne(Long.parseLong(certId));
-            notificationService.notifyRAOfficerOnUserRevocation(cert);
+            notificationService.notifyRAOfficerOnUserRevocation(cert, false);
         }
     }
 

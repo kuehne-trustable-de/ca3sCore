@@ -229,7 +229,9 @@ public class ProtectedContentUtil {
                                                           Instant validTo) {
 
         try {
-            return createPlainProtectedContent(Base64.getEncoder().encodeToString(deriveSecret(plainText)),
+            String protectedContent = Base64.getEncoder().encodeToString(deriveSecret(plainText));
+            log.debug("store encrypted content:{}", protectedContent);
+            return createPlainProtectedContent(protectedContent,
                 pct, crt, connectionId, leftUsages, validTo);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
             throw new RuntimeException(e);
@@ -294,6 +296,9 @@ public class ProtectedContentUtil {
         pc.setStatus(protectedContentStatus);
 
         protContentRepository.save(pc);
+
+        log.debug("----------------- encrypted content stored : {}", pc);
+
         return pc;
     }
 

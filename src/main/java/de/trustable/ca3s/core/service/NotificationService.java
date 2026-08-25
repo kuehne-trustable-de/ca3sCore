@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 
@@ -27,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_NOTIFICATION_BLOCKED;
+import static de.trustable.ca3s.core.service.util.PipelineUtil.DOMAIN_RA_OFFICER;
 
 /**
  * Handling notification
@@ -678,17 +678,27 @@ public class NotificationService {
     }
 
     @Transactional
-    public void notifyRAOfficerOnUserRevocation(Certificate certificate) {
+    public void notifyRAOfficerOnUserRevocation(Certificate certificate, boolean removeFromCrl) {
+
+        List<User> domainOfficerList = new ArrayList<>();
+
+        if (certificate != null &&
+            certificate.getCsr() != null &&
+            certificate.getCsr().getPipeline() != null) {
+            domainOfficerList = findAllDomainRAOfficerForPipeline(certificate.getCsr().getPipeline());
+        }
 
         notifyRAOfficerOnUserRevocation(certificate,
             findAllRAOfficer(AuthoritiesConstants.RA_OFFICER),
-            findAllRAOfficer(AuthoritiesConstants.DOMAIN_RA_OFFICER),
+            domainOfficerList,
+            removeFromCrl,
             true);
     }
 
     public void notifyRAOfficerOnUserRevocation(Certificate certificate,
                                          List<User> raOfficerList,
                                          List<User> domainOfficerList,
+                                         boolean removeFromCrl,
                                          boolean logNotification) {
 
         if( !doNotifyRAOfficerOnUserRevocation){
@@ -700,14 +710,24 @@ public class NotificationService {
 
         String revokedByUser = certificateUtil.getCertAttribute( certificate, CertificateAttribute.ATTRIBUTE_REVOKED_BY);
 
-            // Notify RA officers
+        // Notify RA officers
         for( User raOfficer: raOfficerList) {
             Locale locale = getUserLocale(raOfficer);
             Context context = new Context(locale);
             context.setVariable("cert", certificate);
+            context.setVariable("removeFromCrl", removeFromCrl);
             context.setVariable("revokedByUser", revokedByUser);
             try {
-                mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/userRevokedCertificateEmail", "email.userRevokedCertificateEmail.subject");
+
+                String titleKey = "email.revokedCertificate.title";
+
+                if( "removeFromCRL".equals(certificate.getRevocationReason()) ){
+                    titleKey = "email.removedFromCRL.title";
+                }else if( "certificateHold".equals(certificate.getRevocationReason())) {
+                    titleKey = "email.certificateOnHold.title";
+                }
+
+                mailService.sendEmailFromTemplate(context, raOfficer, null, "mail/userRevokedCertificateEmail", titleKey);
             }catch (Throwable throwable){
                 LOG.warn("Problem occurred while sending a notification eMail to RA officer address '" + raOfficer.getEmail() + "'", throwable);
                 if(logNotification) {
@@ -747,18 +767,18 @@ public class NotificationService {
         String ra = "";
         String domainRa = "";
         Pipeline pipeline = csr.getPipeline();
+
+        List<User> domainRaList = new ArrayList<>();
         if( pipeline != null){
             if( pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.NOTIFY_RA_OFFICER_ON_PENDING, false)){
                 ra = AuthoritiesConstants.RA_OFFICER;
             }
-            if( pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.NOTIFY_DOMAIN_RA_OFFICER_ON_PENDING, false)){
-                ra = AuthoritiesConstants.DOMAIN_RA_OFFICER;
-            }
+            domainRaList = findAllDomainRAOfficerForPipeline(pipeline);
         }
 
         notifyRAOfficerOnRequest( csr,
             findAllRAOfficer(ra),
-            findAllRAOfficer(domainRa),
+            domainRaList,
             true);
     }
 
@@ -933,7 +953,9 @@ public class NotificationService {
 
 
     @Transactional
-    public void notifyCertificateRevoked(User requestor, Certificate cert, CSR csr, Set<String> additionalEmailSet,
+    public void notifyCertificateRevoked(User requestor, Certificate cert, CSR csr,
+                                         boolean removeFromCrl,
+                                         Set<String> additionalEmailSet,
                                          boolean logNotification) throws MessagingException {
 
         if( !doNotifyCertificateRevoked){
@@ -945,16 +967,27 @@ public class NotificationService {
         Context context = new Context(locale);
         context.setVariable("csr", csr);
         context.setVariable("cert", cert);
+        context.setVariable("removeFromCrl", removeFromCrl);
+
         String subject = cert.getSubject();
         if (subject == null) {
             subject = "";
         }
         String[] args = {subject, cert.getSerial(), cert.getIssuer()};
         try {
+
+            String titleKey = "email.revokedCertificate.title";
+
+            if( removeFromCrl ){
+                titleKey = "email.removedFromCRL.title";
+            }else if( "certificateHold".equals(cert.getRevocationReason())) {
+                titleKey = "email.certificateOnHold.title";
+            }
             mailService.sendEmailFromTemplate(context, requestor,
                 additionalEmailSet.toArray(new String[0]),
                 "mail/revokedCertificateEmail",
-                "email.revokedCertificate.title", args);
+                titleKey,
+                args);
 
             if (logNotification) {
                 auditService.saveAuditTrace(
@@ -1108,6 +1141,27 @@ public class NotificationService {
             }
         }
         return raOfficerList;
+    }
+    /**
+     * find all ra officers for a given pipeline
+     *
+     * @return list of all ra officers
+     */
+    private List<User> findAllDomainRAOfficerForPipeline(Pipeline pipeline){
+
+        List<User> domainRaOfficerList = new ArrayList<>();
+        for (PipelineAttribute pipelineAttribute : pipeline.getPipelineAttributes()) {
+            if (DOMAIN_RA_OFFICER.equals(pipelineAttribute.getName())){
+                Optional<User> userOptional =userRepository.findById(Long.parseLong(pipelineAttribute.getValue()));
+                userOptional.ifPresent(domainRaOfficerList::add);
+            }
+        }
+
+        LOG.debug("found user #{} having the role of domain RA officers for pipeline {}",
+            domainRaOfficerList.size(),
+            pipeline.getName());
+
+        return domainRaOfficerList;
     }
 
     /**
