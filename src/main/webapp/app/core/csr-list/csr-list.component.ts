@@ -311,19 +311,19 @@ export default class CsrList extends mixins(AlertMixin, Vue) {
   }
 
   public buildAccessUrl(baseUrl: string): string {
-    const filterLen = this.filters.filterList.length;
+
     const params = {};
-
-    this.alignFilterValues();
-
-    for (let i = 0; i < filterLen; i++) {
-      const filter = this.filters.filterList[i];
-      const idx = i + 1;
-      params['attributeName_' + idx] = filter.attributeName;
-      params['attributeValue_' + idx] = filter.attributeValue;
-      params['attributeSelector_' + idx] = filter.selector;
+    if( this.filters && this.filters.filterList) {
+      this.alignFilterValues();
+      const filterLen = this.filters.filterList.length;
+      for (let i = 0; i < filterLen; i++) {
+        const filter = this.filters.filterList[i];
+        const idx = i + 1;
+        params['attributeName_' + idx] = filter.attributeName;
+        params['attributeValue_' + idx] = filter.attributeValue;
+        params['attributeSelector_' + idx] = filter.selector;
+      }
     }
-
     return `${baseUrl}?${makeQueryStringFromObj(params)}`;
   }
 
