@@ -186,7 +186,7 @@ class MailServiceIT {
         user.setLangKey(Constants.DEFAULT_LANGUAGE);
         user.setLogin("john");
         user.setEmail("john.doe@example.com");
-        mailService.sendCreationEmail(user);
+        mailService.sendCreationEmail(user, "{activationKey}");
         verify(javaMailSender).send(messageCaptor.capture());
         MimeMessage message = messageCaptor.getValue();
         assertThat(message.getAllRecipients()[0]).hasToString(user.getEmail());
