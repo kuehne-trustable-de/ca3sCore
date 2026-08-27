@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.service.util;
 
-import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.config.WellKnownUser;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.*;
@@ -1538,7 +1537,7 @@ public class PipelineUtil {
         for (GeneralName gn : gNameSet) {
             n++;
             if (hasRegEx) {
-                String value = CertificateUtil.getTypedSAN(gn);
+                String value = gn.getName().toString();
 
 //                if (restriction.isRegExMatch()) {
                     boolean evalResult = false;

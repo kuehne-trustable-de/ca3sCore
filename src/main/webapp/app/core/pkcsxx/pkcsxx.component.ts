@@ -253,11 +253,15 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     if (!typedValue.value || typedValue.value.trim().length === 0) {
       return false;
     }
+    /*
     if (rr.name === 'SAN') {
       return this.showRegExpWarning(rr, valueIndex, typedValue.type + ':' + typedValue.value);
     } else {
       return this.showRegExpWarning(rr, valueIndex, typedValue.value);
     }
+    */
+
+    return this.showRegExpWarning(rr, valueIndex, typedValue.value);
   }
 
   public showRegExpWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
@@ -906,9 +910,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
             } else {
               subject += '/' + name.toUpperCase() + '=';
             }
-            subject += value.value
-              .replace(/\\/g, '\\\\')
-              .replace(/\//g, '\\/');
+            subject += value.value.replace(/\\/g, '\\\\').replace(/\//g, '\\/');
           }
         }
       }
@@ -924,7 +926,7 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     this.contentCall(precheckUrl);
   }
 
-    // handle the selection of a file
+  // handle the selection of a file
   public notifyFileChange(evt: any): void {
     const self = this;
     const selectedFile = evt.target.files[0];
@@ -948,7 +950,6 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     };
     readerBase64.readAsText(selectedFile);
   }
-
 
   public uploadContentForCSR(_evt: Event): void {
     this.upload.relatedCSRId = this.precheckResponse.relatedCSRId;
@@ -1017,11 +1018,10 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
 
       this.isChecked = true;
 
-      console.log("this.precheckResponse.createdCertificateId: " + this.precheckResponse.createdCertificateId);
-      if( this.precheckResponse.createdCertificateId ){
+      console.log('this.precheckResponse.createdCertificateId: ' + this.precheckResponse.createdCertificateId);
+      if (this.precheckResponse.createdCertificateId) {
         this.$router.push({ name: 'CertInfo', params: { certificateId: this.precheckResponse.createdCertificateId.toString() } });
       }
-
     } catch (error) {
       console.error('####################' + error);
       document.body.style.cursor = 'default';
