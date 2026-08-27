@@ -234,6 +234,9 @@ public class CertificateView implements Serializable {
     @CsvBindByName
     private String requestedBy;
 
+    @CsvBindByName
+    private Instant requestedOn;
+
     @CsvIgnore
     private String firstName;
 
@@ -339,6 +342,7 @@ public class CertificateView implements Serializable {
         CSR csr = cert.getCsr();
     	if( csr != null) {
     		this.requestedBy = csr.getRequestedBy();
+            this.requestedOn = csr.getRequestedOn();
     		this.csrId = csr.getId();
     		this.isServersideKeyGeneration = csr.isServersideKeyGeneration();
 
@@ -369,6 +373,7 @@ public class CertificateView implements Serializable {
             }
         } else {
     		this.requestedBy = "";
+    		this.requestedOn = null;
     	}
 
         if( cert.getTenant() != null ){
@@ -951,6 +956,14 @@ public class CertificateView implements Serializable {
 		this.requestedBy = requestedBy;
 	}
 
+    public Instant getRequestedOn() {
+        return requestedOn;
+    }
+
+    public void setRequestedOn(Instant requestedOn) {
+        this.requestedOn = requestedOn;
+    }
+
     public String getFirstName() {
         return firstName;
     }
@@ -1336,10 +1349,14 @@ public class CertificateView implements Serializable {
             ", trusted=" + trusted +
             ", fingerprintSha1='" + fingerprintSha1 + '\'' +
             ", fingerprintSha256='" + fingerprintSha256 + '\'' +
+            ", ski='" + ski + '\'' +
             ", type='" + type + '\'' +
             ", keyLength='" + keyLength + '\'' +
             ", keyAlgorithm='" + keyAlgorithm + '\'' +
+            ", curveName='" + curveName + '\'' +
+            ", altKeyLength='" + altKeyLength + '\'' +
             ", altKeyAlgorithm='" + altKeyAlgorithm + '\'' +
+            ", altCurveName='" + altCurveName + '\'' +
             ", signingAlgorithm='" + signingAlgorithm + '\'' +
             ", paddingAlgorithm='" + paddingAlgorithm + '\'' +
             ", hashAlgorithm='" + hashAlgorithm + '\'' +
@@ -1351,6 +1368,7 @@ public class CertificateView implements Serializable {
             ", active=" + active +
             ", validFrom=" + validFrom +
             ", validTo=" + validTo +
+            ", validitySeconds=" + validitySeconds +
             ", contentAddedAt=" + contentAddedAt +
             ", notificationBlocked=" + notificationBlocked +
             ", revokedSince=" + revokedSince +
@@ -1371,25 +1389,32 @@ public class CertificateView implements Serializable {
             ", caConnectorId=" + caConnectorId +
             ", caProcessingId=" + caProcessingId +
             ", processingCa='" + processingCa + '\'' +
-            ", acmeAccountId=" + acmeAccountId +
-            ", acmeOrderId=" + acmeOrderId +
+            ", pipelineId=" + pipelineId +
+            ", pipelineName='" + pipelineName + '\'' +
+            ", pipelineType='" + pipelineType + '\'' +
+            ", acmeAccountId='" + acmeAccountId + '\'' +
+            ", acmeOrderId='" + acmeOrderId + '\'' +
             ", scepTransId='" + scepTransId + '\'' +
             ", scepRecipient='" + scepRecipient + '\'' +
             ", fileSource='" + fileSource + '\'' +
             ", uploadedBy='" + uploadedBy + '\'' +
             ", revokedBy='" + revokedBy + '\'' +
             ", requestedBy='" + requestedBy + '\'' +
+            ", requestedOn=" + requestedOn +
             ", firstName='" + firstName + '\'' +
             ", lastName='" + lastName + '\'' +
             ", email='" + email + '\'' +
             ", tenantName='" + tenantName + '\'' +
-            ", tenantÎd=" + tenantId +
+            ", tenantId=" + tenantId +
             ", crlUrl='" + crlUrl + '\'' +
             ", crlExpirationNotificationId=" + crlExpirationNotificationId +
             ", crlNextUpdate=" + crlNextUpdate +
+            ", allowCrlOnHold=" + allowCrlOnHold +
             ", certB64='" + certB64 + '\'' +
             ", downloadFilename='" + downloadFilename + '\'' +
             ", isServersideKeyGeneration=" + isServersideKeyGeneration +
+            ", serversideKeyValidTo=" + serversideKeyValidTo +
+            ", serversideKeyLeftUsages=" + serversideKeyLeftUsages +
             ", isAuditPresent=" + isAuditPresent +
             ", isFullChainAvailable=" + isFullChainAvailable +
             ", isIssuingActiveCertificates=" + isIssuingActiveCertificates +

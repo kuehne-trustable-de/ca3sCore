@@ -229,7 +229,7 @@
                             <span v-text="$t('ca3SApp.certificate.requestedOn')"></span>
                         </dt>
                         <dd v-if="certificateView.requestedOn">
-                            <span>{{certificateView.requestedOn}}</span>
+                            <span v-if="certificateView.requestedOn">{{$d(Date.parse(certificateView.requestedOn), 'long') }}</span>
                         </dd>
 
                         <Fragment v-for="attr in certificateView.arArr" :key="attr.name" v-if="!isEditable()">
@@ -342,7 +342,8 @@
                             <input type="checkbox" class="form-check-inline" name="trusted" id="certificate-trusted" v-model="trusted" />
                         </div>
 
-                        <div v-for="attr in certificateAdminData.arAttributes" :key="attr.name" class="form-group">
+                        <div v-if="isEditable()"
+                            v-for="attr in certificateAdminData.arAttributes" :key="attr.name" class="form-group">
                             <label class="form-control-label"  :for="'cert-ar-'+attr.name">{{attr.name}}</label>
                             <textarea v-if="attr.type && (attr.type === 'TEXT_AREA')"
                                       class="form-control form-check-inline"
@@ -351,7 +352,10 @@
                                       v-model="attr.value" />
 
                             <input v-else
-                                   type="text" class="form-control" :name="'cert-ar-'+attr.name" :id="'cert-ar-'+attr.name" v-model="attr.value" />
+                                   type="text" class="form-control"
+                                   :name="'cert-ar-'+attr.name" :id="'cert-ar-'+attr.name"
+                                   :readonly="isARAReadOnly()"
+                                   v-model="attr.value" />
                         </div>
 
                         <div v-if="isNotificationBlockable()" class="form-group">
