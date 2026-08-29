@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static de.trustable.ca3s.core.service.dto.ARAContentType.EMAIL_ADDRESS;
 import static de.trustable.ca3s.core.service.util.PipelineUtil.*;
 import static de.trustable.ca3s.core.service.util.PipelineUtil.RESTR_C_REGEXMATCH;
 
@@ -927,12 +926,12 @@ public class PipelineTestConfiguration {
         addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE, "{{user.email}}");
         addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE_READ_ONLY, "true");
 
-        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_NAME", "info");
-        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_ARAContentType", "NO_TYPE");
-        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_TEMPLATE", "");
-        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_REGEXMATCH", "false");
-        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_TEMPLATE_READ_ONLY", "false");
-        addPipelineAttribute(pipelineWeb,"RESTR_ARA_1_REQUIRED", "false");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_NAME", "info");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_ARAContentType", "NO_TYPE");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_TEMPLATE", "");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_REGEXMATCH", "false");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_TEMPLATE_READ_ONLY", "false");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_REQUIRED", "false");
 
         pipelineWeb.setProcessInfoNotify(getSimpleBPMNProcessInfo());
 
@@ -1083,19 +1082,22 @@ public class PipelineTestConfiguration {
 
         pipelineWeb.setAuthorities(authoritySet);
 
-        Set<PipelineAttribute> attrs = pipelineWeb.getPipelineAttributes();
 
+        Set<PipelineAttribute> attrs = pipelineWeb.getPipelineAttributes();
+/*
         PipelineAttribute attName = new PipelineAttribute();
         attName.setPipeline(pipelineWeb);
         attName.setName(RESTR_ARA_PREFIX + "0" + RESTR_ARA_NAME);
         attName.setValue("additional_email");
         attrs.add(attName);
-
+ */
+/*
         PipelineAttribute attType = new PipelineAttribute();
         attType.setPipeline(pipelineWeb);
         attType.setName(RESTR_ARA_PREFIX + "0" + RESTR_ARA_CONTENT_TYPE);
         attType.setValue(EMAIL_ADDRESS.toString());
         attrs.add(attType);
+*/
 
         PipelineAttribute attNotifyRA = new PipelineAttribute();
         attNotifyRA.setPipeline(pipelineWeb);
@@ -1107,6 +1109,21 @@ public class PipelineTestConfiguration {
         pipelineWeb.setPipelineAttributes(attrs);
 
         pipelineRepo.save(pipelineWeb);
+
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_NAME", "info");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_ARAContentType", "NO_TYPE");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_TEMPLATE", "");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_REGEXMATCH", "false");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_TEMPLATE_READ_ONLY", "false");
+        addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_REQUIRED", "false");
+
+        addPipelineAttribute(pipelineWeb,"RESTR_SAN_CARDINALITY", "ZERO_OR_MANY");
+        addPipelineAttribute(pipelineWeb,"RESTR_SAN_REGEXMATCH", "true");
+        addPipelineAttribute(pipelineWeb,"RESTR_SAN_REGEX", "www\\..*\\.eu");
+
+        pipelineAttributeRepository.saveAll(pipelineWeb.getPipelineAttributes());
+        pipelineRepo.save(pipelineWeb);
+
         return pipelineWeb;
     }
 

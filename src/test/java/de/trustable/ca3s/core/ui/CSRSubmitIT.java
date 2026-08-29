@@ -4,7 +4,6 @@ import com.sun.mail.imap.IMAPStore;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
-import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.service.util.CSRUtil;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
@@ -165,7 +164,8 @@ public class CSRSubmitIT extends WebTestBase {
     public static final By LOC_INP_E_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.E']");
     public static final By LOC_INP_SAN_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.SAN']");
 
-    public static final By LOC_INP_ARA_1 = By.xpath("//div/input [@name = 'pkcsxx.upload.ara.info']");
+    public static final By LOC_INP_ARA_0 = By.xpath("//div/input [@name = 'pkcsxx.upload.ara.info']");
+    public static final By LOC_INP_CERT_ARA_0 = By.xpath("//div/input [@name = 'cert-ar-info']");
 
     public static final By LOC_INP_SECRET_VALUE = By.xpath("//div/input [@name = 'upload-secret']");
     public static final By LOC_INP_SECRET_REPEAT_VALUE = By.xpath("//div/input [@name = 'upload-secret-repeat']");
@@ -261,12 +261,15 @@ public class CSRSubmitIT extends WebTestBase {
     public void testSubmitServersideDirect() throws Exception {
 
         String c = "DE";
-        String cn = "reqTest" + System.currentTimeMillis();
+        String cn = "reqTest" + System.currentTimeMillis() + ".eu";
         String o = "trustable solutions";
         String ou = "crypto research";
         String l = "Hannover";
         String st = "Lower Saxony";
+        String unaccepted_san = "wwww." + cn + ".org";
         String san = "wwww." + cn;
+
+        String infoSample = "some info";
 
         byte[] secretBytes = new byte[6];
         rand.nextBytes(secretBytes);
@@ -325,13 +328,15 @@ public class CSRSubmitIT extends WebTestBase {
         setText(LOC_INP_O_VALUE, o);
         setText(LOC_INP_OU_VALUE, ou);
         setText(LOC_INP_L_VALUE, l);
+
+
         setText(LOC_INP_ST_VALUE, st);
         explain("csr.submit.8");
         setText(LOC_INP_SAN_VALUE, san);
         explain("csr.submit.8.1");
 
-        validatePresent(LOC_INP_ARA_1);
-        setText(LOC_INP_ARA_1, "some info");
+        validatePresent(LOC_INP_ARA_0);
+        setText(LOC_INP_ARA_0, infoSample);
 
         String prefilledEMail = getText(LOC_INP_E_VALUE);
         assertEquals(USER_EMAIL_USER, prefilledEMail);
@@ -416,6 +421,10 @@ public class CSRSubmitIT extends WebTestBase {
 
         explain("csr.submit.23");
         checkPEMDownload(cn, "pemFull");
+
+        validatePresent(LOC_INP_CERT_ARA_0);
+        Assertions.assertEquals(infoSample, getText(LOC_INP_CERT_ARA_0));
+        assertTrue(isReadOnly(LOC_INP_CERT_ARA_0));
 
         validatePresent(LOC_SEL_REVOCATION_REASON);
         scrollToElement(LOC_SEL_REVOCATION_REASON);
@@ -1146,13 +1155,6 @@ public class CSRSubmitIT extends WebTestBase {
         selectElementText(LOC_BTN_REQUEST_CERTIFICATE, "csr.submit.49");
         click(LOC_BTN_REQUEST_CERTIFICATE);
 
-        try {
-            System.out.println("... waiting ...");
-            System.in.read();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         validatePresent(LOC_TEXT_MESSAGE_CSR_ALGO_LENGTH_INVALID);
 
         validatePresent(LOC_TEXT_CONTENT_TYPE);
@@ -1540,6 +1542,8 @@ public class CSRSubmitIT extends WebTestBase {
     @Test
     public void testCSRSubmitRACheck() throws GeneralSecurityException, IOException, MessagingException {
 
+        String infoSample = "This is a sample information text for the RA officer to check the request.";
+
         EMailInfo userEmailInfo = getInboxForUser(USER_NAME_USER, USER_PASSWORD_USER);
         EMailInfo raEmailInfo = getInboxForUser(USER_NAME_RA, USER_PASSWORD_RA);
 
@@ -1563,6 +1567,9 @@ public class CSRSubmitIT extends WebTestBase {
         X500Principal subjectPrincipal = new X500Principal(subject);
         String csr = buildCSRAsPEM(subjectPrincipal);
         setLongText(LOC_TA_UPLOAD_CONTENT, csr);
+
+        validatePresent(LOC_INP_ARA_0);
+        setText(LOC_INP_ARA_0, infoSample);
 
         validatePresent(LOC_TEXT_CONTENT_TYPE);
 
@@ -1613,6 +1620,10 @@ public class CSRSubmitIT extends WebTestBase {
 
         By bySubject = By.xpath("//div//dl/dd/span [contains(text(), '" + cn + "')]");
         validatePresent(bySubject);
+/*
+        validatePresent(LOC_INP_ARA_0);
+        Assertions.assertFalse(isReadOnly(LOC_INP_ARA_0));
+*/
 
         waitForElement(LOC_TA_COMMENT);
         validatePresent(LOC_TA_COMMENT);
