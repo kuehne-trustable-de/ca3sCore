@@ -78,6 +78,10 @@ Provide a location of the CA or a webserver. For certificate import this field a
 
 Check this checkbox with the CA that is intended to provide certificate for ca3s. Only one CA can be selected as default.
 
+#### <a id="ca-connector.default-ca"></a> Default CA
+
+Check this checkbox with the CA that is intended to provide certificate for ca3s. Only one CA can be selected as default.
+
 #### <a id="ca-connector.active"></a> Active
 
 Activate or deactivate this connector.
@@ -375,6 +379,13 @@ This checkbox allows the use of the ALPN challenge. The distinct advantage of th
 This checkbox allows the use of the DNS challenge. This challenge type has the outstanding feature of validating wildcard certificate requests. In some environments in may be difficult to grant selective DNS update rights to the requesting client.
 The client has no requirements to open any ports but requires write access to the relevant DNS server.
 The details of this challenge are available at [RFC 8555-8.4](https://datatracker.ietf.org/doc/html/rfc8555#section-8.4) .
+
+##### <a id="pipeline.acme.allow-challenge-dns-persist"></a> Allow DNS-PERSISTENT-01 Challenge
+
+This checkbox allows the use of the DNS Persistent challenge. Like the DNS challenge it may validate wildcard certificate requests.
+The DNS entry correlates to the ACME account, not a specific order / challenge. So it requires a single DNS update valid for a loger period of time.
+The client has no requirements to open any ports. The DNS write operation may be done manually.
+The details of this challenge are available at [draft-ietf-acme-dns-persist-01](https://datatracker.ietf.org/doc/draft-ietf-acme-dns-persist/) .
 
 ##### <a id="pipeline.acme.allow-wildcards"></a> Allow wildcards
 
