@@ -37,7 +37,7 @@
                         <span v-text="$t('ca3SApp.acmeOrder.created.expires')">Created / Expires</span>
                     </dt>
                     <dd v-if="acmeOrderView.createdOn && acmeOrderView.expires">
-                        <span>{{$d(Date.parse(acmeOrderView.createdOn), 'long') }}</span> -> <span v-if="acmeOrderView.expires">{{$d(Date.parse(acmeOrderView.expires), 'long') }}</span>
+                        <span>{{toLocalDateFromString(acmeOrderView.createdOn)}}</span> -> <span v-if="acmeOrderView.expires">{{toLocalDateFromString(acmeOrderView.expires)}}</span>
                     </dd>
 
 
@@ -45,7 +45,7 @@
                         <span v-text="$t('ca3SApp.acmeOrder.fromTo')">From / To</span>
                     </dt>
                     <dd v-if="acmeOrderView.notBefore && acmeOrderView.notAfter">
-                        <span v-if="acmeOrderView.notBefore">{{$d(Date.parse(acmeOrderView.notBefore), 'long') }}</span> -&gt; <span v-if="acmeOrderView.notAfter">{{$d(Date.parse(acmeOrderView.notAfter), 'long') }}</span>
+                        <span v-if="acmeOrderView.notBefore">{{toLocalDateFromString(acmeOrderView.notBefore)}}</span> -&gt; <span v-if="acmeOrderView.notAfter">{{toLocalDateFromString(acmeOrderView.notAfter)}}</span>
                     </dd>
 
                     <dt v-if="acmeOrderView.error">

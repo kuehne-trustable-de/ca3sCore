@@ -26,6 +26,10 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
   @Inject('alertService') private alertService: () => AlertService;
   public acmeOrderView: IAcmeOrderView = {};
 
+  public now: Date = new Date();
+  public soon: Date = new Date();
+  public recently: Date = new Date();
+
   beforeRouteEnter(to, from, next) {
     next(vm => {
       if (to.params.id) {
@@ -43,6 +47,9 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
 
   public mounted(): void {
     window.console.info('in mounted()) ');
+
+    this.soon.setDate(this.now.getDate() + 7);
+    this.recently.setDate(this.now.getDate() - 7);
 
     window.console.info('++++++++++++++++++ route.query : ' + this.$route.query.orderId);
     if (this.$route.query.id) {
@@ -108,5 +115,23 @@ export default class AcmeOrderInfo extends mixins(JhiDataUtils, Vue) {
       self.acmeOrderView = response.data;
       window.console.info('acmeOrderView :' + self.acmeOrderView);
     });
+  }
+
+  public toLocalDateFromString(dateAsString: string): string {
+    if (dateAsString && dateAsString.length > 8) {
+      return this.toLocalDate(new Date(dateAsString));
+    }
+    return '';
+  }
+
+  public toLocalDate(dateObj: Date): string {
+    if (dateObj) {
+      if (dateObj > this.recently && dateObj < this.soon) {
+        return dateObj.toLocaleDateString() + ', ' + dateObj.toLocaleTimeString();
+      } else {
+        return dateObj.toLocaleDateString();
+      }
+    }
+    return '';
   }
 }

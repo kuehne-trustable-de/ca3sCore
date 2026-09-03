@@ -42,21 +42,21 @@
 					</div>
 				</div>
 
-                <orders-table :columns="columns" :data="acmeOrderApiUrl" :per-page="20" name="orders">
+        <orders-table :columns="columns" :data="acmeOrderApiUrl" :per-page="20" name="orders">
 					<template slot-scope="{ row }">
 						<tr>
-                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})">{{ row.id }}</td>
-                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})">{{ row.orderId }}</td>
-                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})">{{ row.accountId }}</td>
-                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})">{{ toLocalDate(row.createdOn) }}</td>
+              <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})">{{ row.id }}</td>
+              <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})">{{ row.orderId }}</td>
+              <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})">{{ row.accountId }}</td>
+              <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})">{{ toLocalDate(row.createdOn) }}</td>
 
 							<td :style="getStatusStyle(row.status)" @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ $t(row.status) }}</td>
 							<td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ row.realm }}</td>
-                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ row.challengeTypes }}</td>
-                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ row.challengeUrls }}</td>
-                            <td :style="getExpiresStyle(row.expires)" @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ toLocalDate(row.expires) }}</td>
-                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ toLocalDate(row.notBefore) }}</td>
-                            <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ toLocalDate(row.notAfter) }}</td>
+              <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ row.challengeTypes }}</td>
+              <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ row.challengeUrls }}</td>
+              <td :style="getExpiresStyle(row.expires)" @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ toLocalDate(row.expires) }}</td>
+              <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ toLocalDate(row.notBefore) }}</td>
+              <td @click="$router.push({name: 'AcmeOrderInfo', params: {id: row.id}})" >{{ toLocalDate(row.notAfter) }}</td>
 						</tr>
 					</template>
 
