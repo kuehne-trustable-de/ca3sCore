@@ -38,6 +38,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.service.util.DateUtil;
+import org.apache.logging.log4j.util.Strings;
 
 
 /*
@@ -75,12 +76,19 @@ public class ChallengeResponse {
 	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
     private Date validated = null;
 
+    @JsonProperty("issuer-domain-names")
+    String[] issuerDomainNames = null;
+
+
 	public ChallengeResponse() {}
 
 	public ChallengeResponse(final AcmeChallenge challengeDao, final String url) {
 		this.setStatus(challengeDao.getStatus());
 		this.setToken(challengeDao.getToken());
 		this.setType(challengeDao.getType());
+        if(Strings.isNotEmpty(challengeDao.getIssuerDomainNames() )){
+            this.setIssuerDomainNames( challengeDao.getIssuerDomainNames().split(","));
+        }
 		this.setUrl(url);
 		if( challengeDao.getValidated() == null) {
 			this.setValidated(null);
@@ -159,9 +167,14 @@ public class ChallengeResponse {
 		if( validated != null) {
 			this.validated = validated;
 		}
-
 	}
 
+    public String[] getIssuerDomainNames() {
+        return issuerDomainNames;
+    }
 
+    public void setIssuerDomainNames(String[] issuerDomainNames) {
+        this.issuerDomainNames = issuerDomainNames;
+    }
 }
 

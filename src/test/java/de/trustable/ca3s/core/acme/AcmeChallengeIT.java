@@ -608,11 +608,21 @@ public class AcmeChallengeIT {
                 Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
 
                 DnsPersist01Challenge challenge = challengeOpt.get();
+/*
+                String rdata = challenge.buildRData()
+                    .issuerDomainName(domain)
+                    .wildcard()
+                    .persistUntil(Instant.now().plus(3, ChronoUnit.MONTHS))
+                    .noQuotes()
+                    .build();
 
-
+                LOG.debug("rdata by acme4j {}", rdata);
+                dnsChallengeHelper.addDNSPersistChallengeDetails(rdata, auth.getIdentifier().getValue());
+*/
                 dnsChallengeHelper.addDNSPersistChallengeDetails(
                     "\"acme.ca3s.org; accounturi=" + accountLocationUrl.toString() + "\"",
                     auth.getIdentifier().getValue());
+
                 dnsChallengeHelper.addDNSPersistChallengeDetails(
                     "\"letsencrypt.org; accounturi=" + accountLocationUrl.toString() + "\"",
                     auth.getIdentifier().getValue());

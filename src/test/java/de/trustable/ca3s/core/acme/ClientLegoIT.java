@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.acme;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.ExternalProcessITBase;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
@@ -16,7 +18,6 @@ import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.ca3s.core.web.rest.ApiTokenController;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
 import de.trustable.ca3s.core.web.rest.vm.TokenResponse;
-import de.trustable.util.CryptoUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -30,7 +31,6 @@ import org.springframework.util.SocketUtils;
 
 import java.io.*;
 import java.net.InetAddress;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -48,7 +48,10 @@ public class ClientLegoIT extends ExternalProcessITBase {
     private static final Logger LOG = LoggerFactory.getLogger(ClientLegoIT.class);
 
     public final String LEGO_EXE = "/home/akuehne/Downloads/lego_v5.2.2_linux_amd64/lego";
+    static int dnsPort = 0;
+
     String hostname;
+    final String ACCOUNT_EMAIL_ADDRESS = "foo@foo.de";
 
     //    @TempDir
     Path directory = Paths.get(FileUtils.getTempDirectory().getAbsolutePath(), UUID.randomUUID().toString());
@@ -56,10 +59,15 @@ public class ClientLegoIT extends ExternalProcessITBase {
     final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
     final String ACME_EAB_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_EAB_REALM + "/directory";
     final String ACME_ALPN_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_ALPN_DOMAIN_REUSE + "/directory";
+    final String ACME_DNS_PERSIST_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_DNS_PERSIST_REALM + "/directory";
+    final String ACME_DNS_PERSIST_WILDCARD_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_DNS_PERSIST_WILDCARD_REALM + "/directory";
+
 
     String dirUrl;
     String dirUrlEAB;
     String dirUrlAlpn;
+    String dirUrlDNSPersist;
+    String dirUrlDNSPersistWildcard;
 
     @Autowired
     PipelineTestConfiguration ptc;
@@ -83,6 +91,8 @@ public class ClientLegoIT extends ExternalProcessITBase {
 
     static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
 
+    static DnsChallengeHelper dnsChallengeHelper;
+
     static int alpnPort;
 
     @BeforeAll
@@ -92,6 +102,15 @@ public class ClientLegoIT extends ExternalProcessITBase {
 
         alpnPort = SocketUtils.findAvailableTcpPort(45000);
         System.setProperty("ca3s.acme.alpn.ports", "" + alpnPort);
+
+        dnsPort = SocketUtils.findAvailableTcpPort(45000);
+        System.setProperty("ca3s.dns.server", "localhost");
+        System.setProperty("ca3s.dns.port", "" + dnsPort);
+        LOG.info("DNS server set to {}", "localhost:" + dnsPort);
+
+        dnsChallengeHelper = new DnsChallengeHelper(dnsPort);
+        dnsChallengeHelper.start();
+        LOG.info("Started DNS server");
 
     }
 
@@ -113,10 +132,14 @@ public class ClientLegoIT extends ExternalProcessITBase {
         dirUrl = "https://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_PATH_PART;
         dirUrlEAB = "https://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_EAB_PATH_PART;
         dirUrlAlpn = "https://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_ALPN_PATH_PART;
+        dirUrlDNSPersist = "https://localhost:" +  accessPortTestManager.getAcmeAccessPort() + ACME_DNS_PERSIST_PATH_PART;
+        dirUrlDNSPersistWildcard = "https://localhost:" +  accessPortTestManager.getAcmeAccessPort() + ACME_DNS_PERSIST_WILDCARD_PATH_PART;
 
         ptc.getInternalACMETestPipelineLaxRestrictions();
         ptc.getInternalACMETestPipelineEabRestrictions();
         ptc.getInternalACMETestPipelineALPNLaxDomainReuseRestrictions();
+        ptc.getInternalACMETestPipelineDNSPersistLaxRestrictions();
+        ptc.getInternalACMETestPipelineDNSPersistWildcardLaxRestrictions();
 
         prefTC.getTestUserPreference();
     }
@@ -378,5 +401,226 @@ public class ClientLegoIT extends ExternalProcessITBase {
         Assertions.assertTrue(certRevokedOpt.isPresent(), "Expecting to find certificate");
         Assertions.assertTrue(certRevokedOpt.get().isRevoked(), "Expected status change to revoked");
     }
+
+
+    /*
+
+ account.json
+
+    {
+	"id": "foo@foo.de",
+	"email": "foo@foo.de",
+	"keyType": "RSA4096",
+	"server": "https://localhost:43283/acme/acmeTestDNSPersistent/directory",
+	"origin": "command",
+	"registration": {
+		"status": "valid",
+		"contact": [
+			"mailto:foo@foo.de"
+		],
+		"termsOfServiceAgreed": true,
+		"orders": "https://localhost:43283/acme/acmeTestDNSPersistent/acct/3523535926673797101/orders",
+		"accountURL": "https://localhost:43283/acme/acmeTestDNSPersistent/acct/3523535926673797101"
+	}
+}
+     */
+    @Test
+    public void legoCreateAccountAndOrderCertificateByDNSPersistent() throws IOException, GeneralSecurityException {
+
+        if (!isInstalled(LEGO_EXE)) {
+            LOG.info("'lego' installation missing, please install and rerun.");
+            return;
+        }
+
+        Path webrootFolder = directory.resolve("webroot");
+        Path configFolder = directory.resolve("config");
+        Path workFolder = directory.resolve("work");
+        Path logFolder = directory.resolve("log");
+
+        Assertions.assertTrue(webrootFolder.toFile().mkdirs(), "expecting successful creation of webroot");
+        Assertions.assertTrue(configFolder.toFile().mkdirs(), "expecting successful creation of config folder");
+        Assertions.assertTrue(workFolder.toFile().mkdirs(), "expecting successful creation of work folder");
+        Assertions.assertTrue(logFolder.toFile().mkdirs(), "expecting successful creation of log folder");
+
+        ProcessBuilder builderCreate = new ProcessBuilder();
+        builderCreate.command(LEGO_EXE,
+            "run",
+            "--path", configFolder.toFile().getAbsolutePath(),
+            "--server", dirUrlDNSPersist,
+            "--tls-skip-verify",
+            "--domains", hostname,
+            "--accept-tos",
+            "--email", ACCOUNT_EMAIL_ADDRESS,
+            "--dns-persist",
+            "--key-type", "rsa4096");
+
+        int exitCodeCreate = executeExternalProcess(builderCreate);
+        Assertions.assertNotEquals(0, exitCodeCreate, "expects an exit code != 0");
+
+        File acoountFile = new File( configFolder.toFile(),
+           "accounts/localhost_" + accessPortTestManager.getAcmeAccessPort() + "/" + ACCOUNT_EMAIL_ADDRESS + "/account.json");
+
+        // read the account.json content and retrieve the accountURL
+        JsonObject jsonObject = (JsonObject) JsonParser.parseReader(new FileReader(acoountFile));
+        JsonObject registration = jsonObject.get("registration").getAsJsonObject();
+        String accountUrl = registration.get("accountURL").getAsString();
+
+        LOG.info("accountUrl : {}", accountUrl);
+
+        dnsChallengeHelper.addDNSPersistChallengeDetails(
+            "\"acme.ca3s.org; accounturi=" + accountUrl + "\"",
+            hostname);
+
+        builderCreate = new ProcessBuilder();
+
+        builderCreate.command(LEGO_EXE,
+            "run",
+            "--path", configFolder.toFile().getAbsolutePath(),
+            "--server", dirUrlDNSPersist,
+            "--tls-skip-verify",
+            "--domains", hostname,
+            "--accept-tos",
+            "--email", ACCOUNT_EMAIL_ADDRESS,
+            "--dns-persist",
+            "--key-type", "rsa4096");
+
+        exitCodeCreate = executeExternalProcess(builderCreate);
+        Assertions.assertEquals(0, exitCodeCreate, "expects an exit code == 0");
+
+        File crtFile = new File(configFolder.toFile(), "certificates" + File.separator + hostname + ".crt");
+        LOG.info("crtFile : {}", crtFile.getAbsolutePath());
+        Assertions.assertTrue(crtFile.exists(), "expecting certificate file exists");
+
+        X509Certificate x509Certificate = (X509Certificate) factory.generateCertificate(new FileInputStream(crtFile));
+        Certificate cert = certificateUtil.getCertificateByX509(x509Certificate);
+        Assertions.assertEquals(hostname, cert.getSans());
+        Assertions.assertTrue(cert.isActive(), "freshly created certificate expected to be active");
+
+        ProcessBuilder builderRevoke = new ProcessBuilder();
+
+        builderRevoke.command(LEGO_EXE,
+            "certificates", "revoke",
+            "--path", configFolder.toFile().getAbsolutePath(),
+            "--server", dirUrlDNSPersist,
+            "--tls-skip-verify",
+            "--cert.name", hostname,
+            "--reason", "4",
+            "--email", "foo@foo.de");
+
+
+        int exitCodeRevoke = executeExternalProcess(builderRevoke);
+        Assertions.assertEquals(0, exitCodeRevoke, "expects an exit code == 0");
+
+        Optional<Certificate> certRevokedOpt = certificateUtil.findCertificateById(cert.getId());
+        Assertions.assertTrue(certRevokedOpt.isPresent(), "Expecting to find certificate");
+        Assertions.assertTrue(certRevokedOpt.get().isRevoked(), "Expected status change to revoked");
+
+        int exitCodeRevoke2 = executeExternalProcess(builderRevoke);
+        Assertions.assertEquals(1, exitCodeRevoke2, "trying to revoke an already revoked cert. Expecting exit code == 1");
+
+    }
+
+    @Test
+    public void legoCreateAccountAndOrderCertificateByDNSPersistentWildcard() throws IOException, GeneralSecurityException {
+
+        if (!isInstalled(LEGO_EXE)) {
+            LOG.info("'lego' installation missing, please install and rerun.");
+            return;
+        }
+
+        String hostName = "lego.wildcard";
+        String wildcardName = "*." + hostName;
+        String wildcardCertificateFileName = "_." + hostName;
+
+        Path webrootFolder = directory.resolve("webroot");
+        Path configFolder = directory.resolve("config");
+        Path workFolder = directory.resolve("work");
+        Path logFolder = directory.resolve("log");
+
+        Assertions.assertTrue(webrootFolder.toFile().mkdirs(), "expecting successful creation of webroot");
+        Assertions.assertTrue(configFolder.toFile().mkdirs(), "expecting successful creation of config folder");
+        Assertions.assertTrue(workFolder.toFile().mkdirs(), "expecting successful creation of work folder");
+        Assertions.assertTrue(logFolder.toFile().mkdirs(), "expecting successful creation of log folder");
+
+        ProcessBuilder builderCreate = new ProcessBuilder();
+        builderCreate.command(LEGO_EXE,
+            "run",
+            "--path", configFolder.toFile().getAbsolutePath(),
+            "--server", dirUrlDNSPersistWildcard,
+            "--tls-skip-verify",
+            "--domains", wildcardName,
+            "--accept-tos",
+            "--email", ACCOUNT_EMAIL_ADDRESS,
+            "--dns-persist",
+            "--key-type", "rsa4096");
+
+        int exitCodeCreate = executeExternalProcess(builderCreate);
+        Assertions.assertNotEquals(0, exitCodeCreate, "expects an exit code != 0");
+
+        File acoountFile = new File( configFolder.toFile(),
+            "accounts/localhost_" + accessPortTestManager.getAcmeAccessPort() + "/" + ACCOUNT_EMAIL_ADDRESS + "/account.json");
+
+        // read the account.json content and retrieve the accountURL
+        JsonObject jsonObject = (JsonObject) JsonParser.parseReader(new FileReader(acoountFile));
+        JsonObject registration = jsonObject.get("registration").getAsJsonObject();
+        String accountUrl = registration.get("accountURL").getAsString();
+
+        LOG.info("accountUrl : {}", accountUrl);
+
+        dnsChallengeHelper.addDNSPersistChallengeDetails(
+            "\"acme.ca3s.org; accounturi=" + accountUrl + "; policy=wildcard\"",
+            wildcardName);
+
+        builderCreate = new ProcessBuilder();
+
+        builderCreate.command(LEGO_EXE,
+            "run",
+            "--path", configFolder.toFile().getAbsolutePath(),
+            "--server", dirUrlDNSPersistWildcard,
+            "--tls-skip-verify",
+            "--domains", wildcardName,
+            "--accept-tos",
+            "--email", ACCOUNT_EMAIL_ADDRESS,
+            "--dns-persist",
+            "--key-type", "rsa4096");
+
+        exitCodeCreate = executeExternalProcess(builderCreate);
+        Assertions.assertEquals(0, exitCodeCreate, "expects an exit code == 0");
+
+
+
+        File crtFile = new File(configFolder.toFile(), "certificates" + File.separator + wildcardCertificateFileName + ".crt");
+        LOG.info("crtFile : {}", crtFile.getAbsolutePath());
+        Assertions.assertTrue(crtFile.exists(), "expecting certificate file exists");
+
+        X509Certificate x509Certificate = (X509Certificate) factory.generateCertificate(new FileInputStream(crtFile));
+        Certificate cert = certificateUtil.getCertificateByX509(x509Certificate);
+        Assertions.assertEquals(wildcardName, cert.getSans());
+        Assertions.assertTrue(cert.isActive(), "freshly created certificate expected to be active");
+
+        ProcessBuilder builderRevoke = new ProcessBuilder();
+
+        builderRevoke.command(LEGO_EXE,
+            "certificates", "revoke",
+            "--path", configFolder.toFile().getAbsolutePath(),
+            "--server", dirUrlDNSPersistWildcard,
+            "--tls-skip-verify",
+            "--cert.name", wildcardName,
+            "--reason", "4",
+            "--email", "foo@foo.de");
+
+
+        int exitCodeRevoke = executeExternalProcess(builderRevoke);
+        Assertions.assertEquals(0, exitCodeRevoke, "expects an exit code == 0");
+
+        Optional<Certificate> certRevokedOpt = certificateUtil.findCertificateById(cert.getId());
+        Assertions.assertTrue(certRevokedOpt.isPresent(), "Expecting to find certificate");
+        Assertions.assertTrue(certRevokedOpt.get().isRevoked(), "Expected status change to revoked");
+
+        int exitCodeRevoke2 = executeExternalProcess(builderRevoke);
+        Assertions.assertEquals(1, exitCodeRevoke2, "trying to revoke an already revoked cert. Expecting exit code == 1");
+
+    }
+
 }
 

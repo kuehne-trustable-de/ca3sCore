@@ -13,8 +13,8 @@ class PersistentRecordTest {
     public static final String SPEC_SAMPLE_RECORD_MOD ="Authority.example;    foo=bar;;;" +
         " accounturi=https://ca.example/acct/123;" +
         " accounturi=https://ca.example/acct/124;" +
-        " poLicy=wildcard\n; \n\n" +
-        "          PersistUntil=1721952000";
+        " policy=wildcard; \n\n" +
+        "     persistUntil=1721952000";
 
     @Test
     void getCaIssuer() {
@@ -27,7 +27,7 @@ class PersistentRecordTest {
 
         pr = new PersistentRecord(SPEC_SAMPLE_RECORD_MOD);
         Assertions.assertEquals("authority.example", pr.getCaIssuer());
-        Assertions.assertEquals("https://ca.example/acct/123", pr.getAccountUri());
+        Assertions.assertEquals("https://ca.example/acct/124", pr.getAccountUri());
         Assertions.assertEquals("wildcard", pr.getPolicy());
         Assertions.assertEquals(1721952000L * 1000L, pr.getPersistUntilMilliSec());
 

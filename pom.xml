@@ -8,7 +8,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.41</version>
+    <version>1.2.42</version>
 
     <packaging>jar</packaging>
 
@@ -140,7 +140,7 @@
 
         <mapstruct.version>1.6.3</mapstruct.version>
 
-        <acmeChallengeHandler.version>1.1.0</acmeChallengeHandler.version>
+        <acmeChallengeHandler.version>1.1.1</acmeChallengeHandler.version>
 
         <!-- Plugin versions -->
         <checksum-maven-plugin.version>1.11</checksum-maven-plugin.version>

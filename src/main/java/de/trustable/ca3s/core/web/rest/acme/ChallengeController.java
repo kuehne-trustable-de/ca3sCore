@@ -416,7 +416,6 @@ public class ChallengeController extends AcmeController {
         long now = System.currentTimeMillis();
         String normalizedCaIssuerName = DomainNameNormalizer.normalizeIdentifier(caIssuerName);
 
-
         Set<PersistentRecord> persistentRecordSet = new HashSet<>();
         for( String dnsEntry : dnsEntryList){
             PersistentRecord persistentRecord = new PersistentRecord(dnsEntry);

@@ -27,7 +27,7 @@ class PersistentRecord {
             if (!item.contains("=")) {
                 // First field is the CA issuer identity.
                 if (caIssuer == null) {
-                    caIssuer = item;
+                    caIssuer = item.toLowerCase(Locale.ROOT);
                 }
                 continue;
             }
