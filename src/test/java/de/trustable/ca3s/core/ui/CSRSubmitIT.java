@@ -80,6 +80,8 @@ public class CSRSubmitIT extends WebTestBase {
     public static final By LOC_TEXT_CONTENT_TYPE = By.xpath("//form//dl [dt[span [@value = 'content-type']]]/dd/span");
     public static final By LOC_TEXT_WARNING_LABEL = By.xpath("//form//dl [dt[span [@value = 'warning-label']]]/dd/span");
 
+    public static final By LOC_LI_WARNING_IP_AS_SAN = By.xpath("//form//li [text() = 'IP not allowed as SAN']");
+
     public static final By LOC_TA_UPLOAD_CONTENT = By.xpath("//form//textarea [@name = 'content']");
     public static final By LOC_TA_COMMENT = By.xpath("//form//textarea [@id = 'comment']");
     public static final By LOC_SEL_PIPELINE = By.xpath("//form//select [@id = 'pkcsxx-pipeline']");
@@ -424,7 +426,7 @@ public class CSRSubmitIT extends WebTestBase {
 
         validatePresent(LOC_INP_CERT_ARA_0);
         Assertions.assertEquals(infoSample, getText(LOC_INP_CERT_ARA_0));
-        assertTrue(isReadOnly(LOC_INP_CERT_ARA_0));
+        assertTrue(!isReadOnly(LOC_INP_CERT_ARA_0));
 
         validatePresent(LOC_SEL_REVOCATION_REASON);
         scrollToElement(LOC_SEL_REVOCATION_REASON);
@@ -1526,7 +1528,18 @@ public class CSRSubmitIT extends WebTestBase {
 
         setLongText(LOC_TA_UPLOAD_CONTENT, csr);
 
-        validatePresent(LOC_TEXT_CONTENT_TYPE);
+/*
+        try {
+            System.out.println("... waiting ...");
+            System.in.read();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        IP not allowed as SAN
+  */
+
+        validatePresent(LOC_LI_WARNING_IP_AS_SAN);
 
         validatePresent(LOC_SEL_PIPELINE);
 

@@ -248,40 +248,37 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     return this.isRAOfficer() || this.isOwnCertificate();
   }
 
-  public isARAReadOnly(){
-    if(this.isEditable()){
-      return "";
-    }
-    return "readOnly";
+  public isARAReadOnly() {
+    return !this.isEditable();
   }
 
   public isRevocable() {
-
-    if(this.certificateView.revocationReason === "keyCompromise" ||
-      this.certificateView.revocationReason === "cACompromise" ||
-      this.certificateView.revocationReason === "affiliationChanged" ||
-      this.certificateView.revocationReason === "superseded" ||
-      this.certificateView.revocationReason === "cessationOfOperation" ||
-      this.certificateView.revocationReason === "privilegeWithdrawn" ||
-      this.certificateView.revocationReason === "unspecified" ){
+    if (
+      this.certificateView.revocationReason === 'keyCompromise' ||
+      this.certificateView.revocationReason === 'cACompromise' ||
+      this.certificateView.revocationReason === 'affiliationChanged' ||
+      this.certificateView.revocationReason === 'superseded' ||
+      this.certificateView.revocationReason === 'cessationOfOperation' ||
+      this.certificateView.revocationReason === 'privilegeWithdrawn' ||
+      this.certificateView.revocationReason === 'unspecified'
+    ) {
       return false;
     }
 
     return (
       this.certificateView.csrId &&
-//      this.certificateView.active &&
+      //      this.certificateView.active &&
       (this.isRAOfficer() || this.isOwnCertificate())
     );
   }
 
   public getValidityDays(): string {
-
     let days = this.certificateView.validitySeconds / 24 / 3600;
     return days.toFixed();
-}
+  }
 
-public isNotificationBlockable(){
-    if( this.certificateView.pipelineType === 'WEB'){
+  public isNotificationBlockable() {
+    if (this.certificateView.pipelineType === 'WEB') {
       return this.isRevocable();
     }
     return false;
@@ -347,9 +344,11 @@ public isNotificationBlockable(){
       }
     }
 
-    return this.comment !== this.certificateView.comment ||
+    return (
+      this.comment !== this.certificateView.comment ||
       this.trusted !== this.certificateView.trusted ||
-      this.certificateView.notificationBlocked !== this.certificateAdminData.notificationBlocked;
+      this.certificateView.notificationBlocked !== this.certificateAdminData.notificationBlocked
+    );
   }
 
   copyCertificateDataToAdminData() {

@@ -1440,6 +1440,9 @@ public class PipelineUtil {
     }
 
     private Optional<NamedValues> findNVSByName(NamedValues[] araArr, final String name) {
+        if( araArr == null || name == null || name.trim().isEmpty()){
+            return Optional.empty();
+        }
         return Arrays.stream(araArr).filter(nvs -> name.equals(nvs.getName())).findFirst();
     }
 
