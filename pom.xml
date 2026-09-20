@@ -212,7 +212,7 @@
         <kerberosWebVersion>1.0.1.RELEASE</kerberosWebVersion>
         <kerberosClientVersion>1.0.1.RELEASE</kerberosClientVersion>
 
-        <commonsValidatorVersion>1.10.1</commonsValidatorVersion>
+        <commonsValidatorVersion>1.11.0</commonsValidatorVersion>
 
         <typescriptGeneratorVersion>3.2.1263</typescriptGeneratorVersion>
 
