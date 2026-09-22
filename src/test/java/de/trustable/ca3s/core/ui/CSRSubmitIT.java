@@ -164,7 +164,8 @@ public class CSRSubmitIT extends WebTestBase {
     public static final By LOC_INP_L_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.L']");
     public static final By LOC_INP_ST_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.ST']");
     public static final By LOC_INP_E_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.E']");
-    public static final By LOC_INP_SAN_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.SAN']");
+    public static final By LOC_INP_SAN_VALUE = By.xpath("//div/input [@name = 'pkcsxx.upload.san.0']");
+    public static final By LOC_INP_SAN_VALUE_1 = By.xpath("//div/input [@name = 'pkcsxx.upload.san.1']");
 
     public static final By LOC_INP_ARA_0 = By.xpath("//div/input [@name = 'pkcsxx.upload.ara.info']");
     public static final By LOC_INP_CERT_ARA_0 = By.xpath("//div/input [@name = 'cert-ar-info']");
@@ -179,6 +180,8 @@ public class CSRSubmitIT extends WebTestBase {
     public static final By LOC_SMALL_ERROR_CN_SAN_RESTRICTION = By.xpath("//div//form//div/small [@id = 'pkcsxx.upload.cn-san.restriction.required']");
     public static final By LOC_SMALL_WARNING_CN_SAN_RESTRICTION = By.xpath("//div//form//div/small [@id = 'pkcsxx.upload.cn-san.restriction.recommended']");
 
+    public static final By LOC_SMALL_ERROR_SAN_REGEX_RESTRICTION_0 = By.xpath("//div//form//div/small [@id = 'pkcsxx.upload.regEx.0']");
+    public static final By LOC_SMALL_ERROR_SAN_REGEX_RESTRICTION_1 = By.xpath("//div//form//div/small [@id = 'pkcsxx.upload.regEx.1']");
 
     private static final Logger LOG = LoggerFactory.getLogger(CSRSubmitIT.class);
 
@@ -331,11 +334,17 @@ public class CSRSubmitIT extends WebTestBase {
         setText(LOC_INP_OU_VALUE, ou);
         setText(LOC_INP_L_VALUE, l);
 
+        validateNotPresent(LOC_INP_SAN_VALUE_1);
 
         setText(LOC_INP_ST_VALUE, st);
         explain("csr.submit.8");
         setText(LOC_INP_SAN_VALUE, san);
         explain("csr.submit.8.1");
+        validateNotPresent(LOC_SMALL_ERROR_SAN_REGEX_RESTRICTION_0);
+
+        validatePresent(LOC_INP_SAN_VALUE_1);
+        setText(LOC_INP_SAN_VALUE_1, unaccepted_san);
+        validateNotPresent(LOC_SMALL_ERROR_SAN_REGEX_RESTRICTION_1);
 
         validatePresent(LOC_INP_ARA_0);
         setText(LOC_INP_ARA_0, infoSample);
