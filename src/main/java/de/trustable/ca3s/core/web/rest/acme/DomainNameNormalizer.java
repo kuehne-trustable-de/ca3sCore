@@ -55,7 +55,7 @@ public final class DomainNameNormalizer {
     public static String normalizeIdentifier(String identifier) {
 
         if (identifier == null) {
-            throw new IllegalArgumentException("Identifier must not be null");
+            return "";
         }
 
         if (identifier.startsWith("*.")) {

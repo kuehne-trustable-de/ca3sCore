@@ -271,9 +271,9 @@ public class CSRUtil {
 
 			String sanValue = gName.getName().toString();
 			if (GeneralName.otherName == gName.getTagNo()) {
-				sanValue = "--other value--";
-            } else if (GeneralName.iPAddress == gName.getTagNo()) {
-                sanValue = CertificateUtil.getSAN(gName);
+				sanValue = CertificateUtil.extractUPN(gName);
+			} else if (GeneralName.iPAddress == gName.getTagNo()) {
+				sanValue = CertificateUtil.getSAN(gName);
 			}
 
 			if( allSans.length() > 0) {
@@ -298,8 +298,8 @@ public class CSRUtil {
 				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "URI:" + sanValue, true);
 			} else if (GeneralName.x400Address == gName.getTagNo()) {
 				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "X400:" + sanValue, true);
-			} else if (GeneralName.directoryName == gName.getTagNo()) {
-				this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DirName:" + sanValue, true);
+            } else if (GeneralName.directoryName == gName.getTagNo()) {
+                this.setCsrAttribute(csr, CsrAttribute.ATTRIBUTE_TYPED_SAN, "DirName:" + sanValue, true);
 			}else {
 				LOG.info("unexpected name / tag '{}' in SANs", gName.getTagNo());
 			}
@@ -391,6 +391,8 @@ public class CSRUtil {
 
 		return csr;
 	}
+
+
 
     public void setCSRAttributeVersion(CSR csr, String version) {
         setCsrAttribute(csr, CertificateAttribute.ATTRIBUTE_ATTRIBUTES_VERSION, version, false);
