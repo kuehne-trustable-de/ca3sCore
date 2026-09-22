@@ -1,0 +1,86 @@
+name: build-release-binary
+
+run-name: Create Github Release for Java Spring Boot built with maven
+
+on:
+  push:
+    #branches:
+    #- main
+    tags:
+      - 'v*'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-26.04
+    permissions:
+      contents: write
+
+    steps:
+
+      # debug
+      - name: Dump env
+        run: env | sort
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # get all tags, needed to get git log
+          ref: refs/heads/master
+
+      # Java environment
+      - name: setup Java
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: adopt
+      #          cache: gradle
+
+      # start the maven build using the wrapper script, which will download the correct maven version and execute the build
+      - name: Execute maven build
+        run:  chmod +x mvnw && ./mvnw -B -DskipTests package
+
+      # debug
+      - run: git version
+      - run: git branch
+      - run: git tag
+
+      - name: get semantic tag version and release notes from commit messages
+        id: tag
+        run: |
+          curtag=${GITHUB_REF_NAME}
+          major_minor=$(echo "$curtag" | cut -d'.' -f1-2)
+          patch=$(echo "$curtag" | cut -d'.' -f3)
+          # avoid empty patch number
+          [ -n "$patch" ] && ((patch--)) || patch=".x"
+          prevtag="${major_minor}.${patch}"
+
+          echo "" > body.log
+          if git tag | grep $prevtag ; then
+            git log -q ${curtag}...${prevtag} --pretty="- %s" -q --no-color >> body.log
+          else
+            git log --pretty="- %s" -q --no-color >> body.log
+          fi
+          line_count=$(cat body.log | wc -l)
+
+          echo "curtag=$curtag" >> $GITHUB_OUTPUT
+          echo "prevtag=$prevtag" >> $GITHUB_OUTPUT
+          echo "line_count=$line_count" >> $GITHUB_OUTPUT
+
+      # debug
+      - run: echo curtag is ${{ steps.tag.outputs.curtag }}
+      - run: echo prevtag is ${{ steps.tag.outputs.prevtag }}
+      - run: echo line_count is ${{ steps.tag.outputs.line_count }}
+      - run: cat body.log
+
+      #  create Github release with release note from file and binary asset attached
+      - uses: ncipollo/release-action@v1
+        with:
+          name: ${{ env.GITHUB_REF_NAME }}
+          tag: ${{ env.GITHUB_REF_NAME }}
+          artifacts: "target/ca-3-s-*.jar"
+          bodyFile: "body.log"
+          token: ${{ secrets.GITHUB_TOKEN }}
