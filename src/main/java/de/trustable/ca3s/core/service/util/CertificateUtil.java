@@ -12,6 +12,7 @@ import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CRLUpdateInfo;
 import de.trustable.ca3s.core.service.dto.KeyAlgoLengthOrSpec;
 import de.trustable.ca3s.core.service.dto.NamedTypedValue;
+import de.trustable.ca3s.core.service.exception.CertificateAlreadyExistsException;
 import de.trustable.util.AlgorithmInfo;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
@@ -444,7 +445,29 @@ public class CertificateUtil {
      */
     public Certificate createCertificate(final String pemCert, final CSR csr,
                                          final String executionId,
-                                         final boolean reimport, final String importUrl) throws GeneralSecurityException, IOException {
+                                         final boolean reimport,
+                                         final String importUrl) throws GeneralSecurityException, IOException {
+        return createCertificate( pemCert,  csr,
+        executionId,
+        reimport,
+        importUrl,
+            false);
+    }
+
+        /**
+         * @param pemCert
+         * @param csr
+         * @param executionId
+         * @param reimport
+         * @return certificate
+         * @throws GeneralSecurityException
+         * @throws IOException
+         */
+    public Certificate createCertificate(final String pemCert, final CSR csr,
+                                         final String executionId,
+                                         final boolean reimport,
+                                         final String importUrl,
+                                         final boolean ignoreExisting) throws GeneralSecurityException, IOException {
 
 
         X509Certificate x509Cert = CryptoService.convertPemToCertificate(pemCert);
@@ -459,11 +482,16 @@ public class CertificateUtil {
             setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_SOURCE, importUrl);
 
         } else {
-            LOG.info("certificate '" + cert.getSubject() + "' already exists");
+            if( ignoreExisting ) {
+                LOG.info("ignoring existing certificate '{}'", cert.getSubject());
+                throw new CertificateAlreadyExistsException("ignoring existing certificate '" + cert.getSubject() + "'");
+            }else {
+                LOG.info("certificate '" + cert.getSubject() + "' already exists");
 
-            if (reimport) {
-                LOG.debug("existing certificate '" + cert.getSubject() + "' overwriting some attributes, only");
-                addAdditionalCertificateAttributes(x509Cert, cert);
+                if (reimport) {
+                    LOG.debug("existing certificate '" + cert.getSubject() + "' overwriting some attributes, only");
+                    addAdditionalCertificateAttributes(x509Cert, cert);
+                }
             }
         }
         return cert;
@@ -1092,6 +1120,8 @@ public class CertificateUtil {
 
     }
 
+
+
     public static String getTypedSAN(final GeneralName gn) {
 
         if (GeneralName.iPAddress == gn.getTagNo()) {
@@ -1109,6 +1139,7 @@ public class CertificateUtil {
         }
 
     }
+
 
     public static String getTypedSAN(int altNameType, String sanValue) {
 
@@ -1166,6 +1197,55 @@ public class CertificateUtil {
 
         LOG.warn("unexpected value in TypedSANs for san {}", typedSAN);
         return null;
+    }
+
+
+    private static final String UPN_OID =
+        "1.3.6.1.4.1.311.20.2.3";
+
+    public static String extractUPN(GeneralName generalNameOtherName) {
+
+        // OtherName
+        if (generalNameOtherName.getTagNo() == GeneralName.otherName) {
+
+            OtherName otherName =
+                OtherName.getInstance(generalNameOtherName.getName());
+
+            ASN1ObjectIdentifier typeId = otherName.getTypeID();
+
+            if (UPN_OID.equals(typeId.getId())) {
+
+                ASN1Primitive value = otherName.getValue().toASN1Primitive();
+
+                // OtherName.value is [0] EXPLICIT ANY.
+                // For Microsoft UPN this contains a UTF8String.
+                if (value instanceof ASN1String) {
+                    return ((ASN1String) value).getString();
+                }
+
+                // Sometimes the value is wrapped in an OCTET STRING.
+                if (value instanceof DEROctetString) {
+                    try {
+                        ASN1Primitive inner =
+                            ASN1Primitive.fromByteArray(
+                                ((DEROctetString) value).getOctets());
+
+                        if (inner instanceof ASN1String) {
+                            return ((ASN1String) inner).getString();
+                        }
+                    } catch (Exception e) {
+                        throw new IllegalArgumentException(
+                            "Invalid UPN OtherName value", e);
+                    }
+                }
+
+                if (value instanceof ASN1String) {
+                    return ((ASN1String) value).getString();
+                }
+            }
+        }
+
+        return "";
     }
 
     /**
@@ -2261,7 +2341,7 @@ public class CertificateUtil {
 
                 String content = protUtil.unprotectString(pcList.get(0).getContentBase64());
                 priKey = cryptoUtil.convertPemToPrivateKey(content);
-                LOG.debug("getPrivateKey() returns key of calss {} for ProtectedContent #{}", priKey.getClass().getName(), id);
+                LOG.debug("getPrivateKey() returns key of class {} for ProtectedContent #{}", priKey.getClass().getName(), id);
             }
         } catch (GeneralSecurityException e) {
             LOG.warn("getPrivateKey", e);

@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.service.dto;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.Interval;
 
+import javax.persistence.Column;
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -31,6 +32,16 @@ public class CaConnectorConfigView implements Serializable {
     private Boolean trustSelfsignedCertificates;
 
     private String selector;
+
+    private Boolean isDatabase;
+
+    private String certificateTable;
+
+    private String certificateColumn;
+
+    private String sequenceColumn;
+
+    private String lastUpdateColumn;
 
     private String role;
 
@@ -126,6 +137,46 @@ public class CaConnectorConfigView implements Serializable {
 
     public void setSelector(String selector) {
         this.selector = selector;
+    }
+
+    public Boolean getDatabase() {
+        return isDatabase;
+    }
+
+    public void setDatabase(Boolean database) {
+        isDatabase = database;
+    }
+
+    public String getCertificateTable() {
+        return certificateTable;
+    }
+
+    public void setCertificateTable(String certificateTable) {
+        this.certificateTable = certificateTable;
+    }
+
+    public String getCertificateColumn() {
+        return certificateColumn;
+    }
+
+    public void setCertificateColumn(String certificateColumn) {
+        this.certificateColumn = certificateColumn;
+    }
+
+    public String getSequenceColumn() {
+        return sequenceColumn;
+    }
+
+    public void setSequenceColumn(String sequenceColumn) {
+        this.sequenceColumn = sequenceColumn;
+    }
+
+    public String getLastUpdateColumn() {
+        return lastUpdateColumn;
+    }
+
+    public void setLastUpdateColumn(String lastUpdateColumn) {
+        this.lastUpdateColumn = lastUpdateColumn;
     }
 
     public String getRole() {

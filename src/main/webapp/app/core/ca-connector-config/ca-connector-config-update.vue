@@ -114,7 +114,64 @@
                                :class="{'valid': !$v.cAConnectorConfig.role.$invalid, 'invalid': $v.cAConnectorConfig.role.$invalid }" v-model="$v.cAConnectorConfig.role.$model" />
                     </div>
 
-                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY'|| $v.cAConnectorConfig.caConnectorType.$model === 'EJBCA_INVENTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT_INVENTORY' ">
+                    <!--div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.directory.isDatabase')" for="ca-connector-config-isDatabase"></label>
+                        <input type="checkbox" class="form-check" name="ca-connector-config-isDatabase" id="ca-connector-config-isDatabase"
+                               readonly
+                               v-model="$v.cAConnectorConfig.isDatabase.$model" />
+                    </div-->
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' && isDatabaseConnectorConfig()">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.directory.certificateTable')" for="ca-connector-config-certificateTable"></label> <help-tag role="Admin" target="ca-connector.certificateTable"/>
+                        <input type="text" class="form-control" name="ca-connector-config-certificateTable" id="ca-connector-config-certificateTable"
+                               :class="{'valid': !$v.cAConnectorConfig.certificateTable.$invalid, 'invalid': $v.cAConnectorConfig.certificateTable.$invalid }"
+                               v-model="$v.cAConnectorConfig.certificateTable.$model" />
+
+                        <small class="form-text text-danger" v-if="showRegExpFieldWarning($v.cAConnectorConfig.certificateTable.$model, regExpLetterNumberUnderscoreOnly())" v-text="$t('entity.validation.letterNumberUnderscore')"></small>
+
+                    </div>
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' && isDatabaseConnectorConfig()">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.directory.certificateColumn')" for="ca-connector-config-certificateColumn"></label> <help-tag role="Admin" target="ca-connector.certificateColumn"/>
+                        <input type="text" class="form-control" name="ca-connector-config-certificateColumn" id="ca-connector-config-certificateColumn"
+                               :class="{'valid': !$v.cAConnectorConfig.certificateColumn.$invalid, 'invalid': $v.cAConnectorConfig.certificateColumn.$invalid }" v-model="$v.cAConnectorConfig.certificateColumn.$model" />
+                        <small class="form-text text-danger" v-if="showRegExpFieldWarning($v.cAConnectorConfig.certificateColumn.$model, regExpLetterNumberUnderscoreOnly())" v-text="$t('entity.validation.letterNumberUnderscore')"></small>
+                    </div>
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' && isDatabaseConnectorConfig()">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.directory.sequenceColumn')" for="ca-connector-config-sequenceColumn"></label> <help-tag role="Admin" target="ca-connector.sequenceColumn"/>
+                        <input type="text" class="form-control" name="ca-connector-config-sequenceColumn" id="ca-connector-config-sequenceColumn"
+                               :class="{'valid': !$v.cAConnectorConfig.sequenceColumn.$invalid, 'invalid': $v.cAConnectorConfig.sequenceColumn.$invalid }" v-model="$v.cAConnectorConfig.sequenceColumn.$model" />
+                        <small class="form-text text-danger" v-if="showRegExpFieldWarningNonEmpty($v.cAConnectorConfig.sequenceColumn.$model, regExpLetterNumberUnderscoreOnly())" v-text="$t('entity.validation.letterNumberUnderscore')"></small>
+                    </div>
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' && isDatabaseConnectorConfig()">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.directory.lastUpdateColumn')" for="ca-connector-config-lastUpdateColumn"></label> <help-tag role="Admin" target="ca-connector.lastUpdateColumn"/>
+                        <input type="text" class="form-control" name="ca-connector-config-lastUpdateColumn" id="ca-connector-config-lastUpdateColumn"
+                               :class="{'valid': !$v.cAConnectorConfig.lastUpdateColumn.$invalid, 'invalid': $v.cAConnectorConfig.lastUpdateColumn.$invalid }" v-model="$v.cAConnectorConfig.lastUpdateColumn.$model" />
+                        <small class="form-text text-danger" v-if="showRegExpFieldWarningNonEmpty($v.cAConnectorConfig.lastUpdateColumn.$model, regExpLetterNumberUnderscoreOnly())" v-text="$t('entity.validation.letterNumberUnderscore')"></small>
+                    </div>
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' && isDatabaseConnectorConfig()">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.directory.userName')" for="ca-connector-config-issuerName"></label>  <help-tag role="Admin" target="ca-connector.user-name"/>
+                        <input type="text" class="form-control" name="issuerName" id="ca-connector-config-issuerName"
+                               :class="{'valid': !$v.cAConnectorConfig.issuerName.$invalid, 'invalid': $v.cAConnectorConfig.issuerName.$invalid }" v-model="$v.cAConnectorConfig.issuerName.$model" />
+                    </div>
+
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' && isDatabaseConnectorConfig()">
+                        <label
+                            class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.directory.plainSecret')"
+                               for="ca-connector-config-plainSecret"></label>
+                        <input type="password" class="form-control" name="ca-connector-config-plainSecret"
+                             id="ca-connector-config-plainSecret"
+                             v-model="$v.cAConnectorConfig.authenticationParameter.plainSecret.$model"
+                             :class="{'valid': !$v.cAConnectorConfig.authenticationParameter.plainSecret.$invalid, 'invalid': $v.cAConnectorConfig.authenticationParameter.plainSecret.$invalid }"
+                              v-on:input="buildAdcsConfigSnippet()"
+                             required />
+                        <small class="form-text text-danger" v-if="!$v.cAConnectorConfig.authenticationParameter.plainSecret.minLength"
+                             v-text="$t('ca3SApp.authenticationSelection.plainSecret.minLength')"></small>
+                    </div>
+
+
+
+                  <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model === 'DIRECTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'ADCS_CERTIFICATE_INVENTORY'|| $v.cAConnectorConfig.caConnectorType.$model === 'EJBCA_INVENTORY' || $v.cAConnectorConfig.caConnectorType.$model === 'VAULT_INVENTORY' ">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.interval')" for="ca-connector-config-interval"></label>  <help-tag role="Admin" target="ca-connector.interval"/>
                         <select class="form-control" name="interval" :class="{'valid': !$v.cAConnectorConfig.interval.$invalid, 'invalid': $v.cAConnectorConfig.interval.$invalid }" v-model="$v.cAConnectorConfig.interval.$model" id="ca-connector-config-interval" >
                             <option value="MINUTE" v-bind:label="$t('ca3SApp.Interval.MINUTE')"></option>

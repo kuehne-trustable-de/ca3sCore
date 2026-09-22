@@ -40,6 +40,11 @@ const validations: any = {
     trustSelfsignedCertificates: {},
     active: {},
     allowCrlOnHold: {},
+    isDatabase: {},
+    certificateTable: {},
+    certificateColumn: {},
+    sequenceColumn: {},
+    lastUpdateColumn: {},
     selector: {},
     role: {
       required,
@@ -120,12 +125,24 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   }
 
   public isSaveable(): boolean {
+    if (this.isDatabaseConnectorConfig()) {
+      if (
+        this.showRegExpFieldWarning(this.cAConnectorConfig.certificateTable, this.regExpLetterNumberUnderscoreOnly()) ||
+        this.showRegExpFieldWarning(this.cAConnectorConfig.certificateColumn, this.regExpLetterNumberUnderscoreOnly()) ||
+        this.showRegExpFieldWarningNonEmpty(this.cAConnectorConfig.sequenceColumn, this.regExpLetterNumberUnderscoreOnly()) ||
+        this.showRegExpFieldWarningNonEmpty(this.cAConnectorConfig.lastUpdateColumn, this.regExpLetterNumberUnderscoreOnly())
+      ) {
+        window.console.info('isSaveable false due to database regex');
+        return false;
+      }
+    }
     window.console.info('isSaveable ' + !this.$v.cAConnectorConfig.$invalid);
-
     return !this.$v.cAConnectorConfig.$invalid;
   }
 
   public save(): void {
+    this.cAConnectorConfig.isDatabase = this.isDatabaseConnectorConfig();
+
     this.isSaving = true;
     if (this.cAConnectorConfig.id) {
       this.cAConnectorConfigViewService()
@@ -170,6 +187,12 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
     return this.cAConnectorConfig.caConnectorType === 'ADCS' || this.cAConnectorConfig.caConnectorType === 'ADCS_CERTIFICATE_INVENTORY';
   }
 
+  public isDatabaseConnectorConfig(): boolean {
+    this.cAConnectorConfig.isDatabase =
+      this.cAConnectorConfig.caConnectorType === 'DIRECTORY' && this.cAConnectorConfig.caUrl.toLowerCase().startsWith('jdbc:');
+    return this.cAConnectorConfig.isDatabase;
+  }
+
   public initADCSTemplates(): void {
     window.console.info('calling ca-connector-configViews/adcs/templates ');
     const self = this;
@@ -211,6 +234,24 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
       window.console.info('testCaConnectorConfig returns ' + response.data);
       self.caStatus = response.data;
     });
+  }
+
+  public regExpLetterNumberUnderscoreOnly(): string {
+    return '^[a-zA-Z0-9_]+$';
+  }
+
+  public showRegExpFieldWarningNonEmpty(value: string, regEx: string): boolean {
+    if (!value || value.trim().length === 0) {
+      return false;
+    }
+    return this.showRegExpFieldWarning(value, regEx);
+  }
+
+  public showRegExpFieldWarning(value: string, regEx: string): boolean {
+    const regexp = new RegExp(regEx);
+    const valid = regexp.test(value);
+    console.log('showRegExpFieldWarning( ' + regEx + ', "' + value + '") -> ' + valid);
+    return !valid;
   }
 
   public buildAdcsConfigSnippet() {

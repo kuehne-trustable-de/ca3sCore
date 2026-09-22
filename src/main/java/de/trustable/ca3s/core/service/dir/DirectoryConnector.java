@@ -2,17 +2,23 @@ package de.trustable.ca3s.core.service.dir;
 
 
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
+import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.ImportedURL;
+import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ImportedURLRepository;
 import de.trustable.ca3s.core.schedule.ImportInfo;
 import de.trustable.ca3s.core.schedule.spider.Crawler;
 import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.dto.CAStatus;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.TransactionHandler;
+import de.trustable.ca3s.core.service.dto.CaConnectorConfigView;
+import de.trustable.ca3s.core.service.exception.CertificateAlreadyExistsException;
+import de.trustable.ca3s.core.service.util.*;
+import de.trustable.util.CryptoUtil;
 import org.apache.commons.io.IOUtils;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.cert.X509CertificateHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,11 +35,11 @@ import java.net.URLConnection;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.GeneralSecurityException;
+import java.security.cert.X509Certificate;
+import java.sql.*;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Service
@@ -47,27 +53,33 @@ public class DirectoryConnector {
 
 	Logger LOGGER = LoggerFactory.getLogger(DirectoryConnector.class);
 
-	@Autowired
-    private CertificateUtil certUtil;
-
-	@Autowired
-	private CertificateRepository certificateRepository;
-
-    @Autowired
-	private ImportedURLRepository importedURLRepository;
-
-    @Autowired
-    private TransactionHandler transactionHandler;
-
-    @Autowired
-    private AuditService auditService;
+    private final CertificateUtil certUtil;
+    private final CryptoUtil cryptoUtil;
+    private final ProtectedContentUtil protUtil;
+    private final CaConnectorConfigUtil caConnectorConfigUtil;
+    private final CAConnectorConfigRepository caConnectorConfigRepository;
+    private final CertificateRepository certificateRepository;
+    private final ImportedURLRepository importedURLRepository;
+    private final TransactionHandler transactionHandler;
+    private final PasswordMasker passwordMasker;
+    private final AuditService auditService;
 
     /**
 	 *
 	 */
-	public DirectoryConnector() {
+	public DirectoryConnector(CertificateUtil certUtil, CryptoUtil cryptoUtil, ProtectedContentUtil protUtil, CaConnectorConfigUtil caConnectorConfigUtil, CAConnectorConfigRepository caConnectorConfigRepository, CertificateRepository certificateRepository, ImportedURLRepository importedURLRepository, TransactionHandler transactionHandler, PasswordMasker passwordMasker, AuditService auditService) {
 
-	}
+        this.certUtil = certUtil;
+        this.cryptoUtil = cryptoUtil;
+        this.protUtil = protUtil;
+        this.caConnectorConfigUtil = caConnectorConfigUtil;
+        this.caConnectorConfigRepository = caConnectorConfigRepository;
+        this.certificateRepository = certificateRepository;
+        this.importedURLRepository = importedURLRepository;
+        this.transactionHandler = transactionHandler;
+        this.passwordMasker = passwordMasker;
+        this.auditService = auditService;
+    }
 
 
 	/**
@@ -89,14 +101,32 @@ public class DirectoryConnector {
             // check access
             try {
                 int status = getHTTPResponseStatusCode(url);
-                if( status >= 200 && status < 400 ) {
+                if (status >= 200 && status < 400) {
                     return CAStatus.Active;
-                }else{
-                    LOGGER.info("getStatus for url '{}' returns status  {}", url, status );
+                } else {
+                    LOGGER.info("getStatus for url '{}' returns status  {}", url, status);
                 }
             } catch (Exception e) {
-                LOGGER.warn("in getStatus for url '{}' failed with message {}", url, e.getMessage() );
+                LOGGER.warn("in getStatus for url '{}' failed with message {}", url, e.getMessage());
             }
+        }else if( url.startsWith("jdbc:") ) {
+
+            Connection connection = null;
+            try {
+                connection = connectWithDatabase(caConfig);
+                return CAStatus.Active;
+            } catch (SQLException e) {
+                LOGGER.warn("in getStatus for url '{}' failed with message {}", url, e.getMessage());
+            }finally{
+                if( connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        LOGGER.error("Error closing database connection", e);
+                    }
+                }
+            }
+
         }else {
             File dir = new File(getFilename(caConfig));
 
@@ -109,7 +139,24 @@ public class DirectoryConnector {
         return CAStatus.Problem;
 	}
 
-	@Transactional(propagation = Propagation.REQUIRES_NEW)
+    private Connection connectWithDatabase(final CAConnectorConfig caConfig) throws SQLException {
+
+        final Properties props = new Properties();
+
+        String userName = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConfig, CaConnectorConfigUtil.ATT_ISSUER_NAME, null);
+        String plainSecret = protUtil.unprotectString(caConfig.getSecret().getContentBase64());
+        LOGGER.debug("Database user name '{}' with password '{]'", userName, passwordMasker.maskPassword(plainSecret));
+
+        props.setProperty("user", userName);
+        props.setProperty("password", plainSecret);
+
+        Connection conn = DriverManager.getConnection(caConfig.getCaUrl(), props);
+        LOGGER.debug("in connectWithDatabase: database connection url '{}' for user '{}' using password '*****' succeeded",
+            caConfig.getCaUrl(), props.getProperty("user"));
+        return conn;
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
 	public int retrieveCertificates(CAConnectorConfig caConfig) throws IOException {
 
 		ImportInfo importInfo = new ImportInfo();
@@ -136,12 +183,27 @@ public class DirectoryConnector {
                 }
             }
 
+        }else if( url.startsWith("jdbc:") ) {
+            Connection connection = null;
+            try {
+                connection = connectWithDatabase(caConfig);
+                importCertificateFromDB(connection, importInfo, caConfig);
+            } catch (SQLException e) {
+                LOGGER.warn("in retrieveCertificates for url '{}' failed with message {}", url, e.getMessage());
+            }finally{
+                if( connection != null) {
+                    try {
+                        connection.close();
+                    } catch (SQLException e) {
+                        LOGGER.error("Error closing database connection", e);
+                    }
+                }
+            }
         }else {
 
 			File dir = new File(getFilename(caConfig));
 
 			LOGGER.debug("in retrieveCertificates for directory '{}' using regex '{}'", dir, regEx);
-
 
 			Set<String> certSet = listFilesUsingFileWalkAndVisitor(dir.getAbsolutePath(), regEx);
 
@@ -159,9 +221,101 @@ public class DirectoryConnector {
 		return importInfo.getImported();
 	}
 
+    private void importCertificateFromDB(Connection connection, ImportInfo importInfo, CAConnectorConfig caConfig) {
 
-	/**
-	 *
+        int pollingOffset = 0;
+        if (caConfig.getPollingOffset() != null) {
+            pollingOffset = caConfig.getPollingOffset();
+        }
+
+        Instant lastUpdate = caConfig.getLastUpdate();
+
+        CaConnectorConfigView caConfigView = caConnectorConfigUtil.from(caConfig);
+
+        String query = "select ";
+        String where = "where 1=1 ";
+
+        // chack arguments, again ...
+        Pattern pattern = Pattern.compile("^[a-zA-Z0-9_]*$");
+        Matcher m = pattern.matcher(caConfigView.getCertificateTable());
+        if (!m.find()){
+            LOGGER.warn("importCertificateFromDB: table name '{}' contains unexpected characters", caConfigView.getCertificateTable());
+            return;
+        }
+
+        if (!pattern.matcher(caConfigView.getCertificateColumn()).find()){
+            LOGGER.warn("importCertificateFromDB: certificate column name '{}' contains unexpected characters", caConfigView.getCertificateColumn());
+            return;
+        }
+        query += caConfigView.getCertificateColumn();
+
+        boolean hasSequenceColumn = false;
+        if( caConfigView.getSequenceColumn() != null && !caConfigView.getSequenceColumn().trim().isEmpty()) {
+            if (!pattern.matcher(caConfigView.getSequenceColumn()).find()){
+                LOGGER.warn("importCertificateFromDB: sequence column name '{}' contains unexpected characters", caConfigView.getSequenceColumn());
+                return;
+            }
+            query += ", " + caConfigView.getSequenceColumn();
+            where += " and " + caConfigView.getSequenceColumn() + " > " + pollingOffset;
+            hasSequenceColumn = true;
+        }
+
+        boolean hasLastUpdateColumn = false;
+        if( caConfigView.getLastUpdateColumn() != null && !caConfigView.getLastUpdateColumn().trim().isEmpty()) {
+            if (!pattern.matcher(caConfigView.getLastUpdateColumn()).find()){
+                LOGGER.warn("importCertificateFromDB: last Update column name '{}' contains unexpected characters", caConfigView.getLastUpdateColumn());
+                return;
+            }
+            query += ", " + caConfigView.getLastUpdateColumn();
+
+            where += " and " + caConfigView.getLastUpdateColumn() + " > '" + lastUpdate.toString() + "'";
+            hasLastUpdateColumn = true;
+        }
+
+        query += " from " + caConfigView.getCertificateTable();
+
+        LOGGER.warn("importCertificateFromDB: execute query '{}'", query);
+
+        try (PreparedStatement prpStatement = connection.prepareStatement(query)) {
+
+            int maxSequence = 0;
+            long maxLastUpdateMilliSec = 0L;
+            ResultSet resultSet = prpStatement.executeQuery();
+            while (resultSet.next()) {
+                // process resultSet
+                String certificateString = resultSet.getString(caConfigView.getCertificateColumn());
+                if( hasSequenceColumn ){
+                    int sequence = resultSet.getInt(caConfigView.getSequenceColumn());
+                    if( sequence > maxSequence ) {
+                        maxSequence = sequence;
+                    }
+                }
+                if( hasLastUpdateColumn ){
+                    long lastUpdateMilliSec = resultSet.getDate(caConfigView.getLastUpdateColumn()).getTime();
+                    if( lastUpdateMilliSec > maxLastUpdateMilliSec ) {
+                        maxLastUpdateMilliSec = lastUpdateMilliSec;
+                    }
+                }
+
+                importCertifiateFromDBColumn(certificateString, importInfo, caConfig);
+            }
+
+            if( hasSequenceColumn){
+                caConfig.setPollingOffset(maxSequence);
+            }
+            if( hasLastUpdateColumn){
+                caConfig.setLastUpdate(Instant.ofEpochMilli(maxLastUpdateMilliSec));
+            }
+            caConnectorConfigRepository.save(caConfig);
+
+        } catch (SQLException sqle) {
+            LOGGER.warn("importCertificateFromDB: query '{}' execution failed with exception", query, sqle);
+        }
+    }
+
+
+    /**
+     *
      * @param filename
      * @param caConfig
      */
@@ -185,7 +339,7 @@ public class DirectoryConnector {
                     if( caConfig.getTrustSelfsignedCertificates()){
                         if(certificate.isSelfsigned()){
                             if(certificate.isActive()) {
-                                certificate.setTrusted(true);
+                                certificate.setTrusted(caConfig.getTrustSelfsignedCertificates());
                                 certificateRepository.save(certificate);
                                 auditService.saveAuditTrace(auditService.createAuditTraceCertificateTrusted(filename, certificate, caConfig));
                             }else{
@@ -251,6 +405,59 @@ public class DirectoryConnector {
             LOGGER.debug("certificate import failed", th);
         }
         return importInfo;
+    }
+
+    /**
+     *
+     */
+    public ImportInfo importCertifiateFromDBColumn(String content, ImportInfo importInfo, final CAConnectorConfig caConfig) {
+
+        try {
+            LOGGER.debug("importing certificate from DB ...");
+
+            X509Certificate x509Cert = certUtil.tryParsingCertificateContent(content);
+
+            Certificate certificate = certUtil.createCertificate(cryptoUtil.x509CertToPem(x509Cert), null, null,
+                false,
+                "database column",
+                true);
+
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificateImported("database column", certificate, caConfig));
+
+            if (caConfig.getTrustSelfsignedCertificates()) {
+                if (certificate.isSelfsigned()) {
+                    if (certificate.isActive()) {
+                        certificate.setTrusted(caConfig.getTrustSelfsignedCertificates());
+                        certificateRepository.save(certificate);
+                        auditService.saveAuditTrace(auditService.createAuditTraceCertificateTrusted("database column", certificate, caConfig));
+                    } else {
+                        LOGGER.info("selfsigned certificate from database column, not active, not set as 'trusted'");
+                    }
+                } else {
+                    LOGGER.info("'not selfsigned' certificate from database column, not active, not set as 'trusted'");
+                }
+            }
+
+        }catch (CertificateAlreadyExistsException e) {
+            LOGGER.info("certificate already exists in database, skipping import from database column");
+        } catch (GeneralSecurityException | IOException e) {
+            LOGGER.info("reading and importing certificate from database column causes {}",
+                e.getLocalizedMessage());
+
+            importInfo.incRejected();
+        }
+
+         /*
+            // the import does not necessarily succeed, but we should mark the file as imported
+            ImportedURL impUrl = new ImportedURL();
+            impUrl.setName(certFile.toURI().toString());
+            impUrl.setImportDate(lastChangeDate);
+            importedURLRepository.save(impUrl);
+         */
+
+        importInfo.incImported();
+        return importInfo;
+
     }
 
     public ImportInfo importCertifiateFromURL(String url, ImportInfo importInfo, CAConnectorConfig caConfig) {

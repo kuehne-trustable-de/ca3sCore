@@ -586,6 +586,11 @@
                 </ports>
             </alpn>
 
+            <issuerDomainNames>
+                <comment mode="section">The list of names used as caaIdentities in ACME's directory metadata. These names are also used for a check of DNS persistent records</comment>
+                <value>acme.ca3s.org</value>
+            </issuerDomainNames>
+            
             <ratelimit>
                 <second>
                     <value>0</value>

@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-08-26 16:11:49.
+// Generated using typescript-generator version 3.2.1263 on 2026-09-16 23:04:47.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -135,6 +135,10 @@ export interface ICaConnectorConfigView extends ISerializable {
   active?: boolean;
   trustSelfsignedCertificates?: boolean;
   selector?: string;
+  certificateTable?: string;
+  certificateColumn?: string;
+  sequenceColumn?: string;
+  lastUpdateColumn?: string;
   role?: string;
   interval?: IInterval;
   messageProtectionPassphrase?: boolean;
@@ -149,6 +153,7 @@ export interface ICaConnectorConfigView extends ISerializable {
   expiryDate?: Date;
   allowCrlOnHold?: boolean;
   authenticationParameter?: IAuthenticationParameter;
+  database?: boolean;
 }
 
 export interface IPipelineView extends ISerializable {
@@ -291,11 +296,11 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedTypedValue[];
-  skiUrlSafe?: string;
-  auditPresent?: boolean;
   issuingActiveCertificates?: boolean;
-  serversideKeyGeneration?: boolean;
+  auditPresent?: boolean;
+  skiUrlSafe?: string;
   fullChainAvailable?: boolean;
+  serversideKeyGeneration?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -360,8 +365,8 @@ export interface IUserDTO {
   failedLogins?: number;
   blockedUntilDate?: Date;
   credentialsValidToDate?: Date;
-  managedExternally?: boolean;
   blocked?: boolean;
+  managedExternally?: boolean;
 }
 
 export interface ICSRView extends ISerializable {
@@ -402,8 +407,8 @@ export interface ICSRView extends ISerializable {
   isAdministrable?: boolean;
   tosAgreed?: boolean;
   tosAgreementLink?: string;
-  administrable?: boolean;
   csrvalid?: boolean;
+  administrable?: boolean;
 }
 
 export interface IPreferences extends ISerializable {

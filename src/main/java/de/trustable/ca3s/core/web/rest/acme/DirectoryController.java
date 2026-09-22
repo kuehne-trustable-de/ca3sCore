@@ -32,6 +32,7 @@ import de.trustable.ca3s.core.service.dto.acme.MetaInformation;
 import de.trustable.ca3s.core.service.util.PipelineUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -132,9 +133,13 @@ public class DirectoryController extends AcmeController {
 	private static final Logger LOG = LoggerFactory.getLogger(DirectoryController.class);
 
     final private PipelineUtil pipelineUtil;
+    final private String[] issuerDomainNameArray;
 
-    public DirectoryController(PipelineUtil pipelineUtil) {
+    public DirectoryController(PipelineUtil pipelineUtil,
+                               @Value("${ca3s.acme.issuerDomainNames:acme.ca3s.org}") String[] issuerDomainNameArray ) {
+
         this.pipelineUtil = pipelineUtil;
+        this.issuerDomainNameArray = issuerDomainNameArray;
     }
 
     @RequestMapping(method = { GET, POST }, produces = APPLICATION_JSON_VALUE)
@@ -165,6 +170,9 @@ public class DirectoryController extends AcmeController {
         }
         if( Boolean.TRUE.equals(pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.TOS_AGREEMENT_REQUIRED, false))) {
             metaInformation.setTermsOfService(pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.TOS_AGREEMENT_LINK, ""));
+        }
+        if(issuerDomainNameArray != null && issuerDomainNameArray.length > 0) {
+            metaInformation.setCaaIdentities(issuerDomainNameArray);
         }
 
         boolean eabRequired = pipelineUtil.getPipelineAttribute(pipeline, PipelineUtil.ACME_EAB_REQUIRED, false);

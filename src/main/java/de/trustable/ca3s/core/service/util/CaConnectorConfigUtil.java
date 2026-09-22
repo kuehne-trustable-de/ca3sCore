@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static de.trustable.ca3s.core.service.util.ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER;
 
@@ -46,6 +48,12 @@ public class CaConnectorConfigUtil {
     public static final String ATT_ATTRIBUTE_KDF_API_KEY_SALT= "KDF_API_KEY_SALT";
     public static final String ATT_ATTRIBUTE_KDF_API_KEY_CYCLES= "KDF_API_KEY_CYCLES";
     public static final String ATT_ATTRIBUTE_ROLE = "ROLE";
+
+    public static final String ATT_IS_DATABASE = "IS_DATABASE";
+    public static final String ATT_CERTIFICATE_COLUMN = "CERTIFICATE_COLUMN";
+    public static final String ATT_SEQUENCE_COLUMN  = "SEQUENCE_COLUMN";
+    public static final String ATT_LAST_UPDATE_COLUMN = "LAST_UPDATE_COLUMN";
+    private static final String ATT_CERTIFICATE_TABLE = "CERTIFICATE_TABLE";
 
     static Logger LOG = LoggerFactory.getLogger(CaConnectorConfigUtil.class);
 
@@ -154,6 +162,16 @@ public class CaConnectorConfigUtil {
                 cv.setRole(cfgAtt.getValue());
             }else if (ATT_ALLOW_CRL_ON_HOLD.equals(cfgAtt.getName())) {
                 cv.setAllowCrlOnHold(Boolean.parseBoolean(cfgAtt.getValue()));
+            }else if (ATT_IS_DATABASE.equals(cfgAtt.getName())) {
+                cv.setDatabase( Boolean.parseBoolean(cfgAtt.getValue()));
+            }else if (ATT_CERTIFICATE_COLUMN.equals(cfgAtt.getName())) {
+                cv.setCertificateColumn(cfgAtt.getValue());
+            }else if (ATT_CERTIFICATE_TABLE.equals(cfgAtt.getName())) {
+                cv.setCertificateTable(cfgAtt.getValue());
+            }else if (ATT_SEQUENCE_COLUMN.equals(cfgAtt.getName())) {
+                cv.setSequenceColumn(cfgAtt.getValue());
+            }else if (ATT_LAST_UPDATE_COLUMN.equals(cfgAtt.getName())) {
+                cv.setLastUpdateColumn(cfgAtt.getValue());
             }
 
         }
@@ -395,6 +413,38 @@ public class CaConnectorConfigUtil {
 
         boolean isAllowdeCrlOnHold = false;
 
+        boolean hasDatabase = false;
+        boolean hasCertificateTable = false;
+        boolean hasCertificateColumn = false;
+        boolean hasSequenceColumn = false;
+        boolean hasLastUpdateColumn = false;
+
+        Pattern pattern = Pattern.compile("^[a-zA-Z0-9_]*$");
+
+        Matcher m = pattern.matcher(cv.getCertificateTable());
+        if (!m.find()){
+            LOG.warn("importCertificateFromDB: table name '{}' contains unexpected characters", cv.getCertificateTable());
+            cv.setCertificateTable("");
+        }
+
+        m = pattern.matcher(cv.getCertificateColumn());
+        if (!m.find()){
+            LOG.warn("importCertificateFromDB: certificate column name '{}' contains unexpected characters", cv.getCertificateColumn());
+            cv.setCertificateColumn("");
+        }
+
+        m = pattern.matcher(cv.getSequenceColumn());
+        if (!m.find()){
+            LOG.warn("importCertificateFromDB: sequence column name '{}' contains unexpected characters", cv.getSequenceColumn());
+            cv.setSequenceColumn("");
+        }
+
+        m = pattern.matcher(cv.getLastUpdateColumn());
+        if (!m.find()){
+            LOG.warn("importCertificateFromDB: last update column name '{}' contains unexpected characters", cv.getLastUpdateColumn());
+            cv.setLastUpdateColumn("");
+        }
+
 
         for( CAConnectorConfigAttribute configAttribute : caConnectorConfig.getCaConnectorAttributes()){
 
@@ -512,11 +562,42 @@ public class CaConnectorConfigUtil {
                 }
                 hasRole = true;
 
+            }else if (ATT_IS_DATABASE.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.getDatabase(), Boolean.parseBoolean(configAttribute.getValue()))) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_IS_DATABASE_CHANGED, configAttribute.getValue(), Boolean.toString(cv.getDatabase()), caConnectorConfig));
+                    configAttribute.setValue(Boolean.toString(cv.getDatabase()));
+                }
+                hasDatabase = true;
 
+            }else if (ATT_CERTIFICATE_TABLE.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.getCertificateTable(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CERTIFICATE_TABLE_CHANGED, configAttribute.getValue(), cv.getCertificateTable(), caConnectorConfig));
+                    configAttribute.setValue(cv.getCertificateTable());
+                }
+                hasCertificateTable = true;
+            }else if (ATT_CERTIFICATE_COLUMN.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.getCertificateColumn(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CERTIFICATE_COLUMN_CHANGED, configAttribute.getValue(), cv.getCertificateColumn(), caConnectorConfig));
+                    configAttribute.setValue(cv.getCertificateColumn());
+                }
+                hasCertificateColumn = true;
+            }else if (ATT_SEQUENCE_COLUMN.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.getSequenceColumn(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_SEQUENCE_COLUMN_CHANGED, configAttribute.getValue(), cv.getSequenceColumn(), caConnectorConfig));
+                    configAttribute.setValue(cv.getSequenceColumn());
+                }
+                hasSequenceColumn = true;
+            }else if (ATT_LAST_UPDATE_COLUMN.equals(configAttribute.getName())) {
+                if(!Objects.equals( cv.getLastUpdateColumn(), configAttribute.getValue())) {
+                    auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_LAST_UPDATE_COLUMN_CHANGED, configAttribute.getValue(), cv.getLastUpdateColumn(), caConnectorConfig));
+                    configAttribute.setValue(cv.getLastUpdateColumn());
+                }
+                hasLastUpdateColumn = true;
             }else if (ATT_ATTRIBUTE_TYPE_AND_VALUE.equals(configAttribute.getName())) {
                 LOG.warn("CA Connector ATaV attribute detected!");
             }
         }
+
         if( !hasIssuerName){
             auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_ISSUER_NAME_CHANGED, null, cv.getIssuerName(), caConnectorConfig));
             createAttribute(ATT_ISSUER_NAME, cv.getIssuerName(), caConnectorConfig);
@@ -557,6 +638,30 @@ public class CaConnectorConfigUtil {
         if (!hasRole) {
             auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_ROLE_CHANGED, null, cv.getRole(), caConnectorConfig));
             createAttribute(ATT_ATTRIBUTE_ROLE, cv.getRole(), caConnectorConfig);
+        }
+        if (!hasDatabase) {
+            String value = "false";
+            if( cv.getDatabase() != null){
+                value = Boolean.toString(cv.getDatabase());
+            }
+            auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_DATABASE_CHANGED, null, value, caConnectorConfig));
+            createAttribute(ATT_IS_DATABASE, value, caConnectorConfig);
+        }
+        if (!hasCertificateTable) {
+            auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_CERTIFICATE_TABLE_CHANGED, null, cv.getCertificateTable(), caConnectorConfig));
+            createAttribute(ATT_CERTIFICATE_TABLE, cv.getCertificateTable(), caConnectorConfig);
+        }
+        if (!hasCertificateColumn) {
+            auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_CERTIFICATE_COLUMN_CHANGED, null, cv.getCertificateColumn(), caConnectorConfig));
+            createAttribute(ATT_CERTIFICATE_COLUMN, cv.getCertificateColumn(), caConnectorConfig);
+        }
+        if (!hasSequenceColumn) {
+            auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_SEQUENCE_COLUMN_CHANGED, null, cv.getSequenceColumn(), caConnectorConfig));
+            createAttribute(ATT_SEQUENCE_COLUMN, cv.getSequenceColumn(), caConnectorConfig);
+        }
+        if (!hasLastUpdateColumn) {
+            auditList.add(auditService.createAuditTraceCaConnectorConfig(AuditService.AUDIT_FILL_EMPTY_LAST_UPDATE_COLUMN_CHANGED, null, cv.getLastUpdateColumn(), caConnectorConfig));
+            createAttribute(ATT_LAST_UPDATE_COLUMN, cv.getLastUpdateColumn(), caConnectorConfig);
         }
 
         if( hasDerivedSecret(cv)) {
