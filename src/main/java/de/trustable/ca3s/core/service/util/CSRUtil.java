@@ -625,7 +625,7 @@ public class CSRUtil {
 
         if(Arrays.stream(p10ReqHolder.getSubjectRDNs()).noneMatch(
             rdn -> rdn.getFirst() != null && BCStyle.CN.equals(rdn.getFirst().getType())
-        )) {;
+        )) {
             return true;
         }
 
@@ -634,13 +634,12 @@ public class CSRUtil {
         ).anyMatch(
             rdn -> {
                 String cn = rdn.getFirst().getValue().toString();
-                boolean cnInSan = sanSet.stream().anyMatch(
+                return sanSet.stream().anyMatch(
                     gn -> {
                         String sanValue = CertificateUtil.getTypedSAN(gn);
                         return sanValue.equalsIgnoreCase("DNS:" + cn);
                     }
                 );
-                return cnInSan;
             }
         );
     }

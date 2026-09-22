@@ -32,11 +32,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletException;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serial;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
@@ -145,7 +147,7 @@ public class ScepServletImpl extends ScepServlet {
         CSR csr = cpUtil.buildCSR(csrAsPem, requestorName, AuditService.AUDIT_SCEP_CERTIFICATE_REQUESTED, "", pipeline );
 
         if( csr == null) {
-            String msg = "creation of certificate by SCEP transaction id '"+transId+"' failed ";
+            String msg = "creation of csr by SCEP transaction id '"+transId+"' failed ";
             auditService.saveAuditTrace(auditService.createAuditTraceCsrRejected(csr, msg));
             LOGGER.info(msg);
             scepOrder.setStatus(ScepOrderStatus.INVALID);
@@ -235,7 +237,19 @@ public class ScepServletImpl extends ScepServlet {
             }else {
                 //renewal branch
                 checkPipelineIsRenewalEnabled(pipeline, scepOrder);
+/*
+                // pre-check the incoming certificate before putting it into our database
 
+                CertificateFactory factory = CertificateFactory.getInstance("X.509");
+                X509Certificate tmpX509Cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(sender.getEncoded()));
+                if( tmpX509Cert.getBasicConstraints() < 0) {
+                    String msg = "SCEP request authentication by certificate failed, sender certificate is not a CA!";
+                    LOGGER.warn(msg);
+                    auditService.saveAuditTrace(auditService.createAuditTraceSCEPRequestRejected(scepOrder,msg));
+                    scepOrder.setStatus(ScepOrderStatus.INVALID);
+                    throw new OperationFailureException(FailInfo.badRequest);
+                }
+*/
                 Certificate senderCert = certUtil.createCertificate(sender.getEncoded(), null, null, false,
                     "scep sender certificate");
 

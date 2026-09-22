@@ -3,7 +3,6 @@ package de.trustable.ca3s.core.service.dto;
 import de.trustable.ca3s.core.domain.enumeration.CAConnectorType;
 import de.trustable.ca3s.core.domain.enumeration.Interval;
 
-import javax.persistence.Column;
 import java.io.Serializable;
 import java.time.Instant;
 

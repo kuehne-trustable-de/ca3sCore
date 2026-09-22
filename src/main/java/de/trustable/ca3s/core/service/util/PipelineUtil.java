@@ -282,7 +282,7 @@ public class PipelineUtil {
         List<String> domainRaOfficerList = new ArrayList<>();
 
         if( pipeline.getRequestProxies() != null) {
-            pv.setRequestProxyConfigIds(pipeline.getRequestProxies().stream().mapToLong(r -> r.getId()).toArray());
+            pv.setRequestProxyConfigIds(pipeline.getRequestProxies().stream().mapToLong(RequestProxyConfig::getId).toArray());
         }
 
         // set defaults, vuelidate is picky
@@ -1326,7 +1326,7 @@ public class PipelineUtil {
     public void addPipelineAttribute(Set<PipelineAttribute> pipelineAttributes, Pipeline p, List<AuditTrace> auditList, String name, String value) {
 
         if (name == null || name.trim().isEmpty()) {
-            new Exception("name == null").printStackTrace();
+            LOG.warn("addPipelineAttribute : name MUST NOT be null or empty");
             return;
         }
 

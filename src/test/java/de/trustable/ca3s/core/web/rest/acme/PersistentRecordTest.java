@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 
 class PersistentRecordTest {
 
-    public static final String SIMPLE_RECORD = "https://acme-staging-v02.api.letsencrypt.org/directory;accounturi=https://acme-staging-v02.api.letsencrypt.org/acme/acct/123456;persistUntil=1699999999;policy=default";
     public static final String SPEC_SAMPLE_RECORD ="authority.example;" +
         " accounturi=https://ca.example/acct/123;" +
         " policy=wildcard;" +

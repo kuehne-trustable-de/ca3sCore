@@ -2,7 +2,6 @@ package de.trustable.ca3s.core.service.dir;
 
 
 import de.trustable.ca3s.core.domain.CAConnectorConfig;
-import de.trustable.ca3s.core.domain.CSR;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.ImportedURL;
 import de.trustable.ca3s.core.repository.CAConnectorConfigRepository;
@@ -17,11 +16,8 @@ import de.trustable.ca3s.core.service.exception.CertificateAlreadyExistsExceptio
 import de.trustable.ca3s.core.service.util.*;
 import de.trustable.util.CryptoUtil;
 import org.apache.commons.io.IOUtils;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.cert.X509CertificateHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -143,9 +139,9 @@ public class DirectoryConnector {
 
         final Properties props = new Properties();
 
-        String userName = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConfig, CaConnectorConfigUtil.ATT_ISSUER_NAME, null);
+        String userName = CaConnectorConfigUtil.getCAConnectorConfigAttribute(caConfig, CaConnectorConfigUtil.ATT_ISSUER_NAME, null);
         String plainSecret = protUtil.unprotectString(caConfig.getSecret().getContentBase64());
-        LOGGER.debug("Database user name '{}' with password '{]'", userName, passwordMasker.maskPassword(plainSecret));
+        LOGGER.debug("Database user name '{}' with password '{}'", userName, passwordMasker.maskPassword(plainSecret));
 
         props.setProperty("user", userName);
         props.setProperty("password", plainSecret);
@@ -175,7 +171,7 @@ public class DirectoryConnector {
 
             Crawler crawler = new Crawler();
 
-            List<String> crawlDomains = Arrays.asList(caConfig.getCaUrl());
+            List<String> crawlDomains = Collections.singletonList(caConfig.getCaUrl());
 			for( String domain: crawlDomains) {
                 Set<String> certificateSet = crawler.search(domain, regEx);
                 for( String certUrl: certificateSet) {
@@ -533,21 +529,21 @@ public class DirectoryConnector {
 
         Pattern pattern = Pattern.compile(regEx);
 
-	    Files.walkFileTree(Paths.get(dir), new SimpleFileVisitor<Path>() {
-	        @Override
-	        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
-	            if (!Files.isDirectory(file) && Files.isReadable(file)) {
-	            	String filename = file.getFileName().toString().toLowerCase().trim();
+	    Files.walkFileTree(Paths.get(dir), new SimpleFileVisitor<>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                if (!Files.isDirectory(file) && Files.isReadable(file)) {
+                    String filename = file.getFileName().toString().toLowerCase().trim();
 
-	                if( pattern.matcher(filename).matches()) {
-	            		fileList.add(file.toString());
-	            	}else {
-	            		LOGGER.debug("ignoring file {}", file.getFileName().toString());
-	            	}
-	            }
-	            return FileVisitResult.CONTINUE;
-	        }
-	    });
+                    if (pattern.matcher(filename).matches()) {
+                        fileList.add(file.toString());
+                    } else {
+                        LOGGER.debug("ignoring file {}", file.getFileName().toString());
+                    }
+                }
+                return FileVisitResult.CONTINUE;
+            }
+        });
 	    return fileList;
 	}
 

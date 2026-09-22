@@ -67,7 +67,7 @@
     <properties>
         <!-- Build properties -->
         <maven.version>3.3.9</maven.version>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
         <!--node.version>v14.17.6</node.version>
         <npm.version>7.23.0</npm.version-->
         <node.version>v16.17.0</node.version>

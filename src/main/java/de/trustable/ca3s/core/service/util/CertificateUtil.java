@@ -716,7 +716,7 @@ public class CertificateUtil {
         final X509Principal principal = PrincipalUtil.getSubjectX509Principal(x509Cert);
         final Vector<?> values = principal.getValues(X509Name.CN);
 
-        String cn = values.size() > 0 ? (String) values.get(0) : null;
+        String cn = !values.isEmpty() ? (String) values.get(0) : null;
 
         List<String> sanList = getCertAttributes(cert, CertificateAttribute.ATTRIBUTE_SAN);
         sanList.addAll(getCertAttributes(cert, CsrAttribute.ATTRIBUTE_TYPED_SAN));
@@ -887,10 +887,8 @@ public class CertificateUtil {
                         }
                     }
                 } catch (InvalidNameException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    LOG.info("processing of Name failed", e);
                 }
-
             }
 
             String allSans = "";
@@ -1239,9 +1237,6 @@ public class CertificateUtil {
                     }
                 }
 
-                if (value instanceof ASN1String) {
-                    return ((ASN1String) value).getString();
-                }
             }
         }
 
