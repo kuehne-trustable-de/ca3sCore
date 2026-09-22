@@ -2080,7 +2080,9 @@ public class PipelineUtil {
                 notificationService.notifyAccountHolderOnKeyReuse(acmeOrder);
                 return true;
             case KEY_UNIQUE:
-                messageList.add("Public key already used. Create a new key pair.");
+                String msg = "Public key already used. Create a new key pair.";
+                LOG.info(msg);
+                messageList.add(msg);
                 return false;
             case DOMAIN_REUSE_WARN_ONLY:
                 if( acmeOrder == null){
