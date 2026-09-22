@@ -16,6 +16,16 @@ class PersistentRecordTest {
         " policy=wildcard; \n\n" +
         "     persistUntil=1721952000";
 
+    public static final String SPEC_ALL_QUOTE_RECORD ="\"authority.example;\"" +
+        " \"accounturi=https://ca.example/acct/123;\"" +
+        " \"policy=wildcard;\"" +
+        " \"persistUntil=1721952000\"";
+
+    public static final String SPEC_SINGLE_QUOTE_RECORD ="\"authority.example;" +
+        " accounturi=https://ca.example/acct/123;" +
+        " policy=wildcard;" +
+        " persistUntil=1721952000\"";
+
     @Test
     void getCaIssuer() {
 
@@ -31,5 +41,16 @@ class PersistentRecordTest {
         Assertions.assertEquals("wildcard", pr.getPolicy());
         Assertions.assertEquals(1721952000L * 1000L, pr.getPersistUntilMilliSec());
 
+        pr = new PersistentRecord(SPEC_ALL_QUOTE_RECORD);
+        Assertions.assertEquals("authority.example", pr.getCaIssuer());
+        Assertions.assertEquals("https://ca.example/acct/123", pr.getAccountUri());
+        Assertions.assertEquals("wildcard", pr.getPolicy());
+        Assertions.assertEquals(1721952000L * 1000L, pr.getPersistUntilMilliSec());
+
+        pr = new PersistentRecord(SPEC_SINGLE_QUOTE_RECORD);
+        Assertions.assertEquals("authority.example", pr.getCaIssuer());
+        Assertions.assertEquals("https://ca.example/acct/123", pr.getAccountUri());
+        Assertions.assertEquals("wildcard", pr.getPolicy());
+        Assertions.assertEquals(1721952000L * 1000L, pr.getPersistUntilMilliSec());
     }
 }

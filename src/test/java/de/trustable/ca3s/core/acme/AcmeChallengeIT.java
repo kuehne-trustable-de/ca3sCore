@@ -30,6 +30,7 @@ import java.net.URL;
 import java.security.KeyPair;
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.EnumSet;
 import java.util.Optional;
@@ -608,20 +609,20 @@ public class AcmeChallengeIT {
                 Assertions.assertTrue(challengeOpt.isPresent(), "expected to find a challenge");
 
                 DnsPersist01Challenge challenge = challengeOpt.get();
-/*
+
                 String rdata = challenge.buildRData()
-                    .issuerDomainName(domain)
+                    .issuerDomainName("acme.ca3s.org")
                     .wildcard()
-                    .persistUntil(Instant.now().plus(3, ChronoUnit.MONTHS))
-                    .noQuotes()
+                    .persistUntil(Instant.now().plus(3600L * 24L, ChronoUnit.SECONDS))
                     .build();
 
                 LOG.debug("rdata by acme4j {}", rdata);
                 dnsChallengeHelper.addDNSPersistChallengeDetails(rdata, auth.getIdentifier().getValue());
-*/
+/*
                 dnsChallengeHelper.addDNSPersistChallengeDetails(
                     "\"acme.ca3s.org; accounturi=" + accountLocationUrl.toString() + "\"",
                     auth.getIdentifier().getValue());
+*/
 
                 dnsChallengeHelper.addDNSPersistChallengeDetails(
                     "\"letsencrypt.org; accounturi=" + accountLocationUrl.toString() + "\"",
