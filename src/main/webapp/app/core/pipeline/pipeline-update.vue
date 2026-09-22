@@ -707,7 +707,7 @@
                                id="pipeline-eabRequired" v-model="pipeline.acmeConfigItems.externalAccountRequired"/>
                     </div>
 
-                    <div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
+                    <!--div v-if="$v.pipeline.type.$model === 'ACME'" class="form-inline">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.checkCAA')"
                                for="pipeline-checkCAA"></label>
                         <help-tag role="Admin" target="pipeline.acme.check-caa"/>
@@ -719,7 +719,7 @@
                         <help-tag role="Admin" target="pipeline.acme.ca-name-caa"/>
                         <input type="text" class="form-control" name="caNameCAA" id="pipeline-caNameCAA"
                                v-model="pipeline.acmeConfigItems.caNameCAA"/>
-                    </div>
+                    </div-->
 
                     <div v-if="($v.pipeline.type.$model === 'ACME') && (requestProxyConfigs.length > 0 )"
                          class="form-inline">

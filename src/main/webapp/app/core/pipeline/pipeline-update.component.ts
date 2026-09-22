@@ -159,7 +159,6 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     this.networkCollapsed = networkCollapsed;
   }
 
-
   public alignNetworkAcceptArraySize(index: number): void {
     this.alignNetworkArraySize(this.pipeline.networkAcceptArr, index);
   }
@@ -260,7 +259,7 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     this.pipeline.caConnectorName = 'internal';
     this.pipeline.selectedRolesList = [{ name: 'ROLE_ADMIN' }];
     this.pipeline.selectedTenantList = [];
-//    this.requestProxyConfigs = [];
+    //    this.requestProxyConfigs = [];
   }
 
   public isWebPipelineType(): boolean {
@@ -330,6 +329,12 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
         self.initializePipeline(self.pipeline);
       }
     });
+
+    if (!this.isAtLeastOneChallengeSelect()) {
+      window.console.info('no challenge selected, setting allowChallengeHTTP01 to true');
+      this.pipeline.acmeConfigItems.allowChallengeHTTP01 = true;
+    }
+
     this.retrieveAllTenants();
     this.retrieveAllAuthorities();
   }
@@ -369,7 +374,12 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
   public isAtLeastOneChallengeSelect(): boolean {
     if (this.pipeline.type === 'ACME') {
       const acmeConfigItems = this.pipeline.acmeConfigItems;
-      return acmeConfigItems.allowChallengeDNS || acmeConfigItems.allowChallengeHTTP01 || acmeConfigItems.allowChallengeAlpn;
+      return (
+        acmeConfigItems.allowChallengeDNS ||
+        acmeConfigItems.allowChallengeDNSPersist ||
+        acmeConfigItems.allowChallengeHTTP01 ||
+        acmeConfigItems.allowChallengeAlpn
+      );
     }
     return true;
   }
@@ -424,20 +434,20 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
     return !this.$v.pipeline.$invalid && this.isAtLeastOneChallengeSelect();
   }
 
-  public moveAraItemUp(index:number):void{
+  public moveAraItemUp(index: number): void {
     window.console.info('in moveAraItemUp(' + index + ')');
-    if( index > 0){
-      const tmp = this.pipeline.araRestrictions[index -1];
-      this.pipeline.araRestrictions[index -1] = this.pipeline.araRestrictions[index];
+    if (index > 0) {
+      const tmp = this.pipeline.araRestrictions[index - 1];
+      this.pipeline.araRestrictions[index - 1] = this.pipeline.araRestrictions[index];
       this.pipeline.araRestrictions[index] = tmp;
       this.updateCounter++;
     }
   }
 
-  public moveAraItemDown(index:number):void{
+  public moveAraItemDown(index: number): void {
     window.console.info('in moveAraItemDown(' + index + ')');
     const currentSize = this.pipeline.araRestrictions.length;
-    if( index + 1 < currentSize){
+    if (index + 1 < currentSize) {
       const tmp = this.pipeline.araRestrictions[index + 1];
       this.pipeline.araRestrictions[index + 1] = this.pipeline.araRestrictions[index];
       this.pipeline.araRestrictions[index] = tmp;
@@ -463,7 +473,6 @@ export default class PipelineUpdate extends mixins(AlertMixin) {
       }
     }
   }
-
 }
 
 export class PipelineView implements IPipelineView {
