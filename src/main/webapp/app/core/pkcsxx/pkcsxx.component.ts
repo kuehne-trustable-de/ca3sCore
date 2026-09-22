@@ -267,7 +267,8 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public showRegExpWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
     console.log('showRegExpWarning( ' + rr.regExMatch + ', ' + valueIndex + ', "' + value + '")');
     console.log('showRegExpWarning : rr.regEx = ' + rr.regEx);
-    if (rr.regExMatch && valueIndex === 0 && rr.regEx.trim().length > 0) {
+    //    if (rr.regExMatch && valueIndex === 0 && rr.regEx.trim().length > 0) {
+    if (rr.regExMatch && rr.regEx.trim().length > 0) {
       const valid = !this.showRegExpFieldWarning(value, rr.regEx);
       console.log('showRegExpWarning( ' + rr.regExMatch + ', ' + valueIndex + ', "' + value + '") -> ' + valid);
       return !valid;

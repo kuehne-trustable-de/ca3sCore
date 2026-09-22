@@ -93,14 +93,25 @@
                           <div v-for="(val, valueIndex) in upload.certificateAttributes[index].values" :key="valueIndex">
                               <select v-if="rr.name === 'SAN'"
                                   class="form-control colTypePrefix"
-                                      :name="'pkcsxx.upload.type.' + rr.name" :id="'pkcsxx.upload.type.' + rr.name"
+                                      :name="'pkcsxx.upload.type.san.' + valueIndex" :id="'pkcsxx.upload.type.san.' + valueIndex"
                                       v-model="upload.certificateAttributes[index].values[valueIndex].type"
                                       required v-on:change="updateSANType(index, valueIndex, $event)">
                                   <option key="DNS" selected="selected">DNS</option>
                                   <option key="IP">IP</option>
                               </select>
 
-                              <input
+                              <input v-if="rr.name === 'SAN'"
+                                  type="text"
+                                  :class="((showProblemWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])) ? 'invalid' : ' valid') + ((rr.name === 'SAN') ? ' colTypedValue' :'')"
+                                  class="form-control form-check-inline"
+                                  autocomplete="false"
+                                  :name="'pkcsxx.upload.san.' + valueIndex" :id="'pkcsxx.upload.san.' + valueIndex"
+                                  v-model="upload.certificateAttributes[index].values[valueIndex].value"
+                                  :readonly="rr.readOnly"
+                                  :required="rr.required"
+                                  v-on:input="alignRDNArraySize(index, valueIndex)"/>
+
+                              <input v-if="rr.name !== 'SAN'"
                                   type="text"
                                   :class="((showProblemWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])) ? 'invalid' : ' valid') + ((rr.name === 'SAN') ? ' colTypedValue' :'')"
                                   class="form-control form-check-inline"
@@ -112,9 +123,13 @@
                                   v-on:input="alignRDNArraySize(index, valueIndex)"/>
 
                               <small v-if="rr.name === 'CN' && showContentOrSANWarning(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex].value)"
-                                     class="form-text text-danger" v-text="$t('entity.validation.requiredOrSAN')"></small>
+                                     class="form-text text-danger"
+                                     :id="'pkcsxx.upload.san.restriction.required.'+ valueIndex"
+                                     v-text="$t('entity.validation.requiredOrSAN')"></small>
                               <small v-else-if="showRegExpWarningTV(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
-                                     class="form-text text-danger" v-text="$t('entity.validation.pattern', {'pattern': rr.regEx})"></small>
+                                     class="form-text text-danger"
+                                     :id="'pkcsxx.upload.regEx.'+ valueIndex"
+                                     v-text="$t('entity.validation.pattern', {'pattern': rr.regEx})"></small>
                           </div>
 
                       </div>
