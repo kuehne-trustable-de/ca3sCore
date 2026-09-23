@@ -156,16 +156,27 @@ public class ScepServiceIT {
             Collection<? extends Certificate> collEECerts = certStore.getCertificates(eeSelector);
             X509Certificate issuedCert = (X509Certificate) collEECerts.iterator().next();
 
-            KeyPair keyPairRenew = keyUtil.createKeyPair();
-            PKCS10CertificationRequest csrRenew = CryptoUtil.getCsr(enrollingPrincipal,
-                keyPairRenew.getPublic(),
-                keyPairRenew.getPrivate(),
+            KeyPair keyPairRenewFailure = keyUtil.createKeyPair();
+            PKCS10CertificationRequest csrRenewFailure = CryptoUtil.getCsr(enrollingPrincipal,
+                keyPairRenewFailure.getPublic(),
+                keyPairRenewFailure.getPrivate(),
                 null); // No password, we want to renew !
 
-            LOG.debug("trying to renew certificate : " + issuedCert.toString());
+            LOG.debug("trying to renew certificate with improper key: " + issuedCert.toString());
+            EnrollmentResponse respRenewFailure = client.enrol(issuedCert, keyPair.getPrivate(), csrRenewFailure);
+            Assertions.assertNotNull(respRenewFailure);
+            Assertions.assertFalse(respRenewFailure.isSuccess(), "Renewal expected to fail due to wrong key");
+
+            KeyPair keyPairRenew = keyUtil.createKeyPair();
+            PKCS10CertificationRequest csrFailingRenewal = CryptoUtil.getCsr(enrollingPrincipal,
+                keyPairRenew.getPublic(),
+                keyPair.getPrivate(),
+                null); // No password, we want to renew !
+
+            LOG.debug("trying to renew certificate : " + issuedCert);
 
             //renewal, sign with the old key
-            EnrollmentResponse respRenew = client.enrol(issuedCert, keyPair.getPrivate(), csrRenew);
+            EnrollmentResponse respRenew = client.enrol(issuedCert, keyPair.getPrivate(), csrFailingRenewal);
             Assertions.assertNotNull(respRenew);
             if (respRenew.isSuccess()) {
 

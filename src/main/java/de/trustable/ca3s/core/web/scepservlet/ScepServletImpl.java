@@ -19,7 +19,11 @@ import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.operator.ContentVerifierProvider;
+import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.pkcs.PKCSException;
 import org.jetbrains.annotations.NotNull;
 import org.jscep.server.ScepServlet;
 import org.jscep.transaction.FailInfo;
@@ -237,21 +241,45 @@ public class ScepServletImpl extends ScepServlet {
             }else {
                 //renewal branch
                 checkPipelineIsRenewalEnabled(pipeline, scepOrder);
-/*
-                // pre-check the incoming certificate before putting it into our database
 
-                CertificateFactory factory = CertificateFactory.getInstance("X.509");
-                X509Certificate tmpX509Cert = (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(sender.getEncoded()));
-                if( tmpX509Cert.getBasicConstraints() < 0) {
-                    String msg = "SCEP request authentication by certificate failed, sender certificate is not a CA!";
+                // check the sender certificate against the csr
+                ContentVerifierProvider verifierProvider = new JcaContentVerifierProviderBuilder()
+                    .setProvider(BouncyCastleProvider.PROVIDER_NAME)
+                    .build(sender.getPublicKey());
+
+                boolean csrVerified = false;
+                try {
+                    csrVerified = csr.isSignatureValid(verifierProvider);
+                } catch (PKCSException e) {
+                    LOGGER.info("csr.isSignatureValid() failed with PKCSException, trying to verify with tmpX509Cert", e);
+                }
+                if (!csrVerified) {
+                    String msg = "SCEP request authentication by sender certificate failed, csr signature invalid!";
                     LOGGER.warn(msg);
-                    auditService.saveAuditTrace(auditService.createAuditTraceSCEPRequestRejected(scepOrder,msg));
+                    auditService.saveAuditTrace(auditService.createAuditTraceSCEPRequestRejected(scepOrder, msg));
                     scepOrder.setStatus(ScepOrderStatus.INVALID);
                     throw new OperationFailureException(FailInfo.badRequest);
                 }
-*/
-                Certificate senderCert = certUtil.createCertificate(sender.getEncoded(), null, null, false,
-                    "scep sender certificate");
+
+                // check if the sender certificate is already in our database
+                Certificate senderCert = certUtil.getCertificateByX509(sender);
+                if( senderCert!= null){
+                    LOGGER.debug("checkServerTrusted : sender certificate found in database  '" + senderCert.getSubject() + "' with id  '" + senderCert.getId() + "'" );
+                }else {
+
+                    // check if the sender certificate is a CA certificate, if not reject the request
+                    if( sender.getBasicConstraints() < 0) {
+                        String msg = "SCEP request authentication by certificate failed, sender certificate is not a CA!";
+                        LOGGER.warn(msg);
+                        auditService.saveAuditTrace(auditService.createAuditTraceSCEPRequestRejected(scepOrder,msg));
+                        scepOrder.setStatus(ScepOrderStatus.INVALID);
+                        throw new OperationFailureException(FailInfo.badRequest);
+                    }
+                    senderCert = certUtil.createCertificate(cryptoUtil.x509CertToPem(sender), null,
+                        null,
+                        false);
+                    auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_TLS_CERTIFICATE_IMPORTED, senderCert));
+                }
 
                 // perform different checks om the sender cert
                 checkSenderCertificate(senderCert, scepOrder);
