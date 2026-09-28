@@ -273,6 +273,7 @@ public class CSRSubmitIT extends WebTestBase {
         String st = "Lower Saxony";
         String unaccepted_san = "wwww." + cn + ".org";
         String san = "wwww." + cn;
+        String san2 = "mail." + cn;
 
         String infoSample = "some info";
 
@@ -344,6 +345,9 @@ public class CSRSubmitIT extends WebTestBase {
 
         validatePresent(LOC_INP_SAN_VALUE_1);
         setText(LOC_INP_SAN_VALUE_1, unaccepted_san);
+        validatePresent(LOC_SMALL_ERROR_SAN_REGEX_RESTRICTION_1);
+
+        setText(LOC_INP_SAN_VALUE_1, san2);
         validateNotPresent(LOC_SMALL_ERROR_SAN_REGEX_RESTRICTION_1);
 
         validatePresent(LOC_INP_ARA_0);
@@ -355,7 +359,6 @@ public class CSRSubmitIT extends WebTestBase {
 
         validatePresent(LOC_SMALL_WARNING_CN_SAN_RESTRICTION);
         setText(LOC_INP_SAN_VALUE, cn);
-
         validateNotPresent(LOC_SMALL_WARNING_CN_SAN_RESTRICTION);
 
         scrollToElement(LOC_BTN_REQUEST_CERTIFICATE);
