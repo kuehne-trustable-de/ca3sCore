@@ -47,6 +47,7 @@ import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 import org.bouncycastle.util.encoders.Base64;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -188,6 +189,8 @@ public class ContentUploadProcessor {
         String content = uploaded.getContent();
         LOG.debug("Request to upload a PEM clob : {} by user {}", content, requestorName);
 
+        Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
+
         PkcsXXData p10ReqData = new PkcsXXData();
 
         try {
@@ -222,7 +225,7 @@ public class ContentUploadProcessor {
             }
 
             // insert or read a certificate and return Certificate object
-            Certificate cert = insertCertificate(content, requestorName);
+            Certificate cert = insertCertificate(content, requestorName, uploaded);
             p10ReqData.setCreatedCertificateId(cert.getId().toString());
             p10ReqData.setCertificateView( new CertificateView(cert));
 
@@ -267,7 +270,6 @@ public class ContentUploadProcessor {
                 }
             }
 
-            Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
             if( optPipeline.isPresent() && optPipeline.get().getProcessInfoNotify() != null) {
                 bpmnUtil.notifyOnCertificateStatusChange(optPipeline.get().getProcessInfoNotify(), cert.getId());
             }
@@ -322,7 +324,6 @@ public class ContentUploadProcessor {
 
                 boolean isPublicKeyApplicable;
 
-                Optional<Pipeline> optPipeline = pipelineRepository.findById(uploaded.getPipelineId());
                 if( optPipeline.isPresent()) {
                     isPublicKeyApplicable = pipelineUtil.isPublicKeyApplicable(optPipeline.get(), p10ReqHolder, messageList);
                     p10ReqData.setCsrPublicKeyPresentInDB(!isPublicKeyApplicable);
@@ -404,23 +405,9 @@ public class ContentUploadProcessor {
                             }
                             LOG.debug("certificate {} found in PKCS12 for alias '{}'", x509cert.getSubjectX500Principal().toString(), alias);
 
-                            String b64Content = cryptoUtil.x509CertToPem(x509cert);
-                            X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(b64Content);
-                            X509CertificateHolderShallow x509Holder = new X509CertificateHolderShallow(certHolder);
-                            x509Holder.setPemCertificate(b64Content);
+                            X509CertificateHolderShallow x509Holder = getCertHolder(x509cert);
+                            Certificate cert = findOrInsertCertificate(x509Holder, content, requestorName, uploaded);
 
-                            Certificate cert;
-                            List<Certificate> certListDB = findCertificateByIssuerSerial(certHolder);
-                            LOG.debug("certListDB has # {} item", certListDB.size());
-                            if(!certListDB.isEmpty()){
-                                cert = certListDB.get(0);
-                                if( certListDB.size() > 1 ) {
-                                    LOG.info("problem: found more than one matching certificate for issuer {}, serial {}", certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
-                                }
-                            }else {
-                                // insert certificate
-                                cert = insertCertificate(b64Content, requestorName);
-                            }
                             x509Holder.setCertificateId(cert.getId());
                             x509Holder.setCertificatePresentInDB(true);
 
@@ -434,6 +421,24 @@ public class ContentUploadProcessor {
                                 x509Holder.setKeyPresent(true);
                                 LOG.debug("key {} stored for certificate {}", "*****", cert.getId());
 
+                            }
+
+
+                            if( pkcs12Store.getCertificateChain(alias) != null && pkcs12Store.getCertificateChain(alias).length > 0) {
+                                for (java.security.cert.Certificate chainCert : pkcs12Store.getCertificateChain(alias)) {
+                                    if (chainCert instanceof X509Certificate) {
+                                        X509Certificate x509chainCert = (X509Certificate) chainCert;
+                                        LOG.debug("certificate {} found in PKCS12 chain for alias '{}'", x509chainCert.getSubjectX500Principal().toString(), alias);
+                                        if (chainCert.equals(x509cert)) {
+                                            continue;
+                                        }
+
+                                        X509CertificateHolderShallow chainHolder = getCertHolder(x509chainCert);
+                                        UploadPrecheckData uploadedForChainCertificate = getUploadPrecheckData(uploaded, chainHolder);
+                                        findOrInsertCertificate(chainHolder, content, requestorName, uploadedForChainCertificate);
+                                        certList.add(chainHolder);
+                                    }
+                                }
                             }
                             certList.add(x509Holder);
                         }
@@ -462,8 +467,47 @@ public class ContentUploadProcessor {
                 }
             }
         }
+
         return new ResponseEntity<>(p10ReqData, HttpStatus.OK);
 
+    }
+
+    private static @NotNull UploadPrecheckData getUploadPrecheckData(UploadPrecheckData uploaded, X509CertificateHolderShallow chainHolder) {
+        UploadPrecheckData uploadedForChainCertificate = new UploadPrecheckData();
+        uploadedForChainCertificate.setContent(chainHolder.getPemCertrificate());
+        uploadedForChainCertificate.setPipelineId(uploaded.getPipelineId());
+        uploadedForChainCertificate.setCreationMode(uploaded.getCreationMode());
+        uploadedForChainCertificate.setCertificateAttributes(new NamedValues[0]);
+        uploadedForChainCertificate.setArAttributes(new NamedValues[0]);
+        uploadedForChainCertificate.setNamedValues(new NamedValue[0]);
+        return uploadedForChainCertificate;
+    }
+
+    Certificate findOrInsertCertificate(X509CertificateHolderShallow x509Holder, String content, String requestorName, UploadPrecheckData uploaded) throws GeneralSecurityException, IOException {
+
+        Certificate cert = null;
+        List<Certificate> certListDB = findCertificateByIssuerSerial(x509Holder);
+        LOG.debug("certListDB has # {} item", certListDB.size());
+        if(!certListDB.isEmpty()){
+            cert = certListDB.get(0);
+            if( certListDB.size() > 1 ) {
+                LOG.info("problem: found more than one matching certificate for issuer {}, serial {}", x509Holder.getIssuer(), x509Holder.getSerial());
+            }
+        }else {
+
+            // insert certificate
+            cert = insertCertificate(x509Holder.getPemCertrificate(), requestorName, uploaded);
+        }
+
+        return cert;
+    }
+
+    X509CertificateHolderShallow getCertHolder(X509Certificate x509cert) throws GeneralSecurityException, IOException {
+        String b64Content = cryptoUtil.x509CertToPem(x509cert);
+        X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(b64Content);
+        X509CertificateHolderShallow x509Holder = new X509CertificateHolderShallow(certHolder);
+        x509Holder.setPemCertificate(b64Content);
+        return x509Holder;
     }
 
     @Transactional
@@ -641,15 +685,26 @@ public class ContentUploadProcessor {
 	}
 
 
-	private Certificate insertCertificate(String content, String requestorName)
+	private Certificate insertCertificate(String content, String requestorName, UploadPrecheckData uploaded)
 			throws GeneralSecurityException, IOException {
 		// insert certificate
 		Certificate cert = certUtil.createCertificate(content, null, null, false);
         auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_MANUAL_CERTIFICATE_IMPORTED, cert));
 
-		// save the source of the certificate
+        certUtil.setCertificateComment(cert, uploaded.getRequestorcomment());
+        // save the source of the certificate
 		certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_UPLOADED_BY, requestorName);
-		certificateRepository.save(cert);
+
+
+        NamedTypedValue[] arTypedAttributes = Arrays.stream(uploaded.getArAttributes()).map(nvs -> {
+            String value = (nvs.getValues().length > 0) ?
+                nvs.getValues()[0].getValue() :
+                "";
+            return new NamedTypedValue(nvs.getName(), "", value);
+        }).toArray(NamedTypedValue[]::new);
+        certUtil.updateARAttributes(arTypedAttributes, cert);
+
+        certificateRepository.save(cert);
 
 		LOG.info("created new certificate entry with id {} uploaded by {}", cert.getId(), requestorName);
 
@@ -768,9 +823,13 @@ public class ContentUploadProcessor {
 		return null;
 	}
 
-	private List<Certificate> findCertificateByIssuerSerial(X509CertificateHolder certHolder) {
-		return certificateRepository.findByIssuerSerial(certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
+    private List<Certificate> findCertificateByIssuerSerial(X509CertificateHolder certHolder) {
+        return certificateRepository.findByIssuerSerial(certHolder.getIssuer().toString(), certHolder.getSerialNumber().toString());
 
-	}
+    }
+    private List<Certificate> findCertificateByIssuerSerial(X509CertificateHolderShallow x509Holder) {
+        return certificateRepository.findByIssuerSerial(x509Holder.getIssuer(), x509Holder.getSerial());
+
+    }
 
 }

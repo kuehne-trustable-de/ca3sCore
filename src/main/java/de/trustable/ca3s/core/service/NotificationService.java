@@ -776,7 +776,6 @@ public class NotificationService {
     @Transactional
     public void notifyRAOfficerOnRequest(CSR csr) {
         String ra = "";
-        String domainRa = "";
         Pipeline pipeline = csr.getPipeline();
 
         List<User> domainRaList = new ArrayList<>();
