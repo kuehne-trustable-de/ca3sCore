@@ -27,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
 import java.util.Random;
 
 import static de.trustable.ca3s.core.service.util.ProtectedContentUtil.PLAIN_SECRET_PLACEHOLDER;
@@ -70,8 +71,18 @@ public class CAConnectorAdministrationIT extends WebTestBase{
     public static final By LOC_INP_CA_API_SALT = By.xpath("//div/input [@type = 'text'][@id = 'authentication-selection-api-salt']");
     public static final By LOC_INP_CA_API_CYCLES = By.xpath("//div/input [@type = 'number'][@id = 'authentication-selection-api-cycles']");
 
+    public static final By LOC_INP_CA_JDBC_TABLE = By.xpath("//div/input [@type = 'text'][@id = 'ca-connector-config-certificateTable']");
+    public static final By LOC_INP_CA_JDBC_COLUMN = By.xpath("//div/input [@type = 'text'][@id = 'ca-connector-config-certificateColumn']");
+    public static final By LOC_INP_CA_JDBC_SEQUENCE_COLUMN = By.xpath("//div/input [@type = 'text'][@id = 'ca-connector-config-sequenceColumn']");
+    public static final By LOC_INP_CA_JDBC_LAST_UPDATE_COLUMN = By.xpath("//div/input [@type = 'text'][@id = 'ca-connector-config-lastUpdateColumn']");
+
+    public static final By LOC_SEL_PROCESS_INFO_CREATE = By.xpath("//div//select [@id = 'cAConnectorConfig.processInfoCreate']");
+
+
     public static final By LOC_BTN_SAVE = By.xpath("//form//div/button [@type='submit'][span [text() = 'Save']]");
     public static final By LOC_TEXT_CONNECTOR_LIST = By.xpath("//div/h2/span [text() = 'CA Connector Configs']");
+
+
     private static final Logger LOG = LoggerFactory.getLogger(CAConnectorAdministrationIT.class);
 
     private static final String USER_NAME_USER = "user1";
@@ -111,7 +122,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
     }
 
 	@BeforeEach
-	void init() {
+	void init() throws IOException {
 
 	    waitForUrl();
 
@@ -147,6 +158,8 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         }else{
             Assertions.fail("creation of certificate failed: " + responseEntity);
         }
+
+        ptc.getSimpleBPMNProcessInfo();
 
         if( driver == null) {
 		    super.startWebDriver();
@@ -224,6 +237,8 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validateNotPresent(LOC_INP_CA_CYCLES);
         validateNotPresent(LOC_INP_CA_API_SALT);
         validateNotPresent(LOC_INP_CA_API_CYCLES);
+
+        validateNotPresent(LOC_SEL_PROCESS_INFO_CREATE);
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
@@ -325,6 +340,12 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validateNotPresent(LOC_INP_CA_CONFIG_PW_PROT);
         validateNotPresent(LOC_INP_CA_CONFIG_MESSAGE_PROTECTION);
         validateNotPresent(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
+
+        validateNotPresent(LOC_INP_CA_JDBC_TABLE);
+        validateNotPresent(LOC_INP_CA_JDBC_COLUMN);
+        validateNotPresent(LOC_INP_CA_JDBC_SEQUENCE_COLUMN);
+        validateNotPresent(LOC_INP_CA_JDBC_LAST_UPDATE_COLUMN);
+        validateNotPresent(LOC_SEL_PROCESS_INFO_CREATE);
 
         validatePresent(LOC_INP_CA_CONFIG_PASSPHRASE);
         click(LOC_INP_CA_CONFIG_PASSPHRASE);
@@ -450,6 +471,12 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validateNotPresent(LOC_INP_CA_CONFIG_MESSAGE_PROTECTION);
         validateNotPresent(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
 
+        validateNotPresent(LOC_INP_CA_JDBC_TABLE);
+        validateNotPresent(LOC_INP_CA_JDBC_COLUMN);
+        validateNotPresent(LOC_INP_CA_JDBC_SEQUENCE_COLUMN);
+        validateNotPresent(LOC_INP_CA_JDBC_LAST_UPDATE_COLUMN);
+        validateNotPresent(LOC_SEL_PROCESS_INFO_CREATE);
+
         validatePresent(LOC_INP_CA_CONFIG_PASSPHRASE);
         click(LOC_INP_CA_CONFIG_PASSPHRASE);
         setText(LOC_INP_CA_CONFIG_PASSPHRASE, protectionPassphrase);
@@ -542,6 +569,12 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validateNotPresent(LOC_INP_CA_API_SALT);
         validateNotPresent(LOC_INP_CA_API_CYCLES);
 
+        validateNotPresent(LOC_INP_CA_JDBC_TABLE);
+        validateNotPresent(LOC_INP_CA_JDBC_COLUMN);
+        validateNotPresent(LOC_INP_CA_JDBC_SEQUENCE_COLUMN);
+        validateNotPresent(LOC_INP_CA_JDBC_LAST_UPDATE_COLUMN);
+        validateNotPresent(LOC_SEL_PROCESS_INFO_CREATE);
+
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);
 
@@ -563,6 +596,185 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         Assertions.assertEquals(newCAConnectorUrl, getText(LOC_SEL_CA_CONFIG_URL));
         Assertions.assertEquals("DAY", getText(LOC_SEL_CA_CONFIG_INTERVAL));
         Assertions.assertTrue(isChecked(LOC_INP_CA_CONFIG_TRUST_SELFSIGNED));
+
+        validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
+        uncheck(LOC_INP_CA_CONFIG_ACTIVE);
+        isEnabled(LOC_BTN_SAVE);
+
+        checkHelpTargets();
+    }
+
+    @Test
+    public void testCAConnectorCreateDirectoryJdbc() {
+
+        String newCAConnectorName = "CAConnector_" + Math.random();
+        String newCAConnectorUrl = "jdbc:h2:mem:ca3sTestDB;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL";
+
+        signIn(USER_NAME_ADMIN, USER_PASSWORD_ADMIN);
+
+        validatePresent(LOC_LNK_CONFIG_MENUE);
+        click(LOC_LNK_CONFIG_MENUE);
+
+        validatePresent(LOC_LNK_CA_CONFIG_MENUE);
+        click(LOC_LNK_CA_CONFIG_MENUE);
+
+        validatePresent(LOC_BTN_CA_CONFIG_NEW);
+        click(LOC_BTN_CA_CONFIG_NEW);
+
+        // crete new connector
+        validatePresent(LOC_INP_CA_CONFIG_NAME);
+        setText(LOC_INP_CA_CONFIG_NAME, newCAConnectorName);
+
+        validatePresent(LOC_SEL_CA_CONFIG_TYPE);
+        click(LOC_SEL_CA_CONFIG_TYPE);
+        selectOptionByValue(LOC_SEL_CA_CONFIG_TYPE, "DIRECTORY");
+
+        validatePresent(LOC_SEL_CA_CONFIG_URL);
+        click(LOC_SEL_CA_CONFIG_URL);
+        setText(LOC_SEL_CA_CONFIG_URL, newCAConnectorUrl);
+
+        check(LOC_INP_CA_CONFIG_TRUST_SELFSIGNED);
+
+        validatePresent(LOC_SEL_CA_CONFIG_INTERVAL);
+        click(LOC_SEL_CA_CONFIG_INTERVAL);
+        selectOptionByValue(LOC_SEL_CA_CONFIG_INTERVAL, "DAY");
+
+        validateNotPresent(LOC_INP_CA_CONFIG_DEFAULT_CA);
+        validateNotPresent(LOC_INP_CA_CONFIG_POLLING_OFFSET);
+        validateNotPresent(LOC_INP_CA_CONFIG_SELECTOR);
+        validateNotPresent(LOC_INP_CA_CONFIG_TLS_AUTH);
+        validateNotPresent(LOC_INP_CA_CONFIG_PW_PROT);
+        validateNotPresent(LOC_INP_CA_CONFIG_MESSAGE_PROTECTION);
+        validateNotPresent(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
+
+        validateNotPresent(LOC_SEL_CA_KDF_TYPE);
+        validateNotPresent(LOC_INP_CA_SALT);
+        validateNotPresent(LOC_INP_CA_CYCLES);
+        validateNotPresent(LOC_INP_CA_API_SALT);
+        validateNotPresent(LOC_INP_CA_API_CYCLES);
+
+        validateNotPresent(LOC_SEL_PROCESS_INFO_CREATE);
+
+        validatePresent(LOC_INP_CA_ISSUER_NAME);
+        click(LOC_INP_CA_ISSUER_NAME);
+        setText(LOC_INP_CA_ISSUER_NAME, "Name_" + Math.random());
+
+        validatePresent(LOC_INP_CA_CONFIG_PASSPHRASE);
+        click(LOC_INP_CA_CONFIG_PASSPHRASE);
+        setText(LOC_INP_CA_CONFIG_PASSPHRASE, "SecretPassphrase#123");
+
+        validatePresent(LOC_INP_CA_JDBC_TABLE);
+        click(LOC_INP_CA_JDBC_TABLE);
+        setText(LOC_INP_CA_JDBC_TABLE, "CERTIFICATE_TABLE");
+
+        validatePresent(LOC_INP_CA_JDBC_COLUMN);
+        click(LOC_INP_CA_JDBC_COLUMN);
+        setText(LOC_INP_CA_JDBC_COLUMN, "CERTIFICATE_COLUMN");
+
+        validatePresent(LOC_INP_CA_JDBC_SEQUENCE_COLUMN);
+        validatePresent(LOC_INP_CA_JDBC_LAST_UPDATE_COLUMN);
+
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
+
+        validatePresent(LOC_TEXT_CONNECTOR_LIST);
+
+        By byCAConnectorName = By.xpath("//table//td [contains(text(), '" + newCAConnectorName + "')]");
+        validatePresent(byCAConnectorName);
+
+        click(byCAConnectorName);
+        By byEditCAConnectorName = By.xpath("//table//tr [td [contains(text(), '" + newCAConnectorName + "')]]/td/div/button[span[contains(text(), 'Edit')]]");
+
+        validatePresent(byEditCAConnectorName);
+        click(byEditCAConnectorName);
+
+        // back in the created connector
+        validatePresent(LOC_INP_CA_CONFIG_NAME);
+        Assertions.assertEquals(newCAConnectorName, getText(LOC_INP_CA_CONFIG_NAME), "Expect the name of the connector");
+        Assertions.assertEquals("DIRECTORY", getText(LOC_SEL_CA_CONFIG_TYPE));
+        Assertions.assertEquals(newCAConnectorUrl, getText(LOC_SEL_CA_CONFIG_URL));
+        Assertions.assertEquals("DAY", getText(LOC_SEL_CA_CONFIG_INTERVAL));
+        Assertions.assertTrue(isChecked(LOC_INP_CA_CONFIG_TRUST_SELFSIGNED));
+
+        validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
+        uncheck(LOC_INP_CA_CONFIG_ACTIVE);
+        isEnabled(LOC_BTN_SAVE);
+
+        checkHelpTargets();
+    }
+
+    @Test
+    public void testCAConnectorCreateBPMNCreate() {
+
+        String newCAConnectorName = "CAConnector_" + Math.random();
+
+        signIn(USER_NAME_ADMIN, USER_PASSWORD_ADMIN);
+
+        validatePresent(LOC_LNK_CONFIG_MENUE);
+        click(LOC_LNK_CONFIG_MENUE);
+
+        validatePresent(LOC_LNK_CA_CONFIG_MENUE);
+        click(LOC_LNK_CA_CONFIG_MENUE);
+
+        validatePresent(LOC_BTN_CA_CONFIG_NEW);
+        click(LOC_BTN_CA_CONFIG_NEW);
+
+        // crete new connector
+        validatePresent(LOC_INP_CA_CONFIG_NAME);
+        setText(LOC_INP_CA_CONFIG_NAME, newCAConnectorName);
+
+        validatePresent(LOC_SEL_CA_CONFIG_TYPE);
+        click(LOC_SEL_CA_CONFIG_TYPE);
+        selectOptionByValue(LOC_SEL_CA_CONFIG_TYPE, "BPMN_CA");
+
+        validatePresent(LOC_INP_CA_CONFIG_DEFAULT_CA);
+
+        validateNotPresent(LOC_INP_CA_CONFIG_TRUST_SELFSIGNED);
+
+        validateNotPresent(LOC_SEL_CA_CONFIG_INTERVAL);
+
+        validateNotPresent(LOC_INP_CA_CONFIG_POLLING_OFFSET);
+        validateNotPresent(LOC_INP_CA_CONFIG_SELECTOR);
+        validateNotPresent(LOC_INP_CA_CONFIG_TLS_AUTH);
+        validateNotPresent(LOC_INP_CA_CONFIG_PW_PROT);
+        validateNotPresent(LOC_INP_CA_CONFIG_MESSAGE_PROTECTION);
+        validateNotPresent(LOC_INP_CA_MESSAGE_CONTENT_TYPE);
+
+        validateNotPresent(LOC_SEL_CA_KDF_TYPE);
+        validateNotPresent(LOC_INP_CA_SALT);
+        validateNotPresent(LOC_INP_CA_CYCLES);
+        validateNotPresent(LOC_INP_CA_API_SALT);
+        validateNotPresent(LOC_INP_CA_API_CYCLES);
+
+        validateNotPresent(LOC_INP_CA_JDBC_TABLE);
+        validateNotPresent(LOC_INP_CA_JDBC_COLUMN);
+        validateNotPresent(LOC_INP_CA_JDBC_SEQUENCE_COLUMN);
+        validateNotPresent(LOC_INP_CA_JDBC_LAST_UPDATE_COLUMN);
+
+        validateNotPresent(LOC_SEL_CA_CONFIG_URL);
+
+        validatePresent(LOC_SEL_PROCESS_INFO_CREATE);
+        selectOptionByValue(LOC_SEL_PROCESS_INFO_CREATE, "SimpleCertificateProcess");
+
+        validatePresent(LOC_BTN_SAVE);
+        click(LOC_BTN_SAVE);
+
+        validatePresent(LOC_TEXT_CONNECTOR_LIST);
+
+        By byCAConnectorName = By.xpath("//table//td [contains(text(), '" + newCAConnectorName + "')]");
+        validatePresent(byCAConnectorName);
+
+        click(byCAConnectorName);
+        By byEditCAConnectorName = By.xpath("//table//tr [td [contains(text(), '" + newCAConnectorName + "')]]/td/div/button[span[contains(text(), 'Edit')]]");
+
+        validatePresent(byEditCAConnectorName);
+        click(byEditCAConnectorName);
+
+        // back in the created connector
+        validatePresent(LOC_INP_CA_CONFIG_NAME);
+        Assertions.assertEquals(newCAConnectorName, getText(LOC_INP_CA_CONFIG_NAME), "Expect the name of the connector");
+        Assertions.assertEquals("BPMN_CA", getText(LOC_SEL_CA_CONFIG_TYPE));
+        Assertions.assertEquals("SimpleCertificateProcess", getText(LOC_SEL_PROCESS_INFO_CREATE));
 
         validatePresent(LOC_INP_CA_CONFIG_ACTIVE);
         uncheck(LOC_INP_CA_CONFIG_ACTIVE);
@@ -615,6 +827,7 @@ public class CAConnectorAdministrationIT extends WebTestBase{
         validateNotPresent(LOC_INP_CA_CYCLES);
         validateNotPresent(LOC_INP_CA_API_SALT);
         validateNotPresent(LOC_INP_CA_API_CYCLES);
+        validateNotPresent(LOC_SEL_PROCESS_INFO_CREATE);
 
         validatePresent(LOC_BTN_SAVE);
         click(LOC_BTN_SAVE);

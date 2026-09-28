@@ -23,6 +23,8 @@
                                 id="ca-connector-config-caConnectorType"  required>
                             <option value="INTERNAL" v-bind:label="$t('ca3SApp.CAConnectorType.INTERNAL')"></option>
                             <option value="CMP" v-bind:label="$t('ca3SApp.CAConnectorType.CMP')"></option>
+                            <option v-if="getBPNMProcessInfosByType('CERTIFICATE_CREATION').length > 0"
+                                value="BPMN_CA" v-bind:label="$t('ca3SApp.CAConnectorType.BPMN_CA')"></option>
                             <option value="ADCS" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS')"></option>
                             <option value="ADCS_CERTIFICATE_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.ADCS_CERTIFICATE_INVENTORY')"></option>
                             <option value="DIRECTORY" v-bind:label="$t('ca3SApp.CAConnectorType.DIRECTORY')"></option>
@@ -38,7 +40,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model !== 'INTERNAL'">
+                    <div class="form-group" v-if="$v.cAConnectorConfig.caConnectorType.$model !== 'INTERNAL' && $v.cAConnectorConfig.caConnectorType.$model !== 'BPMN_CA'">
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.caUrl')" for="ca-connector-config-caUrl"></label> <help-tag role="Admin" target="ca-connector.ca-url"/>
                         <input type="text" class="form-control" name="caUrl" id="ca-connector-config-caUrl"
                             :class="{'valid': !$v.cAConnectorConfig.caUrl.$invalid, 'invalid': $v.cAConnectorConfig.caUrl.$invalid }" v-model="$v.cAConnectorConfig.caUrl.$model" />
@@ -336,6 +338,23 @@
                         <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.fillEmptySubjectWithSAN')" for="ca-connector-config-fillEmptySubjectWithSAN"></label>  <help-tag role="Admin" target="ca-connector.cmp.fill-empty-subject-with-san"/>
                         <input type="checkbox" class="form-check" name="ca-connector-config-ignoreResponseMessageVerification" id="ca-connector-config-fillEmptySubjectWithSAN"
                                v-model="$v.cAConnectorConfig.fillEmptySubjectWithSAN.$model" />
+                    </div>
+
+
+                    <div class="form-group"
+                         v-if="$v.cAConnectorConfig.caConnectorType.$model === 'BPMN_CA'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cAConnectorConfig.processInfoCreate')"
+                               for="cAConnectorConfig.processInfoCreate"></label>
+                        <help-tag role="Admin" target="pipeline.process.create"/>
+                        <select class="form-control" id="cAConnectorConfig.processInfoCreate" name="processInfoCreate"
+                                v-model="cAConnectorConfig.processInfoNameCreate">
+                            <option v-bind:value="null"></option>
+                            <option
+                                v-bind:value="cAConnectorConfig.processInfoNameCreate && bPNMProcessInfoOption.name === cAConnectorConfig.processInfoNameCreate ? cAConnectorConfig.processInfoNameCreate : bPNMProcessInfoOption.name"
+                                v-for="bPNMProcessInfoOption in getBPNMProcessInfosByType('CERTIFICATE_CREATION')"
+                                :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
+                            </option>
+                        </select>
                     </div>
 
                     <div v-if="cAConnectorConfig.id">

@@ -62,17 +62,19 @@ public class CaConnectorConfigUtil {
     final private ProtectedContentUtil protectedContentUtil;
     final private CertificateRepository certificateRepository;
     private final CAConnectorConfigAttributeRepository caConnectorConfigAttributeRepository;
+    final private BPMNProcessInfoRepository bpmnPIRepository;
     final private AuditService auditService;
     final private AuditTraceRepository auditTraceRepository;
     private final RandomUtil randomUtil;
 
 
-    public CaConnectorConfigUtil(CAConnectorConfigRepository cAConnectorConfigRepository, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil, CertificateRepository certificateRepository, CAConnectorConfigAttributeRepository caConnectorConfigAttributeRepository, AuditService auditService, AuditTraceRepository auditTraceRepository, RandomUtil randomUtil) {
+    public CaConnectorConfigUtil(CAConnectorConfigRepository cAConnectorConfigRepository, ProtectedContentRepository protectedContentRepository, ProtectedContentUtil protectedContentUtil, CertificateRepository certificateRepository, CAConnectorConfigAttributeRepository caConnectorConfigAttributeRepository, BPMNProcessInfoRepository bpmnPIRepository, AuditService auditService, AuditTraceRepository auditTraceRepository, RandomUtil randomUtil) {
         this.cAConnectorConfigRepository = cAConnectorConfigRepository;
         this.protectedContentRepository = protectedContentRepository;
         this.protectedContentUtil = protectedContentUtil;
         this.certificateRepository = certificateRepository;
         this.caConnectorConfigAttributeRepository = caConnectorConfigAttributeRepository;
+        this.bpmnPIRepository = bpmnPIRepository;
         this.auditService = auditService;
         this.auditTraceRepository = auditTraceRepository;
         this.randomUtil = randomUtil;
@@ -110,6 +112,13 @@ public class CaConnectorConfigUtil {
         }else{
             cv.setTlsAuthenticationId(null);
         }
+
+        if (cfg.getProcessInfoCreate() != null) {
+            cv.setProcessInfoNameCreate(cfg.getProcessInfoCreate().getName());
+        }else{
+            cv.setProcessInfoNameCreate(null);
+        }
+
 
         List<NamedValue> aTaVList = new ArrayList<>();
 
@@ -294,6 +303,28 @@ public class CaConnectorConfigUtil {
             caConnectorConfig.setTrustSelfsignedCertificates(cv.getTrustSelfsignedCertificates());
         }
 
+        // Process Create
+        String oldProcessNameCreate = "";
+        if (caConnectorConfig.getProcessInfoCreate() != null) {
+            oldProcessNameCreate = caConnectorConfig.getProcessInfoCreate().getName();
+        }
+
+        List<BPMNProcessInfo> bpmnProcessInfoList = bpmnPIRepository.findByNameOrderedBylastChange(cv.getProcessInfoNameCreate());
+        if(!bpmnProcessInfoList.isEmpty()) {
+            BPMNProcessInfo bpi = bpmnProcessInfoList.get(0);
+            caConnectorConfig.setProcessInfoCreate(bpi);
+            if (!bpi.getName().equals(oldProcessNameCreate)) {
+                auditList.add(auditService.createAuditTraceCaConnectorConfig( AuditService.AUDIT_CA_CONNECTOR_ISSUANCE_PROCESS_CHANGED, oldProcessNameCreate, bpi.getName(), caConnectorConfig));
+            }
+        } else {
+            caConnectorConfig.setProcessInfoCreate(null);
+            if (!oldProcessNameCreate.isEmpty()) {
+                auditList.add(auditService.createAuditTraceCaConnectorConfig("ISSUANCE_PROCESS", oldProcessNameCreate, "", caConnectorConfig));
+            }
+        }
+
+
+
         Certificate tlsAuthCertificate = caConnectorConfig.getTlsAuthentication();
         Long tlsAuthCertificateId = 0L;
         if( tlsAuthCertificate != null) {
@@ -419,32 +450,40 @@ public class CaConnectorConfigUtil {
         boolean hasSequenceColumn = false;
         boolean hasLastUpdateColumn = false;
 
-        Pattern pattern = Pattern.compile("^[a-zA-Z0-9_]*$");
+        if( cv.getCaConnectorType().equals(CAConnectorType.DIRECTORY) &&
+            cv.getCaUrl() != null &&
+            cv.getCaUrl().toLowerCase().startsWith("jdbc")) {
 
-        Matcher m = pattern.matcher(cv.getCertificateTable());
-        if (!m.find()){
-            LOG.warn("importCertificateFromDB: table name '{}' contains unexpected characters", cv.getCertificateTable());
-            cv.setCertificateTable("");
+            Pattern pattern = Pattern.compile("^[a-zA-Z0-9_]*$");
+
+            Matcher m = pattern.matcher(cv.getCertificateTable());
+            if (!m.find()) {
+                LOG.warn("importCertificateFromDB: table name '{}' contains unexpected characters", cv.getCertificateTable());
+                cv.setCertificateTable("");
+            }
+
+            m = pattern.matcher(cv.getCertificateColumn());
+            if (!m.find()) {
+                LOG.warn("importCertificateFromDB: certificate column name '{}' contains unexpected characters", cv.getCertificateColumn());
+                cv.setCertificateColumn("");
+            }
+
+            if (cv.getSequenceColumn() != null && !cv.getSequenceColumn().isEmpty()) {
+                m = pattern.matcher(cv.getSequenceColumn());
+                if (!m.find()) {
+                    LOG.warn("importCertificateFromDB: sequence column name '{}' contains unexpected characters", cv.getSequenceColumn());
+                    cv.setSequenceColumn("");
+                }
+            }
+
+            if( cv.getLastUpdateColumn() != null && !cv.getLastUpdateColumn().isEmpty()) {
+                m = pattern.matcher(cv.getLastUpdateColumn());
+                if (!m.find()) {
+                    LOG.warn("importCertificateFromDB: last update column name '{}' contains unexpected characters", cv.getLastUpdateColumn());
+                    cv.setLastUpdateColumn("");
+                }
+            }
         }
-
-        m = pattern.matcher(cv.getCertificateColumn());
-        if (!m.find()){
-            LOG.warn("importCertificateFromDB: certificate column name '{}' contains unexpected characters", cv.getCertificateColumn());
-            cv.setCertificateColumn("");
-        }
-
-        m = pattern.matcher(cv.getSequenceColumn());
-        if (!m.find()){
-            LOG.warn("importCertificateFromDB: sequence column name '{}' contains unexpected characters", cv.getSequenceColumn());
-            cv.setSequenceColumn("");
-        }
-
-        m = pattern.matcher(cv.getLastUpdateColumn());
-        if (!m.find()){
-            LOG.warn("importCertificateFromDB: last update column name '{}' contains unexpected characters", cv.getLastUpdateColumn());
-            cv.setLastUpdateColumn("");
-        }
-
 
         for( CAConnectorConfigAttribute configAttribute : caConnectorConfig.getCaConnectorAttributes()){
 

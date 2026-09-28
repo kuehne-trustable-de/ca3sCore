@@ -13,5 +13,6 @@ public enum CAConnectorType {
     VAULT_INVENTORY,
     EJBCA_INVENTORY,
     MANUAL_UPLOAD,
-    ACME_CLIENT
+    ACME_CLIENT,
+    BPMN_CA
 }

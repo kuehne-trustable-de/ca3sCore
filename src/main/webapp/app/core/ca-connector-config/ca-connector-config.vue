@@ -36,6 +36,8 @@
                 <option value="VAULT_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.VAULT_INVENTORY')">VAULT_INVENTORY</option>
                 <option value="DIRECTORY" v-bind:label="$t('ca3SApp.CAConnectorType.DIRECTORY')">DIRECTORY</option>
                 <option value="EJBCA_INVENTORY" v-bind:label="$t('ca3SApp.CAConnectorType.EJBCA_INVENTORY')">EJBCA_INVENTORY</option>
+                <option value="BPMN_CA" v-bind:label="$t('ca3SApp.CAConnectorType.BPMN_CA')"></option>
+
             </select>
             <span v-text="$t('ca3SApp.pipeline.filter.state')"></span>
             <select float="left" class="smallSelector fa-1x" v-model="activeFilter"

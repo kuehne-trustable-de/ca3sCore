@@ -17,6 +17,8 @@ import {
   IADCSInstanceDetailsView,
   IAuthenticationParameter,
   IKDFType,
+  IBPMNProcessType,
+  IBPMNProcessInfo,
 } from '@/shared/model/transfer-object.model';
 
 import { mixins } from 'vue-class-component';
@@ -24,6 +26,7 @@ import JhiDataUtils from '@/shared/data/data-utils.service';
 
 import HelpTag from '@/core/help/help-tag.vue';
 import AuditTag from '@/core/audit/audit-tag.vue';
+import BPNMProcessInfoService from '@/entities/bpnm-process-info/bpnm-process-info.service';
 
 const validations: any = {
   cAConnectorConfig: {
@@ -97,8 +100,11 @@ const validations: any = {
 export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   @Inject('alertService') private alertService: () => AlertService;
   @Inject('cAConnectorConfigViewService') private cAConnectorConfigViewService: () => CAConnectorConfigViewService;
+  @Inject('bPNMProcessInfoService') private bPNMProcessInfoService: () => BPNMProcessInfoService;
+
   public cAConnectorConfig: ICaConnectorConfigView = new CAConnectorConfigView();
   public caStatus: ICAStatus = 'Unknown';
+  public bPNMProcessInfos: IBPMNProcessInfo[] = [];
 
   public adcsInstanceDetails: IADCSInstanceDetailsView = {};
 
@@ -141,7 +147,7 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   }
 
   public save(): void {
-    this.cAConnectorConfig.isDatabase = this.isDatabaseConnectorConfig();
+    this.cAConnectorConfig.database = this.isDatabaseConnectorConfig();
 
     this.isSaving = true;
     if (this.cAConnectorConfig.id) {
@@ -188,9 +194,9 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
   }
 
   public isDatabaseConnectorConfig(): boolean {
-    this.cAConnectorConfig.isDatabase =
+    this.cAConnectorConfig.database =
       this.cAConnectorConfig.caConnectorType === 'DIRECTORY' && this.cAConnectorConfig.caUrl.toLowerCase().startsWith('jdbc:');
-    return this.cAConnectorConfig.isDatabase;
+    return this.cAConnectorConfig.database;
   }
 
   public initADCSTemplates(): void {
@@ -219,7 +225,16 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
     this.$router.push('/confCaConnector');
   }
 
-  public initRelationships(): void {}
+  public initRelationships(): void {
+    const self = this;
+
+    this.bPNMProcessInfoService()
+      .retrieve()
+      .then(res => {
+        self.bPNMProcessInfos = res.data;
+        window.console.info('++++++++++++++++++ bPNMProcessInfos: ' + self.bPNMProcessInfos);
+      });
+  }
 
   public testCaConnectorConfig(): void {
     window.console.info('calling checkCaConnectorConfig ');
@@ -233,6 +248,12 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
     }).then(function (response) {
       window.console.info('testCaConnectorConfig returns ' + response.data);
       self.caStatus = response.data;
+    });
+  }
+
+  public getBPNMProcessInfosByType(type: IBPMNProcessType): IBPMNProcessInfo[] {
+    return this.bPNMProcessInfos.filter(pi => {
+      return pi.type === type;
     });
   }
 

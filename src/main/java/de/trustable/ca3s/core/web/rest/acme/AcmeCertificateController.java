@@ -178,7 +178,7 @@ public class AcmeCertificateController extends AcmeController {
             JsonWebStructure webStruct = jwtUtil.getJsonWebStructure(context);
 
             RevokeRequest revokeReq = jwtUtil.getRevokeReq(context.getJwtClaims());
-            X509Certificate x509CertPayload = certificateUtil.getCertifcateFromBase64(revokeReq.getCertificate());
+            X509Certificate x509CertPayload = certificateUtil.getCertificateFromBase64(revokeReq.getCertificate());
             LOG.info("Revoke request for certificate {} ", x509CertPayload.getSubjectX500Principal().toString());
 
             // retrieve certificate object matching the revocation payload

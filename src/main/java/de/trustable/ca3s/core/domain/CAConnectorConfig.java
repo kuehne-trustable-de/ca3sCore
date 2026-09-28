@@ -85,6 +85,11 @@ public class CAConnectorConfig implements Serializable {
     private Set<CAConnectorConfigAttribute> caConnectorAttributes = new HashSet<>();
 
     @ManyToOne
+    @JsonIgnoreProperties({"pipelines", "secret"})
+    private BPMNProcessInfo processInfoCreate;
+
+
+    @ManyToOne
     @JsonIgnoreProperties(
         value = { "csr", "comment", "certificateAttributes", "issuingCertificate", "rootCertificate", "revocationCA" },
         allowSetters = true
@@ -317,6 +322,14 @@ public class CAConnectorConfig implements Serializable {
         this.caConnectorAttributes.remove(cAConnectorConfigAttribute);
         cAConnectorConfigAttribute.setCaConnector(null);
         return this;
+    }
+
+    public BPMNProcessInfo getProcessInfoCreate() {
+        return processInfoCreate;
+    }
+
+    public void setProcessInfoCreate(BPMNProcessInfo processInfoCreate) {
+        this.processInfoCreate = processInfoCreate;
     }
 
     public Certificate getTlsAuthentication() {

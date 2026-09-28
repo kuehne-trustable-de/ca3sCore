@@ -42,6 +42,8 @@ public class CaConnectorConfigView implements Serializable {
 
     private String lastUpdateColumn;
 
+    private String  processInfoNameCreate;
+
     private String role;
 
     private Interval interval;
@@ -176,6 +178,14 @@ public class CaConnectorConfigView implements Serializable {
 
     public void setLastUpdateColumn(String lastUpdateColumn) {
         this.lastUpdateColumn = lastUpdateColumn;
+    }
+
+    public String getProcessInfoNameCreate() {
+        return processInfoNameCreate;
+    }
+
+    public void setProcessInfoNameCreate(String processInfoNameCreate) {
+        this.processInfoNameCreate = processInfoNameCreate;
     }
 
     public String getRole() {
@@ -321,4 +331,6 @@ public class CaConnectorConfigView implements Serializable {
     public void setAllowCrlOnHold(boolean allowCrlOnHold) {
         this.allowCrlOnHold = allowCrlOnHold;
     }
+
+
 }
