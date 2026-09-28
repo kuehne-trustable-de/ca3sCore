@@ -82,6 +82,7 @@
   "ca3SApp.CAConnectorType.VAULT": "Vault",
   "ca3SApp.CAConnectorType.VAULT_INVENTORY": "Vault Zertifikats-Inventar",
   "ca3SApp.CAConnectorType.DIRECTORY": "Verzeichnis",
+  "ca3SApp.CAConnectorType.BPMN_CA": "CA-Anbindung mittels BPMN Prozess",
   "ca3SApp.CAConnectorType.INTERNAL": "Intern",
   "ca3SApp.ChallengeStatus.DEACTIVATED": "Deaktiviert",
   "ca3SApp.ChallengeStatus.EXPIRED": "Abgelaufen",
@@ -348,6 +349,7 @@
   "ca3SApp.cAConnectorConfig.updated": "CA Konnektorkonfiguration aktualisiert mit ID {{ param }}",
 
   "ca3SApp.cAConnectorConfig.allowCrlOnHold": "Status 'certificateHold' in der CRL unterstützt",
+  "ca3SApp.cAConnectorConfig.processInfoCreate": "Prozess für die Erstellung von Zertifikaten",
 
   "ca3SApp.cAConnectorConfig.tlsAuthentication": "Authentisierung als TLS-Client",
   "ca3SApp.cAConnectorConfig.messageProtectionPassphrase": "Nachrichtenschutz per Passphrase",
@@ -917,7 +919,8 @@
   "entity.detail.field": "Feld",
   "entity.detail.value": "Wert",
 
-  "ca3SApp.notification.blocked": "Ablaufwarnung blockieren",
+  "ca3SApp.notification.blocked": "Ablaufwarnung",
+  "ca3SApp.notification.isNotifyable": "Ablaufwarnung aktivieren",
   "entity.block.notification.title": "Blockieren der Ablaufwarnung",
   "ca3SApp.certificate.block.notification.hint": "Das Zertifikat läuft ohne weiteren Hinweis ab! Systeme könnten ausfallen!",
   "ca3SApp.certificate.block.notification.question": "Sind Sie sicher, dass Sie Ablaufwarnung blockieren wollen?",

@@ -148,6 +148,9 @@ public class CertificateView implements Serializable {
     private Boolean notificationBlocked;
 
     @CsvBindByName
+    private Boolean isNotifyable;
+
+    @CsvBindByName
     private Instant revokedSince;
 
     @CsvBindByName
@@ -476,6 +479,8 @@ public class CertificateView implements Serializable {
                     this.endEntity = Boolean.valueOf(certAttr.getValue());
                 } else if (CertificateAttribute.ATTRIBUTE_NOTIFICATION_BLOCKED.equalsIgnoreCase(certAttr.getName())) {
                     this.notificationBlocked = Boolean.valueOf(certAttr.getValue());
+                } else if (CertificateAttribute.ATTRIBUTE_NOTIFYABLE.equalsIgnoreCase(certAttr.getName())) {
+                    this.isNotifyable = Boolean.valueOf(certAttr.getValue());
                 } else if (CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH.equalsIgnoreCase(certAttr.getName())) {
                     this.chainLength = Long.parseLong(certAttr.getValue());
                 } else if (CertificateAttribute.ATTRIBUTE_USAGE.equalsIgnoreCase(certAttr.getName())) {
@@ -604,6 +609,14 @@ public class CertificateView implements Serializable {
 
     public Boolean getNotificationBlocked() {
         return notificationBlocked;
+    }
+
+    public Boolean getNotifyable() {
+        return isNotifyable;
+    }
+
+    public void setNotifyable(Boolean notifyable) {
+        isNotifyable = notifyable;
     }
 
     public Instant getRevokedSince() {

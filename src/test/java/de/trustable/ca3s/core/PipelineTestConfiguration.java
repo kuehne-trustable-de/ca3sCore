@@ -274,7 +274,8 @@ public class PipelineTestConfiguration {
 
         return optionalBPMNProcessInfo.orElseGet(() -> addSimpleProcess(SIMPLE_CERTIFICATE_PROCESS,
             "SimpleCertificateProcess",
-            BPMNProcessType.CERTIFICATE_NOTIFY));
+//            BPMNProcessType.CERTIFICATE_NOTIFY));
+            BPMNProcessType.CERTIFICATE_CREATION));
     }
 
     public CAConnectorConfig internalTestCAC() {
@@ -927,7 +928,7 @@ public class PipelineTestConfiguration {
         addPipelineAttribute(pipelineWeb, RESTR_E_TEMPLATE_READ_ONLY, "true");
 
         addPipelineAttribute(pipelineWeb, RESTR_SAN_REGEXMATCH, "true");
-        addPipelineAttribute(pipelineWeb, RESTR_SAN_REGEX, ".*\\.eu");
+        addPipelineAttribute(pipelineWeb, RESTR_SAN_REGEX, "^.*\\.eu$");
 
 
         addPipelineAttribute(pipelineWeb,"RESTR_ARA_0_NAME", "info");

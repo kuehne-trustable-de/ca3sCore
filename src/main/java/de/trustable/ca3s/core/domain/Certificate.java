@@ -98,6 +98,15 @@ import javax.validation.constraints.*;
             " c.revoked = FALSE " +
             " order by c.validTo asc"
     ),
+    @NamedQuery(name = "Certificate.findNonRevokedNotifyableByValidTo",
+        query = "SELECT c FROM Certificate c JOIN c.certificateAttributes att WHERE " +
+            " c.validTo >= :after and " +
+            " c.validTo <= :before and " +
+            " att.name = 'CA3S:NOTIFYABLE' and " +
+            " att.value = 'TRUE' and " +
+            " c.revoked = FALSE " +
+            " order by c.validTo asc"
+    ),
     @NamedQuery(name = "Certificate.countAll",
         query = "SELECT count(c) FROM Certificate c "
     ),

@@ -277,6 +277,8 @@ public class PipelineUtil {
         SCEPConfigItems scepConfigItems = new SCEPConfigItems();
         WebConfigItems webConfigItems = new WebConfigItems();
 
+        webConfigItems.setEnableFormAutofill(true);
+
         pv.setCsrUsage(CsrUsage.TLS_SERVER);
 
         List<String> domainRaOfficerList = new ArrayList<>();

@@ -20,6 +20,8 @@ public class WebConfigItems implements Serializable{
 
     private Boolean issuesSecondFactorClientCert;
 
+    private Boolean enableFormAutofill;
+
 
     public WebConfigItems(){}
 
@@ -77,5 +79,13 @@ public class WebConfigItems implements Serializable{
 
     public void setProcessInfoNameCSRDecisionResult(String processInfoNameCSRDecisionResult) {
         this.processInfoNameCSRDecisionResult = processInfoNameCSRDecisionResult;
+    }
+
+    public Boolean getEnableFormAutofill() {
+        return enableFormAutofill;
+    }
+
+    public void setEnableFormAutofill(Boolean enableFormAutofill) {
+        this.enableFormAutofill = enableFormAutofill;
     }
 }

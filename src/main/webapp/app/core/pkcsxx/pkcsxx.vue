@@ -12,7 +12,7 @@
 
 		<div class="row justify-content-center" v-cloak @drop.prevent="catchDroppedFile" @dragover.prevent>
 			<div class="col-8" >
-                <form name="editForm" role="form" autocomplete="off" novalidate >
+                <form name="editForm" role="form" :autocomplete="selectPipelineView.enableFormAutofill" novalidate >
 					<h2 class="jh-entity-heading">
                         <span v-if="(authenticated === false) && (creationMode === 'CSR_AVAILABLE')" v-text="$t('pkcsxx.subtitle.check.csr')"></span>
                         <span v-else-if="isUploadPipelineChoosen() && creationMode === 'CSR_AVAILABLE'" v-text="$t('pkcsxx.subtitle.upload.certificate')"></span>
@@ -126,7 +126,7 @@
                                      class="form-text text-danger"
                                      :id="'pkcsxx.upload.san.restriction.required.'+ valueIndex"
                                      v-text="$t('entity.validation.requiredOrSAN')"></small>
-                              <small v-else-if="showRegExpWarningTV(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
+                              <small v-if="showRegExpWarningTV(rr, valueIndex, upload.certificateAttributes[index].values[valueIndex])"
                                      class="form-text text-danger"
                                      :id="'pkcsxx.upload.regEx.'+ valueIndex"
                                      v-text="$t('entity.validation.pattern', {'pattern': rr.regEx})"></small>

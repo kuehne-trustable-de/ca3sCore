@@ -415,10 +415,21 @@ public class NotificationService {
         int maxExpiry = notificationDayList.stream().max(Integer::compareTo).orElse(40) + 1;
         Instant beforeEE = now.plus(maxExpiry, ChronoUnit.DAYS);
         List<Certificate> expiringEECertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE);
+        List<Certificate> expiringNotifyableCertList = certificateRepo.findNonRevokedByTypeAndValidTo(true, now, beforeEE);
+
+        // merge the two lists
+        Set<Certificate> expiringCertSet = new HashSet<>(expiringEECertList.size() + expiringNotifyableCertList.size());
+        expiringCertSet.addAll(expiringEECertList);
+        expiringCertSet.addAll(expiringNotifyableCertList);
+
+        LOG.info("notifyRequestorOnExpiry found {} end entities, {} notifyables, {} distinct certificates",
+            expiringEECertList.size(),
+            expiringNotifyableCertList.size(),
+            expiringCertSet.size());
 
         return notifyRequestorOnExpiry(testUser,
             logNotification,
-            expiringEECertList,
+            expiringCertSet,
             maxExpiry,
             false);
     }
@@ -436,7 +447,7 @@ public class NotificationService {
 
     private int notifyRequestorOnExpiry(User testUser,
                                         boolean logNotification,
-                                        List<Certificate> expiringEECertList,
+                                        Collection<Certificate> expiringEECertList,
                                         int maxExpiry,
                                         boolean forceSendAnyday) {
 

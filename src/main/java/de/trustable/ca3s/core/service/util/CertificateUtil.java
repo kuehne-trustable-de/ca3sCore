@@ -295,13 +295,13 @@ public class CertificateUtil {
 
         // try to read the content as a PEM certificate
         X509CertificateHolder certHolder = cryptoUtil.convertPemToCertificateHolder(content);
-        return getCertifcateFromBytes(certHolder.getEncoded());
+        return getCertificateFromBytes(certHolder.getEncoded());
     }
-    public X509Certificate getCertifcateFromBase64(String base64Cert) throws CertificateException {
-        return getCertifcateFromBytes(Base64.decodeBase64(base64Cert));
+    public X509Certificate getCertificateFromBase64(String base64Cert) throws CertificateException {
+        return getCertificateFromBytes(Base64.decodeBase64(base64Cert));
     }
 
-    public X509Certificate getCertifcateFromBytes(byte[] encodedCert) throws CertificateException {
+    public X509Certificate getCertificateFromBytes(byte[] encodedCert) throws CertificateException {
         CertificateFactory factory = CertificateFactory.getInstance("X.509");
         return (X509Certificate) factory.generateCertificate(new ByteArrayInputStream(encodedCert));
     }
@@ -368,7 +368,7 @@ public class CertificateUtil {
      * @throws IOException
      */
     public Certificate getCertificateByBase64(final String b64Cert) throws GeneralSecurityException, IOException {
-        X509Certificate x509Cert = getCertifcateFromBase64(b64Cert);
+        X509Certificate x509Cert = getCertificateFromBase64(b64Cert);
         return getCertificateByX509(x509Cert);
     }
 
@@ -1972,7 +1972,7 @@ public class CertificateUtil {
             if (rawIssuingCertList.isEmpty()) {
 
                 try {
-                    X509Certificate x509Cert = getCertifcateFromBytes(x509CertHolder.getEncoded());
+                    X509Certificate x509Cert = getCertificateFromBytes(x509CertHolder.getEncoded());
                     rawIssuingCertList = certificateRepository.findCACertByIssuer(x509Cert.getIssuerX500Principal().getName());
                 } catch (IOException e) {
                     LOG.info("problem parsing certificate '{}' from holder", x509CertHolder.getSubject().toString());

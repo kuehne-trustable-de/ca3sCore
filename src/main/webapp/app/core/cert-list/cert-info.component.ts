@@ -219,6 +219,10 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
         self.certificateAdminData.arAttributes = this.certificateView.arArr;
         self.certificateAdminData.comment = this.certificateView.comment;
         self.certificateAdminData.notificationBlocked = self.certificateView.notificationBlocked;
+        if (self.certificateView.notifyable === null) {
+          self.certificateView.notifyable = false;
+        }
+        self.certificateAdminData.notifyable = self.certificateView.notifyable;
 
         self.comment = this.certificateView.comment;
         self.trusted = this.certificateView.trusted;
@@ -275,6 +279,13 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
   public getValidityDays(): string {
     let days = this.certificateView.validitySeconds / 24 / 3600;
     return days.toFixed();
+  }
+
+  public isNotifyable() {
+    //    if (this.certificateView.pipelineType === 'WEB') {
+    return !this.certificateView.csrId && this.certificateView.active && (this.isRAOfficer() || this.isOwnCertificate());
+    //    }
+    //    return false;
   }
 
   public isNotificationBlockable() {
@@ -347,7 +358,8 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     return (
       this.comment !== this.certificateView.comment ||
       this.trusted !== this.certificateView.trusted ||
-      this.certificateView.notificationBlocked !== this.certificateAdminData.notificationBlocked
+      this.certificateView.notificationBlocked !== this.certificateAdminData.notificationBlocked ||
+      this.certificateView.notifyable !== this.certificateAdminData.notifyable
     );
   }
 
@@ -355,6 +367,7 @@ export default class CertificateDetails extends mixins(AlertMixin, JhiDataUtils)
     this.certificateAdminData.certificateId = this.certificateView.id;
     this.certificateAdminData.comment = this.comment;
     this.certificateAdminData.trusted = this.trusted;
+    this.certificateAdminData.notifyable = this.certificateView.notifyable;
   }
 
   public updateCertificate() {

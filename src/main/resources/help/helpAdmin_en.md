@@ -70,7 +70,11 @@ Select a type of connector. Depending on the connector type the set of optional 
 
 #### <a id="ca-connector.ca-url"></a> CA Url
 
-Provide a location of the CA or a webserver. For certificate import this field accepts a directory path.
+Provide a location of the CA or a webserver. It accepts different protocols:
+
+- 'file:' for certificate import from a local path.
+- 'http(s)' for certificate import from a webserver.
+- 'jdbc' for certificate import from a database. The JDBC URL must be provided in the form of 'jdbc:subprotocol:subname'. The subprotocol and subname are specific to the database vendor. Please consult the documentation of your database vendor for details.
 
 #### <a id="ca-connector.default-ca"></a> Default CA
 
@@ -162,6 +166,26 @@ Select a polling interval for certificate retrieval.
 ##### <a id="ca-connector.trust-self-signed-certificates"></a> Trust self-signed certificates
 
 All self-signed certificates imported by this connector will be marked as 'trusted'. This is a critical option. Use it for tightly controlled set of trust anchors.
+
+##### <a id="ca-connector.user-name"></a> User Name
+
+For jdbc connection to a database the user name is required to access the database.
+
+##### <a id="ca-connector.certificateTable"></a> Certificate Table
+
+For jdbc connection the table name is required to address the certificate information.
+
+##### <a id="ca-connector.certificateColumn"></a> Certificate Column
+
+For jdbc connection the column name is required to address the certificate information. It expects text contaent containing the PEM or Base64 encoded certificate.
+
+##### <a id="ca-connector.sequenceColumn"></a> Sequence Column
+
+For jdbc connection the column name selects the sequence column. It expects a numeric value representing the sequence of the certificate. It is used to select new certificates, only. This is useful for big sets of certificates.
+
+##### <a id="ca-connector.lastUpdateColumn"></a> Last Update Column
+
+For jdbc connection the column name selects the last update column. It expects a timestamp indicating when the certificate was last updated. It is used to select new certificates, only. This is useful for big sets of certificates.
 
 #### ADCS certificate inventory
 

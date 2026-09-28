@@ -31,10 +31,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.security.GeneralSecurityException;
-import java.time.Instant;
 import java.util.*;
 
 import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_NOTIFICATION_BLOCKED;
+import static de.trustable.ca3s.core.domain.CertificateAttribute.ATTRIBUTE_NOTIFYABLE;
 
 /**
  * REST controller for processing PKCS10 requests and Certificates.
@@ -147,6 +147,7 @@ public class CertificateAdministration {
                     updateARAttributes(adminData, cert);
                     updateTrustedFlag(adminData, cert);
                     updateNotificationBlockFlag(adminData, cert);
+                    updateNotifyableFlag(adminData, cert);
                 } else if(AdministrationType.UPDATE_CRL.equals(adminData.getAdministrationType())){
 
                     CRLUpdateInfo crlInfo = certUtil.checkAllCRLsForCertificate( cert,
@@ -210,7 +211,6 @@ public class CertificateAdministration {
         }
     }
 
-
     private void updateNotificationBlockFlag(CertificateAdministrationData adminData, Certificate cert) {
 
         Boolean notificationBlocked = Boolean.valueOf(certUtil.getCertAttribute(cert, ATTRIBUTE_NOTIFICATION_BLOCKED));
@@ -240,6 +240,39 @@ public class CertificateAdministration {
             LOG.debug("Re-enabling expiry notifications for certificate id {}", cert.getId() );
             auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_UNSET_NOTIFICATION_BLOCKED, cert));
             certUtil.setCertAttribute(cert, ATTRIBUTE_NOTIFICATION_BLOCKED,"false", false);
+            certificateRepository.save(cert);
+        }
+    }
+
+    private void updateNotifyableFlag(CertificateAdministrationData adminData, Certificate cert) {
+
+        Boolean notifyable = Boolean.valueOf(certUtil.getCertAttribute(cert, ATTRIBUTE_NOTIFYABLE));
+
+        if( adminData.getNotifyable() && notifyable){
+            LOG.debug("Certificate id {} already receives notifications", cert.getId() );
+        }else if( adminData.getNotifyable() && !notifyable){
+            LOG.debug("Enabling notifications for certificate id {}", cert.getId() );
+            if(cert.isRevoked()){
+                LOG.error("No notifications will be sent, certificate id {} already revoked!", cert.getId() );
+                return;
+            }
+            if(!cert.isActive()){
+                LOG.error("No notifications will be sent, certificate id {} already expired!", cert.getId() );
+                return;
+            }
+
+            if(cert.getCsr() != null && cert.isEndEntity()){
+                LOG.error("Notifications enabled for end entity certificates {} as it's build from a csr!", cert.getId() );
+                return;
+            }
+
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_SET_NOTIFYABLE, cert));
+            certUtil.setCertAttribute(cert, ATTRIBUTE_NOTIFYABLE,"true", false);
+            certificateRepository.save(cert);
+        }else if( !adminData.getNotifyable() && notifyable){
+            LOG.debug("Disabling notifications for certificate id {}", cert.getId() );
+            auditService.saveAuditTrace(auditService.createAuditTraceCertificate(AuditService.AUDIT_CERTIFICATE_UNSET_NOTIFYABLE, cert));
+            certUtil.setCertAttribute(cert, ATTRIBUTE_NOTIFYABLE,"false", false);
             certificateRepository.save(cert);
         }
     }

@@ -364,6 +364,13 @@
                                    v-b-modal.blockNotificationForCertificate/>
                         </div>
 
+                        <div v-if="isNotifyable()" class="form-group">
+                            <label class="form-control-label" v-text="$t('ca3SApp.notification.isNotifyable')" for="certificate-notification-isNotifyable"></label>
+                            <input type="checkbox" class="form-check-inline" name="trusted" id="certificate-notification-isNotifyable" v-model="certificateView.notifyable"/>
+                        </div>
+
+
+
                         <div v-if="isRevocable()" class="form-group">
                             <label class="form-control-label" v-text="$t('ca3SApp.certificate.revocationReason')" for="cert-revocationReason"></label> <help-tag target="ca3SApp.certificate.download.revocationReason"/>
                             <select class="form-control" id="cert-revocationReason" name="revocationReason"  v-model="certificateAdminData.revocationReason">

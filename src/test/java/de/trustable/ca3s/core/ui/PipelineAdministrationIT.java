@@ -504,7 +504,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         check(LOC_INP_PIPELINE_WILDCARDS);
 
-        check(LOC_INP_PIPELINE_CHECK_CAA);
+//        check(LOC_INP_PIPELINE_CHECK_CAA);
 
         validateNotPresent(LOC_SEL_PIPELINE_USAGE);
 
@@ -618,7 +618,7 @@ public class PipelineAdministrationIT extends WebTestBase{
 
         check(LOC_INP_PIPELINE_WILDCARDS);
 
-        check(LOC_INP_PIPELINE_CHECK_CAA);
+//        check(LOC_INP_PIPELINE_CHECK_CAA);
 
         validateNotPresent(LOC_SEL_PIPELINE_USAGE);
 

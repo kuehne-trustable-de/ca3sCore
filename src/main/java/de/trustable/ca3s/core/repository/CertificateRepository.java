@@ -89,6 +89,10 @@ public interface CertificateRepository extends JpaRepository<Certificate, Long> 
                                                      @Param("after") Instant after,
                                                      @Param("before") Instant before);
 
+    @Query(name = "Certificate.findNonRevokedNotifyableByValidTo")
+    List<Certificate> findNonRevokedNotifyableByValidTo(@Param("after") Instant after,
+                                                     @Param("before") Instant before);
+
     @Query(name = "Certificate.findActiveCertificatesByHashAlgo")
     List<Object[]> findActiveCertificatesByHashAlgo(@Param("now") Instant now);
 

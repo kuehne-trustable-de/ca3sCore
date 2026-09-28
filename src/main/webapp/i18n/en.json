@@ -83,6 +83,7 @@
   "ca3SApp.CAConnectorType.VAULT": "Vault",
   "ca3SApp.CAConnectorType.VAULT_INVENTORY": "Vault certificate inventory",
   "ca3SApp.CAConnectorType.DIRECTORY": "Directory",
+  "ca3SApp.CAConnectorType.BPMN_CA": "CA connector using BPMN process",
   "ca3SApp.CAConnectorType.INTERNAL": "Internal CA",
   "ca3SApp.ChallengeStatus.DEACTIVATED": "DEACTIVATED",
   "ca3SApp.ChallengeStatus.EXPIRED": "EXPIRED",
@@ -350,6 +351,7 @@
   "ca3SApp.cAConnectorConfig.template": "Template",
   "ca3SApp.cAConnectorConfig.updated": "A CA Connector Config is updated with identifier {{ param }}",
   "ca3SApp.cAConnectorConfig.allowCrlOnHold": "Support for CRL state 'certificateHold'",
+  "ca3SApp.cAConnectorConfig.processInfoCreate": "Process info for certificate creation",
 
   "ca3SApp.cAConnectorConfig.tlsAuthentication": "TLS client authentication (enter certificate id)",
   "ca3SApp.cAConnectorConfig.messageProtectionPassphrase": "Message protection by passphrase",
@@ -947,12 +949,13 @@
   "entity.detail.value": "Value",
 
   "ca3SApp.notification.blocked": "Expiry notifications blocked",
-  "entity.block.notification.title": "Block expiry notifications",
+  "ca3SApp.notification.isNotifyable": "Enable expiry notifications",
+  "entity.block.notification.title": "Expiry notifications",
   "ca3SApp.certificate.block.notification.hint": "The certificate will expire without any notification. Systems may fail unexpectedly!",
   "ca3SApp.certificate.block.notification.question": "Are you sure to block the expiry notification?",
   "ca3SApp.certificate.unblock.notification.question": "Are you sure to enable the expiry notification?",
   "entity.action.block.notification": "Block",
-  "entity.action.unblock.notification": "Unblock",
+  "entity.action.unblock.notification": "Enable",
 
   "entity.validation.datetimelocal": "This field should be a date and time.",
   "entity.validation.max": "This field cannot be more than {{ max }}.",

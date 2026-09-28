@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 3.2.1263 on 2026-09-16 23:04:47.
+// Generated using typescript-generator version 3.2.1263 on 2026-09-27 22:50:42.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -139,6 +139,7 @@ export interface ICaConnectorConfigView extends ISerializable {
   certificateColumn?: string;
   sequenceColumn?: string;
   lastUpdateColumn?: string;
+  processInfoNameCreate?: string;
   role?: string;
   interval?: IInterval;
   messageProtectionPassphrase?: boolean;
@@ -296,11 +297,12 @@ export interface ICertificateView extends ISerializable {
   serversideKeyLeftUsages?: number;
   replacedCertArr?: string[];
   arArr?: INamedTypedValue[];
-  issuingActiveCertificates?: boolean;
   auditPresent?: boolean;
+  notifyable?: boolean;
   skiUrlSafe?: string;
-  fullChainAvailable?: boolean;
   serversideKeyGeneration?: boolean;
+  fullChainAvailable?: boolean;
+  issuingActiveCertificates?: boolean;
 }
 
 export interface ICryptoConfigView extends ISerializable {
@@ -523,6 +525,7 @@ export interface ICertificateAdministrationData extends ISerializable {
   administrationType?: IAdministrationType;
   trusted?: boolean;
   notificationBlocked?: boolean;
+  notifyable?: boolean;
   arAttributes?: INamedTypedValue[];
 }
 
@@ -729,6 +732,7 @@ export interface IWebConfigItems extends ISerializable {
   processInfoNameRequestElementValidiation?: string;
   processInfoNameCSRDecisionResult?: string;
   issuesSecondFactorClientCert?: boolean;
+  enableFormAutofill?: boolean;
 }
 
 export interface INamedTypedValue {
@@ -940,6 +944,7 @@ export interface ICAConnectorConfig extends ISerializable {
   plainSecret?: string;
   checkActive?: boolean;
   caConnectorAttributes?: ICAConnectorConfigAttribute[];
+  processInfoCreate?: IBPMNProcessInfo;
   tlsAuthentication?: ICertificate;
   messageProtection?: ICertificate;
   expiryDate?: Date;
@@ -1103,7 +1108,8 @@ export type ICAConnectorType =
   | 'VAULT_INVENTORY'
   | 'EJBCA_INVENTORY'
   | 'MANUAL_UPLOAD'
-  | 'ACME_CLIENT';
+  | 'ACME_CLIENT'
+  | 'BPMN_CA';
 
 export type IInterval = 'MINUTE' | 'HOUR' | 'DAY' | 'WEEK' | 'MONTH';
 

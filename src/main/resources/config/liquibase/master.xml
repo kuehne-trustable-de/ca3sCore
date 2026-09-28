@@ -180,4 +180,6 @@
     <include file="config/liquibase/changelog/20260723180000_added_challenge_columns_lob_value.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20260731180000_added_authorization_columns_valid_for_wildcard.xml" relativeToChangelogFile="false"/>
 
+    <include file="config/liquibase/changelog/20260926120000_added_relation_CAConnectorConfig_bpmn_create.xml" relativeToChangelogFile="false"/>
+
 </databaseChangeLog>
