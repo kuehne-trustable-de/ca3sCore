@@ -265,14 +265,14 @@ public class BPMNUtil{
 		Certificate certificate = null;
 		String failureReason = "";
 
-        BPMNProcessInfo bpmnProcessInfo = null;
-        if( pipeline != null){
-            bpmnProcessInfo = pipeline.getProcessInfoCreate();
-        }
-
 		if(caConfig != null ){
 
-			if(bpmnProcessInfo != null ) {
+            BPMNProcessInfo bpmnProcessInfo = null;
+            if( CAConnectorType.BPMN_CA.equals( caConfig.getCaConnectorType())){
+                bpmnProcessInfo = caConfig.getProcessInfoCreate();
+            }
+
+            if(bpmnProcessInfo != null ) {
 				// BPNM call
 				try {
                     Map<String, Object> variables = buildVariableMapFromCSR(csr, caConfig);
@@ -288,7 +288,9 @@ public class BPMNUtil{
 		            if( reason != null && !reason.toString().isEmpty()) {
 		            	failureReason = processInstance.getVariables().get("failureReason").toString();
 		            }else{
-                        notifyOnCertificateStatusChange(pipeline.getProcessInfoNotify(), certificate.getId());
+                        if(pipeline != null && certificate != null){
+                            notifyOnCertificateStatusChange(pipeline.getProcessInfoNotify(), certificate.getId());
+                        }
                     }
 
 					// catch all (runtime) Exception
