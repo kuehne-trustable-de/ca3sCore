@@ -696,7 +696,9 @@ public class ContentUploadProcessor {
 		certUtil.setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_UPLOADED_BY, requestorName);
 
 
-        NamedTypedValue[] arTypedAttributes = Arrays.stream(uploaded.getArAttributes()).map(nvs -> {
+        NamedValues[] nvArr = uploaded.getArAttributes() == null ? new NamedValues[0] : uploaded.getArAttributes();
+
+        NamedTypedValue[] arTypedAttributes = Arrays.stream(nvArr).map(nvs -> {
             String value = (nvs.getValues().length > 0) ?
                 nvs.getValues()[0].getValue() :
                 "";
