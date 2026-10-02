@@ -21,6 +21,7 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentVerifierProvider;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCSException;
@@ -36,13 +37,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.Serial;
 import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.PrivateKey;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.time.Instant;
@@ -202,7 +201,10 @@ public class ScepServletImpl extends ScepServlet {
 
         try {
             if(LOGGER.isDebugEnabled()) {
-                LOGGER.debug("doEnrol(" + Base64.getEncoder().encodeToString(csr.getEncoded()) + ", " + transId.toString() + ") using pipeline '{}'", pipeline.getName());
+                LOGGER.debug("doEnrol( {}, {} }) using pipeline '{}'",
+                    Base64.getEncoder().encodeToString(csr.getEncoded()),
+                    transId.toString(),
+                    pipeline.getName());
             }
         } catch (IOException e) {
             LOGGER.warn("doEnrol: problem printing PKCS10CertificationRequest", e);
@@ -221,50 +223,53 @@ public class ScepServletImpl extends ScepServlet {
 
         scepOrder.setAsyncProcessing(false);
 
-        try {
+        scepOrderUtil.setOrderAttribute(scepOrder, ATTRIBUTE_CN, csr.getSubject().toString());
+        insertSANs(scepOrder, csr);
+        scepOrderRepository.save(scepOrder);
 
-            X500Name subject = X500Name.getInstance(csr.getSubject());
-            LOGGER.debug(subject.toString());
-            if (subject.equals(pollName)) {
-                return Collections.emptyList();
-            }
+        X500Name subject = X500Name.getInstance(csr.getSubject());
+        LOGGER.debug(subject.toString());
+        if (subject.equals(pollName)) {
+            return Collections.emptyList();
+        }
 
-            scepOrderUtil.setOrderAttribute(scepOrder, ATTRIBUTE_CN, csr.getSubject().toString());
-            insertSANs(scepOrder, csr);
-            scepOrderRepository.save(scepOrder);
+        Instant currentAuthenticationInstant = Instant.now();
+        String password = CertificationRequestUtils.getChallengePassword(csr);
+        if( password != null){
+            checkPassword(pipeline, password);
+            scepOrder.setPasswordAuthentication(true);
+        }else {
+            //renewal branch
+            checkPipelineIsRenewalEnabled(pipeline, scepOrder);
 
-            Instant currentAuthenticationInstant = Instant.now();
-            String password = CertificationRequestUtils.getChallengePassword(csr);
-            if( password != null){
-                checkPassword(pipeline, password);
-                scepOrder.setPasswordAuthentication(true);
-            }else {
-                //renewal branch
-                checkPipelineIsRenewalEnabled(pipeline, scepOrder);
-
+            boolean csrVerified = false;
+            try {
                 // check the sender certificate against the csr
                 ContentVerifierProvider verifierProvider = new JcaContentVerifierProviderBuilder()
                     .setProvider(BouncyCastleProvider.PROVIDER_NAME)
                     .build(sender.getPublicKey());
 
-                boolean csrVerified = false;
-                try {
-                    csrVerified = csr.isSignatureValid(verifierProvider);
-                } catch (PKCSException e) {
-                    LOGGER.info("csr.isSignatureValid() failed with PKCSException, trying to verify with tmpX509Cert", e);
-                }
-                if (!csrVerified) {
-                    String msg = "SCEP request authentication by sender certificate failed, csr signature invalid!";
-                    LOGGER.warn(msg);
-                    auditService.saveAuditTrace(auditService.createAuditTraceSCEPRequestRejected(scepOrder, msg));
-                    scepOrder.setStatus(ScepOrderStatus.INVALID);
-                    throw new OperationFailureException(FailInfo.badRequest);
-                }
+                csrVerified = csr.isSignatureValid(verifierProvider);
+            } catch (PKCSException | OperatorCreationException e) {
+                LOGGER.info("csr.isSignatureValid() failed with PKCSException, trying to verify with tmpX509Cert", e);
+            }
+
+            if (!csrVerified) {
+                String msg = "SCEP request authentication by sender certificate failed, csr signature invalid!";
+                LOGGER.warn(msg);
+                auditService.saveAuditTrace(auditService.createAuditTraceSCEPRequestRejected(scepOrder, msg));
+                scepOrder.setStatus(ScepOrderStatus.INVALID);
+                throw new OperationFailureException(FailInfo.badRequest);
+            }
+
+            try {
 
                 // check if the sender certificate is already in our database
                 Certificate senderCert = certUtil.getCertificateByX509(sender);
                 if( senderCert!= null){
-                    LOGGER.debug("checkServerTrusted : sender certificate found in database  '" + senderCert.getSubject() + "' with id  '" + senderCert.getId() + "'" );
+                    LOGGER.debug("checkServerTrusted : sender certificate found in database  '{}' with id  '{}'",
+                        senderCert.getSubject(),
+                        senderCert.getId());
                 }else {
 
                     // check if the sender certificate is a CA certificate, if not reject the request
@@ -285,7 +290,17 @@ public class ScepServletImpl extends ScepServlet {
                 checkSenderCertificate(senderCert, scepOrder);
 
                 currentAuthenticationInstant = checkCsrVersusSenderCert(csr, senderCert, scepOrder, pipeline);
+
+            } catch (Exception e) {
+                LOGGER.warn("Error in enrollment", e);
+                scepOrder.setStatus(ScepOrderStatus.INVALID);
+                throw new OperationFailureException(FailInfo.badRequest);
+            }finally{
+                scepOrderRepository.save(scepOrder);
             }
+        }
+
+        try {
 
             String p10ReqPem = CryptoUtil.pkcs10RequestToPem(csr);
             Certificate newCertDao = startCertificateCreationProcess(p10ReqPem, transId, pipeline, scepOrder);
@@ -435,14 +450,14 @@ public class ScepServletImpl extends ScepServlet {
             for (AttributeTypeAndValue atv : rdn.getTypesAndValues()) {
                 if (BCStyle.CN.equals(atv.getType())) {
                     String cnValue = atv.getValue().toString();
-                    LOGGER.debug("cn found in CSR: " + cnValue);
+                    LOGGER.debug("cn found in CSR: {}", cnValue);
                     generalNameSetCSR.add(new GeneralName(GeneralName.dNSName, cnValue));
                 }
             }
         }
 
         boolean found = true;
-        List<String> vsanList = certUtil.getCertAttributes(authenticatingCertificate,CsrAttribute.ATTRIBUTE_TYPED_VSAN);
+        List<String> vsanList = CertificateUtil.getCertAttributes(authenticatingCertificate,CsrAttribute.ATTRIBUTE_TYPED_VSAN);
         for(GeneralName generalName: generalNameSetCSR){
             String typedSan = CertificateUtil.getTypedSAN(generalName);
             if( vsanList.contains(typedSan)){
@@ -477,13 +492,13 @@ public class ScepServletImpl extends ScepServlet {
             }
         }
 
-        LOGGER.warn("no (active) password present in pipeline '" + pipeline.getName() + "' !");
+        LOGGER.warn("no (active) password present in pipeline '{}' !", pipeline.getName());
         throw new OperationFailureException(FailInfo.badRequest);
     }
 
     @Override
     protected List<X509Certificate> doGetCaCertificate(String identifier) throws OperationFailureException{
-        LOGGER.debug("doGetCaCertificate(" + identifier +")");
+        LOGGER.debug("doGetCaCertificate({})", identifier);
 
         List<X509Certificate> caList = new ArrayList<>();
         try {
@@ -502,13 +517,13 @@ public class ScepServletImpl extends ScepServlet {
 
     @Override
     protected X509CRL doGetCrl(X500Name issuer, BigInteger serial) {
-        LOGGER.debug("doGetCrl(" + issuer.toString() +", "+ serial.toString(10) +")");
+        LOGGER.debug("doGetCrl({}, {})", issuer, serial);
         return null;
     }
 
     @Override
     protected Set<Capability> doCapabilities(String identifier) {
-        LOGGER.debug("doCapabilities(" + identifier +")");
+        LOGGER.debug("doCapabilities({})", identifier);
 
         Set<Capability> capabilitySet = new HashSet<>();
         capabilitySet.add(Capability.SCEP_STANDARD);
@@ -533,18 +548,18 @@ public class ScepServletImpl extends ScepServlet {
         throws OperationFailureException {
 
 
-        LOGGER.debug("doGetCert(" + issuer.toString() +", "+ serial.toString() +")");
+        LOGGER.debug("doGetCert({}, {})", issuer, serial);
 
         List<Certificate> certDaoList = certRepository.findByIssuerSerial(issuer.toString(), serial.toString());
 
         if( certDaoList.isEmpty()){
-            LOGGER.debug("no match for doGetCert(" + issuer +", "+ serial +")");
+            LOGGER.debug("no match for doGetCert({}, {})", issuer, serial);
 
             RDN[] rdns = issuer.getRDNs();
             for( RDN rdn: rdns){
                 AttributeTypeAndValue[] attTVArr = rdn.getTypesAndValues();
                 for( AttributeTypeAndValue attTV: attTVArr){
-                    LOGGER.debug("AttributeTypeAndValue of issuer :" + attTV.getType().toString() +" = "+ attTV.getValue().toString() );
+                    LOGGER.debug("AttributeTypeAndValue of issuer :{} = {}", attTV.getType().toString(), attTV.getValue().toString());
                 }
             }
             RDN[] rdnsIssuer =  issuer.getRDNs(BCStyle.CN);
@@ -552,7 +567,7 @@ public class ScepServletImpl extends ScepServlet {
                 String rdnIssuerString = rdnsIssuer[0].getFirst().getValue().toString();
                 String paddedSerial = CertificateUtil.getPaddedSerial(serial.toString());
 
-                LOGGER.debug("looking for cert('" + rdnIssuerString +"', '"+ paddedSerial +"')");
+                LOGGER.debug("looking for cert('{}', '{}')", rdnIssuerString, paddedSerial);
 
                 certDaoList = certRepository.findBySearchTermNamed1(CertificateAttribute.ATTRIBUTE_SERIAL_PADDED, paddedSerial);
 
@@ -579,7 +594,7 @@ public class ScepServletImpl extends ScepServlet {
                 X509Certificate x509Cert = CryptoUtil.convertPemToCertificate(certDao.getContent());
                 if( x509Cert.getIssuerX500Principal().getName().equals(issuer.toString()) ||
                     x509Cert.getIssuerX500Principal().toString().equals(issuer.toString()) ){
-                    LOGGER.debug("issuer match for doGetCert(" + issuer +", "+ serial +")");
+                    LOGGER.debug("issuer match for doGetCert({}, {})", issuer, serial);
                 }
                 certList.add(x509Cert);
             } catch (GeneralSecurityException e) {
@@ -595,7 +610,7 @@ public class ScepServletImpl extends ScepServlet {
     protected List<X509Certificate> doGetCertInitial(X500Name issuer,
                                                      X500Name subject, TransactionId transId){
 
-        LOGGER.debug("doGetCertInitial(" + issuer.toString() +", "+ subject.toString() + ", " + transId.toString() +")");
+        LOGGER.debug("doGetCertInitial({}, {}, {})", issuer, subject, transId);
 
         if (subject.equals(pollName)) {
             return Collections.emptyList();
@@ -615,7 +630,7 @@ public class ScepServletImpl extends ScepServlet {
 
     @Override
     protected List<X509Certificate> getNextCaCertificate(String identifier) {
-        LOGGER.debug("getNextCaCertificate(" + identifier +")");
+        LOGGER.debug("getNextCaCertificate({})", identifier);
 /*
         if (identifier == null || identifier.length() == 0) {
             return Collections.singletonList(ca);
@@ -640,7 +655,7 @@ public class ScepServletImpl extends ScepServlet {
 
         try {
             X509Certificate recipient = CryptoUtil.convertPemToCertificate(getCurrentRecepientCert().getContent());
-            LOGGER.debug("getRecipient() returns " + recipient.toString());
+            LOGGER.debug("getRecipient() returns {}", recipient.toString());
             return recipient;
         } catch (GeneralSecurityException | ServletException | OperationFailureException e) {
             LOGGER.warn("problem retrieving recipient certificate", e);

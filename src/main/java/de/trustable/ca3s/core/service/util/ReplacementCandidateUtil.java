@@ -1,10 +1,7 @@
 package de.trustable.ca3s.core.service.util;
 
 import de.trustable.ca3s.core.domain.*;
-import de.trustable.ca3s.core.repository.AcmeAccountRepository;
 import de.trustable.ca3s.core.repository.CertificateRepository;
-import de.trustable.ca3s.core.repository.UserRepository;
-import de.trustable.ca3s.core.service.AuditService;
 import de.trustable.ca3s.core.service.NotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,27 +22,18 @@ public class ReplacementCandidateUtil {
     private static final Logger LOG = LoggerFactory.getLogger(ReplacementCandidateUtil.class);
 
     final private CertificateRepository certificateRepository;
-    final private UserRepository userRepository;
-    final private AcmeAccountRepository acmeAccountRepository;
 
-
-    final private AuditService auditService;
     final private NotificationService notificationService;
 
     final int notifyActiveParallelCertificates;
 
     final int rejectActiveParallelCertificates;
 
-    public ReplacementCandidateUtil(CertificateRepository certificateRepository, UserRepository userRepository,
-                                    AcmeAccountRepository acmeAccountRepository,
-                                    AuditService auditService,
+    public ReplacementCandidateUtil(CertificateRepository certificateRepository,
                                     @Lazy NotificationService notificationService,
                                     @Value("${ca3s.issuance.limit.notify.active-parallel-certificates:20}") int notifyActiveParallelCertificates,
                                     @Value("${ca3s.issuance.limit.reject.active-parallel-certificates:100}") int rejectActiveParallelCertificates) {
         this.certificateRepository = certificateRepository;
-        this.userRepository = userRepository;
-        this.acmeAccountRepository = acmeAccountRepository;
-        this.auditService = auditService;
         this.notificationService = notificationService;
         this.notifyActiveParallelCertificates = notifyActiveParallelCertificates;
         this.rejectActiveParallelCertificates = rejectActiveParallelCertificates;
@@ -54,15 +42,12 @@ public class ReplacementCandidateUtil {
 
     /**
      * @param sanArr SAN array
-     * @return list of certificates
+     * @return list of sans
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<Certificate> findReplaceCandidates(String[] sanArr) {
 
-        return findReplaceCandidates(null, sanArr);
-    }
-
-    public List<Certificate> findReplaceCandidates(String cn, String[] sanArr) {
-        return findReplaceCandidates(Instant.now(), cn, sanArr);
+        return findReplaceCandidates(Instant.now(), null, sanArr);
     }
 
     /**
@@ -85,6 +70,7 @@ public class ReplacementCandidateUtil {
      * @param sanList SAN list
      * @return list of certificates
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<Certificate> findReplaceCandidates(Instant validOn,
                                                    String cn, List<String> sanList,
                                                    Certificate cert) {
@@ -112,14 +98,13 @@ public class ReplacementCandidateUtil {
      * @param sans SANs as List
      * @return list of certificates
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public List<Certificate> findReplaceCandidates(Instant validOn, List<String> sans, Certificate cert) {
 
         LOG.debug("sans list contains {} elements", sans.size());
 
         List<Certificate> candidateList = new ArrayList<>();
 
-        if (sans.size() == 0) {
+        if (sans.isEmpty()) {
             return candidateList;
         }
 
