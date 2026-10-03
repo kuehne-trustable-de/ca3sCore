@@ -161,6 +161,12 @@ jhipster:
   audit-events:
     retention-period: 30 # Number of days before audit events are deleted.
 
+camunda:
+  bpm:
+    history-level: activity
+    job-execution:
+      enabled: true
+
 # ===================================================================
 # Application specific properties
 # Add your own application properties here, see the ApplicationProperties class

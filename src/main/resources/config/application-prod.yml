@@ -259,6 +259,7 @@ springdoc:
 
 camunda:
   bpm:
+    history-level: activity
     job-execution:
       enabled: true
 
