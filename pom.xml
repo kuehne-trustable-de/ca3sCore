@@ -181,8 +181,8 @@
 
         <ds-proxy-spring-boot-starter.version>1.12.1</ds-proxy-spring-boot-starter.version>
 
+        <bouncyCastlePkixVersion>1.86</bouncyCastlePkixVersion>
         <bouncyCastleVersion>1.86</bouncyCastleVersion>
-        <bouncyCastlePkixVersion>1.85</bouncyCastlePkixVersion>
 
         <spring-vault.version>2.3.4</spring-vault.version>
 
