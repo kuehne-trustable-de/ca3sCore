@@ -181,8 +181,8 @@
 
         <ds-proxy-spring-boot-starter.version>1.12.1</ds-proxy-spring-boot-starter.version>
 
-        <bouncyCastleVersion>1.85.2</bouncyCastleVersion>
         <bouncyCastlePkixVersion>1.86</bouncyCastlePkixVersion>
+        <bouncyCastleVersion>1.86</bouncyCastleVersion>
 
         <spring-vault.version>2.3.4</spring-vault.version>
 
@@ -354,7 +354,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>2.6</version>
+                <version>2.7</version>
             </dependency>
 
             <!-- https://mvnrepository.com/artifact/org.hibernate.validator/hibernate-validator -->

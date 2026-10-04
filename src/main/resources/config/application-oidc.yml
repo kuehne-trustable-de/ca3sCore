@@ -66,7 +66,7 @@ management:
   endpoints:
     web:
       exposure:
-       include: health,info
+        include: health,info
 
 spring:
   # devtools should NOT be enabled for productive use
@@ -174,18 +174,17 @@ spring:
     jcache:
       config: classpath:ehcache.xml
 
-
   security:
     oauth2:
       client:
         registration:
           keycloak:
             client-id: ca3s-oidc
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-#            client-id: oidcTestClient
-#            client-secret: hbk3Q7BV22ESQvSrIJP8VR87kbAsvgsP
-#            authorization-grant-type: authorization_code
-#            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            redirect-uri: '{baseUrl}/login/oauth2/code/{registrationId}'
+          #            client-id: oidcTestClient
+          #            client-secret: hbk3Q7BV22ESQvSrIJP8VR87kbAsvgsP
+          #            authorization-grant-type: authorization_code
+          #            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
           google:
             client-id: 528678999149-90svlt60psv083eddmk6oi0ehpepgp70.apps.googleusercontent.com
             client-secret: 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
@@ -194,7 +193,7 @@ spring:
             client-secret: 7dd1ea6b69d174b36e8abb9d184c1b4dd7536d83
         provider:
           keycloak:
-            issuer-uri:  http://10.152.183.139/realms/master
+            issuer-uri: http://10.152.183.139/realms/master
 #            issuer-uri:  http://10.152.183.139/realms/testRealm
 #            authorization-uri: http://10.152.183.139/realms/master/protocol/openid-connect/auth
 #            token-uri: http://10.152.183.139/realms/master/protocol/openid-connect/token
@@ -278,7 +277,6 @@ jhipster:
     allowed-methods: HEAD, GET, POST, PUT, DELETE
     allow-credentials: true
 
-
 # the application provides an OAS endpoint to access the APIs metadata
 springdoc:
   #  packagesToScan: de.trustable.ca3s.core.web.rest,de.trustable.ca3s.core.web.rest.support,de.trustable.ca3s.core.web.rest.acme,de.trustable.ca3s.core.web.rest.vm
@@ -288,11 +286,9 @@ springdoc:
   remove-broken-reference-definitions: false
   show-login-endpoint: true
 
-# deprecated, use ca3s.protectionSecret
-# protectionSecret: bnJvbGwvV1MtMjAxOS1DQS5jcmyGK2h0dHA6Ly90cnVzdGFibGUuZXUvYWRjc1Rl
-
 camunda:
   bpm:
+    history-level: activity
     job-execution:
       enabled: true
 
@@ -639,15 +635,12 @@ ca3s:
     # The roles are mapped from different role elements into the key
     # 'Roles'
 
-
     expression:
-#      firstname: "get('name').split(' ')[0]"
-#      lastName: "get('name').split(' ')[1]"
+      #      firstname: "get('name').split(' ')[0]"
+      #      lastName: "get('name').split(' ')[1]"
       roles:
         other: "get('given_name')"
 
-#    provider-name: google
-#    provider-name: github
+    #    provider-name: google
+    #    provider-name: github
     provider-name: keycloak
-
-

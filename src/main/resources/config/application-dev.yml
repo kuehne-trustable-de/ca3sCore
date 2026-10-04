@@ -87,6 +87,12 @@ server:
   port: 8080
   max-http-header-size: 8KB
 
+camunda:
+  bpm:
+    history-level: activity
+    job-execution:
+      enabled: true
+
 # ===================================================================
 # JHipster specific properties
 #
