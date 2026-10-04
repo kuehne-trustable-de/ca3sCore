@@ -51,9 +51,7 @@ import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
 import org.bouncycastle.operator.ContentVerifierProvider;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentVerifierProviderBuilder;
-import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPublicKey;
 import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPublicKey;
-import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.bouncycastle.util.io.pem.PemObject;
@@ -1321,18 +1319,6 @@ public class CertificateUtil {
             }
         } else if (pk instanceof EdDSAPublicKey) {
             len = 256;
-        } else if (pk instanceof BCDilithiumPublicKey) {
-            BCDilithiumPublicKey dilPubKey = (BCDilithiumPublicKey)pk;
-
-            if( DilithiumParameterSpec.dilithium2.equals(dilPubKey.getParameterSpec())){
-                len = 2528 * 8;
-            }else if( DilithiumParameterSpec.dilithium3.equals(dilPubKey.getParameterSpec())){
-                len = 4000 * 8;
-            }else if( DilithiumParameterSpec.dilithium5.equals(dilPubKey.getParameterSpec())) {
-                len = 4864 * 8;
-            }else{
-                LOG.warn("getKeyLength(): unexpected dilithium parameterSpec {}", dilPubKey.getParameterSpec().getClass().getName());
-            }
 
         } else if (pk instanceof BCFalconPublicKey) {
             BCFalconPublicKey falconPubKey = (BCFalconPublicKey)pk;

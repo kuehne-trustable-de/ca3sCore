@@ -33,9 +33,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.pkcs.PKCS10CertificationRequestBuilder;
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
-import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPrivateKey;
 import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPrivateKey;
-import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -231,10 +229,6 @@ public class CertificateServiceImpl implements CertificateService {
         }else if ( pk instanceof EdDSAPrivateKey) {
             algo = ED25519_SIGNATURE_ALG;
             csBuilder = new JcaContentSignerBuilder(algo);
-        }else if ( pk instanceof BCDilithiumPrivateKey) {
-            DilithiumParameterSpec parameterSpec = ((BCDilithiumPrivateKey) pk).getParameterSpec();
-            KeyAlgoLengthOrSpec keyAlgoLengthOrSpec = KeyAlgoLengthOrSpec.from(parameterSpec);
-            csBuilder = keyAlgoLengthOrSpec.buildJcaContentSignerBuilder();
         }else if ( pk instanceof BCFalconPrivateKey) {
             FalconParameterSpec parameterSpec = ((BCFalconPrivateKey) pk).getParameterSpec();
             KeyAlgoLengthOrSpec keyAlgoLengthOrSpec = KeyAlgoLengthOrSpec.from(parameterSpec);

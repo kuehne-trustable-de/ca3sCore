@@ -2,9 +2,7 @@ package de.trustable.ca3s.core.service.dto;
 
 import org.bouncycastle.jce.ECNamedCurveTable;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.bouncycastle.pqc.jcajce.provider.dilithium.BCDilithiumPublicKey;
 import org.bouncycastle.pqc.jcajce.provider.falcon.BCFalconPublicKey;
-import org.bouncycastle.pqc.jcajce.spec.DilithiumParameterSpec;
 import org.bouncycastle.pqc.jcajce.spec.FalconParameterSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +34,6 @@ public class KeyAlgoLengthOrSpec {
     public static final KeyAlgoLengthOrSpec Brainpool_P384r1 = new KeyAlgoLengthOrSpec("Brainpool", "brainpoolP384r1","brainpoolP384r1", "BC", 384, ECNamedCurveTable.getParameterSpec("brainpoolP384r1"));
     public static final KeyAlgoLengthOrSpec Brainpool_P512r1 = new KeyAlgoLengthOrSpec("Brainpool", "brainpoolP512r1","brainpoolP512r1", "BC", 512, ECNamedCurveTable.getParameterSpec("brainpoolP512r1"));
 
-    public static final KeyAlgoLengthOrSpec Dilithium_2 = new KeyAlgoLengthOrSpec("Dilithium", "dilithium2","dilithium2", "BCPQC", 2528*8, DilithiumParameterSpec.dilithium2);
-    public static final KeyAlgoLengthOrSpec Dilithium_3 = new KeyAlgoLengthOrSpec("Dilithium", "dilithium3","dilithium3", "BCPQC", 4000*8, DilithiumParameterSpec.dilithium3);
-    public static final KeyAlgoLengthOrSpec Dilithium_5 = new KeyAlgoLengthOrSpec("Dilithium", "dilithium5","dilithium5", "BCPQC", 4864*8, DilithiumParameterSpec.dilithium5);
-
     public static final KeyAlgoLengthOrSpec Falcon_512 = new KeyAlgoLengthOrSpec("Falcon", "falcon512","falcon-512", "BCPQC", 7176, FalconParameterSpec.falcon_512);
     public static final KeyAlgoLengthOrSpec Falcon_1024 = new KeyAlgoLengthOrSpec("Falcon", "falcon1024","falcon-1024", "BCPQC", 14344, FalconParameterSpec.falcon_1024);
 
@@ -57,9 +51,6 @@ public class KeyAlgoLengthOrSpec {
         Brainpool_P256r1,
         Brainpool_P384r1,
         Brainpool_P512r1,
-        Dilithium_2,
-        Dilithium_3,
-        Dilithium_5,
         Falcon_512,
         Falcon_1024
     };
@@ -91,9 +82,7 @@ public class KeyAlgoLengthOrSpec {
         LOG.debug("pk.getAlgorithm() : {}", pk.getAlgorithm());
 
         if( keyAlgName == null || (keyAlgName.trim().isEmpty())){
-            if (pk instanceof BCDilithiumPublicKey) {
-                keyAlgName = ((BCDilithiumPublicKey)pk).getParameterSpec().getName();
-            }else if (pk instanceof BCFalconPublicKey) {
+            if (pk instanceof BCFalconPublicKey) {
                 keyAlgName = ((BCFalconPublicKey)pk).getParameterSpec().getName();
             }else{
                 LOG.warn("getAlgorithmName(): unexpected key class {}", pk.getClass().getName());
@@ -104,13 +93,7 @@ public class KeyAlgoLengthOrSpec {
 
 
     public static KeyAlgoLengthOrSpec from(AlgorithmParameterSpec spec) throws GeneralSecurityException {
-        if( Dilithium_2.getAlgorithmParameterSpec().equals(spec) ) {
-            return Dilithium_2;
-        }else if( Dilithium_3.getAlgorithmParameterSpec().equals(spec) ){
-            return Dilithium_3;
-        }else if( Dilithium_5.getAlgorithmParameterSpec().equals(spec) ){
-            return Dilithium_5;
-        }else if( Falcon_512.getAlgorithmParameterSpec().equals(spec) ){
+        if( Falcon_512.getAlgorithmParameterSpec().equals(spec) ){
             return Falcon_512;
         }else if( Falcon_1024.getAlgorithmParameterSpec().equals(spec) ){
             return Falcon_1024;
