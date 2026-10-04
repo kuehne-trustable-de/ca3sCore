@@ -213,7 +213,7 @@
 
         <commonsValidatorVersion>1.11.0</commonsValidatorVersion>
 
-        <typescriptGeneratorVersion>3.2.1263</typescriptGeneratorVersion>
+        <typescriptGeneratorVersion>4.1.1</typescriptGeneratorVersion>
 
         <!-- start-class>camunda.transformation.pipeline.CamundaTransformationPipelineApp</start-class-->
         <camunda.version>7.12.0</camunda.version>
