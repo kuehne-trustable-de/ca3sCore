@@ -253,13 +253,6 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
     if (!typedValue.value || typedValue.value.trim().length === 0) {
       return false;
     }
-    /*
-    if (rr.name === 'SAN') {
-      return this.showRegExpWarning(rr, valueIndex, typedValue.type + ':' + typedValue.value);
-    } else {
-      return this.showRegExpWarning(rr, valueIndex, typedValue.value);
-    }
-    */
 
     return this.showRegExpWarning(rr, valueIndex, typedValue.value);
   }
@@ -267,7 +260,6 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
   public showRegExpWarning(rr: IPipelineRestriction, valueIndex: number, value: string): boolean {
     console.log('showRegExpWarning( ' + rr.regExMatch + ', ' + valueIndex + ', "' + value + '")');
     console.log('showRegExpWarning : rr.regEx = ' + rr.regEx);
-    //    if (rr.regExMatch && valueIndex === 0 && rr.regEx.trim().length > 0) {
     if (rr.regExMatch && rr.regEx.trim().length > 0) {
       const valid = !this.showRegExpFieldWarning(value, rr.regEx);
       console.log('showRegExpWarning( ' + rr.regExMatch + ', ' + valueIndex + ', "' + value + '") -> ' + valid);

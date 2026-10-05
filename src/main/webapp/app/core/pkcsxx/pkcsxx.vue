@@ -12,7 +12,8 @@
 
 		<div class="row justify-content-center" v-cloak @drop.prevent="catchDroppedFile" @dragover.prevent>
 			<div class="col-8" >
-                <form name="editForm" role="form" :autocomplete="selectPipelineView.enableFormAutofill" novalidate >
+        <!--form name="editForm" role="form" :autocomplete="selectPipelineView.webConfigItems.enableFormAutofill" novalidate -->
+        <form name="editForm" role="form" novalidate >
 					<h2 class="jh-entity-heading">
                         <span v-if="(authenticated === false) && (creationMode === 'CSR_AVAILABLE')" v-text="$t('pkcsxx.subtitle.check.csr')"></span>
                         <span v-else-if="isUploadPipelineChoosen() && creationMode === 'CSR_AVAILABLE'" v-text="$t('pkcsxx.subtitle.upload.certificate')"></span>
