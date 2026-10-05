@@ -184,5 +184,4 @@
 
     <include file="config/liquibase/changelog/20261011180000_modify_act_history_mode.xml" relativeToChangelogFile="false"/>
 
-    <include file="config/liquibase/changelog/20261004180000_add_unique_constraint_pipeline_attribute_name.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>

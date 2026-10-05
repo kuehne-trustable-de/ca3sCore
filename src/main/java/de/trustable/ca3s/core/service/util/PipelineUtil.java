@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -162,8 +163,10 @@ public class PipelineUtil {
     public static final String SCEP_CA_CONNECTOR_RECIPIENT_NAME = "SCEP_CA_CONNECTOR_RECIPIENT_NAME";
     public static final String SCEP_PERIOD_DAYS_RENEWAL = "SCEP_PERIOD_DAYS_RENEWAL";
     public static final String SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL = "SCEP_PERCENTAGE_OF_VALIDITY_BEFORE_RENEWAL";
-    private final CSRUtil cSRUtil;
 
+    public static final String EMAIL_DEFAULT_REGEX = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$";
+
+    private final CSRUtil cSRUtil;
 
     static Logger LOG = LoggerFactory.getLogger(PipelineUtil.class);
 
@@ -618,7 +621,7 @@ public class PipelineUtil {
                 }
             }
         }
-        LOG.debug("#{} ARA itmes found", nARA);
+        LOG.debug("#{} ARA items found", nARA);
         ARARestriction[] araRestrictions = new ARARestriction[nARA];
 
         /*
@@ -655,10 +658,19 @@ public class PipelineUtil {
                     } else if (RESTR_ARA_CONTENT_TYPE.equals(namePart)) {
                         araRestriction.setContentType( ARAContentType.valueOf(plAtt.getValue()));
                     }
-
                 }
             }
         }
+
+        for( ARARestriction araRestriction : araRestrictions){
+            if( ARAContentType.EMAIL_ADDRESS.equals(araRestriction.getContentType())){
+                if( araRestriction.getRegEx() == null || araRestriction.getRegEx().isEmpty()){
+                    araRestriction.setRegEx(EMAIL_DEFAULT_REGEX);
+                    araRestriction.setRegExMatch(true);
+                }
+            }
+        }
+
         return araRestrictions;
     }
 
@@ -1111,7 +1123,8 @@ public class PipelineUtil {
 		}
 
 */
-        ARARestriction[] araRestrictions = pv.getAraRestrictions();
+        ARARestriction[] araRestrictions = getAraRestrictions(pv);
+
         if (araRestrictions != null) {
             int j = 0;
             for (ARARestriction araRestriction : araRestrictions) {
@@ -1211,6 +1224,19 @@ public class PipelineUtil {
         }
 
         return p;
+    }
+
+    private static ARARestriction @NotNull [] getAraRestrictions(PipelineView pv) {
+
+        ARARestriction[] araRestrictions = pv.getAraRestrictions();
+        Set<String> araRestrictionNameSet = new HashSet<>();
+        for(ARARestriction araRestriction: araRestrictions){
+            if( araRestrictionNameSet.contains(araRestriction.getName()) ){
+               throw new DataIntegrityViolationException("Duplicate ARARestriction name '" + araRestriction.getName() + "' found in pipeline '" + pv.getName() + "'");
+            }
+            araRestrictionNameSet.add(araRestriction.getName());
+        }
+        return araRestrictions;
     }
 
     private ProtectedContent getProtectedContent(PipelineView pv, Pipeline p,
