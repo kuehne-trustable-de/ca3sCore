@@ -552,10 +552,6 @@ public class CertificateUtil {
 
         cert.setValidFrom(DateUtil.asInstant(x509Cert.getNotBefore()));
         cert.setValidTo(DateUtil.asInstant(x509Cert.getNotAfter()));
-        Instant instant_1_1_38 = Instant.parse("2038-01-01T01:00:00.00Z");
-        if( cert.getValidTo().isAfter(instant_1_1_38)){
-            cert.setValidTo(instant_1_1_38);
-        }
 
         cert.setActive(true);
 
