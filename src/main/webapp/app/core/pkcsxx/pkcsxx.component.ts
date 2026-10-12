@@ -978,7 +978,11 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
         this.$router.push({ name: 'CsrInfo', params: { csrId: this.precheckResponse.createdCSRId } });
       }
 
-      if (this.precheckResponse && this.precheckResponse.dataType === 'X509_CERTIFICATE_CREATED' && this.precheckResponse.certificates[0]) {
+      if (
+        this.precheckResponse &&
+        (this.precheckResponse.dataType === 'X509_CERTIFICATE_CREATED' || this.precheckResponse.dataType === 'CONTAINER') &&
+        this.precheckResponse.certificates[0]
+      ) {
         this.$router.push({ name: 'CertInfo', params: { certificateId: this.precheckResponse.certificates[0].certificateId.toString() } });
       }
 

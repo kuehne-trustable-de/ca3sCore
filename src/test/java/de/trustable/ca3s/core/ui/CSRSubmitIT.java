@@ -74,7 +74,7 @@ public class CSRSubmitIT extends WebTestBase {
     public static final By LOC_LNK_REQUESTS_MENUE = By.xpath( "//nav//a [@href='/csr-list']");
     public static final By LOC_LNK_CERTIFICATES_MENUE = By.xpath("//nav//a [@href='/cert-list']");
 
-    public static final By LOC_BTN_REQUEST_CERTIFICATE = By.xpath("//form/div/button [@id='uploadContent']");
+    public static final By LOC_BTN_REQUEST_CERTIFICATE = By.xpath("//form/div/button [@id='requestCertificate']");
 
     public static final By LOC_TEXT_ACCOUNT_NAME = By.xpath("//nav//span [contains(text(), '\"user\"')]");
     public static final By LOC_TEXT_CONTENT_TYPE = By.xpath("//form//dl [dt[span [@value = 'content-type']]]/dd/span");
@@ -561,7 +561,7 @@ public class CSRSubmitIT extends WebTestBase {
     public void testSubmitServersideDirectHoldable() throws Exception {
 
         String c = "DE";
-        String cn = "reqTestHoldable" + System.currentTimeMillis();
+        String cn = "reqTestHoldable" + System.currentTimeMillis() + ".eu";
         String o = "trustable solutions";
         String ou = "crypto research";
         String l = "Hannover";
@@ -887,7 +887,7 @@ public class CSRSubmitIT extends WebTestBase {
     void testSubmitAllAlgosServersideDirect(final String algoName) throws Exception {
 
         String c = "DE";
-        String cn = "reqTest" + System.currentTimeMillis();
+        String cn = "reqTest" + System.currentTimeMillis() + ".eu";
         String o = "trustable solutions";
         String san = "wwww." + cn;
 

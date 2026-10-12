@@ -41,7 +41,7 @@
               </div>
 
               <!-- show the input section when a pipeline is selected -->
-              <div class="form-group" v-if="isWebPipelineChoosen()">
+              <div class="form-group" v-if="isWebPipelineChoosen() && !isUploadPipelineChoosen()">
                   <label class="form-control-label" v-text="$t('pkcsxx.upload.creationMode.selection')" for="pkcsxx-key-creation"></label> <help-tag target="pkcsxx.upload.creationMode.selection"/>
                   <select class="form-control" id="pkcsxx-key-creation" name="pkcsxx-key-creation" v-model="creationMode" v-on:change="updateCurrentPipelineRestrictions()">
 
@@ -603,7 +603,7 @@
 							:disabled="precheckResponse.csrPublicKeyPresentInDB || precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.certificatePresentInDB || precheckResponse.publicKeyPresentInDB"
 	-->
 
-                        <button type="button" id="uploadContent"
+                        <button type="button" id="requestCertificate"
                                 v-if="precheckResponse.dataType === 'CSR' || precheckResponse.dataType === 'CONTAINER_WITH_KEY' || precheckResponse.dataType === 'CONTAINER' || (creationMode === 'SERVERSIDE_KEY_CREATION')"
                                 :disabled="disableCertificateRequest()"
                                 class="btn btn-primary" v-on:click="uploadContent">
@@ -611,14 +611,14 @@
                         </button>
 
 
-                        <button type="button" id="showCSRDetails"
+                        <button type="button" id="upload.submit"
                                 v-if="showCertificateUpload()"
                                 :disabled="disableCertificateRequest() && (precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.csrPublicKeyPresentInDB)"
                                 class="btn btn-primary" v-on:click="uploadContent">
                             <font-awesome-icon icon="upload"></font-awesome-icon>&nbsp;<span v-text="$t('pkcsxx.upload.submit')"></span>
                         </button>
 
-                        <button type="button" id="showCSRDetails"
+                        <button type="button" id="csr.submit"
                                 v-if="showCertificateUpload() && precheckResponse.relatedCSRId"
                                 :disabled="disableCertificateRequest() && (precheckResponse.dataType === 'CONTAINER_REQUIRING_PASSPHRASE' || precheckResponse.csrPublicKeyPresentInDB)"
                                 class="btn btn-primary"
