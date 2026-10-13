@@ -598,7 +598,6 @@ public class PipelineUtil {
 
             }
         }
-
         return rdnRestrictArr;
     }
 
@@ -1009,8 +1008,15 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_CARDINALITY, pv.getRestriction_E().getCardinalityRestriction().name());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_TEMPLATE, pv.getRestriction_E().getContentTemplate());
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_TEMPLATE_READ_ONLY, pv.getRestriction_E().isTemplateReadOnly());
-            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEXMATCH, pv.getRestriction_E().isRegExMatch());
-            addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEX, pv.getRestriction_E().getRegEx());
+
+            if(pv.getType() == PipelineType.WEB &&
+                (pv.getRestriction_E().getRegEx() == null) || (pv.getRestriction_E().getRegEx().isEmpty())) {
+                addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEXMATCH, true);
+                addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEX, EMAIL_DEFAULT_REGEX);
+            }else{
+                addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEXMATCH, pv.getRestriction_E().isRegExMatch());
+                addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEX, pv.getRestriction_E().getRegEx());
+            }
         }
         if (pv.getRestriction_SAN() != null) {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_SAN_CARDINALITY, pv.getRestriction_SAN().getCardinalityRestriction().name());

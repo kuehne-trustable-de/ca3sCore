@@ -195,7 +195,7 @@ public class AuditService {
 
     private static final String AUDIT_USER_LOGIN_FOR_IP_BLOCKED = "AUDIT_USER_LOGIN_FOR_IP_BLOCKED";
     private static final String AUDIT_PROTECTED_CONTENT_EMPTY_STATUS_UPDATED = "AUDIT_PROTECTED_CONTENT_EMPTY_STATUS_UPDATED";
-
+    private static final String AUDIT_PIPELINE_SCHEMA_UPDATED = "AUDIT_PIPELINE_SCHEMA_UPDATED";
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
 
@@ -1275,6 +1275,27 @@ public class AuditService {
             null,
             null,
             null);
+    }
+
+    public AuditTrace createAuditTracePipelineSchemaUpdate(int count, int version) {
+
+
+
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(nar.getName(), nar.getRole(),
+            AUDIT_PIPELINE_SCHEMA_UPDATED,
+            null,
+            "" + count, "" + version,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+
     }
 /*
     public AuditTrace createAuditTraceCertificateExpiryNotificationSent(String email,

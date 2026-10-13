@@ -5,10 +5,9 @@ import de.trustable.ca3s.core.domain.enumeration.PipelineType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentStatus;
 import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.service.AuditService;
-import de.trustable.ca3s.core.service.util.CSRUtil;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.CryptoService;
-import de.trustable.ca3s.core.service.util.PreferenceUtil;
+import de.trustable.ca3s.core.service.dto.PipelineView;
+import de.trustable.ca3s.core.service.dto.RDNRestriction;
+import de.trustable.ca3s.core.service.util.*;
 import org.bouncycastle.util.encoders.DecoderException;
 import org.bouncycastle.util.encoders.Hex;
 import org.slf4j.Logger;
@@ -32,6 +31,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static de.trustable.ca3s.core.service.util.PipelineUtil.EMAIL_DEFAULT_REGEX;
+
 /**
  *
  * @author kuehn
@@ -41,6 +42,7 @@ import java.util.Set;
 @Transactional(propagation = Propagation.REQUIRES_NEW)
 public class SchemaUpdateScheduler {
 
+    private final PipelineUtil pipelineUtil;
     transient Logger LOG = LoggerFactory.getLogger(SchemaUpdateScheduler.class);
 
     final private int maxRecordsPerTransaction;
@@ -64,7 +66,18 @@ public class SchemaUpdateScheduler {
     final private PreferenceUtil preferenceUtil;
 
     public SchemaUpdateScheduler(@Value("${ca3s.batch.maxRecordsPerTransaction:1000}") int maxRecordsPerTransaction,
-                                 CertificateRepository certificateRepo, CertificateUtil certUtil, CSRRepository csrRepository, CsrAttributeRepository csrAttributeRepository, CSRUtil csrUtil, AcmeOrderRepository acmeOrderRepository, AcmeAccountRepository acmeAccountRepository, PipelineRepository pipelineRepository, AuditService auditService, AuditTraceRepository auditServiceRepository, ProtectedContentRepository protectedContentRepository, PreferenceUtil preferenceUtil) {
+                                 CertificateRepository certificateRepo,
+                                 CertificateUtil certUtil,
+                                 CSRRepository csrRepository,
+                                 CsrAttributeRepository csrAttributeRepository,
+                                 CSRUtil csrUtil,
+                                 AcmeOrderRepository acmeOrderRepository,
+                                 AcmeAccountRepository acmeAccountRepository,
+                                 PipelineRepository pipelineRepository,
+                                 AuditService auditService,
+                                 AuditTraceRepository auditServiceRepository,
+                                 ProtectedContentRepository protectedContentRepository,
+                                 PreferenceUtil preferenceUtil, PipelineUtil pipelineUtil) {
         this.maxRecordsPerTransaction = maxRecordsPerTransaction;
         this.certificateRepo = certificateRepo;
         this.certUtil = certUtil;
@@ -78,6 +91,7 @@ public class SchemaUpdateScheduler {
         this.auditServiceRepository = auditServiceRepository;
         this.protectedContentRepository = protectedContentRepository;
         this.preferenceUtil = preferenceUtil;
+        this.pipelineUtil = pipelineUtil;
     }
 
 
@@ -383,8 +397,36 @@ public class SchemaUpdateScheduler {
         }
 
         if (count > 0) {
-            auditService.saveAuditTrace(auditService.createAuditTraceAcmeAcountCreatedOnUpdated(count));
-            LOG.info("ProtectedContent status updated of {} items", count);
+            auditService.saveAuditTrace(auditService.createAuditTracePipelineSchemaUpdate(count, 1));
+            LOG.info("Pipeline authoritySet updated for {} pipelines", count);
         }
+
+        count = 0;
+        if( version == 1) {
+            for (Pipeline pipeline : pipelineRepository.findAll()) {
+
+                if( pipeline.getType() == PipelineType.WEB ) {
+
+                    PipelineView pipelineView = pipelineUtil.from(pipeline);
+                    RDNRestriction restr_E = pipelineView.getRestriction_E();
+                    if( restr_E.getRegEx() == null || restr_E.getRegEx().isEmpty() ) {
+                        restr_E.setRegExMatch(true);
+                        restr_E.setRegEx(EMAIL_DEFAULT_REGEX);
+
+                        pipelineRepository.save(pipelineUtil.toPipeline(pipelineView));
+                        count++;
+
+                        LOG.info("Pipeline '{}' restriction 'E' updated", pipeline.getName());
+                    }
+                }
+            }
+            preferenceUtil.setPipelineSchemaVersion(2);
+        }
+
+        if (count > 0) {
+            auditService.saveAuditTrace(auditService.createAuditTracePipelineSchemaUpdate(count, 2));
+            LOG.info("Pipeline restriction 'E' updated for {} pipelines", count);
+        }
+
     }
 }

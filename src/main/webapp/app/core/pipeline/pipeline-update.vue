@@ -245,7 +245,7 @@
                                     value="KEY_REUSE_WARN_ONLY"></option>
                         </select>
                     </div>
-                    <div v-if="$v.pipeline.keyUniqueness.$invalid">
+                    <div v-if="pipeline.type !== 'MANUAL_UPLOAD' &amp;&amp; $v.pipeline.keyUniqueness.$invalid">
                         <small class="form-text text-danger"
                                v-text="$t('entity.validation.required')"></small>
                     </div>
@@ -827,7 +827,7 @@
                         </select>
                     </div-->
 
-                    <div class="form-group"
+                    <!--div class="form-group"
                          v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_CREATION').length > 0">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.processInfoCreate')"
                                for="pipeline-processInfoIssue"></label>
@@ -841,7 +841,7 @@
                                 :key="bPNMProcessInfoOption.id">{{ bPNMProcessInfoOption.name }}
                             </option>
                         </select>
-                    </div>
+                    </div-->
 
                     <div class="form-group"
                          v-if="$v.pipeline.type.$model !== 'MANUAL_UPLOAD' && getBPNMProcessInfosByType('CERTIFICATE_REVOCATION').length > 0">
