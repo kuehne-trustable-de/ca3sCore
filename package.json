@@ -90,7 +90,7 @@
     "luxon": "^1.27.0",
     "min-dash": "^3.8.1",
     "parse-duration": "^1.0.0",
-    "semver": "^6.3.1",
+    "semver": "^7.0.0",
     "swagger-ui-dist": "4.19.1",
     "vue": "2.7.5",
     "vue-axios": "^2.1.5",
