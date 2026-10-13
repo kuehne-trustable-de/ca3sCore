@@ -19,7 +19,7 @@ import javax.validation.constraints.*;
 @NamedQueries({
 	@NamedQuery(name = "CAConnectorConfig.findAllCertGenerators",
 	query = "SELECT ccc FROM CAConnectorConfig ccc WHERE " +
-			"ccc.caConnectorType in ( 'ADCS', 'CMP', 'VAULT', 'INTERNAL' )"
+			"ccc.caConnectorType in ( 'ADCS', 'CMP', 'VAULT', 'BPMN_CA', 'INTERNAL' )"
     ),
 	@NamedQuery(name = "CAConnectorConfig.findbyName",
 	query = "SELECT ccc FROM CAConnectorConfig ccc WHERE " +

@@ -88,7 +88,7 @@ public class BPMNExecutor {
 
             Map<String, Object> resultvariables = processInstance.getVariables();
             for(String key: resultvariables.keySet()){
-                LOG.debug("bpmn process resultvariables: {}", key);
+                LOG.debug("bpmn process result variables: {}", key);
                 if(protectedNameSet.contains(key)){
                     resultvariables.replace(key, "**********");
                 }

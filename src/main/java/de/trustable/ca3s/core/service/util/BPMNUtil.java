@@ -27,6 +27,8 @@ import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstanceWithVariables;
+import org.camunda.bpm.engine.variable.Variables;
+import org.camunda.bpm.engine.variable.value.TypedValue;
 import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.jetbrains.annotations.NotNull;
@@ -323,6 +325,7 @@ public class BPMNUtil{
 
 		// end of BPMN call
 
+        LOG.debug("status: '{}' ", status);
 		if ("Created".equals(status)) {
 
 			if( certificate != null) {
@@ -441,7 +444,9 @@ public class BPMNUtil{
 
     @NotNull
     private Map<String, Object> buildVariableMapFromCSR(CSR csr, CAConnectorConfig caConfig) {
+
         Map<String, Object> variables = new HashMap<>();
+        variables.put("action", "Issue");
         variables.put("csrId", csr.getId());
         variables.put("csr", csr);
         variables.put("csrAttributes", csr.getCsrAttributes());
@@ -483,10 +488,16 @@ public class BPMNUtil{
             (certificate.getCsr().getPipeline() != null )){
             pipeline = certificate.getCsr().getPipeline();
 
+            if( pipeline.getCaConnector() != null &&
+                CAConnectorType.BPMN_CA.equals( pipeline.getCaConnector().getCaConnectorType())){
+                bpmnProcessInfo = pipeline.getCaConnector().getProcessInfoCreate();
+            }
+/*
             bpmnProcessInfo = pipeline.getProcessInfoRevoke();
             if( bpmnProcessInfo != null) {
                 LOG.debug("ProcessInfoRevoke '{}' defined by pipeline '{}' ", bpmnProcessInfo.getName(), pipeline.getName());
             }
+*/
 
             bpmnProcessInfoNotify = pipeline.getProcessInfoNotify();
             if( bpmnProcessInfoNotify != null) {
