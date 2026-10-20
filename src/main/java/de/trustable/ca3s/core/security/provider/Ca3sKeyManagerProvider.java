@@ -15,28 +15,28 @@ public class Ca3sKeyManagerProvider extends Provider {
 	private static final String PROVIDER_TYPE_KEYMANAGER = "KeyManagerFactory";
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -2476288508778039686L;
 
     private static final Logger LOG = LoggerFactory.getLogger(Ca3sKeyManagerProvider.class);
 
-    
+
 	private static TimedRenewalCertMap certMap;
 
 	@SuppressWarnings("deprecation")
 	public Ca3sKeyManagerProvider(final TimedRenewalCertMap certMap) {
 		super("Ca3sKeyManagerProvider", 1.0, "Key management provider implemented by ca3s");
-		
+
 		Ca3sKeyManagerProvider.certMap = certMap;
-		
+
 //		super.put("Keystore.ca3s", KeyStoreImpl.class.getName());
 //		super.put("Keystore.ca3s storetype", SERVICE_NAME);
 
 		putService( new ProviderService(this, PROVIDER_TYPE_KEYMANAGER, SERVICE_NAME, TimedRenewalKeyManagerFactorySpi.class.getName()));
-		
+
 		LOG.debug("registered TimedRenewalKeyManagerFactorySpi in Ca3sKeyManagerProvider");
-		
+
 		for( String prop: super.stringPropertyNames()){
 			LOG.debug("provider attribute {} : '{}'", prop, this.getProperty(prop));
 		}
@@ -45,15 +45,16 @@ public class Ca3sKeyManagerProvider extends Provider {
 
 	private static final class ProviderService extends Provider.Service{
 		ProviderService( Provider p, String type, String algo, String cn){
-			super(p, type, algo, cn, null, null); 
+
+            super(p, type, algo, cn, null, null);
 		}
-		
+
 		@Override
 		public Object newInstance(Object ctrParamObj) throws NoSuchAlgorithmException{
-			
+
 			String type = getType();
 			String algo = getAlgorithm();
-			
+
 			try {
 				if( PROVIDER_TYPE_KEYMANAGER.equalsIgnoreCase(type)) {
 					if( SERVICE_NAME.equalsIgnoreCase(algo)) {

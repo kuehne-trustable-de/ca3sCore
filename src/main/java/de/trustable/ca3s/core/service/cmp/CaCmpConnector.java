@@ -257,6 +257,16 @@ public class CaCmpConnector {
 	 */
 	public CAStatus getStatus(final CAConnectorConfig caConnConfig) {
 
+/*
+        try {
+            CMPClientImpl client = getCMPClient(caConnConfig);
+
+            client.buildGeneralMessageRequest()
+        } catch (GeneralSecurityException e) {
+            return CAStatus.Problem;
+        }
+*/
+
         return CAStatus.Active;
 /*
 		try {

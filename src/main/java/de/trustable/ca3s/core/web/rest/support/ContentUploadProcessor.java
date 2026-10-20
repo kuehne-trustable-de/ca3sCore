@@ -422,7 +422,7 @@ public class ContentUploadProcessor {
                             }
 
 
-                            if( pkcs12Store.getCertificateChain(alias) != null && pkcs12Store.getCertificateChain(alias).length > 0) {
+                            if( pkcs12Store.getCertificateChain(alias) != null ) {
                                 for (java.security.cert.Certificate chainCert : pkcs12Store.getCertificateChain(alias)) {
                                     if (chainCert instanceof X509Certificate) {
                                         X509Certificate x509chainCert = (X509Certificate) chainCert;
@@ -483,7 +483,7 @@ public class ContentUploadProcessor {
 
     Certificate findOrInsertCertificate(X509CertificateHolderShallow x509Holder, String content, String requestorName, UploadPrecheckData uploaded) throws GeneralSecurityException, IOException {
 
-        Certificate cert = null;
+        Certificate cert;
         List<Certificate> certListDB = findCertificateByIssuerSerial(x509Holder);
         LOG.debug("certListDB has # {} item", certListDB.size());
         if(!certListDB.isEmpty()){
@@ -492,7 +492,6 @@ public class ContentUploadProcessor {
                 LOG.info("problem: found more than one matching certificate for issuer {}, serial {}", x509Holder.getIssuer(), x509Holder.getSerial());
             }
         }else {
-
             // insert certificate
             cert = insertCertificate(x509Holder.getPemCertrificate(), requestorName, uploaded);
         }
