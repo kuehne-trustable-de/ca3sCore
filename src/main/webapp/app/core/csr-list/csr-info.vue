@@ -174,11 +174,6 @@
 -->
             <form name="editForm" role="form" novalidate>
                 <div>
-                    <div v-if="isEditable() && icsrView.status === 'PENDING'" class="form-group">
-                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="csr-rejectionReason"></label>
-                        <input type="text" class="form-control" name="rejectionReason" id="csr-rejectionReason" v-model="csrAdminData.rejectionReason" />
-                    </div>
-
                     <div v-for="attr in csrAdminData.arAttributes" :key="attr.name" class="form-group">
                         <label class="form-control-label"  for="csr-ar-{attr.name}">{{attr.name}}</label>
                         <textarea v-if="attr.type && (attr.type === 'TEXT_AREA')"
@@ -200,6 +195,11 @@
                         <textarea class="form-control" name="comment" id="comment"
                             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                             v-model="csrAdminData.comment" />
+                    </div>
+
+                    <div v-if="isEditable() && icsrView.status === 'PENDING'" class="form-group">
+                        <label class="form-control-label" v-text="$t('ca3SApp.cSR.rejectionReason')" for="csr-rejectionReason"></label>
+                        <input type="text" class="form-control" name="rejectionReason" id="csr-rejectionReason" v-model="csrAdminData.rejectionReason" />
                     </div>
 
                     <b-alert :show="dismissCountDown"
