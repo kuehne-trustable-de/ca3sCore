@@ -32,6 +32,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.service.dto.acme.ChallengeResponse;
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 
 import javax.annotation.concurrent.Immutable;
 import java.util.Date;
@@ -46,11 +47,15 @@ public class OrderView {
     private AcmeOrderStatus status;
 
     @JsonProperty("notBefore")
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
+	@JsonFormat (shape = JsonFormat.Shape.STRING,
+        pattern = AcmeController.PATTERN_ZULU_TIME,
+        timezone = "UTC")
     private Date notBefore;
 
     @JsonProperty("expires")
-    @JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
+    @JsonFormat (shape = JsonFormat.Shape.STRING,
+        pattern = AcmeController.PATTERN_ZULU_TIME,
+        timezone = "UTC")
     private Date expires;
 
     @JsonProperty("certificateId")
@@ -70,7 +75,9 @@ public class OrderView {
 	/**
 	 * @return the notBefore
 	 */
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
+	@JsonFormat (shape = JsonFormat.Shape.STRING,
+        pattern = AcmeController.PATTERN_ZULU_TIME,
+        timezone = "UTC")
 	public Date getNotBefore() {
 		return notBefore;
 	}
@@ -78,7 +85,9 @@ public class OrderView {
     /**
      * @return the expires
      */
-    @JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
+    @JsonFormat (shape = JsonFormat.Shape.STRING,
+        pattern = AcmeController.PATTERN_ZULU_TIME,
+        timezone = "UTC")
     public Date getExpires() {
         return expires;
     }

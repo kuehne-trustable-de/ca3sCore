@@ -1,8 +1,11 @@
 package de.trustable.ca3s.core.domain;
 
+import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import de.trustable.ca3s.core.web.rest.TestUtil;
+
+import java.time.Instant;
 
 public class AcmeChallengeTest {
 
@@ -18,5 +21,17 @@ public class AcmeChallengeTest {
         assertThat(acmeChallenge1).isNotEqualTo(acmeChallenge2);
         acmeChallenge1.setId(null);
         assertThat(acmeChallenge1).isNotEqualTo(acmeChallenge2);
+    }
+
+    @Test
+    public void testDateFormat() throws Exception {
+        TestUtil.equalsVerifier(AcmeChallenge.class);
+        AcmeChallenge acmeChallenge = new AcmeChallenge();
+        acmeChallenge.setId(1L);
+        acmeChallenge.setStatus(ChallengeStatus.PENDING);
+        acmeChallenge.setChallengeId(123456L);
+        acmeChallenge.setToken("token");
+        acmeChallenge.setValidated(Instant.now());
+
     }
 }

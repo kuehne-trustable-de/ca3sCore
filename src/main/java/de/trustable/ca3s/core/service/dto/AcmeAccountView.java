@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.service.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.AccountStatus;
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -16,7 +17,7 @@ public class AcmeAccountView implements Serializable {
 
     private String realm;
 
-    @JsonFormat(pattern = "yyyy-MM-dd'T'hh:mm:ss.SSS'Z'", timezone = "UTC")
+    @JsonFormat(pattern = AcmeController.PATTERN_ZULU_TIME, timezone = "UTC")
     private Instant createdOn;
 
     private AccountStatus status;

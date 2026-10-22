@@ -38,6 +38,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import de.trustable.ca3s.core.domain.AcmeChallenge;
 import de.trustable.ca3s.core.domain.enumeration.ChallengeStatus;
 import de.trustable.ca3s.core.service.util.DateUtil;
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import org.apache.logging.log4j.util.Strings;
 
 
@@ -60,7 +61,7 @@ import org.apache.logging.log4j.util.Strings;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChallengeResponse {
 
-	@JsonProperty("url")
+    @JsonProperty("url")
     private String url = null;
 
 	@JsonProperty("type")
@@ -73,7 +74,9 @@ public class ChallengeResponse {
     private String token = null;
 
 	@JsonProperty("validated")
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
+	@JsonFormat (shape = JsonFormat.Shape.STRING,
+        pattern = AcmeController.PATTERN_ZULU_TIME,
+        timezone = "UTC")
     private Date validated = null;
 
     @JsonProperty("issuer-domain-names")

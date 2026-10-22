@@ -51,7 +51,10 @@ import javax.transaction.Transactional;
 @RestController
 public class AcmeController {
 
-	private static final Logger LOG = LoggerFactory.getLogger(AcmeController.class);
+    public static final String PATTERN_ZULU_TIME = "yyyy-MM-dd'T'HH:mm:ss.SSSX";
+
+
+    private static final Logger LOG = LoggerFactory.getLogger(AcmeController.class);
 
 	public static final URI NO_INSTANCE = null;
 	public static final String NO_DETAIL = null;

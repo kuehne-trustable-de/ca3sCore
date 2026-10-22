@@ -41,6 +41,7 @@ import de.trustable.ca3s.core.domain.AcmeIdentifier;
 import de.trustable.ca3s.core.domain.AcmeOrder;
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
 import de.trustable.ca3s.core.service.util.DateUtil;
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 
 
 /*
@@ -76,7 +77,9 @@ public class NewOrderResponse {
 	private AcmeOrderStatus status;
 
 	@JsonProperty("expires")
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
+	@JsonFormat (shape = JsonFormat.Shape.STRING,
+        pattern = AcmeController.PATTERN_ZULU_TIME,
+        timezone = "UTC")
     private Date expires;
 
 	@JsonProperty("identifiers")
@@ -120,7 +123,9 @@ public class NewOrderResponse {
 	/**
 	 * @return the expires
 	 */
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
+	@JsonFormat (shape = JsonFormat.Shape.STRING,
+        pattern = AcmeController.PATTERN_ZULU_TIME,
+        timezone = "UTC")
 	public Date getExpires() {
 		return expires;
 	}

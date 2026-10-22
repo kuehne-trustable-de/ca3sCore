@@ -36,7 +36,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import de.trustable.ca3s.core.domain.enumeration.AcmeOrderStatus;
-
+import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 
 
 /*
@@ -73,7 +73,9 @@ public class AuthorizationResponse {
 	private AcmeOrderStatus status;
 
 	@JsonProperty("expires")
-	@JsonFormat (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'hh:mm:ss'Z'")
+	@JsonFormat (shape = JsonFormat.Shape.STRING,
+        pattern = AcmeController.PATTERN_ZULU_TIME,
+        timezone = "UTC")
     private Date expires;
 
 	@JsonProperty("identifier")
