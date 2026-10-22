@@ -13,6 +13,7 @@ import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.OidNameMapper;
 import de.trustable.util.Pkcs10RequestHolder;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
@@ -1010,7 +1011,8 @@ public class PipelineUtil {
             addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_TEMPLATE_READ_ONLY, pv.getRestriction_E().isTemplateReadOnly());
 
             if(pv.getType() == PipelineType.WEB &&
-                (pv.getRestriction_E().getRegEx() == null) || (pv.getRestriction_E().getRegEx().isEmpty())) {
+                StringUtils.isBlank( pv.getRestriction_E().getRegEx())){
+
                 addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEXMATCH, true);
                 addPipelineAttribute(pipelineAttributes, p, auditList, RESTR_E_REGEX, EMAIL_DEFAULT_REGEX);
             }else{
