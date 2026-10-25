@@ -180,7 +180,7 @@ export default class CAConnectorConfigUpdate extends mixins(JhiDataUtils) {
         if (mode === 'copy') {
           this.cAConnectorConfig.name = 'Copy of ' + this.cAConnectorConfig.name;
           this.cAConnectorConfig.id = null;
-          this.cAConnectorConfig.authenticationParameter.plainSecret = null;
+          this.cAConnectorConfig.authenticationParameter.plainSecret = "S3cr3t";
         }
 
         if (this.cAConnectorConfig.caConnectorType === 'ADCS') {
