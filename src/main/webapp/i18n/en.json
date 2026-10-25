@@ -684,6 +684,10 @@
   "ca3SApp.pipeline.ou": "Org Unit",
   "ca3SApp.pipeline.s": "State",
   "ca3SApp.pipeline.l": "Location",
+  "ca3SApp.pipeline.street": "Street",
+  "ca3SApp.pipeline.postalcode": "Postal code",
+  "ca3SApp.pipeline.organizationidentifier": "Organization identifier",
+
   "ca3SApp.pipeline.e": "EMail",
   "ca3SApp.pipeline.san": "SAN",
   "ca3SApp.pipeline.created": "A new Pipeline is created with identifier {{ param }}",
@@ -779,7 +783,9 @@
   "ca3SApp.pipeline.filter.type": "Type: ",
   "ca3SApp.pipeline.filter.state": " State: ",
   "ca3SApp.pipeline.filter.connector": " Connector: ",
-  "ca3SApp.pipeline.tosAgreed": "Terms of Service agreement required",
+  "ca3SApp.pipeline.tosAgreed": "Terms of service agreement required",
+  "ca3SApp.pipeline.tosLink": "Link to service agreement",
+
   "ca3SApp.pipeline.issuesSecondFactorClientCert": "Issues client certificates for 2-factor-authentication",
   "ca3SApp.pipeline.network": "Network",
   "ca3SApp.pipeline.network.accept": "Accept Subnet",
@@ -1289,6 +1295,10 @@
   "pkcsxx.upload.L": "Location",
   "pkcsxx.upload.O": "Organisation",
   "pkcsxx.upload.OU": "Organisation unit",
+  "pkcsxx.upload.STREET": "Street",
+  "pkcsxx.upload.POSTALCODE": "Postal code",
+  "pkcsxx.upload.ORG_IDENT": "Organization identifier",
+
   "pkcsxx.upload.SAN": "SAN",
   "pkcsxx.upload.ST": "State",
   "pkcsxx.upload.E": "EMail",
@@ -1358,6 +1368,7 @@
   "pkcsxx.upload.warning.publicKeyPresent": "Public key already in use",
   "pkcsxx.upload.tosAgreed": "Agreed to ",
   "pkcsxx.upload.tosAgreement.required": "Agreement required",
+  "pkcsxx.upload.termsOfService": "Terms of service: ",
 
   "pkcsxx.upload.cn-san.restriction.required": "CN MUST be present as DNS SAN entry, too!",
   "pkcsxx.upload.cn-san.restriction.recommended": "It's recommended to include the CN as DNS SAN entry, additionally!",

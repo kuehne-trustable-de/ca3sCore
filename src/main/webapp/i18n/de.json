@@ -672,6 +672,10 @@
   "ca3SApp.pipeline.ou": "Org Einheit (OU)",
   "ca3SApp.pipeline.s": "Staat",
   "ca3SApp.pipeline.l": "Lokation",
+  "ca3SApp.pipeline.street": "Strasse",
+  "ca3SApp.pipeline.postalcode": "Postleitzahl",
+  "ca3SApp.pipeline.organizationidentifier": "Organisations-ID",
+
   "ca3SApp.pipeline.e": "EMail",
   "ca3SApp.pipeline.san": "SAN",
 
@@ -739,6 +743,7 @@
   "ca3SApp.pipeline.tenants": "Sichtbar für Mandanten",
   "ca3SApp.pipeline.roles": "Sichtbar für Rollen",
   "ca3SApp.pipeline.tosAgreed": "Zustimmung zu Geschäftsbedingungen notwendig",
+  "ca3SApp.pipeline.tosLink": "Link zu den Geschäftsbedingungen",
   "ca3SApp.pipeline.issuesSecondFactorClientCert": "Stellt Client-Zertifikate für 2-Faktor-Autorisierung aus",
   "ca3SApp.pipeline.network": "Netzwerk",
   "ca3SApp.pipeline.network.accept": "Subnetz zulassen",
@@ -1261,6 +1266,10 @@
   "pkcsxx.upload.SAN": "SAN",
   "pkcsxx.upload.ST": "Bundesland",
   "pkcsxx.upload.E": "EMail",
+  "pkcsxx.upload.STREET": "Strasse",
+  "pkcsxx.upload.POSTALCODE": "Postleitzahl",
+  "pkcsxx.upload.ORG_IDENT": "Organisations-ID",
+
   "pkcsxx.upload.algoname": "Erstellt mit",
   "pkcsxx.upload.certificate.validfrom": "Gültig von",
   "pkcsxx.upload.certificate.validto": "Gültig bis",
@@ -1327,6 +1336,7 @@
   "pkcsxx.upload.warning.publicKeyPresent": "Öffentlicher Schlüssel bereits in Verwendung",
   "pkcsxx.upload.tosAgreed": "Zustimmung zu den Bedingungen ",
   "pkcsxx.upload.tosAgreement.required": "Zustimmung notwendig",
+  "pkcsxx.upload.termsOfService": "Ausstellungsbedingungen: ",
 
   "pkcsxx.upload.cn-san.restriction.required": "Der CN MUSS auch als DNS SAN Eintrag vorhanden sein!",
   "pkcsxx.upload.cn-san.restriction.recommended": "Es wird empfohlen, den CN zusätzlich als DNS SAN Eintrag einzufügen!",

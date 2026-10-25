@@ -52,6 +52,9 @@ public class PipelineView implements Serializable {
     private RDNRestriction restriction_OU;
     private RDNRestriction restriction_S;
     private RDNRestriction restriction_E;
+    private RDNRestriction restriction_STREET;
+    private RDNRestriction restriction_POSTALCODE;
+    private RDNRestriction restriction_ORG_IDENT;
 
     private RDNRestriction restriction_SAN;
 
@@ -185,6 +188,30 @@ public class PipelineView implements Serializable {
 
     public void setRestriction_E(RDNRestriction restriction_E) {
         this.restriction_E = restriction_E;
+    }
+
+    public RDNRestriction getRestriction_STREET() {
+        return restriction_STREET;
+    }
+
+    public void setRestriction_STREET(RDNRestriction restriction_STREET) {
+        this.restriction_STREET = restriction_STREET;
+    }
+
+    public RDNRestriction getRestriction_POSTALCODE() {
+        return restriction_POSTALCODE;
+    }
+
+    public void setRestriction_POSTALCODE(RDNRestriction restriction_POSTALCODE) {
+        this.restriction_POSTALCODE = restriction_POSTALCODE;
+    }
+
+    public RDNRestriction getRestriction_ORG_IDENT() {
+        return restriction_ORG_IDENT;
+    }
+
+    public void setRestriction_ORG_IDENT(RDNRestriction restriction_ORG_IDENT) {
+        this.restriction_ORG_IDENT = restriction_ORG_IDENT;
     }
 
     public boolean isIpAsSubjectAllowed() {

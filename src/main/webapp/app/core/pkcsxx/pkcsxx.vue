@@ -589,11 +589,17 @@
         <div v-if="authenticated">
 
             <div class="form-group" v-if="isWebPipelineChoosen() &&
-              selectPipelineView.tosAgreementRequired &&
+              selectPipelineView.tosAgreementRequired && (selectPipelineView.tosAgreementLink.length > 0) &&
               ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
                 <input type="checkbox" class="form-check-inline" name="tosAgreed" id="tosAgreed" v-model="upload.tosAgreed" />
                 <label class="form-control-label" v-text="$t('pkcsxx.upload.tosAgreed', {'tosAgreementLink': selectPipelineView.tosAgreementLink})" ></label> <a v-bind:href="selectPipelineView.tosAgreementLink" target="_blank">{{selectPipelineView.tosAgreementLink}}</a>
                 <small class="form-text text-danger" v-if="!upload.tosAgreed" v-text="$t('pkcsxx.upload.tosAgreement.required')"></small>
+            </div>
+
+            <div class="form-group" v-if="isWebPipelineChoosen() &&
+              !selectPipelineView.tosAgreementRequired && selectPipelineView.tosAgreementLink &&
+              ( creationMode === 'CSR_AVAILABLE' || creationMode === 'SERVERSIDE_KEY_CREATION')">
+                <label class="form-control-label" v-text="$t('pkcsxx.upload.termsOfService', {'tosAgreementLink': selectPipelineView.tosAgreementLink})" ></label> <a v-bind:href="selectPipelineView.tosAgreementLink" target="_blank">{{selectPipelineView.tosAgreementLink}}</a>
             </div>
 
             <!--div class="row jh-entity-details" v-if="isChecked === true && precheckResponse.dataType === 'X509_CERTIFICATE' && precheckResponse.csrPublicKeyPresentInDB === false">

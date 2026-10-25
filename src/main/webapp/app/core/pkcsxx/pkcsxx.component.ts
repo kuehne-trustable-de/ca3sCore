@@ -640,6 +640,13 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
           name = 'EMAILADDRESS';
         }
 
+        if ('POSTALCODE' === name.toUpperCase()) {
+          name = '2.5.4.17';
+        }
+        if ('ORG_IDENT' === name.toUpperCase()) {
+          name = '2.5.4.97';
+        }
+
         for (const typedValue of nv.values) {
           if (typedValue.value.length > 0) {
             if (dname.length > 0) {
@@ -716,6 +723,13 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
             if (dnLines.length > 0) {
               dnLines += ', ';
             }
+            if ('POSTALCODE' === name.toUpperCase()) {
+              name = '2.5.4.17';
+            }
+            if ('ORG_IDENT' === name.toUpperCase()) {
+              name = '2.5.4.97';
+            }
+
             dnLines += name + '=' + value.value;
           }
         }
@@ -771,6 +785,12 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
             }
             if ('E' === name.toUpperCase()) {
               dnLines += 'emailAddress=' + value.value + '\n';
+            } else if ('STREET' === name.toUpperCase()) {
+              dnLines += 'street=' + value.value + '\n';
+            } else if ('POSTALCODE' === name.toUpperCase()) {
+              dnLines += 'postalCode=' + value.value + '\n';
+            } else if ('ORG_IDENT' === name.toUpperCase()) {
+              dnLines += 'organizationIdentifier=' + value.value + '\n';
             } else {
               dnLines += name + '=' + value.value + '\n';
             }
@@ -900,6 +920,12 @@ export default class PKCSXX extends mixins(AlertMixin, Vue) {
           if (value.value.length > 0) {
             if ('E' === name.toUpperCase()) {
               subject += '/emailAddress=';
+            } else if ('STREET' === name.toUpperCase()) {
+              subject += '/2.5.4.9=';
+            } else if ('POSTALCODE' === name.toUpperCase()) {
+              subject += '/2.5.4.17=';
+            } else if ('ORG_IDENT' === name.toUpperCase()) {
+              subject += '/2.5.4.97=';
             } else {
               subject += '/' + name.toUpperCase() + '=';
             }

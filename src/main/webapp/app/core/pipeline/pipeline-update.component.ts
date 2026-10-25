@@ -532,6 +532,10 @@ export class PipelineView implements IPipelineView {
     this.restriction_O = new RDNRestriction();
     this.restriction_OU = new RDNRestriction();
     this.restriction_S = new RDNRestriction();
+    this.restriction_STREET = new RDNRestriction();
+    this.restriction_POSTALCODE = new RDNRestriction();
+    this.restriction_ORG_IDENT = new RDNRestriction();
+
     this.restriction_E = new RDNRestriction();
     this.restriction_SAN = new RDNRestriction();
 

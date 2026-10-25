@@ -459,6 +459,89 @@
                             </td>
                         </tr>
 
+
+                        <!-- Street -->
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.street')"
+                                       for="pipeline-street-cardinality"></label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-street-cardinality" name="pipeline-street-cardinality"
+                                        v-model="pipeline.restriction_STREET.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-street-template"
+                                       id="pipeline-street-template" v-model="pipeline.restriction_STREET.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-street-template-readonly"
+                                       id="pipeline-street-template-readonly"
+                                       v-model="pipeline.restriction_STREET.templateReadOnly"/>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-street-regex" id="pipeline-street-regex"
+                                       v-model="pipeline.restriction_STREET.regEx"/>
+                            </td>
+                        </tr>
+
+                        <!-- postal code -->
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.postalcode')"
+                                       for="pipeline-postalcode-cardinality"></label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-postalcode-cardinality" name="pipeline-postalcode-cardinality"
+                                        v-model="pipeline.restriction_POSTALCODE.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-postalcode-template"
+                                       id="pipeline-postalcode-template" v-model="pipeline.restriction_POSTALCODE.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-postalcode-template-readonly"
+                                       id="pipeline-postalcode-template-readonly"
+                                       v-model="pipeline.restriction_POSTALCODE.templateReadOnly"/>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-postalcode-regex" id="pipeline-postalcode-regex"
+                                       v-model="pipeline.restriction_POSTALCODE.regEx"/>
+                            </td>
+                        </tr>
+
+                        <!-- organization identifier -->
+                        <tr>
+                            <td>
+                                <label class="form-control-label" v-text="$t('ca3SApp.pipeline.organizationidentifier')"
+                                       for="pipeline-organizationidentifier-cardinality"></label>
+                            </td>
+                            <td>
+                                <select class="form-control" id="pipeline-organizationidentifier-cardinality" name="pipeline-organizationidentifier-cardinality"
+                                        v-model="pipeline.restriction_ORG_IDENT.cardinalityRestriction">
+                                    <option value="NOT_ALLOWED">NOT_ALLOWED</option>
+                                    <option value="ZERO_OR_ONE">ZERO_OR_ONE</option>
+                                    <option value="ONE">ONE</option>
+                                </select>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-organizationidentifier-template"
+                                       id="pipeline-organizationidentifier-template" v-model="pipeline.restriction_ORG_IDENT.contentTemplate"/>
+                                <input type="checkbox" class="form-check-inline" name="pipeline-organizationidentifier-template-readonly"
+                                       id="pipeline-organizationidentifier-template-readonly"
+                                       v-model="pipeline.restriction_ORG_IDENT.templateReadOnly"/>
+                            </td>
+                            <td>
+                                <input type="text" class="form-control" name="pipeline-organizationidentifier-regex" id="pipeline-organizationidentifier-regex"
+                                       v-model="pipeline.restriction_ORG_IDENT.regEx"/>
+                            </td>
+                        </tr>
+
+                        <!-- EMAIL -->
                         <tr>
                             <td>
                                 <label class="form-control-label" v-text="$t('ca3SApp.pipeline.e')"
@@ -629,7 +712,24 @@
                     </table>
 
                     <div class="form-group"
-                         v-if="$v.pipeline.type.$model === 'WEB' || $v.pipeline.type.$model === 'ACME'">
+                         v-if="$v.pipeline.type.$model === 'WEB'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.tosAgreed')"
+                               for="pipeline-tosAgreed"></label>
+                        <help-tag role="Admin" target="pipeline-tosAgreementRequired"/>
+                        <input type="checkbox" class="form-check-inline" name="pipeline-tosAgreementRequired"
+                               id="pipeline-tosAgreementRequired" v-model="pipeline.tosAgreementRequired"/>
+                    </div>
+
+                    <div class="form-group"
+                         v-if="$v.pipeline.type.$model === 'WEB'">
+                        <label class="form-control-label" v-text="$t('ca3SApp.pipeline.tosLink')"
+                               for="pipeline-tosAgreementLink"></label>
+                        <input type="text" class="form-control" name="tosAgreementLink" id="pipeline-tosAgreementLink"
+                               v-model="$v.pipeline.tosAgreementLink.$model"/>
+                    </div>
+
+                    <div class="form-group"
+                         v-if="$v.pipeline.type.$model === 'ACME'">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.tosAgreed')"
                                for="pipeline-tosAgreed"></label>
                         <help-tag role="Admin" target="pipeline.tosAgreed"/>

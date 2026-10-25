@@ -144,6 +144,9 @@ public class CertificateUtil {
         CertificateUtil.nameOIDMap.put("OU", BCStyle.OU);
         CertificateUtil.nameOIDMap.put("L", BCStyle.L);
         CertificateUtil.nameOIDMap.put("ST", BCStyle.ST);
+        CertificateUtil.nameOIDMap.put("STREET", BCStyle.STREET);
+        CertificateUtil.nameOIDMap.put("POSTALCODE", BCStyle.POSTAL_CODE);
+        CertificateUtil.nameOIDMap.put("ORG_IDENT", BCStyle.ORGANIZATION_IDENTIFIER);
         CertificateUtil.nameOIDMap.put("E", BCStyle.E);
     }
 
