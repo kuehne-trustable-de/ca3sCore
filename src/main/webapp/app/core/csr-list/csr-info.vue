@@ -93,12 +93,12 @@
                         <span>{{ icsrView.rejectionReason }}</span>
                     </dd>
 
-                    <dt v-if="icsrView.administrationComment && icsrView.administrationComment.length > 0">
+                    <!--dt v-if="icsrView.administrationComment && icsrView.administrationComment.length > 0">
                         <span v-text="$t('ca3SApp.cSR.administrationComment')"></span>
                     </dt>
                     <dd v-if="icsrView.administrationComment && icsrView.administrationComment.length > 0">
                         <span>{{ icsrView.administrationComment }}</span>
-                    </dd>
+                    </dd-->
 
                     <dt>
                         <span v-text="$t('ca3SApp.cSR.x509KeySpec')"></span>

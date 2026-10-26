@@ -15,7 +15,11 @@ import de.trustable.cmp.client.ProtectedMessageHandler;
 import de.trustable.cmp.client.cmpClient.CMPClientConfig;
 import de.trustable.cmp.client.cmpClient.CMPClientImpl;
 import de.trustable.cmp.client.cmpClient.DigestSigner;
+import de.trustable.cmp.client.cmpClient.exception.CMPConnectorErrorResponseException;
 import de.trustable.util.CryptoUtil;
+import org.bouncycastle.asn1.cmp.GenMsgContent;
+import org.bouncycastle.asn1.cmp.InfoTypeAndValue;
+import org.bouncycastle.asn1.cmp.PKIMessage;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x509.CRLReason;
 import org.slf4j.Logger;
@@ -28,6 +32,7 @@ import java.math.BigInteger;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
+import java.security.UnrecoverableEntryException;
 import java.security.cert.X509Certificate;
 import java.util.Date;
 import java.util.Set;
@@ -88,7 +93,7 @@ public class CaCmpConnector {
 
         Certificate certificateMessageProtection = caConnConfig.getMessageProtection();
 
-        boolean ignoreFailedVerification = caConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_IGNORE_RESPONSE_MESSAGE_VERIFICATION, false);
+        boolean ignoreFailedVerification = CaConnectorConfigUtil.getCAConnectorConfigAttribute(caConnConfig, CaConnectorConfigUtil.ATT_IGNORE_RESPONSE_MESSAGE_VERIFICATION, false);
 
         ProtectedMessageHandler signer;
         if (certificateMessageProtection == null) {
@@ -257,17 +262,35 @@ public class CaCmpConnector {
 	 */
 	public CAStatus getStatus(final CAConnectorConfig caConnConfig) {
 
-/*
         try {
-            CMPClientImpl client = getCMPClient(caConnConfig);
+            CMPClientImpl cmpClient = getCMPClient(caConnConfig);
 
-            client.buildGeneralMessageRequest()
-        } catch (GeneralSecurityException e) {
-            return CAStatus.Problem;
+            GenMsgContent genMsgContent = cmpClient.getGeneralMessageRequest();
+
+            InfoTypeAndValue[] infoTypeAndValueArr = genMsgContent.toInfoTypeAndValueArray();
+
+            for(InfoTypeAndValue infoTypeAndValue: infoTypeAndValueArr){
+                LOGGER.info("getGeneralMessageRequest returns infoTypeAndValue '{}'", infoTypeAndValue);
+            }
+            return CAStatus.Active;
+
+        } catch( UnrecoverableEntryException ree ) {
+            // the CA responded with a proper CMP message but does not support the 'Status' request
+            return CAStatus.Active;
+
+        }catch(CMPConnectorErrorResponseException cmpConnectorErrorResponseException){
+
+            LOGGER.info("getGeneralMessageRequest returns qualified response, assuming active CA");
+            return CAStatus.Active;
+        } catch( GeneralSecurityException gse) {
+            if( LOGGER.isDebugEnabled()){
+                LOGGER.error("status call to CMP instance '" + caConnConfig.getName() + "' failed", gse);
+            }else {
+                LOGGER.error("status call to CMP instance '" + caConnConfig.getName() + "' failed: " +  gse.getMessage());
+            }
         }
-*/
 
-        return CAStatus.Active;
+        return CAStatus.Problem;
 /*
 		try {
 			if( caConnConfig.getSecret() == null) {

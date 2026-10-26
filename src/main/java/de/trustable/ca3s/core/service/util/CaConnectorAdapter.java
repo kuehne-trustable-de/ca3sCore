@@ -96,6 +96,7 @@ public class CaConnectorAdapter {
         } else if (CAConnectorType.CMP.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType CMP at " + caConfig.getCaUrl());
 			return cmpConnector.getStatus(caConfig);
+
 		} else if (CAConnectorType.INTERNAL.equals(caConfig.getCaConnectorType())) {
 			LOGGER.debug("CAConnectorType INTERNAL is enabled" );
 			return CAStatus.Active;
