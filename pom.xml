@@ -187,8 +187,8 @@
         <spring-vault.version>2.3.4</spring-vault.version>
 
         <cryptoUtilVersion>1.3.41</cryptoUtilVersion>
-        <certBundleVersion>1.1.4</certBundleVersion>
-        <cmpClientVersion>3.2.0</cmpClientVersion>
+        <certBundleVersion>1.3.0</certBundleVersion>
+        <cmpClientVersion>3.2.4</cmpClientVersion>
         <adcsProxyClientVersion>1.2.9</adcsProxyClientVersion>
         <adcsUtilVersion>1.2.9</adcsUtilVersion>
 

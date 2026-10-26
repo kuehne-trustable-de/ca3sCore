@@ -56,6 +56,9 @@ public class Ca3SApp implements InitializingBean {
     public static final String HTTPS_CERTIFICATE_DN_SUFFIX = "ca3s.https.certificate.dnSuffix";
     public static final String HTTPS_CERTIFICATE_FALLBACK_VALIDITY_HOURS = "ca3s.https.certificate.fallback.validityHours";
     public static final String O_TRUSTABLE_SOLUTIONS_C_DE = "O=trustable solutions, C=DE";
+    private static final String HTTPS_CERTIFICATE_RENEWAL_HOURS_BEFORE_EXPIRY = "ca3s.https.certificate.renewal.hoursBeforeExpiry";
+    private static final String HTTPS_CERTIFICATE_RENEWAL_PERCENTAGE = "ca3s.https.certificate.renewal.percentage";
+
 
     private final Environment env;
 
@@ -171,13 +174,30 @@ public class Ca3SApp implements InitializingBean {
 
         String dnSuffix = env.getProperty(HTTPS_CERTIFICATE_DN_SUFFIX, O_TRUSTABLE_SOLUTIONS_C_DE);
         int fallbackCertValidity = 1;
+        long minValiditySeconds = 24L * 3600L;
+        int minValidityPercentage = 80;
         try {
             fallbackCertValidity = Integer.parseInt(env.getProperty(HTTPS_CERTIFICATE_FALLBACK_VALIDITY_HOURS, "1"));
         } catch (NumberFormatException e) {
-            log.warn("Value of 'ca3s.https.certificate.fallback.validityHours' not parseable, using 1 hour" );
+            log.warn("Value of '{}' not parseable, using 1 hour", HTTPS_CERTIFICATE_FALLBACK_VALIDITY_HOURS );
+        }
+        try {
+            minValiditySeconds = Integer.parseInt(env.getProperty(HTTPS_CERTIFICATE_RENEWAL_HOURS_BEFORE_EXPIRY, "24")) * 3600L;
+        } catch (NumberFormatException e) {
+            log.warn("Value of '{}' not parseable, using 24 hour", HTTPS_CERTIFICATE_RENEWAL_HOURS_BEFORE_EXPIRY );
+        }
+        try {
+            minValidityPercentage = Integer.parseInt(env.getProperty(HTTPS_CERTIFICATE_RENEWAL_PERCENTAGE, "80"));
+        } catch (NumberFormatException e) {
+            log.warn("Value of '{}' not parseable, using 80%", HTTPS_CERTIFICATE_RENEWAL_PERCENTAGE);
         }
 
-        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory(dnSuffix, fallbackCertValidity, keyGenerationService));
+        TimedRenewalCertMap certMap = new TimedRenewalCertMap(null,
+            new Ca3sFallbackBundleFactory(dnSuffix, fallbackCertValidity, keyGenerationService));
+
+        certMap.setMinValiditySeconds( minValiditySeconds );
+        certMap.setMinValidityPercentage( minValidityPercentage );
+
         Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
         Security.addProvider(new Ca3sKeyManagerProvider(certMap));
 
