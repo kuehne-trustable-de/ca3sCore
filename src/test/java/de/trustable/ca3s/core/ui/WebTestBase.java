@@ -31,6 +31,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import java.io.File;
 import java.io.IOException;
 import java.net.*;
 import java.security.SecureRandom;
@@ -148,12 +149,14 @@ public class WebTestBase extends LocomotiveBase {
         System.setProperty("ca3s.ui.test.mode", "TEST");
 
         ClassPathResource explainationsResource =  new ClassPathResource("tutorial/explanations.xml");
+        File explainationsFile =  new File("src/test/resources/tutorial/explanations.xml");
 
         DocumentBuilderFactory builderFactory = newSecureDocumentBuilderFactory();
         DocumentBuilder builder;
         try {
             builder = builderFactory.newDocumentBuilder();
-            tutorialDocument = builder.parse(explainationsResource.getInputStream());
+//            tutorialDocument = builder.parse(explainationsResource.getInputStream());
+            tutorialDocument = builder.parse(explainationsFile);
             xPath = XPathFactory.newInstance().newXPath();
         } catch (ParserConfigurationException | IOException | SAXException e) {
             throw new RuntimeException(e);

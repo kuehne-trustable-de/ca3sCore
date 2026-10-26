@@ -197,10 +197,10 @@ public class LocomotiveBase {
 
                 try{
 
-                    URL resourceURL = ResourceUtils.getURL( "classpath:drivers/" + driverName);
+                    File resourceFile = new File( "src/test/resources/drivers/" + driverName);
                     File tmpFile = File.createTempFile("ca3sTest", driverName);
 
-                    Files.copy( resourceURL.openStream(),
+                    Files.copy( resourceFile.toPath(),
                         tmpFile.toPath(),
                         StandardCopyOption.REPLACE_EXISTING);
 
