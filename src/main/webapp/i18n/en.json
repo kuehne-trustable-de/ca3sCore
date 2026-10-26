@@ -422,6 +422,7 @@
 
   "ca3SApp.cSR.requestor.details": "{{fistName}} {{lastName}}",
   "ca3SApp.cSR.requestor.tenant": "Tenant {{ tenant }}",
+  "ca3SApp.cSR.tosAgreed": "Agreed Terms of Service",
 
   "ca3SApp.certificate.subtitle.cert.list": "Certificate List",
   "ca3SApp.certificate.active": "Active",

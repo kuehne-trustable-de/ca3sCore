@@ -420,6 +420,7 @@
 
   "ca3SApp.cSR.requestor.details": "{{fistName}} {{lastName}}",
   "ca3SApp.cSR.requestor.tenant": "Mandant {{ tenant }}",
+  "ca3SApp.cSR.tosAgreed": "Geschäftsbedingungen zugestimmt",
 
   "ca3SApp.certificate.subtitle.cert.list": "Zertifikatsliste",
   "ca3SApp.certificate.active": "Aktiv",

@@ -715,7 +715,7 @@
                          v-if="$v.pipeline.type.$model === 'WEB'">
                         <label class="form-control-label" v-text="$t('ca3SApp.pipeline.tosAgreed')"
                                for="pipeline-tosAgreed"></label>
-                        <help-tag role="Admin" target="pipeline-tosAgreementRequired"/>
+                        <help-tag role="Admin" target="pipeline.tosAgreementRequired"/>
                         <input type="checkbox" class="form-check-inline" name="pipeline-tosAgreementRequired"
                                id="pipeline-tosAgreementRequired" v-model="pipeline.tosAgreementRequired"/>
                     </div>
