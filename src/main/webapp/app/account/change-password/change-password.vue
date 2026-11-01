@@ -142,13 +142,13 @@
                     <span v-text="$t('ca3SApp.form.client.token.api.create')"></span>
                 </router-link>
 
-                <!--router-link :to="{name: 'EditCredential', params: {credentialType: 'SCEP_TOKEN'}}"
+                <router-link :to="{name: 'EditCredential', params: {credentialType: 'SCEP_TOKEN'}}"
                              tag="button" id="jh-create-entity" class="btn btn-primary float-right jh-create-entity ">
                     <font-awesome-icon icon="plus"></font-awesome-icon>
                     <span v-text="$t('ca3SApp.form.client.token.scep.create')"></span>
                 </router-link>
 
-                <router-link :to="{name: 'EditCredential', params: {credentialType: 'EST_TOKEN'}}"
+                <!--router-link :to="{name: 'EditCredential', params: {credentialType: 'EST_TOKEN'}}"
                              tag="button" id="jh-create-entity" class="btn btn-primary float-right jh-create-entity ">
                     <font-awesome-icon icon="plus"></font-awesome-icon>
                     <span v-text="$t('ca3SApp.form.client.token.est.create')"></span>

@@ -1,6 +1,4 @@
-package de.trustable.ca3s.core.web.rest.vm;
-
-import de.trustable.ca3s.core.service.dto.AccountCredentialsType;
+package de.trustable.ca3s.core.service.dto;
 
 public class TokenResponse {
 
@@ -8,6 +6,7 @@ public class TokenResponse {
     private String tokenValue;
     private long validitySeconds;
     private String eabKid;
+    private String jws;
 
     public AccountCredentialsType getCredentialType() {
         return credentialType;
@@ -39,5 +38,13 @@ public class TokenResponse {
 
     public void setEabKid(String eabKid) {
         this.eabKid = eabKid;
+    }
+
+    public String getJws() {
+        return jws;
+    }
+
+    public void setJws(String jws) {
+        this.jws = jws;
     }
 }

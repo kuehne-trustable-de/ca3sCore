@@ -15,7 +15,7 @@ import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.ca3s.core.web.rest.ApiTokenController;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
-import de.trustable.ca3s.core.web.rest.vm.TokenResponse;
+import de.trustable.ca3s.core.service.dto.TokenResponse;
 import de.trustable.util.CryptoUtil;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
@@ -29,7 +29,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Files;
@@ -42,11 +41,6 @@ import java.security.cert.X509Certificate;
 import java.util.Optional;
 import java.util.UUID;
 
-import static de.trustable.ca3s.core.config.EndpointConfigs.*;
-import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_ACME_PREFIX;
-import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_ADMIN_PREFIX;
-import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_RA_PREFIX;
-import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_TLS_PREFIX;
 import static org.assertj.core.api.Fail.fail;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

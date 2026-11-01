@@ -14,6 +14,7 @@ public class RandomUtil {
 
     private static final int DEFAULT_LENGTH = 20;
     private static final int TOKEN_LENGTH = 32;
+    private static final int SCEP_LENGTH = 16;
     private static final int MAC_KEY_LENGTH = 32;
 
     private static final SecureRandom SECURE_RANDOM;
@@ -69,6 +70,15 @@ public class RandomUtil {
      */
     public String generateApiToken() {
         return generateRandomAlphanumericString(TOKEN_LENGTH);
+    }
+
+    /**
+     * Generate a scep token.
+     *
+     * @return the generated reset key.
+     */
+    public String generateScepToken() {
+        return generateRandomAlphanumericString(SCEP_LENGTH);
     }
 
     /**

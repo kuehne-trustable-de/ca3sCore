@@ -2,12 +2,25 @@ package de.trustable.ca3s.core.service.scep;
 
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
+import de.trustable.ca3s.core.domain.User;
+import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentStatus;
+import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
+import de.trustable.ca3s.core.service.UserService;
+import de.trustable.ca3s.core.service.dto.*;
 import de.trustable.ca3s.core.service.util.KeyUtil;
+import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
+import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.test.util.AcceptAllCertSelector;
 import de.trustable.ca3s.core.test.util.AcceptAllVerifier;
 import de.trustable.ca3s.core.test.util.X509Certificates;
+import de.trustable.ca3s.core.web.html.NDESPasswordController;
+import de.trustable.ca3s.core.web.rest.AccountResource;
+import de.trustable.ca3s.core.web.rest.ApiTokenController;
+import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
 import de.trustable.util.CryptoUtil;
 import de.trustable.util.JCAManager;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
@@ -26,6 +39,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -33,11 +50,18 @@ import javax.security.auth.x500.X500Principal;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.cert.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
@@ -53,13 +77,32 @@ public class ScepServiceIT {
     static KeyPair ephemeralKeyPair;
     static X509Certificate ephemeralCert;
     static X500Principal enrollingPrincipal;
-    static char[] password = PipelineTestConfiguration.SCEP_PASSWORD.toCharArray();
+    static char[] pipelinePassword = PipelineTestConfiguration.SCEP_PASSWORD.toCharArray();
 
     @Autowired
     PipelineTestConfiguration ptc;
 
     @Autowired
     KeyUtil keyUtil;
+
+
+    @Autowired
+    ApiTokenController apiTokenController;
+
+    @Autowired
+    UserUtil userUtil;
+
+    @Autowired
+    UserService userService;
+
+    @Autowired
+    ProtectedContentUtil protectedContentUtil;
+
+    @Autowired
+    NDESPasswordController ndesPasswordController;
+
+    @Autowired
+    AccountResource accountResource;
 
     CertificateVerifier acceptAllVerifier = new AcceptAllVerifier();
 
@@ -128,7 +171,142 @@ public class ScepServiceIT {
         testClient(cgiPkiclienClient);
 
     }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER", "ADMIN"})
+    public void testScepEnrolAndRenewUsingSCEPToken() throws GeneralSecurityException, IOException, ClientException, TransactionException {
+
+        User user = userUtil.getUserByLogin("user1");
+
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setValiditySeconds(3600);
+        tokenRequest.setCredentialType(AccountCredentialsType.SCEP_TOKEN);
+        ResponseEntity<?> responseEntity = apiTokenController.getToken(tokenRequest);
+        TokenResponse tokenResponse = (TokenResponse) responseEntity.getBody();
+
+        PasswordChangeDTO passwordChangeDto = new PasswordChangeDTO();
+        passwordChangeDto.setCurrentPassword("user");
+        passwordChangeDto.setCredentialUpdateType(CredentialUpdateType.SCEP_TOKEN);
+        passwordChangeDto.setApiTokenValiditySeconds(3600);
+        passwordChangeDto.setApiTokenValue(tokenResponse.getTokenValue());
+        passwordChangeDto.setPipelineId(ptc.getInternalSCEPTestPipelineLaxRestrictions().getId());
+
+        String jws = tokenResponse.getJws();
+        char[] chars = jws.toCharArray();
+        chars[55]++;
+        passwordChangeDto.setTokenResponseJws(new String(chars));
+        try {
+            userService.changePassword(passwordChangeDto);
+            Assertions.fail("Should have thrown an exception");
+        } catch (Exception e) {
+            // as expected
+        }
+
+        passwordChangeDto.setTokenResponseJws(jws);
+        userService.changePassword(passwordChangeDto);
+
+        for(AccountCredentialView credentialView: accountResource.tokenList()){
+            if(credentialView.getRelationType().equals(AccountCredentialsType.SCEP_TOKEN)) {
+                userService.approveCredential(user.getId(), AccountCredentialsType.SCEP_TOKEN, credentialView.getId());
+            }
+        }
+
+        LOG.info("scep token {}", tokenResponse.getTokenValue());
+
+        testClient(client, tokenResponse.getTokenValue().toCharArray());
+
+
+    }
+
+
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testScepEnrolViaNDESPage() throws GeneralSecurityException, IOException, ClientException, TransactionException {
+
+        User user = userUtil.getUserByLogin("user1");
+
+        TokenRequest tokenRequest = new TokenRequest();
+        tokenRequest.setValiditySeconds(3600);
+        tokenRequest.setCredentialType(AccountCredentialsType.SCEP_TOKEN);
+        ResponseEntity<?> responseEntity = apiTokenController.getToken(tokenRequest);
+        TokenResponse tokenResponse = (TokenResponse) responseEntity.getBody();
+
+        PasswordChangeDTO passwordChangeDto = new PasswordChangeDTO();
+        passwordChangeDto.setCurrentPassword("user");
+        passwordChangeDto.setCredentialUpdateType(CredentialUpdateType.SCEP_TOKEN);
+        passwordChangeDto.setApiTokenValiditySeconds(3600);
+        passwordChangeDto.setApiTokenValue(tokenResponse.getTokenValue());
+        passwordChangeDto.setPipelineId(ptc.getInternalSCEPTestPipelineLaxRestrictions().getId());
+        passwordChangeDto.setTokenResponseJws(tokenResponse.getJws());
+        userService.changePassword(passwordChangeDto);
+
+        // approve the freshly created token
+        for(AccountCredentialView credentialView: accountResource.tokenList()){
+            if(credentialView.getRelationType().equals(AccountCredentialsType.SCEP_TOKEN)) {
+                userService.approveCredential(user.getId(), AccountCredentialsType.SCEP_TOKEN, credentialView.getId());
+            }
+        }
+
+        Map<String, String> headers = new HashMap<>();
+
+        ResponseEntity<String> response = ndesPasswordController.ndesPasswordHTML(
+            ptc.getInternalSCEPTestPipelineLaxRestrictions().getUrlPart(),
+            headers);
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
+
+
+        final String auth = "user1:" + tokenResponse.getTokenValue();
+        final byte[] encodedAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.ISO_8859_1));
+        final String authHeader = "Basic " + new String(encodedAuth);
+        headers.put(HttpHeaders.AUTHORIZATION, authHeader);
+
+        response = ndesPasswordController.ndesPasswordHTML(
+            ptc.getInternalSCEPTestPipelineLaxRestrictions().getUrlPart(),
+            headers);
+
+        LOG.info( "NDES response:" + response.getBody());
+
+        Pattern p = Pattern.compile(".*The enrollment challenge password is: <B>\\s*([a-zA-Z0-9]*)\\s*</B>.*");
+        Matcher m = p.matcher(response.getBody());
+
+        // if an occurrence if a pattern was found in a given string...
+        Assertions.assertTrue(m.find());
+
+        String ndesToken = m.group(1);
+        LOG.info( "ndesToken:" + ndesToken);
+
+        testClient(client, ndesToken.toCharArray());
+    }
+
+    @Test
+    @WithMockUser(username = "user1", authorities = {"USER"})
+    public void testScepEnrolAndRenewUsingNDESToken() throws GeneralSecurityException, IOException, ClientException, TransactionException {
+
+        User user = userUtil.getUserByLogin("user1");
+
+        String tokenNDES = protectedContentUtil.buildNDESToken(user.getId());
+
+        LOG.info("ndes token {}", tokenNDES);
+
+        Instant validTo = Instant.now().plus(3600, ChronoUnit.SECONDS);
+        protectedContentUtil.createProtectedContent(tokenNDES,
+            ProtectedContentType.TOKEN,
+            ContentRelationType.NDES_TOKEN,
+            user.getId(),
+            -1,
+            validTo,
+            ptc.getInternalSCEPTestPipelineLaxRestrictions(),
+            ProtectedContentStatus.ACTIVE);
+
+        testClient(client, tokenNDES.toCharArray());
+
+    }
+
     private void testClient(Client client) throws GeneralSecurityException, IOException, ClientException, TransactionException {
+        testClient(client, pipelinePassword);
+    }
+    private void testClient(Client client, char[] password) throws GeneralSecurityException, IOException, ClientException, TransactionException {
 
         keyPair = keyUtil.createKeyPair();
 
@@ -200,7 +378,7 @@ public class ScepServiceIT {
         PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
             keyPair.getPublic(),
             keyPair.getPrivate(),
-            password);
+            pipelinePassword);
 
         EnrollmentResponse resp = clientSR.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
@@ -244,7 +422,7 @@ public class ScepServiceIT {
         PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
             keyPair.getPublic(),
             keyPair.getPrivate(),
-            password);
+            pipelinePassword);
 
         EnrollmentResponse resp = client1CN.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
@@ -264,7 +442,7 @@ public class ScepServiceIT {
         PKCS10CertificationRequest csr = CryptoUtil.getCsr(doubleCNPrincipal,
             keyPair.getPublic(),
             keyPair.getPrivate(),
-            password);
+            pipelinePassword);
 
         EnrollmentResponse resp = client1CN.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
@@ -299,7 +477,7 @@ public class ScepServiceIT {
         PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
             keyPair.getPublic(),
             keyPair.getPrivate(),
-            password);
+            pipelinePassword);
 
         EnrollmentResponse resp = client1CN.enrol(ephemeralCert, ephemeralKeyPair.getPrivate(), csr);
         Assertions.assertNotNull(resp);
@@ -340,7 +518,7 @@ public class ScepServiceIT {
         PKCS10CertificationRequest csr = CryptoUtil.getCsr(enrollingPrincipal,
             keyPair.getPublic(),
             keyPair.getPrivate(),
-            password);
+            pipelinePassword);
 
         EnrollmentResponse response = client.enrol(
             ephemeralCert,

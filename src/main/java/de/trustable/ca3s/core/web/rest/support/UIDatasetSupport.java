@@ -37,6 +37,8 @@ public class UIDatasetSupport {
 
     private final CAConnectorConfigRepository caConnConfRepo;
 
+    private final CaConnectorConfigUtil caConnectorConfigUtil;
+
     private final CaConnectorAdapter caConnectorAdapter;
 
     private final PipelineRepository pipelineRepo;
@@ -69,7 +71,7 @@ public class UIDatasetSupport {
 
     private final List<AuthSecondFactor> secondFactorList;
 
-    public UIDatasetSupport(CAConnectorConfigRepository caConnConfRepo,
+    public UIDatasetSupport(CAConnectorConfigRepository caConnConfRepo, CaConnectorConfigUtil caConnectorConfigUtil,
                             CaConnectorAdapter caConnectorAdapter,
                             PipelineRepository pipelineRepo,
                             PipelineUtil pipelineUtil,
@@ -92,6 +94,7 @@ public class UIDatasetSupport {
                             CertificateAttributeRepository certificateAttributeRepository,
                             @Value("${ca3s.ui.test.mode:}") String testMode) {
         this.caConnConfRepo = caConnConfRepo;
+        this.caConnectorConfigUtil = caConnectorConfigUtil;
         this.caConnectorAdapter = caConnectorAdapter;
         this.pipelineRepo = pipelineRepo;
         this.pipelineUtil = pipelineUtil;
@@ -366,13 +369,14 @@ public class UIDatasetSupport {
     /**
      * {@code POST  /ca-connector-configs/getStatus} : get all elements able to create a certificate.
      *
-     * @param cAConnectorConfig CAConnectorConfig
+     * @param CaConnectorConfigView caConnectorConfigView
      * @return the {@link CAStatus} .
      */
     @PostMapping("/ca-connector-configs/getStatus")
     @PreAuthorize("isAuthenticated()")
-    public CAStatus getCAConnectorStatus( @Valid @RequestBody CAConnectorConfig cAConnectorConfig) {
+    public CAStatus getCAConnectorStatus( @Valid @RequestBody CaConnectorConfigView caConnectorConfigView) {
 
+        CAConnectorConfig cAConnectorConfig = caConnectorConfigUtil.to(caConnectorConfigView);
 
     	LOG.debug("checking status for {}", cAConnectorConfig);
 

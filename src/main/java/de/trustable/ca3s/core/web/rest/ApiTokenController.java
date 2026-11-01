@@ -1,16 +1,20 @@
 package de.trustable.ca3s.core.web.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nimbusds.jose.JOSEException;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.exception.BadRequestAlertException;
 import de.trustable.ca3s.core.exception.UserNotAuthenticatedException;
+import de.trustable.ca3s.core.service.dto.AccountCredentialsType;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
 import de.trustable.ca3s.core.service.util.AcmeUtil;
+import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.ca3s.core.service.util.RandomUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.web.rest.acme.AcmeController;
 import de.trustable.ca3s.core.web.rest.vm.LoginData;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
-import de.trustable.ca3s.core.web.rest.vm.TokenResponse;
+import de.trustable.ca3s.core.service.dto.TokenResponse;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,13 +46,15 @@ public class ApiTokenController {
 
     private final RandomUtil randomUtil;
     private final UserUtil userUtil;
+    private final JwtUtil jwtUtil;
     private final String eabKidPrefix;
 
     public ApiTokenController(RandomUtil randomUtil,
-                              UserUtil userUtil,
+                              UserUtil userUtil, JwtUtil jwtUtil,
                               @Value("${ca3s.acme.account.eabKidPrefix:ca3s}") String eabKidPrefix) {
         this.randomUtil = randomUtil;
         this.userUtil = userUtil;
+        this.jwtUtil = jwtUtil;
         this.eabKidPrefix = eabKidPrefix;
     }
 
@@ -60,11 +66,17 @@ public class ApiTokenController {
         User user = userUtil.getUserByLogin(authentication.getName());
         TokenResponse tokenResponse = new TokenResponse();
 
+        tokenResponse.setCredentialType(tokenRequest.getCredentialType());
+        tokenResponse.setValiditySeconds( tokenRequest.getValiditySeconds());
         switch( tokenRequest.getCredentialType()){
             case API_TOKEN:
+                tokenResponse.setTokenValue(randomUtil.generateApiToken() + "." + AccountCredentialsType.API_TOKEN + "." + user.getId());
+                break;
             case SCEP_TOKEN:
+                tokenResponse.setTokenValue(randomUtil.generateScepToken());
+                break;
             case EST_TOKEN:
-                tokenResponse.setTokenValue(randomUtil.generateApiToken() + "." + tokenRequest.getCredentialType() + "." + user.getId());
+                tokenResponse.setTokenValue(randomUtil.generateApiToken());
                 break;
             case EAB_PASSWORD:
                 tokenResponse.setTokenValue(randomUtil.generateMacKey());
@@ -73,6 +85,12 @@ public class ApiTokenController {
             default:
                 String msg = String.format("unexpected type '%s' for token request!", tokenRequest.getCredentialType());
                 throw new BadRequestAlertException(msg, "token", "400");
+        }
+
+        try {
+            tokenResponse.setJws(jwtUtil.signObject(tokenResponse));
+        }catch (JOSEException | JsonProcessingException joseException){
+            return ResponseEntity.internalServerError().body(joseException.getMessage());
         }
 
         HttpHeaders httpHeaders = new HttpHeaders();

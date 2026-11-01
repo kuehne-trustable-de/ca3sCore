@@ -1,10 +1,12 @@
 package de.trustable.ca3s.core.web.rest;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
+import com.nimbusds.jose.JOSEException;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.ProtectedContent;
@@ -15,11 +17,13 @@ import de.trustable.ca3s.core.repository.CertificateRepository;
 import de.trustable.ca3s.core.repository.ProtectedContentRepository;
 import de.trustable.ca3s.core.repository.TenantRepository;
 import de.trustable.ca3s.core.repository.UserRepository;
+import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.MailService;
 import de.trustable.ca3s.core.service.TotpService;
 import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.dto.*;
+import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.web.rest.data.OTPDetailsResponse;
 import de.trustable.ca3s.core.web.rest.errors.AccountResourceException;
@@ -33,6 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -76,6 +82,7 @@ public class AccountResource {
     private final UserUtil userUtil;
     private final TotpService totpService;
     private final MailService mailService;
+    private final JwtUtil jwtUtil;
     private final de.trustable.ca3s.core.service.util.RandomUtil randomUtil;
 
 
@@ -83,7 +90,7 @@ public class AccountResource {
                            ProtectedContentRepository protectedContentRepository, UserUtil userUtil,
                            MailService mailService,
                            CertificateRepository certificateRepository,
-                           TotpService totpService, de.trustable.ca3s.core.service.util.RandomUtil randomUtil) {
+                           TotpService totpService, JwtUtil jwtUtil, de.trustable.ca3s.core.service.util.RandomUtil randomUtil) {
         this.userRepository = userRepository;
         this.userService = userService;
         this.tenantRepository = tenantRepository;
@@ -92,6 +99,7 @@ public class AccountResource {
         this.mailService = mailService;
         this.certificateRepository = certificateRepository;
         this.totpService = totpService;
+        this.jwtUtil = jwtUtil;
         this.randomUtil = randomUtil;
     }
 
@@ -229,9 +237,26 @@ public class AccountResource {
     public List<AccountCredentialView> tokenList() {
 
         User currentUser = findCurrentUser();
+
+        return tokenList(currentUser.getId());
+    }
+
+    /**
+     * {@code GET  /account/tokens} : retrieve current user's credentials.
+     *
+     */
+    @GetMapping(path = "/account/{userId}/tokens")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public List<AccountCredentialView> tokenListByUser(@PathVariable Long userId) {
+
+        return tokenList(userId);
+    }
+
+    private List<AccountCredentialView> tokenList(final long userId) {
+
         List<ProtectedContent> protectedContentList =
             protectedContentRepository.findByTypeRelationId(
-                Arrays.asList(USER_TOKEN_RELATION_TYPES), currentUser.getId());
+                Arrays.asList(USER_TOKEN_RELATION_TYPES), userId);
 
         List<AccountCredentialView> tokenViewList = new ArrayList<>();
         for(ProtectedContent protectedContent: protectedContentList){
@@ -319,6 +344,18 @@ public class AccountResource {
         return accountCredentialViewList;
     }
 
+
+    /**
+     * {@code POST  /account/{userId}/credentials/approve/{type}/{id} : approve user's credentials.
+     *
+     */
+    @PostMapping(path = "/account/{userId}/credentials/approval/{type}/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public void approveAccountCredential(@PathVariable Long userId, @PathVariable AccountCredentialsType type, @PathVariable Long id) {
+        userService.approveCredential(userId, type, id);
+    }
+
+
     /**
      * {@code POST  /account/credential} : delete user's credentials.
      *
@@ -328,7 +365,15 @@ public class AccountResource {
         userService.deleteCredential(type, id);
     }
 
-
+    /**
+     * {@code POST  /account/{userId}/credentials/{type}/{id} : delete user's credentials.
+     *
+     */
+    @DeleteMapping(path = "/account/{userId}/credentials/{type}/{id}")
+    @PreAuthorize("hasRole(\"" + AuthoritiesConstants.ADMIN + "\")")
+    public void deleteAccountCredential(@PathVariable Long userId, @PathVariable AccountCredentialsType type, @PathVariable Long id) {
+        userService.deleteCredential(userId, type, id);
+    }
     /**
      * {@code POST  /account/change-password} : changes the current user's password.
      *
@@ -398,7 +443,7 @@ public class AccountResource {
      * @throws InvalidPasswordException {@code 400 (Bad Request)} if the new password is incorrect.
      */
     @PostMapping(path = "/account/initOTP")
-    public OTPDetailsResponse initOTP() {
+    public ResponseEntity<?> initOTP() {
 
         String userLogin = SecurityUtils.getCurrentUserLogin().orElseThrow(() -> new AccountResourceException("Current user login not found"));
 
@@ -412,7 +457,13 @@ public class AccountResource {
         otpDetailsResponse.setTotpUrl(totpUrl);
         otpDetailsResponse.setQrCodeImg(generateQRasPNG(totpUrl));
 
-        return otpDetailsResponse;
+        try {
+            otpDetailsResponse.setJwsTotp(jwtUtil.signObject(otpDetailsResponse));
+        }catch (JOSEException | JsonProcessingException joseException){
+            return ResponseEntity.internalServerError().body(joseException.getMessage());
+        }
+
+        return ResponseEntity.ok(otpDetailsResponse);
     }
 
 

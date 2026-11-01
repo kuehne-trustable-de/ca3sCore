@@ -1,5 +1,6 @@
 package de.trustable.ca3s.core.repository;
 
+import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.ProtectedContent;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentType;
@@ -35,9 +36,15 @@ public interface ProtectedContentRepository extends JpaRepository<ProtectedConte
     @Query(name = "ProtectedContent.findByTypeRelationId")
     List<ProtectedContent> findByTypeRelationId(@Param("type") ProtectedContentType type, @Param("relationType") ContentRelationType relationType, @Param("id") Long id);
 
+    @Query(name = "ProtectedContent.findByTypeRelationTypePipeline")
+    List<ProtectedContent> findByTypeRelationTypePipeline(@Param("type") ProtectedContentType type,
+                                                      @Param("relationType") ContentRelationType relationType,
+                                                      @Param("pipeline") Pipeline pipeline);
+
     @Query(name = "ProtectedContent.findByRelationTypesRelationId")
     List<ProtectedContent> findByTypeRelationId(@Param("relationTypes") List<ContentRelationType> relationTypes,
-                                                        @Param("id") Long id);
+                                                @Param("id") Long id);
+
 
     @Query(name = "ProtectedContent.findByTypeRelationContentB64")
     List<ProtectedContent> findByTypeRelationContentB64(@Param("type") ProtectedContentType type,

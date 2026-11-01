@@ -1,5 +1,7 @@
 package de.trustable.ca3s.core.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.nimbusds.jose.JOSEException;
 import de.trustable.ca3s.core.config.Constants;
 import de.trustable.ca3s.core.domain.*;
 import de.trustable.ca3s.core.domain.enumeration.ContentRelationType;
@@ -10,15 +12,13 @@ import de.trustable.ca3s.core.repository.*;
 import de.trustable.ca3s.core.security.AuthoritiesConstants;
 import de.trustable.ca3s.core.security.SecurityUtils;
 import de.trustable.ca3s.core.service.dto.AccountCredentialsType;
-import de.trustable.ca3s.core.service.dto.CredentialUpdateType;
 import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
 import de.trustable.ca3s.core.service.dto.UserDTO;
 
 import de.trustable.ca3s.core.service.exception.InvalidCredentialException;
 import de.trustable.ca3s.core.service.exception.InvalidPasswordException;
-import de.trustable.ca3s.core.service.util.CertificateUtil;
-import de.trustable.ca3s.core.service.util.PasswordUtil;
-import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
+import de.trustable.ca3s.core.service.util.*;
+import de.trustable.ca3s.core.service.dto.TokenResponse;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
@@ -34,10 +34,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import java.security.GeneralSecurityException;
+import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static de.trustable.ca3s.core.service.dto.AccountCredentialsType.*;
 
 /**
  * Service class for managing users.
@@ -59,10 +63,12 @@ public class UserService {
     private final PasswordUtil passwordUtil;
     private final CertificateUtil certificateUtil;
     private final SMSService smsService;
+    private final JwtUtil jwtUtil;
     private final AuditService auditService;
 
     final private EntityManager entityManager;
     private final int activationKeyValidity;
+    private final UserUtil userUtil;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
@@ -74,9 +80,9 @@ public class UserService {
                        CacheManager cacheManager,
                        @Value("${ca3s.ui.password.check.regexp:^(?=.*\\d)(?=.*[a-z]).{6,100}$}") String passwordCheckRegExp,
                        CertificateUtil certificateUtil,
-                       SMSService smsService, AuditService auditService,
+                       SMSService smsService, JwtUtil jwtUtil, AuditService auditService,
                        EntityManager entityManager,
-                       @Value("${ca3s.ui.password.activation.keyValidity:7}") int activationKeyValidity) {
+                       @Value("${ca3s.ui.password.activation.keyValidity:7}") int activationKeyValidity, UserUtil userUtil) {
 
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -90,9 +96,11 @@ public class UserService {
         this.passwordUtil = new PasswordUtil(passwordCheckRegExp);
         this.certificateUtil = certificateUtil;
         this.smsService = smsService;
+        this.jwtUtil = jwtUtil;
         this.auditService = auditService;
         this.entityManager = entityManager;
         this.activationKeyValidity = activationKeyValidity;
+        this.userUtil = userUtil;
     }
 
     public Optional<User> activateRegistration(String key) {
@@ -485,7 +493,16 @@ public class UserService {
                     case EST_TOKEN:
                     case SCEP_TOKEN:
                     case EAB_PASSWORD:
-                        storeToken(passwordChangeDto, user);
+                        TokenResponse signedResponse = null;
+                        try {
+                            if( passwordChangeDto.getTokenResponseJws() == null){
+                                throw new InvalidCredentialException("TokenResponse JWS is null ");
+                            }
+                            signedResponse = (TokenResponse)jwtUtil.getJWSPayload( passwordChangeDto.getTokenResponseJws(), TokenResponse.class);
+                        } catch (JOSEException |ParseException|GeneralSecurityException|JsonProcessingException e) {
+                            throw new InvalidCredentialException("TokenResponse JWS does not verify: " + e.getMessage());
+                        }
+                        storeToken(passwordChangeDto, signedResponse, user);
                         break;
 
                     default:
@@ -501,19 +518,19 @@ public class UserService {
         );
     }
 
-    private void storeToken(PasswordChangeDTO passwordChangeDto, @NotNull User user) {
+    private void storeToken(PasswordChangeDTO passwordChangeDto, TokenResponse signedResponse, @NotNull User user) {
 
-        if( !passwordChangeDto.getApiTokenValue().isEmpty() && (passwordChangeDto.getApiTokenValue().trim().length() >= 16)) {
+        if( !signedResponse.getTokenValue().isEmpty() && (signedResponse.getTokenValue().trim().length() >= 16)) {
 
             ProtectedContentStatus protectedContentStatus = ProtectedContentStatus.ACTIVE;
             ContentRelationType contentRelationType = ContentRelationType.API_TOKEN;
-            if( passwordChangeDto.getCredentialUpdateType() == CredentialUpdateType.SCEP_TOKEN) {
+            if( signedResponse.getCredentialType() == SCEP_TOKEN) {
                 contentRelationType = ContentRelationType.SCEP_TOKEN;
                 protectedContentStatus = ProtectedContentStatus.PENDING;
-            }else if( passwordChangeDto.getCredentialUpdateType() == CredentialUpdateType.EST_TOKEN) {
+            }else if( signedResponse.getCredentialType() == EST_TOKEN) {
                 contentRelationType = ContentRelationType.EST_TOKEN;
                 protectedContentStatus = ProtectedContentStatus.PENDING;
-            }else if( passwordChangeDto.getCredentialUpdateType() == CredentialUpdateType.EAB_PASSWORD) {
+            }else if( signedResponse.getCredentialType() == EAB_PASSWORD) {
                 contentRelationType = ContentRelationType.EAB_PASSWORD;
             }
 
@@ -525,8 +542,8 @@ public class UserService {
                 }
             }
 
-            Instant validTo = Instant.now().plus(passwordChangeDto.getApiTokenValiditySeconds(), ChronoUnit.SECONDS);
-            protectedContentUtil.createProtectedContent(passwordChangeDto.getApiTokenValue(),
+            Instant validTo = Instant.now().plus( signedResponse.getValiditySeconds(), ChronoUnit.SECONDS);
+            protectedContentUtil.createProtectedContent(signedResponse.getTokenValue(),
                 ProtectedContentType.TOKEN,
                 contentRelationType,
                 user.getId(),
@@ -537,7 +554,7 @@ public class UserService {
 
             log.debug("new api token set for user {}", user.getId());
         }else{
-            log.warn("new {} too short / empty: '{}'", passwordChangeDto.getCredentialUpdateType(), passwordChangeDto.getApiTokenValue());
+            log.warn("new {} too short / empty: '{}'", signedResponse.getCredentialType(), signedResponse.getTokenValue());
         }
     }
 
@@ -602,65 +619,108 @@ public class UserService {
         }
     }
 
+    public void deleteCredential(Long userId, AccountCredentialsType type, Long id) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        optionalUser.ifPresent(user -> deleteCredentialByUser(type, id, user));
+    }
+
     public void deleteCredential(AccountCredentialsType type, Long id) {
 
         SecurityUtils.getCurrentUserLogin()
             .flatMap(userRepository::findOneByLogin)
             .ifPresent(user -> {
 
-                switch (type) {
-                    case OTP_SECRET:
-                        Optional<ProtectedContent> pcOpt = protContentRepository.findById(id);
-                        if (pcOpt.isPresent()) {
-                            ProtectedContent pc = pcOpt.get();
-                            if (pc.getRelatedId().equals(user.getId())) {
-                                protContentRepository.delete(pc);
-                            } else {
-                                log.warn("Current user '{}' not matching user id '{}' for credentials deletion",
-                                    user.getId(), pc.getId());
-                            }
-                        } else {
-                            log.warn("Unknown ProtectedContent id '{}' for credentials deletion", id);
-                        }
-                        break;
-                    case CLIENT_CERTIFICATE:
-                        Optional<Certificate> certificateOptional = certificateUtil.findCertificateById(id);
-                        if (certificateOptional.isPresent()) {
-                            if (user.getId().toString().equals(
-                                certificateUtil.getCertAttribute(certificateOptional.get(), CertificateAttribute.ATTRIBUTE_USER_CLIENT_CERT))) {
-                                certificateUtil.setCertAttribute(certificateOptional.get(),
-                                    CertificateAttribute.ATTRIBUTE_USER_CLIENT_CERT,
-                                    null, false);
-                            } else {
-                                log.warn("Certificate id '{}' not related to current user", id);
-                            }
-                        } else {
-                            log.warn("Unknown certificate id '{}' for credentials deletion", id);
-                        }
-                        break;
-                    case API_TOKEN:
-                        deleteToken(id, user, ContentRelationType.API_TOKEN);
-                        break;
-
-                    case EST_TOKEN:
-                        deleteToken(id, user, ContentRelationType.EST_TOKEN);
-                        break;
-
-                    case SCEP_TOKEN:
-                        deleteToken(id, user, ContentRelationType.SCEP_TOKEN);
-                        break;
-
-                    case EAB_PASSWORD:
-                        deleteToken(id, user, ContentRelationType.EAB_PASSWORD);
-                        break;
-
-
-                    default:
-                        log.warn("Unexpected credential type: {}", id);
-                }
-                updateSecondFactorRequirement(user, false);
+                deleteCredentialByUser(type, id, user);
             }
         );
+    }
+
+    public void approveCredential(Long userId, AccountCredentialsType type, Long id) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        optionalUser.ifPresent(user -> approveCredentialByUser(id, type, user));
+    }
+
+    private void deleteCredentialByUser(AccountCredentialsType type, Long id, User user) {
+        switch (type) {
+            case OTP_SECRET:
+                Optional<ProtectedContent> pcOpt = protContentRepository.findById(id);
+                if (pcOpt.isPresent()) {
+                    ProtectedContent pc = pcOpt.get();
+                    if (pc.getRelatedId().equals(user.getId())) {
+                        protContentRepository.delete(pc);
+                    } else {
+                        log.warn("Current user '{}' not matching user id '{}' for credentials deletion",
+                            user.getId(), pc.getId());
+                    }
+                } else {
+                    log.warn("Unknown ProtectedContent id '{}' for credentials deletion", id);
+                }
+                break;
+            case CLIENT_CERTIFICATE:
+                Optional<Certificate> certificateOptional = certificateUtil.findCertificateById(id);
+                if (certificateOptional.isPresent()) {
+                    if (user.getId().toString().equals(
+                        certificateUtil.getCertAttribute(certificateOptional.get(), CertificateAttribute.ATTRIBUTE_USER_CLIENT_CERT))) {
+                        certificateUtil.setCertAttribute(certificateOptional.get(),
+                            CertificateAttribute.ATTRIBUTE_USER_CLIENT_CERT,
+                            null, false);
+                    } else {
+                        log.warn("Certificate id '{}' not related to current user", id);
+                    }
+                } else {
+                    log.warn("Unknown certificate id '{}' for credentials deletion", id);
+                }
+                break;
+            case API_TOKEN:
+                deleteToken(id, user, ContentRelationType.API_TOKEN);
+                break;
+
+            case EST_TOKEN:
+                deleteToken(id, user, ContentRelationType.EST_TOKEN);
+                break;
+
+            case SCEP_TOKEN:
+                deleteToken(id, user, ContentRelationType.SCEP_TOKEN);
+                break;
+
+            case EAB_PASSWORD:
+                deleteToken(id, user, ContentRelationType.EAB_PASSWORD);
+                break;
+
+
+            default:
+                log.warn("Unexpected credential type: {}", id);
+        }
+        updateSecondFactorRequirement(user, false);
+    }
+
+    private void approveCredentialByUser( Long id, AccountCredentialsType type, User user) {
+        switch (type) {
+            case OTP_SECRET:
+            case CLIENT_CERTIFICATE:
+                log.warn("approval of ProtectedContent id '{}' with type {} not supported", id, type);
+               break;
+
+            case API_TOKEN:
+                approveToken(id, user, ContentRelationType.API_TOKEN);
+                break;
+
+            case EST_TOKEN:
+                approveToken(id, user, ContentRelationType.EST_TOKEN);
+                break;
+
+            case SCEP_TOKEN:
+                approveToken(id, user, ContentRelationType.SCEP_TOKEN);
+                break;
+
+            case EAB_PASSWORD:
+                approveToken(id, user, ContentRelationType.EAB_PASSWORD);
+                break;
+
+
+            default:
+                log.warn("Unexpected credential type: {}", id);
+        }
     }
 
     private void deleteToken(Long id, User user, ContentRelationType relationType) {
@@ -670,6 +730,9 @@ public class UserService {
             if (pc.getRelatedId().equals(user.getId())){
                 if(pc.getRelationType().equals(relationType)) {
                     protContentRepository.delete(pc);
+                    log.info("deletion of token of type '{}' requested by user {}",
+                        relationType, user.getLogin());
+                    auditService.saveAuditTrace(auditService.createAuditTraceTokenDeleted(user.getLogin(), relationType.name()));
                 } else {
                     log.warn("Content relation type '{}' is not '{}', expected for api token deletion",
                         pc.getRelationType(), relationType);
@@ -680,6 +743,31 @@ public class UserService {
             }
         } else {
             log.warn("Unknown ProtectedContent id '{}' for credentials deletion", id);
+        }
+    }
+
+    private void approveToken(Long id, User user, ContentRelationType relationType) {
+        Optional<ProtectedContent> pcOpt = protContentRepository.findById(id);
+        if (pcOpt.isPresent()) {
+            ProtectedContent pc = pcOpt.get();
+            if (pc.getRelatedId().equals(user.getId())){
+                if(pc.getRelationType().equals(relationType)) {
+                    pc.setStatus(ProtectedContentStatus.ACTIVE);
+                    protContentRepository.save(pc);
+                    log.info("approval of token of type '{}' requested by user {} approved by admin",
+                        relationType, user.getLogin());
+                    auditService.saveAuditTrace(auditService.createAuditTraceTokenAccepted(user.getLogin(), relationType.name()));
+
+                } else {
+                    log.warn("Content relation type '{}' is not '{}', expected for token approval",
+                        pc.getRelationType(), relationType);
+                }
+            } else {
+                log.warn("user '{}' not matching user id '{}' for token approval",
+                    user.getId(), pc.getId());
+            }
+        } else {
+            log.warn("Unknown ProtectedContent id '{}' for credentials approval", id);
         }
     }
 

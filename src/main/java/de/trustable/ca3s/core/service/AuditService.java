@@ -196,6 +196,8 @@ public class AuditService {
     private static final String AUDIT_USER_LOGIN_FOR_IP_BLOCKED = "AUDIT_USER_LOGIN_FOR_IP_BLOCKED";
     private static final String AUDIT_PROTECTED_CONTENT_EMPTY_STATUS_UPDATED = "AUDIT_PROTECTED_CONTENT_EMPTY_STATUS_UPDATED";
     private static final String AUDIT_PIPELINE_SCHEMA_UPDATED = "AUDIT_PIPELINE_SCHEMA_UPDATED";
+    private static final String AUDIT_TOKEN_ACCEPTED_BY_ADMIN = "AUDIT_TOKEN_ACCEPTED_BY_ADMIN";
+    private static final String AUDIT_TOKEN_DELETED = "AUDIT_TOKEN_DELETED";
 
     private final Logger log = LoggerFactory.getLogger(AuditService.class);
 
@@ -1033,6 +1035,41 @@ public class AuditService {
         return createAuditTrace(nar.getName(), nar.getRole(),
             AUDIT_ACME_ACCOUNT_EAB_KID_ID_INVALID,
             kidid,
+            null, "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+
+    public AuditTrace createAuditTraceTokenDeleted(String userName, String tokenType) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(userName, "",
+            AUDIT_TOKEN_DELETED,
+            tokenType,
+            null, "",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+    public AuditTrace createAuditTraceTokenAccepted(String userName, String tokenType) {
+        NameAndRole nar = nameAndRoleUtil.getNameAndRole();
+        return createAuditTrace(userName, "",
+            AUDIT_TOKEN_ACCEPTED_BY_ADMIN,
+            tokenType,
             null, "",
             null,
             null,

@@ -2,11 +2,13 @@ import { email, maxLength, minLength, required } from 'vuelidate/lib/validators'
 import { Component, Inject, Vue } from 'vue-property-decorator';
 import UserManagementService from './user-management.service';
 import AlertService from '@/shared/alert/alert.service';
-import { IUserDTO } from '@/shared/model/transfer-object.model';
+import {IAccountCredentialView, IUserDTO} from '@/shared/model/transfer-object.model';
 import { ITenant } from '@/shared/model/tenant.model';
 import TenantService from '../tenant/tenant.service';
 import { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
+import axios from "axios";
+import {ICertificate} from "@/shared/model/certificate.model";
 
 const loginValidator = (value: string) => {
   if (!value) {
@@ -58,6 +60,13 @@ export default class JhiUserManagementEdit extends Vue {
   public authorities: any[] = [];
   public scndFactors: string[] = [];
   public languages: any = this.$store.getters.languages;
+  public tokenArr: IAccountCredentialView[] = [];
+
+  private removeInstance: IAccountCredentialView = {};
+
+  public now: Date = new Date();
+  public soon: Date = new Date();
+  public recently: Date = new Date();
 
   public updateCounter = 1;
 
@@ -73,6 +82,10 @@ export default class JhiUserManagementEdit extends Vue {
   }
 
   public mounted(): void {
+
+    this.soon.setDate(this.now.getDate() + 7);
+    this.recently.setDate(this.now.getDate() - 7);
+
     this.retrieveAllTenants();
     this.scndFactors = this.$store.state.uiConfigStore.config.scndFactorTypes;
   }
@@ -109,7 +122,54 @@ export default class JhiUserManagementEdit extends Vue {
       .get(userId)
       .then(res => {
         this.userAccount = res.data;
+        this.getTokens();
       });
+  }
+
+  public getTokens(): void {
+    window.console.info('calling getTokens');
+    const self = this;
+
+    axios({
+      method: 'get',
+      url: 'api/account/'+ self.userAccount.id +'/tokens',
+    }).then(function (response) {
+      window.console.info('getTokens returns ' + response.data);
+      self.tokenArr = response.data;
+    });
+  }
+
+  public prepareRemove(removeInstance: IAccountCredentialView): void {
+    this.removeInstance = removeInstance;
+    if (<any>this.$refs.removeEntity) {
+      (<any>this.$refs.removeEntity).show();
+    }
+  }
+
+
+  public removeCredential(): void {
+    const self = this;
+
+    const url =
+      '/api/account/credentials/' + encodeURIComponent(this.removeInstance.relationType) + '/' + encodeURIComponent(this.removeInstance.id);
+
+    axios.delete(url).then(function (response) {
+      window.console.info('delete credentials returns ' + response.status);
+      self.getTokens();
+      self.closeDialog();
+    });
+  }
+
+  public approveCredential(relationType:string, id: number): void {
+    const self = this;
+
+    const url =
+    '/api/account/'+encodeURIComponent(this.userAccount.id) + '/credentials/approval/' + encodeURIComponent(relationType) + '/' + encodeURIComponent(id);
+
+    axios.post(url).then(function (response) {
+      window.console.info('delete credentials returns ' + response.status);
+      self.getTokens();
+    });
   }
 
   public previousState(): void {
@@ -146,6 +206,19 @@ export default class JhiUserManagementEdit extends Vue {
     }
   }
 
+  public toLocalDate(dateAsString: string): string {
+    if (dateAsString && dateAsString.length > 8) {
+      const dateObj = new Date(dateAsString);
+
+      if (dateObj > this.recently && dateObj < this.soon) {
+        return dateObj.toLocaleDateString() + ', ' + dateObj.toLocaleTimeString();
+      } else {
+        return dateObj.toLocaleDateString();
+      }
+    }
+    return '';
+  }
+
   private returnToList(): void {
     this.isSaving = false;
     this.$router.push('/admin/user-list');
@@ -155,6 +228,11 @@ export default class JhiUserManagementEdit extends Vue {
     window.console.info('in updateForm, incrementing this.updateCounter:  ' + this.updateCounter);
     this.updateCounter += 1;
   }
+
+  public closeDialog(): void {
+    (<any>this.$refs.removeEntity).hide();
+  }
+
 }
 
 export class UserDTO implements IUserDTO {

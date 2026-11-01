@@ -3,15 +3,22 @@ package de.trustable.ca3s.core.service.util;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import java.io.IOException;
+import java.security.GeneralSecurityException;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.text.ParseException;
 import java.util.Base64.Encoder;
 
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.nimbusds.jose.*;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jose.crypto.MACVerifier;
+import de.trustable.ca3s.client.model.JWSWrappedRequest;
 import de.trustable.ca3s.core.service.dto.acme.*;
+import io.jsonwebtoken.io.Decoders;
 import org.apache.commons.codec.binary.Base64;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.PublicJsonWebKey;
@@ -27,6 +34,7 @@ import org.jose4j.jwx.JsonWebStructure;
 import org.jose4j.lang.JoseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -38,6 +46,11 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
+import org.springframework.util.ObjectUtils;
+import tech.jhipster.config.JHipsterProperties;
+
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 
 
 @Service
@@ -53,8 +66,14 @@ public class JwtUtil {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    private byte[] secret;
 
-    public JwtUtil() {
+    public JwtUtil(@Value("jhipster.security.authentication.jwt.base64-secret") String secret) throws NoSuchAlgorithmException, InvalidKeySpecException {
+
+        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+        PBEKeySpec specSecKey = new PBEKeySpec(secret.toCharArray(), "ZlLFYl2yIESCqakANo8OwQzVuCeO0teFbaMnNxxs2DVPpFXCnaC4Ow".getBytes(), 20345, 256);
+        this.secret = skf.generateSecret(specSecKey).getEncoded();
+
         objectMapper.registerModule(new JavaTimeModule());
     }
 
@@ -391,5 +410,35 @@ public class JwtUtil {
         return URL_ENCODER.encodeToString(jwk.calculateThumbprint("SHA-256"));
     }
 
+    public String signObject(Object doc) throws JsonProcessingException, JOSEException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        String payload = objectMapper.writeValueAsString(doc);
 
+        // Create HMAC signer
+        JWSSigner signer = new MACSigner(secret);
+
+        // Prepare JWS object with serialized CertificateRequestElements object as payload
+        JWSObject jwsObject = new JWSObject(new JWSHeader(JWSAlgorithm.HS256), new Payload(payload));
+
+        // Apply the HMAC
+        jwsObject.sign(signer);
+
+        return jwsObject.serialize();
+    }
+
+    public Object getJWSPayload(String jwsAsString, Class clazz)
+        throws JOSEException, ParseException, GeneralSecurityException, JsonProcessingException {
+
+        // To parse the JWS and verify it, e.g. on client-side
+        JWSObject jwsObject = JWSObject.parse(jwsAsString);
+
+        JWSVerifier verifier = new MACVerifier(secret);
+        if (jwsObject.verify(verifier)) {
+            return objectMapper.readValue(jwsObject.getPayload().toString(), clazz);
+
+        } else {
+            LOG.debug("jws '{}' failed verification", jwsAsString);
+            throw new JOSEException("verification of JWS failed");
+        }
+    }
 }

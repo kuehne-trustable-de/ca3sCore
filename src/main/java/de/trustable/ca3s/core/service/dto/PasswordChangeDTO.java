@@ -15,6 +15,8 @@ public class PasswordChangeDTO {
     private Long clientAuthCertId;
     private Long pipelineId;
     private String eabKid;
+    private String tokenResponseJws;
+    private String totpJws;
 
     private boolean secondFactorRequired;
 
@@ -113,5 +115,21 @@ public class PasswordChangeDTO {
 
     public void setEabKid(String eabKid) {
         this.eabKid = eabKid;
+    }
+
+    public String getTokenResponseJws() {
+        return tokenResponseJws;
+    }
+
+    public void setTokenResponseJws(String tokenResponseJws) {
+        this.tokenResponseJws = tokenResponseJws;
+    }
+
+    public String getTotpJws() {
+        return totpJws;
+    }
+
+    public void setTotpJws(String totpJws) {
+        this.totpJws = totpJws;
     }
 }

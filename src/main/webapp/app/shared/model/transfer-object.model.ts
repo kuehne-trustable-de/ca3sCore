@@ -1,6 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
-// Generated using typescript-generator version 4.1.1 on 2026-10-23 16:17:20.
+// Generated using typescript-generator version 4.2.1 on 2026-10-30 18:57:32.
 
 export interface IADCSInstanceDetailsView extends ISerializable {
   caName?: string;
@@ -503,6 +503,8 @@ export interface IPasswordChangeDTO {
   clientAuthCertId?: number;
   pipelineId?: number;
   eabKid?: string;
+  tokenResponseJws?: string;
+  totpJws?: string;
   secondFactorRequired?: boolean;
 }
 
@@ -610,6 +612,14 @@ export interface ILoginData {
 export interface ITokenRequest {
   credentialType?: IAccountCredentialsType;
   validitySeconds?: number;
+}
+
+export interface ITokenResponse {
+  credentialType?: IAccountCredentialsType;
+  tokenValue?: string;
+  validitySeconds?: number;
+  eabKid?: string;
+  jws?: string;
 }
 
 export interface ISerializable {

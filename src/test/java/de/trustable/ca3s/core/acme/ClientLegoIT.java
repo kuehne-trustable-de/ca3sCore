@@ -17,7 +17,7 @@ import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.ca3s.core.web.rest.ApiTokenController;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
-import de.trustable.ca3s.core.web.rest.vm.TokenResponse;
+import de.trustable.ca3s.core.service.dto.TokenResponse;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -459,6 +459,7 @@ public class ClientLegoIT extends ExternalProcessITBase {
 
         File acoountFile = new File( configFolder.toFile(),
            "accounts/localhost_" + accessPortTestManager.getAcmeAccessPort() + "/" + ACCOUNT_EMAIL_ADDRESS + "/account.json");
+        LOG.info("acoountFile : {} exists: {}", acoountFile.getAbsolutePath(), acoountFile.exists());
 
         // read the account.json content and retrieve the accountURL
         JsonObject jsonObject = (JsonObject) JsonParser.parseReader(new FileReader(acoountFile));

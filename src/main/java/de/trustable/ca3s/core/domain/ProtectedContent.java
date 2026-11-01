@@ -38,6 +38,12 @@ import org.hibernate.annotations.Cache;
             "pc.relationType = :relationType and " +
             "pc.relatedId    = :id"
     ),
+    @NamedQuery(name = "ProtectedContent.findByTypeRelationTypePipeline",
+        query = "SELECT pc FROM ProtectedContent pc WHERE " +
+            "pc.type = :type and " +
+            "pc.relationType = :relationType and " +
+            "pc.pipeline    = :pipeline"
+    ),
     @NamedQuery(name = "ProtectedContent.findByRelationTypesRelationId",
         query = "SELECT pc FROM ProtectedContent pc WHERE " +
             "pc.relationType in :relationTypes and " +

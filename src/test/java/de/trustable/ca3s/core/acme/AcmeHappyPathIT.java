@@ -21,7 +21,7 @@ import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.web.rest.ApiTokenController;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
-import de.trustable.ca3s.core.web.rest.vm.TokenResponse;
+import de.trustable.ca3s.core.service.dto.TokenResponse;
 import de.trustable.util.JCAManager;
 import org.apache.commons.lang3.StringUtils;
 import org.jose4j.lang.JoseException;
@@ -66,7 +66,9 @@ import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.shredzone.acme4j.Identifier.TYPE_IP;
 
-@SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = Ca3SApp.class,
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    properties = { "mailservice.mock.enabled=true" })
 @ActiveProfiles("dev")
 public class AcmeHappyPathIT {
 
@@ -342,6 +344,7 @@ public class AcmeHappyPathIT {
         passwordChangeDto.setApiTokenValiditySeconds(3600);
         passwordChangeDto.setApiTokenValue(tokenResponse.getTokenValue());
         passwordChangeDto.setEabKid(tokenResponse.getEabKid());
+        passwordChangeDto.setTokenResponseJws(tokenResponse.getJws());
         userService.changePassword( passwordChangeDto);
 
         LOG.info("eab kid {}, macKey {}", tokenResponse.getEabKid(), tokenResponse.getTokenValue());

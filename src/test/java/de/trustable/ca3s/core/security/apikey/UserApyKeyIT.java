@@ -9,7 +9,7 @@ import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.web.rest.JWTToken;
 import de.trustable.ca3s.core.web.rest.vm.LoginData;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
-import de.trustable.ca3s.core.web.rest.vm.TokenResponse;
+import de.trustable.ca3s.core.service.dto.TokenResponse;
 import de.trustable.util.JCAManager;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -130,6 +130,7 @@ public class UserApyKeyIT {
         passwordChangeDto.setApiTokenValiditySeconds(3600);
         passwordChangeDto.setCurrentPassword(USER_PASSWORD_USER);
         passwordChangeDto.setCredentialUpdateType(CredentialUpdateType.API_TOKEN);
+        passwordChangeDto.setTokenResponseJws(tokenResponse.getJws());
         Response responseLogin = invocationBuilderStoreToken
             .header("Authorization", "Bearer " + jwt)
             .post(Entity.entity(passwordChangeDto, MediaType.APPLICATION_JSON));

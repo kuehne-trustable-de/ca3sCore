@@ -741,6 +741,7 @@ class AccountResourceIT {
         user.setActivated(true);
         user.setLogin("password-reset");
         user.setEmail("password-reset@example.com");
+        user.setLangKey("en");
         userRepository.saveAndFlush(user);
 
         restAccountMockMvc

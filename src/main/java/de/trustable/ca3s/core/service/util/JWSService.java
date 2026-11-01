@@ -169,6 +169,8 @@ public class JWSService {
         }
         throw new JOSEException("verification of eab failed");
     }
+
+
     public static void main(String[] args) throws ParseException, JOSEException {
 
         JWSObject jwsObject = new JWSObject(new Base64URL("eyJ1cmwiOiJodHRwOi8vbG9jYWxob3N0OjU2NTM3L2FjbWUvYWNtZVRlc3RFYWIvbmV3QWNjb3VudCIsImtpZCI6InVzZXIiLCJhbGciOiJIUzI1NiJ9"),

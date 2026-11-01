@@ -247,6 +247,52 @@
                     </div>
 
                 </div>
+
+                <div class="table-responsive">
+                    <table class="table table-striped" id="token-list">
+                        <thead>
+                        <tr>
+                            <th><span v-text="$t('ca3SApp.form.client.auth.type')"></span></th>
+                            <th><span v-text="$t('ca3SApp.form.client.auth.requestedOn')"></span></th>
+                            <th><span v-text="$t('ca3SApp.form.client.auth.validTo')"></span></th>
+                            <th><span v-text="$t('global.menu.config.pipeline')"></span></th>
+                            <th><span v-text="$t('ca3SApp.form.client.token.status')"></span></th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr v-for="token in tokenArr" :key="token.id">
+
+                            <td v-if="token.relationType === 'CLIENT_CERTIFICATE'" @click="$router.push({name: 'CertInfo', params: {certificateId: token.id}})">{{token.relationType}} {{token.id}}</td>
+                            <td v-else-if="token.relationType === 'EAB_PASSWORD'"><span v-text="$t('ca3SApp.form.client.token.eab')"></span></td>
+                            <td v-else>{{token.relationType}} </td>
+                            <td>{{toLocalDate(token.createdOn)}}</td>
+                            <td>{{toLocalDate(token.validTo)}}</td>
+                            <td>{{token.pipelineName}}</td>
+                            <td>{{token.status}}</td>
+                            <td class="text-right">
+                                <div v-if="token.status === 'PENDING'" class="btn-group">
+                                    <b-button v-on:click="approveCredential(token.relationType, token.id)"
+                                              variant="info"
+                                              class="btn btn-sm">
+                                        <font-awesome-icon icon="save"></font-awesome-icon>&nbsp;<span v-text="$t('entity.action.confirm')"></span>
+                                    </b-button>
+                                </div>
+                                <div class="btn-group">
+                                    <b-button v-on:click="prepareRemove(token)"
+                                              variant="danger"
+                                              class="btn btn-sm"
+                                              v-b-modal.removeEntity>
+                                        <font-awesome-icon icon="times"></font-awesome-icon>
+                                        <span class="d-none d-md-inline" v-text="$t('entity.action.delete')"></span>
+                                    </b-button>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
                 <div>
                     <button type="button" class="btn btn-secondary" v-on:click="previousState()">
                         <font-awesome-icon icon="ban"></font-awesome-icon>&nbsp;<span

@@ -34,6 +34,7 @@ import org.jscep.transport.response.Capability;
 import org.jscep.util.CertificationRequestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletException;
@@ -473,27 +474,11 @@ public class ScepServletImpl extends ScepServlet {
 
     void checkPassword(final Pipeline pipeline, final String password) throws OperationFailureException{
 
-        if( password == null || password.isEmpty()) {
-            LOGGER.warn("password not present in SCEP request / is empty!");
+        try {
+            protectedContentUtil.verifySCEPPassword(pipeline, password);
+        }catch(BadCredentialsException badCredentialsException){
             throw new OperationFailureException(FailInfo.badRequest);
         }
-
-        List<ProtectedContent> listPC = protectedContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD,
-            ContentRelationType.SCEP_PW,pipeline.getId());
-        for(ProtectedContent pc: listPC){
-            String expectedPassword = protectedContentUtil.unprotectString(pc.getContentBase64()).trim();
-            if( password.trim().equals(expectedPassword)) {
-                LOGGER.debug("Protected Content found matching SCEP password");
-                return; // the only successful exit !!
-            } else {
-                LOGGER.debug("Protected Content password does not match SCEP password '{}' != '{}'",
-                    passwordMasker.maskPassword(expectedPassword),
-                    passwordMasker.maskPassword(password));
-            }
-        }
-
-        LOGGER.warn("no (active) password present in pipeline '{}' !", pipeline.getName());
-        throw new OperationFailureException(FailInfo.badRequest);
     }
 
     @Override

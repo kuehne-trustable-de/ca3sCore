@@ -22,6 +22,7 @@ class ProtectedContentUtilTest {
             mock(ProtectedContentRepository.class),
             mock(CertificateRepository.class),
             new PasswordMasker(4),
+            new RandomUtil(),
             "mJvR25yt4NHTIqe5Hz7nUHhQNUuM",
             "S3cr3t#s3cr3t$s3cr3t",
             "ca3sSalt",

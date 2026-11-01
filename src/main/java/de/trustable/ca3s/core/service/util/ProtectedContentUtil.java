@@ -5,10 +5,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -17,10 +14,15 @@ import de.trustable.ca3s.core.domain.Pipeline;
 import de.trustable.ca3s.core.domain.User;
 import de.trustable.ca3s.core.domain.enumeration.ProtectedContentStatus;
 import de.trustable.ca3s.core.repository.CertificateRepository;
+import org.apache.commons.lang3.StringUtils;
 import org.jasypt.util.text.BasicTextEncryptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.repository.query.Param;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.stereotype.Service;
 
 import de.trustable.ca3s.core.domain.ProtectedContent;
@@ -39,6 +41,7 @@ public class ProtectedContentUtil {
     public static final String PLAIN_SECRET_PLACEHOLDER = "******";
     private final Logger log = LoggerFactory.getLogger(ProtectedContentUtil.class);
 
+
     private final BasicTextEncryptor textEncryptor;
 
 	// defining our own max instant, as Instant.MAX is out of the range hibernate supports :-(
@@ -50,6 +53,7 @@ public class ProtectedContentUtil {
     private final ProtectedContentRepository protContentRepository;
     private final CertificateRepository certificateRepository;
     private final PasswordMasker passwordMasker;
+    private final RandomUtil randomUtil;
 
     private final String salt;
     private final int iterations;
@@ -58,6 +62,7 @@ public class ProtectedContentUtil {
 	public ProtectedContentUtil(ProtectedContentRepository protContentRepository,
                                 CertificateRepository certificateRepository,
                                 PasswordMasker passwordMasker,
+                                RandomUtil randomUtil,
                                 @Value("${protectionSecret:mJvR25yt4NHTIqe5Hz7nUHhQNUuM}") String protectionSecretFallback,
                                 @Value("${ca3s.protectionSecret:#{null}}") String protectionSecret,
                                 @Value("${ca3s.connection.salt:ca3sSalt}") String salt,
@@ -67,6 +72,7 @@ public class ProtectedContentUtil {
         this.protContentRepository = protContentRepository;
         this.certificateRepository = certificateRepository;
         this.passwordMasker = passwordMasker;
+        this.randomUtil = randomUtil;
 
         this.salt = salt;
         this.iterations = iterations;
@@ -354,10 +360,24 @@ public class ProtectedContentUtil {
 
         List<ProtectedContent> pcList = protContentRepository.findByTypeRelationId(type, crt, id);
 
+        return getValidProtectedContents(pcList);
+    }
+
+    public List<ProtectedContent> retrieveProtectedContent(ProtectedContentType type, ContentRelationType crt, Pipeline pipeline) {
+
+        List<ProtectedContent> pcList = protContentRepository.findByTypeRelationTypePipeline(type,
+            crt,
+            pipeline);
+
+        return getValidProtectedContents(pcList);
+    }
+
+    private static List<ProtectedContent> getValidProtectedContents(List<ProtectedContent> pcList) {
         Instant now = Instant.now();
         Predicate<ProtectedContent> usableItem =
             pc -> ((pc.getLeftUsages() == -1) || (pc.getLeftUsages() > 0))
-                && ( (pc.getValidTo() == null) || pc.getValidTo().isAfter(now));
+                && ( (pc.getValidTo() == null) || pc.getValidTo().isAfter(now))
+                && (pc.getStatus().equals(ProtectedContentStatus.ACTIVE));
         return pcList.stream().filter(usableItem).collect(Collectors.toList());
     }
 
@@ -461,4 +481,81 @@ public class ProtectedContentUtil {
 
     }
 
+    public void verifySCEPUser(User user, String secret) {
+
+        if( !user.isActivated() ) {
+            throw new DisabledException("Account " +user.getLogin()+" is not activated");
+        }
+        if( (user.getBlockedUntilDate() != null) && Instant.now().isBefore(user.getBlockedUntilDate())) {
+            throw new LockedException("Account " +user.getLogin()+" is locked, currently");
+        }
+
+        List<ProtectedContent> protectedContents = retrieveProtectedContent(
+            ProtectedContentType.TOKEN,
+            ContentRelationType.SCEP_TOKEN,
+            user.getId());
+
+        for( ProtectedContent protectedContent: protectedContents) {
+            String protectedSecret = unprotectString(protectedContent.getContentBase64());
+
+            if (protectedSecret.equals(secret)) {
+                log.debug("user '{}' succeeded scep authentication", user.getLogin());
+                return;
+            } else {
+                log.debug("protectedContent #{} failed scep verification",  protectedContent.getId());
+            }
+        }
+
+        throw new BadCredentialsException("scep authentication failed");
+    }
+
+    public void verifySCEPPassword(final Pipeline pipeline, final String rawPassword) {
+
+        if( rawPassword == null || rawPassword.isEmpty()) {
+            String msg = "password not present in SCEP request / is empty!";
+            log.warn(msg);
+            throw new BadCredentialsException(msg);
+        }
+
+        String password = rawPassword.trim();
+        List<ProtectedContent> listPC = protContentRepository.findByTypeRelationId(ProtectedContentType.PASSWORD,
+            ContentRelationType.SCEP_PW,pipeline.getId());
+
+        for(ProtectedContent pc: listPC){
+            String expectedPassword = unprotectString(pc.getContentBase64()).trim();
+            if( password.equals(expectedPassword)) {
+                log.debug("Protected Content found matching SCEP password");
+                return; // the only successful exit !!
+            } else {
+                log.debug("Protected Content password does not match SCEP password '{}' != '{}'",
+                    passwordMasker.maskPassword(expectedPassword),
+                    passwordMasker.maskPassword(password));
+            }
+        }
+
+        List<ProtectedContent> protectedContents = new ArrayList<>();
+
+        protectedContents.addAll( retrieveProtectedContent(ProtectedContentType.TOKEN, ContentRelationType.SCEP_TOKEN, pipeline));
+        protectedContents.addAll( retrieveProtectedContent(ProtectedContentType.TOKEN, ContentRelationType.NDES_TOKEN, pipeline));
+
+        for( ProtectedContent protectedContent: protectedContents) {
+            String expectedPassword = unprotectString(protectedContent.getContentBase64()).trim();
+            if( password.equals(expectedPassword)) {
+                log.debug("Protected Content found matching SCEP token");
+                return; // the only successful exit !!
+            } else {
+                log.debug("Protected Content password does not match SCEP token '{}' != '{}'",
+                    passwordMasker.maskPassword(expectedPassword),
+                    passwordMasker.maskPassword(password));
+            }
+        }
+
+        String msg = "no (active) password present in pipeline !";
+        log.warn(msg);
+        throw new BadCredentialsException(msg);
+    }
+
+    public String buildNDESToken(long userId) {
+        return randomUtil.generateApiToken();
+    }
 }

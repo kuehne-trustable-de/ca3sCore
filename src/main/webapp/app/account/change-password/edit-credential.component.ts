@@ -3,7 +3,7 @@ import axios, { AxiosError } from 'axios';
 import { mapGetters } from 'vuex';
 import Component, { mixins } from 'vue-class-component';
 import AlertMixin from '@/shared/alert/alert.mixin';
-import { IAccountCredentialView, IPasswordChangeDTO, IPipelineType, ITokenRequest } from '@/shared/model/transfer-object.model';
+import { IAccountCredentialView, IPasswordChangeDTO, IPipelineType, ITokenRequest, ITokenResponse } from '@/shared/model/transfer-object.model';
 import { Vue } from 'vue-property-decorator';
 import CopyClipboardButton from '@/shared/clipboard/clipboard.vue';
 import { PipelineView } from '@/core/pipeline/pipeline-update.component';
@@ -109,6 +109,7 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
     }
 
     this.credentialChange.clientAuthCertId = 0;
+
   }
 
   public get settingsAccount(): any {
@@ -384,9 +385,10 @@ export default class EditCredential extends mixins(AlertMixin, Vue) {
     axios
       .post('/api/token/apiToken', this.tokenRequest)
       .then(response => {
-        const tokenResponse: TokenResponse = response.data;
+        const tokenResponse: ITokenResponse = response.data;
         self.credentialChange.apiTokenValue = tokenResponse.tokenValue;
         self.credentialChange.eabKid = tokenResponse.eabKid;
+        self.credentialChange.tokenResponseJws = tokenResponse.jws;
         self.updateCounter++;
       })
       .catch(function (error) {
