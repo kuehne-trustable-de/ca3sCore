@@ -8,7 +8,7 @@
 
     <groupId>de.trustable.ca3s.core</groupId>
     <artifactId>ca-3-s</artifactId>
-    <version>1.2.43</version>
+    <version>1.2.44</version>
 
     <packaging>jar</packaging>
 
@@ -756,6 +756,22 @@
                 <artifactId>xalan</artifactId>
                 <version>2.7.3</version>
             </dependency-->
+
+
+            <dependency>
+                <groupId>org.thymeleaf</groupId>
+                <artifactId>thymeleaf</artifactId>
+                <version>3.1.5.RELEASE</version>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.thymeleaf</groupId>
+                <artifactId>thymeleaf-spring5</artifactId>
+                <version>3.1.5.RELEASE</version>
+                <scope>compile</scope>
+            </dependency>
+
         </dependencies>
 
     </dependencyManagement>
@@ -1749,6 +1765,7 @@
                         <class>de.trustable.ca3s.core.web.rest.data.AcmeAccountStatusAdministration</class>
                         <class>de.trustable.ca3s.core.web.rest.vm.LoginData</class>
                         <class>de.trustable.ca3s.core.web.rest.vm.TokenRequest</class>
+                        <class>de.trustable.ca3s.core.service.dto.TokenResponse</class>
 
                     </classes>
                     <addTypeNamePrefix>I</addTypeNamePrefix>
@@ -2304,7 +2321,7 @@
                     <version>2.9.3</version>
                 </plugin>
 
-                <plugin>
+                <!--plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>license-maven-plugin</artifactId>
                     <version>2.7.1</version>
@@ -2316,7 +2333,7 @@
                             </goals>
                         </execution>
                     </executions>
-                </plugin>
+                </plugin-->
             </plugins>
         </pluginManagement>
     </build>
