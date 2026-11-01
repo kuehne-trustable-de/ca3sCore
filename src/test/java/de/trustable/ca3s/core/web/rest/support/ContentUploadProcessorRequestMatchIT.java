@@ -34,7 +34,9 @@ import de.trustable.ca3s.core.helper.AuthenticationHelper;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest(classes = Ca3SApp.class)
+@SpringBootTest(classes = Ca3SApp.class,
+    properties = { "mailservice.mock.enabled=true" }
+)
 @ActiveProfiles("dev")
 public class ContentUploadProcessorRequestMatchIT {
 

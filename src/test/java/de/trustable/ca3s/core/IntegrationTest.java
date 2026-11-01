@@ -13,7 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-@SpringBootTest(classes = Ca3SApp.class)
+@SpringBootTest(classes = Ca3SApp.class, properties = { "mailservice.mock.enabled=true" })
 @ActiveProfiles("dev")
 public @interface IntegrationTest {
 }

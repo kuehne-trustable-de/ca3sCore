@@ -9,6 +9,7 @@ import de.trustable.ca3s.core.service.MailService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import javax.mail.MessagingException;
 
@@ -16,7 +17,7 @@ import javax.mail.MessagingException;
 @ConditionalOnProperty(
     value="mailservice.mock.enabled",
     havingValue = "true",
-    matchIfMissing = true)
+    matchIfMissing = false)
 public class NoOpMailConfiguration {
 
     private final MailService mockMailService;
