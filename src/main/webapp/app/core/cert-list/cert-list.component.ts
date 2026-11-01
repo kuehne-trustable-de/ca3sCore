@@ -8,6 +8,7 @@ import {
   ISelector,
   ICertificateSelectionData,
   ICertificateView,
+  IPipelineType
 } from '@/shared/model/transfer-object.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
@@ -197,6 +198,9 @@ export default class CertList extends mixins(AlertMixin, Vue) {
       itemDefaultValue: 'true',
       values: this.$store.state.uiConfigStore.config.extUsageArr,
     },
+    { itemName: 'pipelineType', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'WEB',
+      values: ["WEB", "ACME", "SCEP", "EST", "INTERNAL", "MANUAL_UPLOAD"] },
+
     { itemName: 'requestedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
   ];
 

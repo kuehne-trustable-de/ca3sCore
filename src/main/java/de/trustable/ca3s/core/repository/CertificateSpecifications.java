@@ -20,6 +20,7 @@ import java.math.BigInteger;
 import java.time.Instant;
 import java.util.*;
 
+import static de.trustable.ca3s.core.repository.CSRSpecifications.buildPredicatePipelineType;
 import static de.trustable.ca3s.core.repository.SpecificationsHelper.*;
 
 
@@ -495,6 +496,9 @@ public final class CertificateSpecifications {
                 cv.setCrlUrl((String) objArr[i]);
             }else if( "requestedBy".equalsIgnoreCase(attribute)) {
                 cv.setRequestedBy( (String) objArr[i]) ;
+            }else if( "pipelineType".equalsIgnoreCase(attribute)) {
+                cv.setPipelineType( (String) objArr[i]) ;
+
             }else {
 
                 logger.info("attribute '{}' from query added as additionalRestriction", attribute);
@@ -913,6 +917,15 @@ public final class CertificateSpecifications {
             addNewColumn(selectionList,attJoin.get(CertificateComment_.comment));
 
             pred = buildPredicateString( attributeSelector, cb, attJoin.get(CertificateComment_.comment), attributeValue.toLowerCase());
+
+        } else if ("pipelineType".equals(attribute)) {
+            Join<Certificate, CSR> csrJoin = root.join(Certificate_.csr, JoinType.LEFT);
+            Join<CSR, Pipeline> pipelineJoin = csrJoin.join(CSR_.pipeline, JoinType.LEFT);
+
+            addNewColumn(selectionList, pipelineJoin.get(Pipeline_.type));
+            if (!attributeValue.trim().isEmpty()) {
+                pred = cb.and(buildPredicatePipelineType(attributeSelector, cb, pipelineJoin.get(Pipeline_.type), attributeValue));
+            }
 /*
         }else if( attribute.startsWith("ATTR_")){
             String attName = attribute.substring(5);

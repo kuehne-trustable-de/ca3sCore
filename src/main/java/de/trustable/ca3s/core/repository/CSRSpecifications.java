@@ -509,7 +509,7 @@ public final class CSRSpecifications {
         } else if ("pipelineType".equals(attribute)) {
             Join<CSR, Pipeline> certJoin = root.join(CSR_.pipeline, JoinType.LEFT);
             addNewColumn(selectionList, certJoin.get(Pipeline_.type));
-            if (attributeValue.trim().length() > 0) {
+            if (!attributeValue.trim().isEmpty()) {
                 pred = cb.and(buildPredicatePipelineType(attributeSelector, cb, certJoin.get(Pipeline_.type), attributeValue));
             }
         }else if( "hashAlgorithm".equals(attribute)){
@@ -578,7 +578,8 @@ public final class CSRSpecifications {
         }
 
     }
-    private static Predicate buildPredicatePipelineType(String attributeSelector, CriteriaBuilder cb, Path<PipelineType> path, String attributeValue) {
+
+    public static Predicate buildPredicatePipelineType(String attributeSelector, CriteriaBuilder cb, Path<PipelineType> path, String attributeValue) {
         if (attributeSelector == null) {
             return cb.conjunction();
         }
