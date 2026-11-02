@@ -1,12 +1,10 @@
 package de.trustable.ca3s.core.web.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
-import com.nimbusds.jose.JOSEException;
 import de.trustable.ca3s.core.domain.Certificate;
 import de.trustable.ca3s.core.domain.CertificateAttribute;
 import de.trustable.ca3s.core.domain.ProtectedContent;
@@ -456,12 +454,6 @@ public class AccountResource {
         String totpUrl = totpService.generateTotpUrlForUser(userLogin, otpDetailsResponse.getSeed());
         otpDetailsResponse.setTotpUrl(totpUrl);
         otpDetailsResponse.setQrCodeImg(generateQRasPNG(totpUrl));
-
-        try {
-            otpDetailsResponse.setJwsTotp(jwtUtil.signObject(otpDetailsResponse));
-        }catch (JOSEException | JsonProcessingException joseException){
-            return ResponseEntity.internalServerError().body(joseException.getMessage());
-        }
 
         return ResponseEntity.ok(otpDetailsResponse);
     }
