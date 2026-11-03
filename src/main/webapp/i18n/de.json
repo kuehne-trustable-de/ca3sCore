@@ -1592,7 +1592,7 @@
   "AUDIT_CA_CONNECTOR_SELECTOR_CHANGED": "CA Connector Selector geändert von '{{oldVal}}' auf '{{newVal}}'",
   "AUDIT_CA_CONNECTOR_IGNORE_RESPONSE_MESSAGE_VERIFICATION_CHANGED": "CA Connector Ignoriere Antwortnachrichtenprüfung geändert von '{{oldVal}}' auf '{{newVal}}'",
   "AUDIT_USER_LOGIN_FAILED": "Benutzeranmeldung fehlgeschlagen",
-  "AUDIT_USER_LOGIN_SUCEEDED": "Benutzeranmeldung erfolgreich",
+  "AUDIT_USER_LOGIN_SUCEEDED": "Benutzeranmeldung erfolgreich von '{{attribute}}'",
   "AUDIT_USER_LOGIN_BLOCKED": "Benutzeranmeldung blockiert",
   "AUDIT_USER_LOGIN_FOR_IP_BLOCKED": "Benutzeranmeldung für IP blockiert",
   "AUDIT_IGNORE_RESPONSE_MESSAGE_VERIFICATION": "Ignoriere Antwortnachrichtenprüfung geändert von '{{oldVal}}' auf '{{newVal}}'",
@@ -1614,7 +1614,7 @@
 
   "ACME_CERTIFICATE_REQUESTED": "Zertifikat mittels ACME beantragt",
   "ACME_CERTIFICATE_CREATED": "Zertifikat mittels ACME ausgestellt",
-  "ACME_CHALLENGE_SUCCEEDED": "ACME Challenge erfolgreich abgeschlossen",
+  "ACME_CHALLENGE_SUCCEEDED": "ACME Challenge erfolgreich für '{{attribute}}'",
   "ACME_CHALLENGE_FAILED": "ACME Challenge fehlgeschlagen",
   "ACME_ORDER_SUCCEEDED": "ACME Order erfolgreich abgeschlossen",
   "ACME_ORDER_INVALID": "ACME Order ungültig",
@@ -1722,7 +1722,7 @@
   "EXPIRY_NOTIFICATION_SENT": "Benachrichtigung über ablaufendes Zertifikat gesendet",
   "EMAIL_SEND_NOTIFICATION_FAILED": "Fehler beim Senden der Benachrichtigung über ablaufendes Zertifikat",
   "EMAIL_SEND_NOTIFICATION_SENT": "Benachrichtigung über ablaufendes Zertifikat gesendet",
-  "EMAIL_CERTIFICATE_ISSUED_NOTIFICATION_SENT": "Benachrichtigung über ausgestelltes Zertifikat gesendet",
+  "EMAIL_CERTIFICATE_ISSUED_NOTIFICATION_SENT": "Benachrichtigung über ausgestelltes Zertifikat an '{{attribute}}' gesendet",
 
   "PREFERENCE_CREATED": "Einstellung erstellt",
 

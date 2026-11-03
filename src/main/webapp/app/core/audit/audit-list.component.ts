@@ -239,7 +239,11 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     if (len === 0) {
       return this.$t(template);
     } else if (len === 1) {
-      return this.$t(template, { val: this.unescapeComma(contentParts[0]) });
+      if( this.unescapeComma(contentParts[0]).length() === 0 ){
+        return this.$t(template);
+      }else{
+        return this.$t(template, { val: this.unescapeComma(contentParts[0]) });
+      }
     } else if (len === 2) {
       return this.$t(template, { oldVal: this.unescapeComma(contentParts[0]), newVal: this.unescapeComma(contentParts[1]) });
     } else {

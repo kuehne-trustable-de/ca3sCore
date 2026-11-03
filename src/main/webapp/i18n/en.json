@@ -1575,7 +1575,7 @@
   "REQUEST_AUTHORIZATION_REJECTED": "Authorization process '{{attribute}}' rejected by '{{oldVal}}', reason: '{{newVal}}'!",
 
   "AUDIT_USER_LOGIN_FAILED": "User login failed",
-  "AUDIT_USER_LOGIN_SUCEEDED": "User login succeeded",
+  "AUDIT_USER_LOGIN_SUCEEDED": "User login succeeded from '{{attribute}}'",
   "AUDIT_USER_LOGIN_BLOCKED": "User login blocked",
   "AUDIT_USER_LOGIN_FOR_IP_BLOCKED": "User login for IP blocked",
   "AUDIT_IGNORE_RESPONSE_MESSAGE_VERIFICATION": "Ignore response message verification changed from '{{oldVal}}' to '{{newVal}}'",
@@ -1639,8 +1639,8 @@
 
   "CERTIFICATE_SCHEMA_UPDATED": "database scheme of #{{attribute}} certificates updated to version '{{newVal}}'",
 
-  "ACME_CHALLENGE_SUCCEEDED": "ACME Challenge succeeded",
-  "ACME_CHALLENGE_FAILED": "ACME Challenge failed",
+  "ACME_CHALLENGE_SUCCEEDED": "ACME Challenge succeeded for '{{attribute}}'",
+  "ACME_CHALLENGE_FAILED": "ACME Challenge failed with cause '{{newVal}}'",
   "ACME_ORDER_SUCCEEDED": "ACME Order succeeded",
   "ACME_ORDER_INVALID": "ACME Order invalid",
   "RA_CERTIFICATE_CREATED": "Certificate issued via RA Officer",
@@ -1718,7 +1718,7 @@
   "EXPIRY_NOTIFICATION_SENT": "Notification about expiring certificate sent",
   "EMAIL_SEND_NOTIFICATION_FAILED": "Error occurred while sending notification about expiring certificate",
   "EMAIL_SEND_NOTIFICATION_SENT": "Notification about expiring certificate sent",
-  "EMAIL_CERTIFICATE_ISSUED_NOTIFICATION_SENT": "Notification about issued certificate sent",
+  "EMAIL_CERTIFICATE_ISSUED_NOTIFICATION_SENT": "Notification about issued certificate sent to '{{attribute}}'",
 
   "PREFERENCE_CREATED": "Preference created",
 

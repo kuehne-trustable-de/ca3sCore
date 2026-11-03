@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core.config;
 
-import static de.trustable.ca3s.core.config.EndpointConfigs.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
@@ -35,9 +34,6 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("dev")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class SecurityConfigurationIT {
-
-    // @LocalServerPort
-    //int serverPort = 8080; // random port chosen by spring test
 
     @Autowired
     PipelineTestConfiguration ptc;

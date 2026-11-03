@@ -16,9 +16,7 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
-import de.trustable.ca3s.client.model.JWSWrappedRequest;
 import de.trustable.ca3s.core.service.dto.acme.*;
-import io.jsonwebtoken.io.Decoders;
 import org.apache.commons.codec.binary.Base64;
 import org.jose4j.jwk.JsonWebKey;
 import org.jose4j.jwk.PublicJsonWebKey;
@@ -46,8 +44,6 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import de.trustable.ca3s.core.service.dto.acme.problem.AcmeProblemException;
 import de.trustable.ca3s.core.service.dto.acme.problem.ProblemDetail;
-import org.springframework.util.ObjectUtils;
-import tech.jhipster.config.JHipsterProperties;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
