@@ -1,5 +1,3 @@
-# ![Hilfe](../../images/ca3s-72x72.png) Hilfe
-
 # Admin Help
 
 ## **C**ertificate **A**utomation, **A**uthorization and **A**dministration **S**ervice (_ca3s_)
@@ -72,11 +70,11 @@ Select a type of connector. Depending on the connector type the set of optional 
 
 #### <a id="ca-connector.ca-url"></a> CA Url
 
-Provide a location of the CA or a webserver. For certificate import this field accepts a directory path.
+Provide a location of the CA or a webserver. It accepts different protocols:
 
-#### <a id="ca-connector.default-ca"></a> Default CA
-
-Check this checkbox with the CA that is intended to provide certificate for ca3s. Only one CA can be selected as default.
+- 'file:' for certificate import from a local path.
+- 'http(s)' for certificate import from a webserver.
+- 'jdbc' for certificate import from a database. The JDBC URL must be provided in the form of 'jdbc:subprotocol:subname'. The subprotocol and subname are specific to the database vendor. Please consult the documentation of your database vendor for details.
 
 #### <a id="ca-connector.default-ca"></a> Default CA
 
@@ -85,6 +83,10 @@ Check this checkbox with the CA that is intended to provide certificate for ca3s
 #### <a id="ca-connector.active"></a> Active
 
 Activate or deactivate this connector.
+
+#### <a id="ca-connector.allowCrlOnHold"></a> Allow CRL on Hold
+
+Depending om the CA and the usage policy it may be suitable to enable the CRL status 'On Hold'. This allows to temporarily suspend a certificate without permanently revoking it. The certificate can be reactivated later on.
 
 #### CMP specific settings
 
@@ -164,6 +166,26 @@ Select a polling interval for certificate retrieval.
 ##### <a id="ca-connector.trust-self-signed-certificates"></a> Trust self-signed certificates
 
 All self-signed certificates imported by this connector will be marked as 'trusted'. This is a critical option. Use it for tightly controlled set of trust anchors.
+
+##### <a id="ca-connector.user-name"></a> User Name
+
+For jdbc connection to a database the user name is required to access the database.
+
+##### <a id="ca-connector.certificateTable"></a> Certificate Table
+
+For jdbc connection the table name is required to address the certificate information.
+
+##### <a id="ca-connector.certificateColumn"></a> Certificate Column
+
+For jdbc connection the column name is required to address the certificate information. It expects text contaent containing the PEM or Base64 encoded certificate.
+
+##### <a id="ca-connector.sequenceColumn"></a> Sequence Column
+
+For jdbc connection the column name selects the sequence column. It expects a numeric value representing the sequence of the certificate. It is used to select new certificates, only. This is useful for big sets of certificates.
+
+##### <a id="ca-connector.lastUpdateColumn"></a> Last Update Column
+
+For jdbc connection the column name selects the last update column. It expects a timestamp indicating when the certificate was last updated. It is used to select new certificates, only. This is useful for big sets of certificates.
 
 #### ADCS certificate inventory
 
@@ -289,7 +311,13 @@ The checkbox decides whether the field is presented to the requestor in read-onl
 #### <a id="pipeline.tosAgreed"></a> Terms of Service agreed
 
 Require the user to agree to the terms of service. If selected, provide a link to the service document.
-This option is available for ACME and Web protocol, only.
+This option is available for ACME, only.
+
+#### <a id="pipeline.tosAgreementRequired"></a> Terms of Service requirement
+
+Provide a link to the terms of service for the user to take notice.
+If the checkbox is set, the user is required to explicitly agree to the terms of service.
+This option is available for Web protocol, only.
 
 #### <a id="pipeline.pending-on-failure"></a> Pending on failure
 

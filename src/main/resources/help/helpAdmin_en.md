@@ -313,7 +313,7 @@ The checkbox decides whether the field is presented to the requestor in read-onl
 Require the user to agree to the terms of service. If selected, provide a link to the service document.
 This option is available for ACME, only.
 
-#### <a id="pipeline.pipeline.tosAgreementRequired"></a> Terms of Service requirement
+#### <a id="pipeline.tosAgreementRequired"></a> Terms of Service requirement
 
 Provide a link to the terms of service for the user to take notice.
 If the checkbox is set, the user is required to explicitly agree to the terms of service.
