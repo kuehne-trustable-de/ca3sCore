@@ -214,4 +214,6 @@ public class CertificateAttribute implements Serializable {
 
     public static final String ATTRIBUTE_VAULT_KEY = "ATTRIBUTE_VAULT_KEY";
 
+    public static final String ATTRIBUTE_ARI_CERT_ID = "ARI_CERT_ID";
+
 }

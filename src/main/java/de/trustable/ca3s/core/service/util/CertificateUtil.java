@@ -95,6 +95,9 @@ public class CertificateUtil {
     public static HashMap<String,Integer> nameGeneralNameMap = new HashMap<>();
     public static HashMap<String,ASN1ObjectIdentifier> nameOIDMap = new HashMap<>();
 
+    private static final java.util.Base64.Encoder URL_ENCODER_WITHOUT_PADDING =
+        java.util.Base64.getUrlEncoder().withoutPadding();
+
     static HashSet<Integer> lenSet = new HashSet<>();
 
     static {
@@ -651,6 +654,16 @@ public class CertificateUtil {
             getPaddedNumber("" + validityPeriod),
             false);
 
+        try {
+            setCertAttribute(cert,
+                CertificateAttribute.ATTRIBUTE_ARI_CERT_ID,
+                getRenewalUniqueIdentifier(x509Cert),
+                false);
+        } catch (GeneralSecurityException e) {
+            LOG.warn("calculating of RenewalUniqueIdentifier for certificate '{}' failed",
+                x509Cert.getSubjectX500Principal().toString() );
+        }
+
         addAdditionalCertificateAttributes(x509Cert, cert);
 
         copyCsrAttributesToCertificate(csr, cert);
@@ -763,6 +776,71 @@ public class CertificateUtil {
             setCertAttribute(cert, CertificateAttribute.ATTRIBUTE_CHAIN_LENGTH, "" + basicConstraint);
         }
     }
+
+    /**
+     * Returns the certificate's unique identifier for renewal.
+     *
+     * @param certificate
+     *         Certificate to get the unique identifier for.
+     * @return Unique identifier
+     * @throws GeneralSecurityException
+     *         if the certificate is invalid or does not provide the necessary
+     *         information.
+     */
+    public static String getRenewalUniqueIdentifier(X509Certificate certificate) throws GeneralSecurityException {
+        try {
+            var cert = new X509CertificateHolder(certificate.getEncoded());
+
+            var aki = Optional.of(cert)
+                .map(X509CertificateHolder::getExtensions)
+                .map(AuthorityKeyIdentifier::fromExtensions)
+                .map(AuthorityKeyIdentifier::getKeyIdentifier)
+                .map(CertificateUtil::base64UrlEncode)
+                .orElseThrow(() -> new GeneralSecurityException("Missing or invalid Authority Key Identifier"));
+
+            var sn = Optional.of(cert)
+                .map(X509CertificateHolder::toASN1Structure)
+                .map(org.bouncycastle.asn1.x509.Certificate::getSerialNumber)
+                .map(CertificateUtil::getRawInteger)
+                .map(CertificateUtil::base64UrlEncode)
+                .orElseThrow(() -> new GeneralSecurityException("Missing or invalid serial number"));
+
+            return aki + '.' + sn;
+        } catch (Exception ex) {
+            throw new GeneralSecurityException("Invalid certificate", ex);
+        }
+    }
+
+    /**
+     * Base64 encodes the given byte array, using URL style encoding.
+     *
+     * @param data
+     *            byte array to base64 encode
+     * @return base64 encoded string
+     */
+    public static String base64UrlEncode(byte[] data) {
+        return URL_ENCODER_WITHOUT_PADDING.encodeToString(data);
+    }
+
+
+    /**
+     * Gets the raw integer array from ASN1Integer. This is done by encoding it to a byte
+     * array, and then skipping the INTEGER identifier. Other methods of ASN1Integer only
+     * deliver a parsed integer value that might have been mangled.
+     *
+     * @param integer
+     *         ASN1Integer to convert to raw
+     * @return Byte array of the raw integer
+     */
+    private static byte[] getRawInteger(ASN1Integer integer) {
+        try {
+            var encoded = integer.getEncoded();
+            return Arrays.copyOfRange(encoded, 2, encoded.length);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+    }
+
 
     private void copyCsrAttributesToCertificate(final CSR csr, final Certificate cert) {
 
