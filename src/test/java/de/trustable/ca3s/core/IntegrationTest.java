@@ -1,6 +1,5 @@
 package de.trustable.ca3s.core;
 
-import de.trustable.ca3s.core.Ca3SApp;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -9,7 +9,6 @@ import de.trustable.ca3s.core.service.MailService;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 import javax.mail.MessagingException;
 
