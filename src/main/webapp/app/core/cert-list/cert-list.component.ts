@@ -1,5 +1,5 @@
 import Component from 'vue-class-component';
-import { Vue } from 'vue-property-decorator';
+import {Inject, Vue} from 'vue-property-decorator';
 import { mixins } from 'vue-class-component';
 
 import {
@@ -7,8 +7,7 @@ import {
   ICertificateFilterList,
   ISelector,
   ICertificateSelectionData,
-  ICertificateView,
-  IPipelineType
+  ICertificateView
 } from '@/shared/model/transfer-object.model';
 
 import { colFieldToStr, makeQueryStringFromObj } from '@/shared/utils';
@@ -18,6 +17,7 @@ import { VuejsDatatableFactory, TColumnsDefinition, ITableContentParam } from 'v
 import axios from 'axios';
 import AlertMixin from '@/shared/alert/alert.mixin';
 import { DateUtils } from '@/shared/date-utils';
+import PipelineViewService from "@/core/pipeline/pipelineview.service";
 
 Vue.use(VuejsDatatableFactory);
 
@@ -101,6 +101,8 @@ interface ISelectionChoices {
 
 @Component
 export default class CertList extends mixins(AlertMixin, Vue) {
+  @Inject('pipelineViewService') private pipelineViewService: () => PipelineViewService;
+
   public now: Date = new Date();
   public soon: Date = new Date();
   public recently: Date = new Date();
@@ -200,6 +202,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     },
     { itemName: 'pipelineType', itemType: 'set', itemDefaultSelector: 'EQUAL', itemDefaultValue: 'WEB',
       values: ["WEB", "ACME", "SCEP", "EST", "INTERNAL", "MANUAL_UPLOAD"] },
+    { itemName: 'pipelineId', itemType: 'pipelineList', itemDefaultSelector: 'IN', itemDefaultValue: '1,2,3' },
 
     { itemName: 'requestedBy', itemType: 'string', itemDefaultSelector: 'EQUAL', itemDefaultValue: '{user}' },
   ];
@@ -212,6 +215,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     //    { itemType: 'date', hasValue: true, choices: ['ON', 'BEFORE', 'AFTER', 'PERIOD_BEFORE', 'PERIOD_AFTER'] },
     { itemType: 'boolean', hasValue: false, choices: ['ISTRUE', 'ISFALSE'] },
     { itemType: 'set', hasValue: false, choices: ['EQUAL', 'NOT_EQUAL'] },
+    { itemType: 'pipelineList', hasValue: true, choices: ['IN', 'NOT_IN'] },
   ];
 
   public defaultFilter: ICertificateFilter = { attributeName: 'subject', attributeValue: 'trust', selector: 'LIKE' };
@@ -404,6 +408,7 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     const params = {};
 
     if( this.filters && this.filters.filterList) {
+      this.alignFilterValues();
 
       const filterLen = this.filters.filterList.length;
       for (let i = 0; i < filterLen; i++) {
@@ -417,6 +422,20 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     return `${baseUrl}?${makeQueryStringFromObj(params)}`;
   }
 
+  public alignFilterValues() {
+    for (const filter of this.filters.filterList) {
+      if (filter.attributeName === 'pipelineId') {
+        filter.attributeValue = filter.attributeValueArr.join(', ');
+        window.console.info(
+          'buildContentAccessUrl: filter.attributeValue: ' +
+          filter.attributeValue +
+          "', filter.attributeValueArr : '" +
+          filter.attributeValueArr +
+          "'"
+        );
+      }
+    }
+  }
   public buildContentAccessUrl() {
     const url = this.buildAccessUrl('publicapi/certificateList');
 
@@ -441,9 +460,23 @@ export default class CertList extends mixins(AlertMixin, Vue) {
     this.getUsersFilterList();
 
     this.getCertificateAttributesExtendedKeyUsage();
+    this.retrieveAllPipelines();
 
     setInterval(() => this.putUsersFilterList(this), 3000);
     setInterval(() => this.buildContentAccessUrl(), 1000);
+  }
+
+  public retrieveAllPipelines(): void {
+    this.pipelineViewService()
+      .retrieve()
+      .then(
+        res => {
+          this.pipelines = res.data;
+        },
+        err => {
+          window.console.info('err : ' + err);
+        }
+      );
   }
 
   public getCertificateSelectionAttributes(): void {

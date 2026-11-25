@@ -498,7 +498,8 @@ public final class CertificateSpecifications {
                 cv.setRequestedBy( (String) objArr[i]) ;
             }else if( "pipelineType".equalsIgnoreCase(attribute)) {
                 cv.setPipelineType( (String) objArr[i]) ;
-
+            } else if ("pipelineName".equalsIgnoreCase(attribute)) {
+                cv.setPipelineName((String) objArr[i]);
             }else {
 
                 logger.info("attribute '{}' from query added as additionalRestriction", attribute);
@@ -925,6 +926,22 @@ public final class CertificateSpecifications {
             addNewColumn(selectionList, pipelineJoin.get(Pipeline_.type));
             if (!attributeValue.trim().isEmpty()) {
                 pred = cb.and(buildPredicatePipelineType(attributeSelector, cb, pipelineJoin.get(Pipeline_.type), attributeValue));
+            }
+        } else if ("pipelineId".equals(attribute)) {
+            Join<Certificate, CSR> csrJoin = root.join(Certificate_.csr, JoinType.LEFT);
+            Join<CSR, Pipeline> pipelineJoin = csrJoin.join(CSR_.pipeline, JoinType.LEFT);
+
+            addNewColumn(selectionList, pipelineJoin.get(Pipeline_.id));
+            if (!attributeValue.trim().isEmpty()) {
+                pred = cb.and(buildPredicateLong(attributeSelector, cb, pipelineJoin.get(Pipeline_.id), attributeValue));
+            }
+        } else if ("pipelineName".equals(attribute)) {
+            Join<Certificate, CSR> csrJoin = root.join(Certificate_.csr, JoinType.LEFT);
+            Join<CSR, Pipeline> pipelineJoin = csrJoin.join(CSR_.pipeline, JoinType.LEFT);
+
+            addNewColumn(selectionList, pipelineJoin.get(Pipeline_.name));
+            if (!attributeValue.trim().isEmpty()) {
+                pred = cb.and(buildPredicateString(attributeSelector, cb, pipelineJoin.get(Pipeline_.name), attributeValue));
             }
 /*
         }else if( attribute.startsWith("ATTR_")){
