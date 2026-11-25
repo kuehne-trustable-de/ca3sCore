@@ -131,7 +131,8 @@ public class ESTService {
         }
 
         try {
-            Pkcs10RequestHolder p10Holder = csrUtil.parseCSR(csr);
+//            Pkcs10RequestHolder p10Holder = csrUtil.parseBase64CSR(new String(csr));
+            Pkcs10RequestHolder p10Holder = cryptoUtil.parseCertificateRequest(  org.bouncycastle.util.encoders.Base64.decode(csr) );
 
             Set<GeneralName> generalNameSetCSR = csrUtil.getSANList(p10Holder);
 
