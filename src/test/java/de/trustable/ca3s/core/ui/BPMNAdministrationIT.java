@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -60,12 +59,8 @@ public class BPMNAdministrationIT extends WebTestBase{
     private static final String USER_NAME_ADMIN = "admin";
     private static final String USER_PASSWORD_ADMIN = "admin";
 
-
     static File bpmnTestFile;
     static String bpmnTestContent;
-
-    @LocalServerPort
-	int serverPort; // random port chosen by spring test
 
 	@Autowired
 	PipelineTestConfiguration ptc;

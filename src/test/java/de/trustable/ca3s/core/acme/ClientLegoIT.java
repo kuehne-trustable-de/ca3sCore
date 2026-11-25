@@ -308,6 +308,7 @@ public class ClientLegoIT extends ExternalProcessITBase {
         passwordChangeDto.setApiTokenValiditySeconds(3600);
         passwordChangeDto.setApiTokenValue(tokenResponse.getTokenValue());
         passwordChangeDto.setEabKid(tokenResponse.getEabKid());
+        passwordChangeDto.setTokenResponseJws(tokenResponse.getJws());
         userService.changePassword(passwordChangeDto);
 
         LOG.info("eab kid {}, macKey {}", tokenResponse.getEabKid(), tokenResponse.getTokenValue());

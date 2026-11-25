@@ -6,18 +6,14 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.ServerSocket;
 
-import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_ACME_PREFIX;
-import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_ADMIN_PREFIX;
-import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_EST_PREFIX;
-import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_RA_PREFIX;
-import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_SCEP_PREFIX;
-import static de.trustable.ca3s.core.config.EndpointConfigs.SERVER_TLS_PREFIX;
+import static de.trustable.ca3s.core.config.EndpointConfigs.*;
 
 public class AccessPortTestManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(AccessPortTestManager.class);
 
     private int tlsAccessPort;
+    private int tlsClientAuthAccessPort;
     private int adminAccessPort;
     private int raAccessPort;
     private int acmeAccessPort;
@@ -27,6 +23,7 @@ public class AccessPortTestManager {
     public AccessPortTestManager() {
         try {
             tlsAccessPort = getFreePort();
+            tlsClientAuthAccessPort = getFreePort();
             adminAccessPort = getFreePort();
             raAccessPort = getFreePort();
             acmeAccessPort = getFreePort();
@@ -40,6 +37,7 @@ public class AccessPortTestManager {
     public void setUpEnvironment() {
 
         System.setProperty(SERVER_TLS_PREFIX + "port", "" + tlsAccessPort);
+        System.setProperty(SERVER_TLS_CLIENT_AUTH_PREFIX+ "port", "" + tlsClientAuthAccessPort);
         System.setProperty(SERVER_ADMIN_PREFIX + "port", "" + adminAccessPort);
         System.setProperty(SERVER_RA_PREFIX + "port", "" + raAccessPort);
         System.setProperty(SERVER_ACME_PREFIX + "port", "" + acmeAccessPort);
@@ -47,6 +45,7 @@ public class AccessPortTestManager {
         System.setProperty(SERVER_EST_PREFIX + "port", "" + estAccessPort);
 
         System.setProperty(SERVER_TLS_PREFIX + "https", "false");
+        System.setProperty(SERVER_TLS_CLIENT_AUTH_PREFIX+ "https", "true");
         System.setProperty(SERVER_ADMIN_PREFIX + "https", "false");
         System.setProperty(SERVER_RA_PREFIX + "https", "false");
         System.setProperty(SERVER_ACME_PREFIX + "https", "false");
@@ -58,6 +57,7 @@ public class AccessPortTestManager {
     public void setUpEnvironmentTLS() {
         setUpEnvironment();
         System.setProperty(SERVER_TLS_PREFIX + "https", "true");
+        System.setProperty(SERVER_TLS_CLIENT_AUTH_PREFIX+ "https", "true");
         System.setProperty(SERVER_ADMIN_PREFIX + "https", "true");
         System.setProperty(SERVER_RA_PREFIX + "https", "true");
         System.setProperty(SERVER_ACME_PREFIX + "https", "true");
@@ -68,6 +68,7 @@ public class AccessPortTestManager {
     public void setUpEnvironmentSinglePort() {
 
         System.setProperty(SERVER_TLS_PREFIX + "port", "" + tlsAccessPort);
+        System.setProperty(SERVER_TLS_CLIENT_AUTH_PREFIX+ "port", "" + tlsClientAuthAccessPort);
         System.setProperty(SERVER_ADMIN_PREFIX + "port", "" + tlsAccessPort);
         System.setProperty(SERVER_RA_PREFIX + "port", "" + tlsAccessPort);
         System.setProperty(SERVER_ACME_PREFIX + "port", "" + tlsAccessPort);
@@ -85,6 +86,7 @@ public class AccessPortTestManager {
 
     public void tearDownEnvironment(){
         System.clearProperty(SERVER_TLS_PREFIX + "port");
+        System.clearProperty(SERVER_TLS_CLIENT_AUTH_PREFIX+ "port");
         System.clearProperty(SERVER_ADMIN_PREFIX + "port");
         System.clearProperty(SERVER_RA_PREFIX + "port");
         System.clearProperty(SERVER_ACME_PREFIX + "port");
@@ -92,6 +94,7 @@ public class AccessPortTestManager {
         System.clearProperty(SERVER_EST_PREFIX + "port");
 
         System.clearProperty(SERVER_TLS_PREFIX + "https");
+        System.clearProperty(SERVER_TLS_CLIENT_AUTH_PREFIX+ "https");
         System.clearProperty(SERVER_ADMIN_PREFIX + "https");
         System.clearProperty(SERVER_RA_PREFIX + "https");
         System.clearProperty(SERVER_ACME_PREFIX + "https");

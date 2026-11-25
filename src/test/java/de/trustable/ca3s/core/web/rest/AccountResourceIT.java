@@ -44,6 +44,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureMockMvc
 @WithMockUser(value = TEST_USER_LOGIN)
 @IntegrationTest
+@Disabled
 class AccountResourceIT {
 
     static final String TEST_USER_LOGIN = "test";

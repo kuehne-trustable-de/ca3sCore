@@ -5,6 +5,7 @@ import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.service.util.CryptoService;
 import de.trustable.ca3s.core.service.util.KeyUtil;
+import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.ca3s.est.ESTClientWrapper;
 import de.trustable.ca3s.est.OutcomeInfo;
 import de.trustable.util.CryptoUtil;
@@ -102,6 +103,8 @@ public class LibESTClientIT {
 
     static ESTClientWrapper estClientWrapper;
 
+    static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
+
     @Autowired
     PipelineTestConfiguration ptc;
 
@@ -158,9 +161,14 @@ public class LibESTClientIT {
     public static void setUpBeforeClass() throws IOException {
         JCAManager.getInstance();
 
+        accessPortTestManager.setUpEnvironmentTLS();
+
+        serverPort = accessPortTestManager.getEstAccessPort();
+/*
         serverPort = TestSocketUtils.findAvailableTcpPort();
         System.setProperty(SERVER_EST_PREFIX + "port", "" + serverPort);
-
+        System.setProperty(SERVER_EST_PREFIX + "port", "" + serverPort);
+*/
         hostFQDN = InetAddress.getLocalHost().getHostName();
 
         estClientWrapper = new ESTClientWrapper();

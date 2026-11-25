@@ -19,6 +19,7 @@ import de.trustable.ca3s.core.service.dto.CredentialUpdateType;
 import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
 import de.trustable.ca3s.core.service.util.JwtUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
+import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.ca3s.core.web.rest.ApiTokenController;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
 import de.trustable.ca3s.core.service.dto.TokenResponse;
@@ -75,9 +76,6 @@ public class AcmeHappyPathIT {
     private static final Logger LOG = LoggerFactory.getLogger(AcmeHappyPathIT.class);
     public static final String TEST_USER = "user1";
 
-    @LocalServerPort
-	int serverPort; // random port chosen by spring test
-
     final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
     final String ACME_DOMAIN_REUSE_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_DOMAIN_REUSE + "/directory";
     final String ACME_DOMAIN_REUSE_WARN_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM_DOMAIN_REUSE_WARN + "/directory";
@@ -127,13 +125,24 @@ public class AcmeHappyPathIT {
     @Autowired
     AcmeAccountRepository acmeAccountRepository;
 
+    static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
+
+    @BeforeAll
+    public static void setUpBeforeClass() {
+        JCAManager.getInstance();
+        accessPortTestManager.setUpEnvironment();
+
+    }
+
     @BeforeEach
 	void init() {
+
         TimedRenewalCertMap certMap = new TimedRenewalCertMap(null, new Ca3sFallbackBundleFactory("O=test trustable solutions, C=DE", 1, keyGenerationService));
         Security.addProvider(new Ca3sKeyStoreProvider(certMap, "ca3s"));
         Security.addProvider(new Ca3sKeyManagerProvider(certMap));
         new TimedRenewalCertMapHolder().setCertMap(certMap);
 
+        int serverPort = accessPortTestManager.getAcmeAccessPort();
         dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
         dirUrlDomainReuse  = "http://localhost:" + serverPort + ACME_DOMAIN_REUSE_PATH_PART;
         dirUrlDomainReuseWarn  = "http://localhost:" + serverPort + ACME_DOMAIN_REUSE_WARN_PATH_PART;
@@ -159,13 +168,6 @@ public class AcmeHappyPathIT {
         int port = prefTC.getHttpChallengePort();
         LOG.info("http challenge on port {}", port);
         httpChallengeHelper = new HttpChallengeHelper(port);
-	}
-
-
-	@BeforeAll
-	public static void setUpBeforeClass() {
-
-		JCAManager.getInstance();
 	}
 
 

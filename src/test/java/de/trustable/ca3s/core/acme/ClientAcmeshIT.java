@@ -7,8 +7,11 @@ import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.service.UserService;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
+import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.ca3s.core.web.rest.ApiTokenController;
+import de.trustable.util.JCAManager;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -41,9 +44,6 @@ public class ClientAcmeshIT extends ExternalProcessITBase {
     @TempDir
     Path directory;
 
-    @LocalServerPort
-	int serverPort; // random port chosen by spring test
-
 	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
     final String ACME_EAB_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_EAB_REALM + "/directory";
 
@@ -68,13 +68,21 @@ public class ClientAcmeshIT extends ExternalProcessITBase {
     @Autowired
     UserService userService;
 
+    static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
+
+
+    @BeforeAll
+    public static void setUpBeforeClass() {
+        accessPortTestManager.setUpEnvironment();
+        JCAManager.getInstance();
+    }
     @BeforeEach
 	void init() throws IOException {
         ptc.getInternalACMETestPipelineLaxRestrictions();
 
         hostname = InetAddress.getLocalHost().getHostName().toLowerCase();
-		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
-        dirUrlEAB  = "http://localhost:" + serverPort + ACME_EAB_PATH_PART;
+		dirUrl = "http://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_PATH_PART;
+        dirUrlEAB  = "http://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_EAB_PATH_PART;
 
         ptc.getInternalACMETestPipelineLaxRestrictions();
         ptc.getInternalACMETestPipelineEabRestrictions();

@@ -13,6 +13,7 @@ import de.trustable.ca3s.core.service.util.ProtectedContentUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
 import de.trustable.ca3s.core.test.util.AcceptAllCertSelector;
 import de.trustable.ca3s.core.test.util.AcceptAllVerifier;
+import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.ca3s.core.test.util.X509Certificates;
 import de.trustable.ca3s.core.web.html.NDESPasswordController;
 import de.trustable.ca3s.core.web.rest.AccountResource;
@@ -66,11 +67,11 @@ import java.util.regex.Pattern;
 @SpringBootTest(classes = Ca3SApp.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("dev")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-public class ScepServiceIT {
+public class
+ScepServiceIT {
 
     public static final Logger LOG = LogManager.getLogger(ScepServiceIT.class);
 
-    @LocalServerPort
     int serverPort; // random port chosen by spring test
 
     static KeyPair keyPair;
@@ -104,6 +105,8 @@ public class ScepServiceIT {
     @Autowired
     AccountResource accountResource;
 
+    static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
+
     CertificateVerifier acceptAllVerifier = new AcceptAllVerifier();
 
     Client client;
@@ -116,11 +119,14 @@ public class ScepServiceIT {
     @BeforeAll
     public static void setUpBeforeClass() throws Exception {
         JCAManager.getInstance();
+        accessPortTestManager.setUpEnvironment();
     }
 
 
     @BeforeEach
     public void setUp() throws MalformedURLException, GeneralSecurityException {
+
+        serverPort = accessPortTestManager.getScepAccessPort();
 
         keyPair = keyUtil.createKeyPair();
         ephemeralKeyPair = keyUtil.createKeyPair();

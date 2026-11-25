@@ -3,6 +3,7 @@ package de.trustable.ca3s.core.acme;
 import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
+import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.util.JCAManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -45,9 +46,6 @@ public class AcmeRestrictionsIT {
     private static final Logger LOG = LoggerFactory.getLogger(AcmeRestrictionsIT.class);
     public static final String MAILTO_VALID_CA_3_S_ORG = "mailto:valid@ca3s.org";
 
-    @LocalServerPort
-	int serverPort; // random port chosen by spring test
-
 	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME1CNNOIP_REALM + "/directory";
 	String dirUrl;
 
@@ -57,18 +55,22 @@ public class AcmeRestrictionsIT {
     @Autowired
     PreferenceTestConfiguration prefTC;
 
+    static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
+
+    @BeforeAll
+    public static void setUpBeforeClass() {
+        accessPortTestManager.setUpEnvironment();
+        JCAManager.getInstance();
+    }
+
     @BeforeEach
 	void init() {
-		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
+		dirUrl = "http://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_PATH_PART;
 		ptc.getInternalACMETestPipelineLaxRestrictions();
 		ptc.getInternalACMETestPipeline_1_CN_ONLY_NO_IP_Restrictions();
-        prefTC.getTestUserPreference(serverPort);
+        prefTC.getTestUserPreference(accessPortTestManager.getAcmeAccessPort());
 	}
 
-	@BeforeAll
-	public static void setUpBeforeClass() {
-		JCAManager.getInstance();
-	}
 
     @Test
     public void testAccountHandlingRejectedEMail() throws AcmeException {

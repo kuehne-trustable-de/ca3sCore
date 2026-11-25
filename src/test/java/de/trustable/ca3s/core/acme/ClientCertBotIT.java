@@ -1,7 +1,6 @@
 package de.trustable.ca3s.core.acme;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.*;
 import java.net.InetAddress;
@@ -21,11 +20,14 @@ import de.trustable.ca3s.core.service.dto.CredentialUpdateType;
 import de.trustable.ca3s.core.service.dto.PasswordChangeDTO;
 import de.trustable.ca3s.core.service.util.CertificateUtil;
 import de.trustable.ca3s.core.service.util.UserUtil;
+import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.ca3s.core.web.rest.ApiTokenController;
 import de.trustable.ca3s.core.web.rest.vm.TokenRequest;
 import de.trustable.ca3s.core.service.dto.TokenResponse;
 import de.trustable.util.CryptoUtil;
+import de.trustable.util.JCAManager;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
@@ -56,9 +58,6 @@ public class ClientCertBotIT extends ExternalProcessITBase {
     @TempDir
     Path directory;
 
-    @LocalServerPort
-	int serverPort; // random port chosen by spring test
-
 	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
     final String ACME_EAB_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_EAB_REALM + "/directory";
 
@@ -83,13 +82,21 @@ public class ClientCertBotIT extends ExternalProcessITBase {
     @Autowired
     UserService userService;
 
+    static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
+
+    @BeforeAll
+    public static void setUpBeforeClass() {
+        accessPortTestManager.setUpEnvironment();
+        JCAManager.getInstance();
+    }
+
     @BeforeEach
 	void init() throws IOException {
         ptc.getInternalACMETestPipelineLaxRestrictions();
 
         hostname = InetAddress.getLocalHost().getHostName().toLowerCase();
-		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
-        dirUrlEAB  = "http://localhost:" + serverPort + ACME_EAB_PATH_PART;
+		dirUrl = "http://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_PATH_PART;
+        dirUrlEAB  = "http://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_EAB_PATH_PART;
 
         ptc.getInternalACMETestPipelineLaxRestrictions();
         ptc.getInternalACMETestPipelineEabRestrictions();
@@ -197,6 +204,7 @@ public class ClientCertBotIT extends ExternalProcessITBase {
             passwordChangeDto.setApiTokenValiditySeconds(3600);
             passwordChangeDto.setApiTokenValue(tokenResponse.getTokenValue());
             passwordChangeDto.setEabKid(tokenResponse.getEabKid());
+            passwordChangeDto.setTokenResponseJws(tokenResponse.getJws());
             userService.changePassword( passwordChangeDto);
 
             LOG.info("eab kid {}, macKey {}", tokenResponse.getEabKid(), tokenResponse.getTokenValue());

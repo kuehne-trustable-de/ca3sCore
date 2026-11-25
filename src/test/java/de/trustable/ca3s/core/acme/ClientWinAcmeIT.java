@@ -65,9 +65,6 @@ public class ClientWinAcmeIT extends ExternalProcessITBase {
     String dirUrl;
     String dirUrlEAB;
 
-    @LocalServerPort
-    int serverPort; // random port chosen by spring test
-
     @Autowired
     PipelineTestConfiguration ptc;
 
@@ -95,7 +92,7 @@ public class ClientWinAcmeIT extends ExternalProcessITBase {
         factory = CertificateFactory.getInstance("X.509");
         accessPortTestManager.setUpEnvironmentTLS();
 
-        accessPortTestManager.setUpEnvironmentSinglePort();
+        accessPortTestManager.setUpEnvironment();
 
     }
 

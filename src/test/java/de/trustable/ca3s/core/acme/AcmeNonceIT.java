@@ -4,6 +4,7 @@ import de.trustable.ca3s.core.Ca3SApp;
 import de.trustable.ca3s.core.PipelineTestConfiguration;
 import de.trustable.ca3s.core.PreferenceTestConfiguration;
 import de.trustable.ca3s.core.service.dto.acme.DirectoryResponse;
+import de.trustable.ca3s.core.test.util.AccessPortTestManager;
 import de.trustable.util.JCAManager;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -34,9 +35,6 @@ public class AcmeNonceIT {
 
     private static final Logger LOG = LoggerFactory.getLogger(AcmeNonceIT.class);
 
-    @LocalServerPort
-	int serverPort; // random port chosen by spring test
-
 	final String ACME_PATH_PART = "/acme/" + PipelineTestConfiguration.ACME_REALM + "/directory";
 	String dirUrl;
     DirectoryResponse response;
@@ -47,9 +45,17 @@ public class AcmeNonceIT {
     @Autowired
     PreferenceTestConfiguration prefTC;
 
+    static AccessPortTestManager accessPortTestManager = new AccessPortTestManager();
+
+    @BeforeAll
+    public static void setUpBeforeClass() {
+        accessPortTestManager.setUpEnvironment();
+        JCAManager.getInstance();
+    }
+
     @BeforeEach
 	void init() {
-		dirUrl = "http://localhost:" + serverPort + ACME_PATH_PART;
+		dirUrl = "http://localhost:" + accessPortTestManager.getAcmeAccessPort() + ACME_PATH_PART;
         LOG.info("ptc: {}", ptc);
         try {
             ptc.getInternalACMETestPipelineLaxRestrictions();
@@ -63,11 +69,6 @@ public class AcmeNonceIT {
         }catch( Exception ex ){
             ex.printStackTrace();
         }
-    }
-
-	@BeforeAll
-	public static void setUpBeforeClass() {
-		JCAManager.getInstance();
     }
 
     @AfterAll
