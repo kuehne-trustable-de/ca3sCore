@@ -192,11 +192,14 @@ public class CertificateAttribute implements Serializable {
 
 	public static final String ATTRIBUTE_CRL_URL = "CRL_URL";
 
-	public static final String ATTRIBUTE_CRL_NEXT_UPDATE = "CRL_NEXT_UPDATE";
+    public static final String ATTRIBUTE_CRL_NEXT_UPDATE = "CRL_NEXT_UPDATE";
     public static final String ATTRIBUTE_CRL_CREATION = "ATTRIBUTE_CRL_CREATION";
     public static final String ATTRIBUTE_CRL_EXPIRY = "ATTRIBUTE_CRL_EXPIRY";
 
-	public static final String ATTRIBUTE_OCSP_URL = "OCSP_URL";
+    public static final String ATTRIBUTE_ISSUED_CRL_NEXT_UPDATE = "ISSUED_CRL_NEXT_UPDATE";
+    public static final String ATTRIBUTE_ISSUED_CRL_CREATION = "ISSUED_CRL_CREATION";
+
+    public static final String ATTRIBUTE_OCSP_URL = "OCSP_URL";
 
 	public static final String ATTRIBUTE_POLICY_ID = "POLICY_ID";
 

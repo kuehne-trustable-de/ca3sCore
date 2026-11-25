@@ -405,10 +405,16 @@ public class CertificateDownloadController {
         TypedValue typedValue = new TypedValue(login);
         certAttributeArr[0].setValues(new TypedValue[]{typedValue});
 
-        List<Pipeline> pipelineList = pipelineRepository.findByAttributePresent(PipelineUtil.CAN_ISSUE_2_FACTOR_CLIENT_CERTS);
+        List<Pipeline> pipelineList = pipelineRepository.findByAttributeValue(PipelineUtil.CAN_ISSUE_2_FACTOR_CLIENT_CERTS, "true");
         if( pipelineList.isEmpty() ){
             throw new UnauthorizedException("No pipeline defined for second factor client certificate creation");
+        }else if(pipelineList.size() > 1){
+            LOG.warn("More than one ({}) pipelines defined for second factor client certificate creation",
+                pipelineList.size());
         }
+
+        LOG.debug("Pipeline {} selected for second factor client certificate creation",
+            pipelineList.get(0).getName());
 
         return certificateServiceImpl.createServersideKeyAndCertificate(Optional.of(pipelineList.get(0)),
             KeyAlgoLengthOrSpec.RSA_4096,

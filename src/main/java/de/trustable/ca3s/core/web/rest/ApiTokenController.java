@@ -66,19 +66,22 @@ public class ApiTokenController {
         User user = userUtil.getUserByLogin(authentication.getName());
         TokenResponse tokenResponse = new TokenResponse();
 
-        tokenResponse.setCredentialType(tokenRequest.getCredentialType());
         tokenResponse.setValiditySeconds( tokenRequest.getValiditySeconds());
         switch( tokenRequest.getCredentialType()){
             case API_TOKEN:
+                tokenResponse.setCredentialType(AccountCredentialsType.API_TOKEN);
                 tokenResponse.setTokenValue(randomUtil.generateApiToken() + "." + AccountCredentialsType.API_TOKEN + "." + user.getId());
                 break;
             case SCEP_TOKEN:
+                tokenResponse.setCredentialType(AccountCredentialsType.SCEP_TOKEN);
                 tokenResponse.setTokenValue(randomUtil.generateScepToken());
                 break;
             case EST_TOKEN:
+                tokenResponse.setCredentialType(AccountCredentialsType.EST_TOKEN);
                 tokenResponse.setTokenValue(randomUtil.generateApiToken());
                 break;
             case EAB_PASSWORD:
+                tokenResponse.setCredentialType(AccountCredentialsType.EAB_PASSWORD);
                 tokenResponse.setTokenValue(randomUtil.generateMacKey());
                 tokenResponse.setEabKid(eabKidPrefix + ":" + user.getLogin() + ":" + randomUtil.generateKidId());
                 break;

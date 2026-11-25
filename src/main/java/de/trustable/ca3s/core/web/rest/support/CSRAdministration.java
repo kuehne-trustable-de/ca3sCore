@@ -169,6 +169,8 @@ public class CSRAdministration {
                     leftUsages);
 
     			if(cert != null) {
+
+                    // moigrate to separate transaction
                     asyncNotificationService.notifyInterestedPartiesByEMail(cert, csr);
 
                     CSRAdministrationResponse csrAdministrationResponse = new CSRAdministrationResponse();

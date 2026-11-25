@@ -192,7 +192,7 @@ public class BPMNUpDownloadController {
 
         Optional<CSR> csrOpt = csrRepository.findById(Long.parseLong(csrId));
 
-        CAConnectorConfig caConfig = caConnectorConfigRepository.getOne(1L);
+        CAConnectorConfig caConfig = caConnectorConfigRepository.getReferenceById(1L);
 
         ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkCertificateCreationProcess(csrOpt.get(), caConfig, processId);
 
@@ -240,7 +240,7 @@ public class BPMNUpDownloadController {
 
         Optional<Certificate> certificateOptional = certificateRepository.findById(Long.parseLong(certificateId));
 
-        CAConnectorConfig caConfig = caConnectorConfigRepository.getOne(1L);
+        CAConnectorConfig caConfig = caConnectorConfigRepository.getReferenceById(1L);
 
         ProcessInstanceWithVariables processInstanceWithVariables = bpmnUtil.checkCertificateNotificationProcess(certificateOptional.get(), caConfig, processId);
 

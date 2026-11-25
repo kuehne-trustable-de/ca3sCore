@@ -154,7 +154,7 @@ public class CertExpiryScheduler {
                     brokenCrlUrlList);
 
                 if( !crlInfo.isbCRLDownloadSuccess() ) {
-                    LOG.info("Downloading all CRL #{} for certificate {} failed", crlInfo.getCrlUrlCount(), cert.getId());
+                    LOG.info("Downloading any CRL #{} for certificate {} failed", crlInfo.getCrlUrlCount(), cert.getId());
                 }
 
             }catch(GeneralSecurityException gse){
@@ -266,6 +266,17 @@ public void updateRevocationStatus2() {
             if( CrlEndpointStatus.OK == crlUrlStatus.getCrlEndpointStatus()) {
                 String crlUrl = crlUrlStatus.getCrlUrl();
                 X509CRL crl = crlUrlStatus.getCrl();
+
+                List<Certificate> rawIssuingCertList = certificateRepo.findCACertByIssuer(crl.getIssuerX500Principal().getName());
+                for( Certificate issuer: rawIssuingCertList){
+
+                    // set the crl's 'next update' timestamp to the issuing certificate
+                    certUtil.setCertAttribute(issuer, CertificateAttribute.ATTRIBUTE_ISSUED_CRL_NEXT_UPDATE, Long.toString(crl.getNextUpdate().getTime()), false);
+                    certUtil.setCertAttribute(issuer, CertificateAttribute.ATTRIBUTE_ISSUED_CRL_CREATION, Long.toString(crl.getThisUpdate().getTime()), false);
+
+                    LOG.info("CRL for issuing cert {} was issued on {}, valid until {}",
+                        issuer.getSubject(), crl.getThisUpdate(), crl.getNextUpdate());
+                }
 
                 Set<? extends X509CRLEntry> crlEntrySet = crl.getRevokedCertificates();
                 if (crlEntrySet != null) {

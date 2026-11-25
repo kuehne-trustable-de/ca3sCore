@@ -264,6 +264,9 @@ public class CertificateView implements Serializable {
     private Instant crlNextUpdate;
 
     @CsvIgnore
+    private Instant crlCreation;
+
+    @CsvIgnore
     private boolean allowCrlOnHold;
 
     @CsvIgnore
@@ -456,8 +459,12 @@ public class CertificateView implements Serializable {
                     this.rdn_s = certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_VALIDITY_PERIOD.equalsIgnoreCase(certAttr.getName())) {
                     this.validitySeconds = Long.parseLong(certAttr.getValue());
-                } else if (CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE.equalsIgnoreCase(certAttr.getName())) {
+//                } else if (CertificateAttribute.ATTRIBUTE_CRL_NEXT_UPDATE.equalsIgnoreCase(certAttr.getName())) {
+//                    this.crlNextUpdate = Instant.ofEpochMilli(Long.parseLong(certAttr.getValue()));
+                } else if (CertificateAttribute.ATTRIBUTE_ISSUED_CRL_NEXT_UPDATE.equalsIgnoreCase(certAttr.getName())) {
                     this.crlNextUpdate = Instant.ofEpochMilli(Long.parseLong(certAttr.getValue()));
+                } else if (CertificateAttribute.ATTRIBUTE_ISSUED_CRL_CREATION.equalsIgnoreCase(certAttr.getName())) {
+                    this.crlCreation = Instant.ofEpochMilli(Long.parseLong(certAttr.getValue()));
                 } else if (CertificateAttribute.ATTRIBUTE_ACME_ACCOUNT_ID.equalsIgnoreCase(certAttr.getName())) {
                     this.acmeAccountId = certAttr.getValue();
                 } else if (CertificateAttribute.ATTRIBUTE_ACME_ORDER_ID.equalsIgnoreCase(certAttr.getName())) {
@@ -837,7 +844,11 @@ public class CertificateView implements Serializable {
 		return crlNextUpdate;
 	}
 
-	public void setSelfsigned(Boolean selfsigned) {
+    public Instant getCrlCreation() {
+        return crlCreation;
+    }
+
+    public void setSelfsigned(Boolean selfsigned) {
 		this.selfsigned = selfsigned;
 	}
 

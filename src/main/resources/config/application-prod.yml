@@ -157,10 +157,10 @@ spring:
     allow-circular-references: true
 
   # The basic settings for outbound email support
-  #additioanl email-related setting are located at 'jhipster.mail'
+  #additional email-related setting are located at 'jhipster.mail'
   mail:
-    host: smtp.freesmtpservers.com
-    port: 25
+    host: localhost
+    port: 5000
     username:
     password:
 
@@ -195,7 +195,7 @@ spring:
 # ===================================================================
 server:
   #  port: 8443
-  port: 18080
+  port: 19080
   compression:
     enabled: true
     mime-types: text/html,text/xml,text/plain,text/css, application/javascript, application/json
@@ -305,7 +305,7 @@ ca3s:
     external:
       port: 8442
       #    host: ca3s.test.de
-      host: laptop-2iguatf5
+      host: akuehne-ThinkPad-E16-Gen-1
 
   # settings for ra user access
   #  raAccess:
@@ -478,7 +478,7 @@ ca3s:
   https:
     certificate:
       dnSuffix: O=Trustable Solutions,OU=CA3S Instance,C=DE
-      sans: ca3s.org, www.ca3s.org, ca3s.test.de
+      sans: ca3s.org, www.ca3s.org, ca3s.test.de, akuehne-ThinkPad-E16-Gen-1
       persist: DB
 
   #  certificateSelectionAttributes: Foo,Bar,Baz
@@ -531,7 +531,7 @@ ca3s:
 
     # provide the endpoint for the assertion callback
     entity:
-      base-url: http://akuehne-ThinkPad-E16-Gen-1:18080
+      base-url: http://akuehne-ThinkPad-E16-Gen-1:19080
 
     roles:
       user: '*'

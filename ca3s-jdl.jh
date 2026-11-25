@@ -176,10 +176,26 @@ entity ProtectedContent{
 @skipClient
 entity CRLExpirationNotification{
 
-  	crlUrl String required
-  	notifyBefore Duration required
-	notifyUntil Instant required
+    crlUrl String required
+    notifyBefore Duration required
+    notifyUntil Instant required
 
+}
+
+@skipClient
+entity CrlEndpoint{
+
+    crlUrl String required
+    status CrlEndpointStatus required
+    errorMsg String
+    createdOn Instant
+    nextUpdate Instant
+}
+
+enum CrlEndpointStatus {
+    OK,
+    EXPIRED,
+    ACCESS_ERROR
 }
 
 enum TimedElementNotificationType {
@@ -582,6 +598,7 @@ relationship ManyToOne {
     CAConnectorConfig{tlsAuthentication} to Certificate
     CAConnectorConfig{messageProtection} to Certificate
 
+    CrlEndpoint{issuingCertificate} to Certificate
 }
 
 relationship ManyToMany {

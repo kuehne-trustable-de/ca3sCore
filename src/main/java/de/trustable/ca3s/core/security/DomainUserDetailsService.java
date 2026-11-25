@@ -70,7 +70,7 @@ public class DomainUserDetailsService implements UserDetailsService {
             List<GrantedAuthority> grantedAuthorities = getGrantedAuthorities(user);
 
             return new org.springframework.security.core.userdetails.User(username,
-                RandomStringUtils.random(16),
+                RandomStringUtils.secure().next(16),
                 grantedAuthorities);
         } catch (NamingException e) {
             log.warn("Problem accessing LDAP", e);

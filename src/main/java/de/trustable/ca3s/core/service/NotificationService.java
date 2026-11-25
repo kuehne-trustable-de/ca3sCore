@@ -48,6 +48,7 @@ public class NotificationService {
     private final AuditService auditService;
     private final int nDaysExpiryEE;
     private final int nDaysExpiryCA;
+    private final int nDaysExpiryCRL;
     private final int nDaysPending;
     private final List<Integer> notificationDayList;
     private final boolean notifyUserOnly;
@@ -75,6 +76,7 @@ public class NotificationService {
                                AuditService auditService,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ee:30}") int nDaysExpiryEE,
                                @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.ca:90}")int nDaysExpiryCA,
+                               @Value("${ca3s.schedule.ra-officer-notification.days-before-expiry.crl:10}")int nDaysExpiryCRL,
                                @Value("${ca3s.schedule.ra-officer-notification.days-pending:30}") int nDaysPending,
                                @Value("${ca3s.schedule.requestor.notification.days:30,14,7,6,5,4,3,2,1}") String notificationDays, ProtectedContentUtil protectedContentUtil,
                                @Value("${ca3s.schedule.requestor.notification.user-only:false}") boolean notifyUserOnly,
@@ -100,6 +102,7 @@ public class NotificationService {
         this.auditService = auditService;
         this.nDaysExpiryEE = nDaysExpiryEE;
         this.nDaysExpiryCA = nDaysExpiryCA;
+        this.nDaysExpiryCRL = nDaysExpiryCRL;
         this.nDaysPending = nDaysPending;
         this.caConnectorConfigRepository = caConnectorConfigRepository;
         this.pipelineRepository = pipelineRepository;
@@ -143,6 +146,41 @@ public class NotificationService {
 
         Instant now = Instant.now();
         Instant beforeEE = now.plus(nDaysExpiryEE, ChronoUnit.DAYS);
+        Instant beforeCRL = now.plus(nDaysExpiryCRL, ChronoUnit.DAYS);
+
+        StateOverview stateOverviewCRL = new StateOverview();
+        List<NameMessages> crlMsgList = new ArrayList<>();
+
+        List<Certificate> certificateList = certificateRepo.findActiveByAttribute(CertificateAttribute.ATTRIBUTE_ISSUED_CRL_NEXT_UPDATE);
+        LOG.info("#{} certificates having a ISSUED_CRL_NEXT_UPDATE attribute", certificateList.size());
+        for( Certificate cert : certificateList){
+            if( cert.isSelfsigned()){
+                stateOverviewCRL.incAll();
+
+                String updateDateAsString = certificateUtil.getCertAttribute(cert,CertificateAttribute.ATTRIBUTE_ISSUED_CRL_NEXT_UPDATE);
+                if( updateDateAsString == null){
+                    LOG.info("certificate {} has a ISSUED_CRL_NEXT_UPDATE attribute with the value 'NULL'", cert.getId());
+                    continue;
+                }
+
+                try{
+                    Instant crlExpiry = Instant.ofEpochMilli(Long.parseLong(updateDateAsString));
+                    if( beforeCRL.isAfter(crlExpiry) ){
+                        LOG.info("certificate {} has a CRL about to expire soon, on {}", cert.getId(), crlExpiry);
+
+                        crlMsgList.add(new NameMessages(cert.getSubject(),
+                            "email.co.crlExpiryApproaching",
+                            now));
+
+                        stateOverviewCRL.incExpiringSoon();
+                    }
+
+                }catch( NumberFormatException nfe){
+                    LOG.info("certificates {} has a ISSUED_CRL_NEXT_UPDATE attribute with the value unexpected value, parsing throws NFE {}",
+                        cert.getId(), nfe.getMessage());
+                }
+            }
+        }
 
         StateOverview stateOverviewConnector = new StateOverview();
         List<NameMessages> connectorMsgList = new ArrayList<>();
