@@ -68,6 +68,7 @@ public class EndpointConfigs {
         if( estPort != httpsClientAuthPort) {
             estEndpointConfig = this.addConfig(estPort,
                 getHTTPSForUsage(env, SERVER_EST_PREFIX, true),
+                true,
                 getBindingHostForUsage(env, SERVER_EST_PREFIX, tlsEndpointConfig.getBindingHost()), "EST Port");
         }else{
             estEndpointConfig = tlsEndpointConfig;

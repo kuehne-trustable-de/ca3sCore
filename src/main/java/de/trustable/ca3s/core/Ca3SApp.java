@@ -9,8 +9,13 @@ import de.trustable.ca3s.core.config.EndpointConfigs;
 import de.trustable.ca3s.core.security.provider.*;
 import de.trustable.ca3s.core.service.KeyGenerationService;
 import de.trustable.util.JCAManager;
-import io.undertow.Undertow;
+import org.apache.catalina.LifecycleEvent;
+import org.apache.catalina.Server;
+import org.apache.catalina.connector.Connector;
+import org.apache.catalina.security.TLSCertificateReloadListener;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.tomcat.util.net.SSLHostConfig;
+import org.apache.tomcat.util.net.SSLHostConfigCertificate;
 import org.bouncycastle.pqc.jcajce.provider.BouncyCastlePQCProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,28 +25,21 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.liquibase.LiquibaseProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.embedded.undertow.UndertowBuilderCustomizer;
-import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
-import org.xnio.Options;
-import org.xnio.SslClientAuthMode;
+
 import tech.jhipster.config.JHipsterConstants;
 
-import javax.net.ssl.KeyManager;
-import javax.net.ssl.KeyManagerFactory;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
+import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.GeneralSecurityException;
-import java.security.KeyStore;
-import java.security.Provider;
-import java.security.Security;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -192,6 +190,10 @@ public class Ca3SApp implements InitializingBean {
             log.warn("Value of '{}' not parseable, using 80%", HTTPS_CERTIFICATE_RENEWAL_PERCENTAGE);
         }
 
+
+        Security.addProvider(
+            new Ca3sTrustManagerProvider(new Ca3sTrustManagerProviderSpi(ca3sTrustManager)));
+
         TimedRenewalCertMap certMap = new TimedRenewalCertMap(null,
             new Ca3sFallbackBundleFactory(dnSuffix, fallbackCertValidity, keyGenerationService));
 
@@ -219,6 +221,198 @@ public class Ca3SApp implements InitializingBean {
 
     }
 
+    @Bean
+    public TomcatServletWebServerFactory embeddedServletContainerFactory() {
+
+        registerJCEProvider();
+
+        TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
+
+        SSLHostConfig sslConfig = buildSSLHostConfig(false);
+        SSLHostConfig sslConfigClientAuth = buildSSLHostConfig(true);
+
+        for( EndpointConfig epc : endpointConfigs.getPortConfigMap().values()) {
+            Connector connector = createHttpConnector(epc);
+
+            if( epc.isHttps()) {
+                if(epc.isClientAuth()){
+                    connector.addSslHostConfig(sslConfigClientAuth);
+                }else {
+                    connector.addSslHostConfig(sslConfig);
+                }
+            }
+
+            factory.addAdditionalTomcatConnectors(connector);
+        }
+
+        TLSCertificateReloadListener listener = new Ca3sTomcatTLSCertificateReloadListener();
+
+        listener.setDaysBefore(14);
+        listener.setCheckPeriod(60);
+
+        factory.addContextLifecycleListeners();
+
+        return factory;
+    }
+
+
+    private Connector createHttpConnector(EndpointConfig epc) {
+
+        log.debug("Opening port for '{}' on #{} using https {} requiring client authentication {}", epc.getUsageDescription(), epc.getPort(), epc.isHttps(), epc.isClientAuth());
+        Connector connector =
+            new Connector(
+                "org.apache.coyote.http11.Http11NioProtocol"
+            );
+
+        connector.setPort(epc.getPort());
+        if( epc.isHttps()) {
+            connector.setSecure(true);
+            connector.setScheme("https");
+            connector.setProperty(
+                "SSLEnabled",
+                "true"
+            );
+        }else{
+            connector.setSecure(false);
+            connector.setScheme("http");
+        }
+
+        return connector;
+    }
+
+    private SSLHostConfig buildSSLHostConfig( boolean isClientAuth){
+
+        SSLHostConfig ssl = new SSLHostConfig();
+
+/*
+                ssl.setProtocols(
+                    "TLSv1.2,TLSv1.3"
+                );
+*/
+        ssl.setCiphers(
+            "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256," +
+                "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384," +
+                "TLS_AES_128_GCM_SHA256," +
+                "TLS_AES_256_GCM_SHA384"
+        );
+
+        if (isClientAuth) {
+            /*
+             * mTLS
+             */
+            ssl.setCertificateVerificationAsString(
+                "required"
+//                "optional"
+            );
+
+        }
+
+        org.apache.tomcat.util.net.SSLContext tomcatContext;
+        SSLContext jsseContext;
+
+        X509KeyManager x509KeyManager;
+
+        try {
+
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(Ca3sKeyManagerProvider.SERVICE_NAME);
+            KeyManager[] keyManagers = keyManagerFactory.getKeyManagers();
+            x509KeyManager = (X509KeyManager)(keyManagers[0]);
+/*
+            jsseContext = SSLContext.getInstance("TLS");
+
+            jsseContext.init(
+                keyManagers,
+                new TrustManager[] { ca3sClientCertTrustManager },
+                null
+            );
+
+            tomcatContext =
+                SSLUtil.createSSLContext(
+                    jsseContext,
+                    (X509KeyManager)(keyManagers[0]),
+                    (X509TrustManager)ca3sClientCertTrustManager
+                );
+*/
+        } catch (GeneralSecurityException e) {
+            throw new IllegalStateException(
+                "Unable to initialize TLS", e);
+        }
+
+        SSLHostConfigCertificate certificate =
+            new SSLHostConfigCertificate(
+                ssl,
+                SSLHostConfigCertificate.Type.RSA
+            );
+
+//        certificate.setCertificateKeyManager(x509KeyManager);
+
+        //        certificate.setSslContext(tomcatContext);
+
+        try {
+            KeyStore keyStore = KeyStore.getInstance("ca3s", "Ca3sKeyStoreProvider");
+            KeyManagerFactory keyManagerFactory = KeyManagerFactory.getInstance(Ca3sKeyManagerProvider.SERVICE_NAME);
+
+            KeyStore ksServer = KeyStore.getInstance("ca3s");
+            ksServer.load(null, null);
+
+            certificate.setCertificateKeystore(ksServer);
+            certificate.setCertificateKeyAlias("ca3s");
+
+
+        } catch(KeyStoreException | NoSuchAlgorithmException | IOException | CertificateException |
+                NoSuchProviderException kse){
+            log.info("problem building keystore", kse);
+        }
+
+
+ //       certificate.setCertificateKeystoreType("ca3s");
+ //       certificate.setCertificateKeystoreProvider("Ca3sKeyStoreProvider");
+
+/*
+                certificate.setCertificateKeystoreFile(
+                    keyStore
+                );
+
+                certificate.setCertificateKeystorePassword(
+                    keyStorePassword
+                );
+
+                certificate.setCertificateKeystoreType(
+                    "PKCS12"
+                );
+*/
+        try {
+            ssl.addCertificate(certificate);
+
+            if (isClientAuth) {
+                log.warn( "register Ca3sTrustManagerProvider for endpoint");
+                ssl.setTruststoreProvider("Ca3sTrustManagerProvider");
+            }
+        } catch( IllegalArgumentException iae){
+            log.warn( "configuring tomcat", iae);
+        }
+
+        return ssl;
+    }
+
+    private void configureHttps(TomcatServletWebServerFactory factory, SSLHostConfig sslConfig) {
+
+        factory.addConnectorCustomizers(
+            connector -> {
+
+                connector.setScheme("https");
+                connector.setSecure(true);
+                connector.setProperty(
+                    "SSLEnabled",
+                    "true"
+                );
+
+                connector.addSslHostConfig(sslConfig);
+            }
+        );
+    }
+
+/*
     @Bean
     public UndertowServletWebServerFactory embeddedServletContainerFactory() {
 
@@ -272,4 +466,16 @@ public class Ca3SApp implements InitializingBean {
 
         return factory;
     }
+
+ */
+
+    class Ca3sTomcatTLSCertificateReloadListener extends TLSCertificateReloadListener{
+
+        private final Logger log = LoggerFactory.getLogger(Ca3sTomcatTLSCertificateReloadListener.class);
+
+        public void lifecycleEvent(LifecycleEvent event){
+            log.info("lifecycleEvent occured: {}", event);
+        }
+    }
 }
+

@@ -444,7 +444,7 @@ public class SecurityConfiguration{
 
             // really all??
             .antMatchers("/api/pipelineViews").permitAll()
-            .antMatchers("/api/pipeline-attributes").permitAll()
+//            .antMatchers("/api/pipeline-attributes").permitAll()
             .antMatchers("/api/pipeline/activeWeb").permitAll()
 
             .antMatchers("/auth").permitAll()
@@ -486,8 +486,12 @@ public class SecurityConfiguration{
             .antMatchers("/api/acme-challenges/pending/request-proxy-configs/*").permitAll()
             .antMatchers("/api/acme-challenges/validation").permitAll()
 
+            .requestMatchers(forPortAndPath(adminPort, "/api/account/*/credentials/approval/*/*")).hasAuthority(AuthoritiesConstants.ADMIN)
+            .antMatchers("/api/account/*/credentials/approval/*/*").denyAll()
+
             .requestMatchers(forPortAndPath(adminPort, "/api/acme-accounts")).hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/acme-accounts").denyAll()
+
             .requestMatchers(forPortAndPath(adminPort, "/api/acme-authorizations")).hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/acme-authorizations").denyAll()
             .requestMatchers(forPortAndPath(adminPort, "/api/acme-identifiers")).hasAuthority(AuthoritiesConstants.ADMIN)
@@ -532,8 +536,6 @@ public class SecurityConfiguration{
             .antMatchers("/api/tenants").denyAll()
             .requestMatchers(forPortAndPath(adminPort, "/api/tenants/*")).hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/tenants/*").denyAll()
-            .requestMatchers(forPortAndPath(adminPort, "/api/timed-element-notifications")).hasAuthority(AuthoritiesConstants.ADMIN)
-            .antMatchers("/api/timed-element-notifications").denyAll()
             .requestMatchers(forPortAndPath(adminPort, "/api/timed-element-notifications/*")).hasAuthority(AuthoritiesConstants.ADMIN)
             .antMatchers("/api/timed-element-notifications/*").denyAll()
             .requestMatchers(forPortAndPath(adminPort, "/api/request-proxy-configs")).hasAuthority(AuthoritiesConstants.ADMIN)

@@ -65,7 +65,8 @@ public class Ca3sKeyManagerProvider extends Provider {
 				}
 			}catch(Exception ex ) {
 				LOG.error("exception while provider instantiation", ex );
-				throw new NoSuchAlgorithmException("Error constructing provider type '" + type + "' for algo '" + algo + "' using TimedRenewalKeyManagerFactorySpi ");
+				throw new NoSuchAlgorithmException("Error " +
+                    "constructing provider type '" + type + "' for algo '" + algo + "' using TimedRenewalKeyManagerFactorySpi ");
 
 			}
 			throw new NoSuchAlgorithmException("No impl for " + type + " / " + algo );
